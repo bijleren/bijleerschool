@@ -376,6 +376,13 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
   };
 
   const addTeammemberToGroup = async (teammemberId: string) => {
+    // Check if teammember is already in the group
+    const isAlreadyInGroup = groupTeammembers.some(gt => gt.teammembers.id === teammemberId);
+    if (isAlreadyInGroup) {
+      setMessage('Dit teammember is al toegevoegd aan de groep.');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('teammember_groups')
