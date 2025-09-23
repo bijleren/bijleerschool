@@ -240,28 +240,37 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const fetchTeammembers = async () => {
     try {
       const { data, error } = await supabase
-        .from('school_teammembers')
+        .from('user_schools')
         .select(`
           id,
-          school_id,
           user_id,
           role,
           joined_at,
+          status,
           is_active,
-          invited_by,
-          profiles!school_teammembers_user_id_fkey (
+          profiles (
             first_name,
             last_name,
             email
           )
         `)
         .eq('school_id', school.id)
-        .eq('is_active', true)
-        .order('role', { ascending: false }) // admins first
-        .order('joined_at', { ascending: true });
+        .eq('status', 'approved')
+        .eq('is_active', true);
 
       if (error) throw error;
-      setTeammembers(data || []);
+      
+      // Client-side sorting: admins first, then by joined_at
+      const sortedData = (data || []).sort((a, b) => {
+        // First sort by role (admin comes before teacher)
+        if (a.role === 'admin' && b.role !== 'admin') return -1;
+        if (a.role !== 'admin' && b.role === 'admin') return 1;
+        
+        // Then sort by joined_at
+        return new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime();
+      });
+      
+      setTeammembers(sortedData);
     } catch (error) {
       console.error('Error fetching teammembers:', error);
     }
@@ -292,7 +301,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
 
       // Check if user is already connected to this school
       const { data: existingConnection, error: connectionError } = await supabase
-        .from('school_teammembers')
+        .from('user_schools')
         .select('*')
         .eq('school_id', school.id)
         .eq('user_id', existingProfile.id)
@@ -301,17 +310,17 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       if (connectionError) throw connectionError;
 
       if (existingConnection) {
-        if (existingConnection.is_active) {
+        if (existingConnection.is_active && existingConnection.status === 'approved') {
           setMessage('Deze gebruiker is al verbonden met de school.');
         } else {
           // Reactivate existing connection
           const { error: reactivateError } = await supabase
-            .from('school_teammembers')
+            .from('user_schools')
             .update({ 
               is_active: true, 
+              status: 'approved',
               role: inviteRole,
-              joined_at: new Date().toISOString(),
-              invited_by: user.id
+              joined_at: new Date().toISOString()
             })
             .eq('id', existingConnection.id);
 
@@ -321,12 +330,12 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       } else {
         // Create new connection
         const { error: insertError } = await supabase
-          .from('school_teammembers')
+          .from('user_schools')
           .insert({
             school_id: school.id,
             user_id: existingProfile.id,
             role: inviteRole,
-            invited_by: user.id
+            status: 'approved'
           });
 
         if (insertError) throw insertError;
@@ -348,7 +357,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const updateTeammemberRole = async (teammemberId: string, newRole: 'teacher' | 'admin') => {
     try {
       const { error } = await supabase
-        .from('school_teammembers')
+        .from('user_schools')
         .update({ role: newRole })
         .eq('id', teammemberId);
 
@@ -365,7 +374,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const removeTeammember = async (teammemberId: string) => {
     try {
       const { error } = await supabase
-        .from('school_teammembers')
+        .from('user_schools')
         .update({ is_active: false })
         .eq('id', teammemberId);
 
@@ -382,28 +391,40 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const fetchSchoolUsers = async () => {
     try {
       const { data, error } = await supabase
-        .from('school_teammembers')
+        .from('user_schools')
         .select(`
           id,
-          school_id,
           user_id,
           role,
           joined_at,
+          status,
           is_active,
-          invited_by,
-          profiles!school_teammembers_user_id_fkey (
+          profiles (
             first_name,
             last_name,
             email
           )
         `)
         .eq('school_id', school.id)
-        .eq('is_active', true)
-        .order('role')
-        .order('profiles.first_name');
+        .eq('status', 'approved')
+        .eq('is_active', true);
 
       if (error) throw error;
-      setSchoolUsers(data || []);
+      
+      // Client-side sorting: by role, then by first name
+      const sortedData = (data || []).sort((a, b) => {
+        // First sort by role
+        if (a.role !== b.role) {
+          return a.role.localeCompare(b.role);
+        }
+        
+        // Then sort by first name
+        const aName = a.profiles?.first_name || '';
+        const bName = b.profiles?.first_name || '';
+        return aName.localeCompare(bName);
+      });
+      
+      setSchoolUsers(sortedData);
     } catch (error) {
       console.error('Error fetching school users:', error);
     }
