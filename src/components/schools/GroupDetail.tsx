@@ -376,10 +376,12 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
   };
 
   const addTeammemberToGroup = async (teammemberId: string) => {
-    // Check if teammember is already in the group using multiple comparison methods
+    // Double-check if teammember is already in the group
+    const teammember = availableTeammembers.find(tm => tm.id === teammemberId);
     const isAlreadyInGroup = groupTeammembers.some(gt => 
       gt.teammember_id === teammemberId || 
-      gt.teammembers?.id === teammemberId
+      gt.teammembers?.id === teammemberId ||
+      (teammember && gt.teammembers?.user_id === teammember.user_id)
     );
     
     if (isAlreadyInGroup) {
@@ -400,7 +402,8 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
 
       fetchGroupMembers();
       setMessage('Teammember succesvol toegevoegd aan groep!');
-      setTeammemberSearch('');
+      // Don't clear search or close form to allow multiple additions
+      // setTeammemberSearch('');
     } catch (error) {
       console.error('Error adding teammember to group:', error);
       setMessage('Er is een fout opgetreden bij het toevoegen van het teammember.');
@@ -511,10 +514,15 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
     );
 
   const filteredAvailableTeammembers = availableTeammembers
-    .filter(teammember => !groupTeammembers.some(gt => 
-      gt.teammember_id === teammember.id || 
-      gt.teammembers?.id === teammember.id
-    ))
+    .filter(teammember => {
+      // Check if this teammember is already in the group
+      const isAlreadyInGroup = groupTeammembers.some(gt => 
+        gt.teammember_id === teammember.id || 
+        gt.teammembers?.id === teammember.id ||
+        gt.teammembers?.user_id === teammember.user_id
+      );
+      return !isAlreadyInGroup;
+    })
     .filter(teammember => 
       teammemberSearch === '' || 
       `${teammember.profiles.first_name} ${teammember.profiles.last_name}`.toLowerCase().includes(teammemberSearch.toLowerCase())
