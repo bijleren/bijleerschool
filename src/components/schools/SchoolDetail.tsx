@@ -387,6 +387,42 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     }
   };
 
+  const approveTeammember = async (userSchoolId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_schools')
+        .update({ status: 'approved' })
+        .eq('id', userSchoolId);
+
+      if (error) throw error;
+
+      setMessage('Teammember succesvol goedgekeurd!');
+      fetchSchoolUsers();
+      fetchPendingInvites();
+    } catch (error) {
+      console.error('Error approving teammember:', error);
+      setMessage('Er is een fout opgetreden bij het goedkeuren van de teammember.');
+    }
+  };
+
+  const rejectTeammember = async (userSchoolId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_schools')
+        .update({ status: 'rejected', is_active: false })
+        .eq('id', userSchoolId);
+
+      if (error) throw error;
+
+      setMessage('Teammember aanvraag afgewezen.');
+      fetchSchoolUsers();
+      fetchPendingInvites();
+    } catch (error) {
+      console.error('Error rejecting teammember:', error);
+      setMessage('Er is een fout opgetreden bij het afwijzen van de teammember.');
+    }
+  };
+
   const removeTeammember = async (userSchoolId: string, isCurrentUser: boolean = false) => {
     try {
       const { error } = await supabase

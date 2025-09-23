@@ -386,7 +386,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
   const fetchTeachers = async () => {
     try {
-      // Get approved users for this school (both teachers and admins)
+      // Get all approved users for this school
       const { data: userSchools, error: userSchoolsError } = await supabase
         .from('user_schools')
         .select('user_id')
