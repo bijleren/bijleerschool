@@ -294,7 +294,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
         .select('id')
-        .eq('email', inviteEmail)
+        .ilike('email', inviteEmail.trim())
         .maybeSingle();
 
       if (profileError) throw profileError;
