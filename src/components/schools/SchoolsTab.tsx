@@ -133,7 +133,7 @@ export function SchoolsTab() {
       }
 
       // Join the school
-      const { error: userSchoolError } = await supabase
+      const { error } = await supabase
         .from('user_schools')
         .insert({
           user_id: user.id,
@@ -142,20 +142,7 @@ export function SchoolsTab() {
           status: 'approved',
         });
 
-      if (userSchoolError) throw userSchoolError;
-
-      // Also add to teammembers table without validation
-      const { error: teammemberError } = await supabase
-        .from('teammembers')
-        .insert({
-          user_id: user.id,
-          is_active: true,
-        });
-
-      // Don't throw error if teammember already exists
-      if (teammemberError && !teammemberError.message?.includes('duplicate')) {
-        console.warn('Error creating teammember profile:', teammemberError);
-      }
+      if (error) throw error;
 
       setMessage('Succesvol toegevoegd aan de school! Je hebt nu toegang.');
       setSchoolCode('');

@@ -271,7 +271,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
       if (studentError) throw studentError;
       setAvailableStudents(studentData || []);
 
-      // Get all approved users for this school
+      // First get all approved user_schools for this school
       const { data: userSchoolData, error: userSchoolError } = await supabase
         .from('user_schools')
         .select('user_id')
@@ -294,7 +294,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
           .from('teammembers')
           .select('id')
           .eq('user_id', user.id)
-          .maybeSingle();
+          .single();
 
         if (!existingTeammember) {
           // Create teammember profile for current user
@@ -307,26 +307,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
         }
       }
 
-      // Fetch or create teammembers for all approved users
-      for (const userId of userIds) {
-        const { data: existingTeammember } = await supabase
-          .from('teammembers')
-          .select('id')
-          .eq('user_id', userId)
-          .maybeSingle();
-
-        if (!existingTeammember) {
-          // Create teammember profile
-          await supabase
-            .from('teammembers')
-            .insert({
-              user_id: userId,
-              is_active: true
-            });
-        }
-      }
-
-      // Now fetch all teammembers for those users
+      // Then fetch teammembers for those users
       const { data: teammemberData, error: teammemberError } = await supabase
         .from('teammembers')
         .select(`
