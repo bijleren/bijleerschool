@@ -104,7 +104,7 @@ export function TeammembersManagement({ school, onBack }: TeammembersManagementP
         .from('school_teammembers')
         .select(`
           *,
-          profiles (
+          profiles!school_teammembers_user_id_fkey (
             first_name,
             last_name,
             email
