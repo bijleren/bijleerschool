@@ -388,6 +388,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     try {
       console.log('=== DEBUGGING TEACHER FETCH ===');
       console.log('1. School ID being used:', schoolId);
+      console.log('2. Current user ID:', user?.id);
       
       // Get approved users for this school (both teachers and admins)
       const { data: userSchools, error: userSchoolsError } = await supabase
@@ -399,13 +400,23 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
       if (userSchoolsError) throw userSchoolsError;
       
-      console.log('2. User schools query result:', userSchools);
+      console.log('3. User schools query result:', userSchools);
+      console.log('4. User schools query error:', userSchoolsError);
 
       const userIds = userSchools?.map(us => us.user_id) || [];
-      console.log('3. Extracted user IDs:', userIds);
+      console.log('5. Extracted user IDs:', userIds);
+      
+      // Let's also try a direct query to see all user_schools for this school
+      console.log('6. Attempting direct query for all user_schools...');
+      const { data: allUserSchools, error: allError } = await supabase
+        .from('user_schools')
+        .select('*')
+        .eq('school_id', schoolId);
+      console.log('7. All user_schools (no filters):', allUserSchools);
+      console.log('8. All user_schools error:', allError);
       
       if (userIds.length === 0) {
-        console.log('4. No user IDs found, setting empty teachers array');
+        console.log('9. No user IDs found, setting empty teachers array');
         setTeachers([]);
         return;
       }
@@ -418,8 +429,9 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
       if (error) throw error;
       
-      console.log('5. Profiles query result:', data);
-      console.log('6. Final teachers array being set:', data?.map(teacher => ({
+      console.log('10. Profiles query result:', data);
+      console.log('11. Profiles query error:', error);
+      console.log('12. Final teachers array being set:', data?.map(teacher => ({
         id: teacher.id,
         displayName: teacher.first_name && teacher.last_name 
           ? `${teacher.first_name} ${teacher.last_name}` 
