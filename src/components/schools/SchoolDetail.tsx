@@ -242,7 +242,13 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       const { data, error } = await supabase
         .from('school_teammembers')
         .select(`
-          *,
+          id,
+          school_id,
+          user_id,
+          role,
+          joined_at,
+          is_active,
+          invited_by,
           profiles!school_teammembers_user_id_fkey (
             first_name,
             last_name,
@@ -378,7 +384,13 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       const { data, error } = await supabase
         .from('school_teammembers')
         .select(`
-          *,
+          id,
+          school_id,
+          user_id,
+          role,
+          joined_at,
+          is_active,
+          invited_by,
           profiles!school_teammembers_user_id_fkey (
             first_name,
             last_name,
@@ -388,7 +400,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
         .eq('school_id', school.id)
         .eq('is_active', true)
         .order('role')
-        .order('profiles!school_teammembers_user_id_fkey(first_name)');
+        .order('profiles.first_name');
 
       if (error) throw error;
       setSchoolUsers(data || []);
