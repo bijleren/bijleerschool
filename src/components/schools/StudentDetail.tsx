@@ -766,7 +766,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                     {studentGroup.groups.grade_level && (
                       <div className="flex items-center">
                         <GraduationCap className="w-4 h-4 mr-1" />
-                        {studentGroup.groups.grade_level}
+                        {incident.profiles ? `${incident.profiles.first_name} ${incident.profiles.last_name}` : 'Onbekend'}
                       </div>
                     )}
                     <div className="flex items-center">
