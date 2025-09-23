@@ -131,7 +131,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
     fetchGroupGrades();
     fetchSchoolGrades();
     checkIfGroupIsFavorite();
-  }, []);
+  }, [group.id, schoolId, user]);
 
   const checkIfGroupIsFavorite = async () => {
     if (!user) return;
