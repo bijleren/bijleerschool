@@ -386,6 +386,9 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
   const fetchTeachers = async () => {
     try {
+      console.log('=== DEBUGGING TEACHER FETCH ===');
+      console.log('1. School ID being used:', schoolId);
+      
       // Get approved users for this school (both teachers and admins)
       const { data: userSchools, error: userSchoolsError } = await supabase
         .from('user_schools')
@@ -395,10 +398,14 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
         .eq('is_active', true);
 
       if (userSchoolsError) throw userSchoolsError;
+      
+      console.log('2. User schools query result:', userSchools);
 
       const userIds = userSchools?.map(us => us.user_id) || [];
+      console.log('3. Extracted user IDs:', userIds);
       
       if (userIds.length === 0) {
+        console.log('4. No user IDs found, setting empty teachers array');
         setTeachers([]);
         return;
       }
@@ -410,9 +417,23 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
         .order('first_name');
 
       if (error) throw error;
+      
+      console.log('5. Profiles query result:', data);
+      console.log('6. Final teachers array being set:', data?.map(teacher => ({
+        id: teacher.id,
+        displayName: teacher.first_name && teacher.last_name 
+          ? `${teacher.first_name} ${teacher.last_name}` 
+          : teacher.email || 'Onbekende docent',
+        email: teacher.email,
+        first_name: teacher.first_name,
+        last_name: teacher.last_name
+      })));
+      
       setTeachers(data || []);
+      console.log('=== END DEBUGGING ===');
     } catch (error) {
       console.error('Error fetching teachers:', error);
+      console.log('=== DEBUGGING: Error occurred ===', error);
     }
   };
 
