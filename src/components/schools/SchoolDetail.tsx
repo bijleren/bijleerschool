@@ -1305,7 +1305,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                               <option value="teacher">Teammember</option>
                               <option value="admin">Beheerder</option>
                             </select>
-                          )}
                           <span>Toegevoegd: {formatDate(schoolUser.joined_at)}</span>
                         </div>
                       </div>
