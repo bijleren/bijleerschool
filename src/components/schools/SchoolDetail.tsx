@@ -28,7 +28,8 @@ import {
   XCircle,
   AlertTriangle,
   BookOpen,
-  Eye
+  Eye,
+  Info
 } from 'lucide-react';
 
 interface School {
