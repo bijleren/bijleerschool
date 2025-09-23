@@ -22,7 +22,6 @@ interface UserSchool {
   id: string;
   role: string;
   joined_at: string;
-  status: string;
   is_active: boolean;
   schools: School;
 }
@@ -61,8 +60,8 @@ export function SchoolsTab() {
           schools (*)
         `)
         .eq('user_id', user.id)
-        .eq('status', 'approved')
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .eq('status', 'approved');
 
       if (error) throw error;
       setUserSchools(data || []);
@@ -106,21 +105,46 @@ export function SchoolsTab() {
     setMessage('');
 
     try {
-      // Use the new join_school_by_code function
-      const { data: result, error } = await supabase
-        .rpc('join_school_by_code', { 
-          school_code_input: schoolCode.toUpperCase() 
-        });
+      // First, find the school by code
+      const { data: school, error: schoolError } = await supabase
+        .from('schools')
+        .select('*')
+        .eq('school_code', schoolCode.toUpperCase())
+        .single();
 
-      if (error) throw error;
-
-      if (!result.success) {
-        setMessage(result.error || 'Er is een fout opgetreden.');
+      if (schoolError || !school) {
+        setMessage('School met deze code niet gevonden.');
         setJoinLoading(false);
         return;
       }
 
-      setMessage(result.message + ' Je hebt nu toegang.');
+      // Check if user is already connected to this school
+      const { data: existing } = await supabase
+        .from('user_schools')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('school_id', school.id)
+        .maybeSingle();
+
+      if (existing) {
+        setMessage('Je bent al verbonden met deze school.');
+        setJoinLoading(false);
+        return;
+      }
+
+      // Join the school
+      const { error } = await supabase
+        .from('user_schools')
+        .insert({
+          user_id: user.id,
+          school_id: school.id,
+          role: 'teacher',
+          status: 'approved',
+        });
+
+      if (error) throw error;
+
+      setMessage('Succesvol toegevoegd aan de school! Je hebt nu toegang.');
       setSchoolCode('');
       setShowJoinForm(false);
       fetchUserSchools();
@@ -160,15 +184,16 @@ export function SchoolsTab() {
       if (schoolError) throw schoolError;
 
       // Add user as admin of the school
-      const { error: teammemberError } = await supabase
-        .from('school_teammembers')
+      const { error: userSchoolError } = await supabase
+        .from('user_schools')
         .insert({
           user_id: user.id,
           school_id: school.id,
           role: 'admin',
+          status: 'approved',
         });
 
-      if (teammemberError) throw teammemberError;
+      if (userSchoolError) throw userSchoolError;
 
       setMessage(`School succesvol aangemaakt! Schoolcode: ${schoolCode}`);
       setNewSchoolName('');

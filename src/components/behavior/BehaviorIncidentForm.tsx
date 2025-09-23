@@ -386,16 +386,17 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
   const fetchTeachers = async () => {
     try {
-      // Get active teammembers for this school
-      const { data: teammembers, error: teammembersError } = await supabase
-        .from('school_teammembers')
+      // Get approved users for this school (both teachers and admins)
+      const { data: userSchools, error: userSchoolsError } = await supabase
+        .from('user_schools')
         .select('user_id')
         .eq('school_id', schoolId)
+        .eq('status', 'approved')
         .eq('is_active', true);
 
-      if (teammembersError) throw teammembersError;
+      if (userSchoolsError) throw userSchoolsError;
 
-      const userIds = teammembers?.map(tm => tm.user_id) || [];
+      const userIds = userSchools?.map(us => us.user_id) || [];
       
       if (userIds.length === 0) {
         setTeachers([]);

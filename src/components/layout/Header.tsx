@@ -63,37 +63,21 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
     if (!user) return;
 
     try {
-      // First, get school IDs from user_schools
-      const { data: teammemberData, error: teammemberError } = await supabase
+      const { data, error } = await supabase
         .from('user_schools')
-        .select('id, school_id, status')
+        .select(`
+          id,
+          schools (
+            id,
+            name
+          )
+        `)
         .eq('user_id', user.id)
-        .eq('status', 'approved')
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .eq('status', 'approved');
 
-      if (teammemberError) throw teammemberError;
-
-      if (!teammemberData || teammemberData.length === 0) {
-        setUserSchools([]);
-        return;
-      }
-
-      // Then, get school details using the school IDs
-      const schoolIds = teammemberData.map(tm => tm.school_id);
-      const { data: schoolsData, error: schoolsError } = await supabase
-        .from('schools')
-        .select('id, name')
-        .in('id', schoolIds);
-
-      if (schoolsError) throw schoolsError;
-
-      // Reconstruct the UserSchool array
-      const userSchools = teammemberData.map(tm => ({
-        id: tm.id,
-        schools: schoolsData?.find(school => school.id === tm.school_id) || { id: tm.school_id, name: 'Unknown School' }
-      }));
-
-      setUserSchools(userSchools);
+      if (error) throw error;
+      setUserSchools(data || []);
     } catch (error) {
       console.error('Error fetching schools:', error);
     }

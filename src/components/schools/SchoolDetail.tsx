@@ -16,6 +16,7 @@ import {
   Plus, 
   Users, 
   GraduationCap,
+  UserPlus,
   Trash2,
   Search,
   Heart,
@@ -27,10 +28,7 @@ import {
   XCircle,
   AlertTriangle,
   BookOpen,
-  Eye,
-  Mail,
-  Shield,
-  UserPlus
+  Eye
 } from 'lucide-react';
 
 interface School {
@@ -78,21 +76,6 @@ interface SchoolUser {
   };
 }
 
-interface SchoolTeammember {
-  id: string;
-  school_id: string;
-  user_id: string;
-  role: 'teacher' | 'admin';
-  joined_at: string;
-  is_active: boolean;
-  invited_by: string | null;
-  profiles: {
-    first_name: string;
-    last_name: string;
-    email: string;
-  } | null;
-}
-
 interface PendingRequest {
   id: string;
   user_id: string;
@@ -116,7 +99,7 @@ interface SchoolDetailProps {
 
 export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStudent, onNavigateToGroup }: SchoolDetailProps) {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'teammembers' | 'grades'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'grades' | 'teamleden'>('students');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -131,7 +114,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [students, setStudents] = useState<Student[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [schoolUsers, setSchoolUsers] = useState<SchoolUser[]>([]);
-  const [teammembers, setTeammembers] = useState<SchoolTeammember[]>([]);
   const [userRole, setUserRole] = useState<string>('');
 
   // Form states
@@ -143,13 +125,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [userSearch, setUserSearch] = useState('');
   const [studentSearch, setStudentSearch] = useState('');
   const [groupSearch, setGroupSearch] = useState('');
-  const [teammemberSearch, setTeammemberSearch] = useState('');
-
-  // Teammember form states
-  const [showInviteForm, setShowInviteForm] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'teacher' | 'admin'>('teacher');
-  const [inviteLoading, setInviteLoading] = useState(false);
 
   // Student form
   const [newStudentFirstName, setNewStudentFirstName] = useState('');
@@ -182,7 +157,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     fetchStudents();
     fetchGroups();
     fetchSchoolUsers();
-    fetchTeammembers();
   }, []);
 
   const fetchUserRole = async () => {
@@ -237,168 +211,12 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     }
   };
 
-  const fetchTeammembers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('user_schools')
-        .select(`
-          id,
-          user_id,
-          role,
-          joined_at,
-          status,
-          is_active,
-          profiles (
-            first_name,
-            last_name,
-            email
-          )
-        `)
-        .eq('school_id', school.id)
-        .eq('status', 'approved')
-        .eq('is_active', true);
-
-      if (error) throw error;
-      
-      // Client-side sorting: admins first, then by joined_at
-      const sortedData = (data || []).sort((a, b) => {
-        // First sort by role (admin comes before teacher)
-        if (a.role === 'admin' && b.role !== 'admin') return -1;
-        if (a.role !== 'admin' && b.role === 'admin') return 1;
-        
-        // Then sort by joined_at
-        return new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime();
-      });
-      
-      setTeammembers(sortedData);
-    } catch (error) {
-      console.error('Error fetching teammembers:', error);
-    }
-  };
-
-  const inviteTeammember = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-
-    setInviteLoading(true);
-    setMessage('');
-
-    try {
-      // Check if user with this email exists
-      const { data: existingProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', inviteEmail.toLowerCase())
-        .maybeSingle();
-
-      if (profileError) throw profileError;
-
-      if (!existingProfile) {
-        setMessage('Gebruiker met dit e-mailadres bestaat niet. De gebruiker moet eerst een account aanmaken.');
-        setInviteLoading(false);
-        return;
-      }
-
-      // Check if user is already connected to this school
-      const { data: existingConnection, error: connectionError } = await supabase
-        .from('user_schools')
-        .select('*')
-        .eq('school_id', school.id)
-        .eq('user_id', existingProfile.id)
-        .maybeSingle();
-
-      if (connectionError) throw connectionError;
-
-      if (existingConnection) {
-        if (existingConnection.is_active && existingConnection.status === 'approved') {
-          setMessage('Deze gebruiker is al verbonden met de school.');
-        } else {
-          // Reactivate existing connection
-          const { error: reactivateError } = await supabase
-            .from('user_schools')
-            .update({ 
-              is_active: true, 
-              status: 'approved',
-              role: inviteRole,
-              joined_at: new Date().toISOString()
-            })
-            .eq('id', existingConnection.id);
-
-          if (reactivateError) throw reactivateError;
-          setMessage('Teammember succesvol opnieuw toegevoegd aan de school!');
-        }
-      } else {
-        // Create new connection
-        const { error: insertError } = await supabase
-          .from('user_schools')
-          .insert({
-            school_id: school.id,
-            user_id: existingProfile.id,
-            role: inviteRole,
-            status: 'approved'
-          });
-
-        if (insertError) throw insertError;
-        setMessage('Teammember succesvol uitgenodigd!');
-      }
-
-      setInviteEmail('');
-      setInviteRole('teacher');
-      setShowInviteForm(false);
-      fetchTeammembers();
-    } catch (error) {
-      console.error('Error inviting teammember:', error);
-      setMessage('Er is een fout opgetreden bij het uitnodigen van het teammember.');
-    } finally {
-      setInviteLoading(false);
-    }
-  };
-
-  const updateTeammemberRole = async (teammemberId: string, newRole: 'teacher' | 'admin') => {
-    try {
-      const { error } = await supabase
-        .from('user_schools')
-        .update({ role: newRole })
-        .eq('id', teammemberId);
-
-      if (error) throw error;
-
-      setMessage('Rol succesvol bijgewerkt!');
-      fetchTeammembers();
-    } catch (error) {
-      console.error('Error updating role:', error);
-      setMessage('Er is een fout opgetreden bij het bijwerken van de rol.');
-    }
-  };
-
-  const removeTeammember = async (teammemberId: string) => {
-    try {
-      const { error } = await supabase
-        .from('user_schools')
-        .update({ is_active: false })
-        .eq('id', teammemberId);
-
-      if (error) throw error;
-
-      setMessage('Teammember succesvol verwijderd uit de school!');
-      fetchTeammembers();
-    } catch (error) {
-      console.error('Error removing teammember:', error);
-      setMessage('Er is een fout opgetreden bij het verwijderen van het teammember.');
-    }
-  };
-
   const fetchSchoolUsers = async () => {
     try {
       const { data, error } = await supabase
         .from('user_schools')
         .select(`
-          id,
-          user_id,
-          role,
-          joined_at,
-          status,
-          is_active,
+          *,
           profiles (
             first_name,
             last_name,
@@ -407,24 +225,12 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
         `)
         .eq('school_id', school.id)
         .eq('status', 'approved')
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .order('role')
+        .order('profiles(first_name)');
 
       if (error) throw error;
-      
-      // Client-side sorting: by role, then by first name
-      const sortedData = (data || []).sort((a, b) => {
-        // First sort by role
-        if (a.role !== b.role) {
-          return a.role.localeCompare(b.role);
-        }
-        
-        // Then sort by first name
-        const aName = a.profiles?.first_name || '';
-        const bName = b.profiles?.first_name || '';
-        return aName.localeCompare(bName);
-      });
-      
-      setSchoolUsers(sortedData);
+      setSchoolUsers(data || []);
     } catch (error) {
       console.error('Error fetching school users:', error);
     }
@@ -630,34 +436,12 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     schoolUser.role.toLowerCase().includes(userSearch.toLowerCase())
   );
 
-  const filteredTeammembers = teammembers.filter(teammember => {
-    if (!teammember.profiles) return false;
-    
-    const searchLower = teammemberSearch.toLowerCase();
-    return (
-      teammember.profiles.first_name.toLowerCase().includes(searchLower) ||
-      teammember.profiles.last_name.toLowerCase().includes(searchLower) ||
-      teammember.profiles.email.toLowerCase().includes(searchLower) ||
-      teammember.role.toLowerCase().includes(searchLower)
-    );
-  });
-
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('nl-NL');
   };
 
   const isAdmin = userRole === 'admin';
-
-  const getRoleColor = (role: string) => {
-    return role === 'admin' 
-      ? 'bg-purple-100 text-purple-800' 
-      : 'bg-blue-100 text-blue-800';
-  };
-
-  const getRoleText = (role: string) => {
-    return role === 'admin' ? 'Beheerder' : 'Docent';
-  };
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -676,25 +460,23 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             )}
           </div>
         </div>
-        <div className="flex space-x-3">
-          {isAdmin && !isEditing ? (
-            <Button variant="secondary" onClick={() => setIsEditing(true)}>
-              <Edit className="w-4 h-4 mr-2" />
-              School bewerken
+        {isAdmin && !isEditing ? (
+          <Button variant="secondary" onClick={() => setIsEditing(true)}>
+            <Edit className="w-4 h-4 mr-2" />
+            School bewerken
+          </Button>
+        ) : isAdmin && isEditing ? (
+          <div className="flex space-x-2">
+            <Button variant="secondary" onClick={() => setIsEditing(false)}>
+              <X className="w-4 h-4 mr-2" />
+              Annuleren
             </Button>
-          ) : isAdmin && isEditing ? (
-            <div className="flex space-x-2">
-              <Button variant="secondary" onClick={() => setIsEditing(false)}>
-                <X className="w-4 h-4 mr-2" />
-                Annuleren
-              </Button>
-              <Button onClick={updateSchool} loading={loading}>
-                <Save className="w-4 h-4 mr-2" />
-                Opslaan
-              </Button>
-            </div>
-          ) : null}
-        </div>
+            <Button onClick={updateSchool} loading={loading}>
+              <Save className="w-4 h-4 mr-2" />
+              Opslaan
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       {message && (
@@ -722,52 +504,21 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
               label="Adres"
               value={editAddress}
               onChange={(e) => setEditAddress(e.target.value)}
-              placeholder="Straatnaam en huisnummer"
             />
             <div className="grid grid-cols-2 gap-4">
               <Input
                 label="Postcode"
                 value={editPostalCode}
                 onChange={(e) => setEditPostalCode(e.target.value)}
-                placeholder="1234 AB"
               />
               <Input
                 label="Plaats"
                 value={editCity}
                 onChange={(e) => setEditCity(e.target.value)}
-                placeholder="Amsterdam"
               />
             </div>
           </div>
         </Card>
-      )}
-
-      {/* Show grade management modal */}
-      {showGradeManagement && (
-        <GradeManagement
-          schoolId={school.id}
-          onClose={() => setShowGradeManagement(false)}
-        />
-      )}
-
-      {/* Show subjects management modal */}
-      {showSubjectsManagement && (
-        <SubjectsManagement
-          schoolId={school.id}
-          onClose={() => setShowSubjectsManagement(false)}
-        />
-      )}
-
-      {/* Show student import modal */}
-      {showImportStudents && (
-        <StudentImport
-          schoolId={school.id}
-          onImportComplete={() => {
-            fetchStudents();
-            setShowImportStudents(false);
-          }}
-          onClose={() => setShowImportStudents(false)}
-        />
       )}
 
       {/* Tabs */}
@@ -775,47 +526,47 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
         <nav className="-mb-px flex space-x-8">
           <button
             onClick={() => setActiveTab('students')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'students'
                 ? 'border-indigo-500 text-indigo-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <GraduationCap className="w-4 h-4 inline mr-2" />
-            Studenten ({students.length})
+            <GraduationCap className="w-4 h-4 mr-2" />
+            Leerlingen ({students.length})
           </button>
           <button
             onClick={() => setActiveTab('groups')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'groups'
                 ? 'border-indigo-500 text-indigo-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <Users className="w-4 h-4 inline mr-2" />
-            Groepen ({groups.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('teammembers')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'teammembers'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <UserPlus className="w-4 h-4 inline mr-2" />
-            Teammembers ({teammembers.length})
+            <Users className="w-4 h-4 mr-2" />
+            Klassen ({groups.length})
           </button>
           <button
             onClick={() => setActiveTab('grades')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'grades'
                 ? 'border-indigo-500 text-indigo-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            <Settings className="w-4 h-4 inline mr-2" />
-            Instellingen
+            <BookOpen className="w-4 h-4 mr-2" />
+            Leerjaren (13)
+          </button>
+          <button
+            onClick={() => setActiveTab('teamleden')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
+              activeTab === 'teamleden'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Teamleden ({schoolUsers.length})
           </button>
         </nav>
       </div>
@@ -823,11 +574,18 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       {/* Tab Content */}
       {activeTab === 'students' && (
         <div className="space-y-6">
-          {/* Students Header */}
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Studenten ({filteredStudents.length})
-            </h2>
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Zoek leerlingen..."
+                  value={studentSearch}
+                  onChange={(e) => setStudentSearch(e.target.value)}
+                  className="pl-10 w-64"
+                />
+              </div>
+            </div>
             <div className="flex space-x-3">
               <Button
                 variant="secondary"
@@ -843,20 +601,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             </div>
           </div>
 
-          {/* Student Search */}
-          <Card>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Zoek studenten..."
-                value={studentSearch}
-                onChange={(e) => setStudentSearch(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </Card>
-
-          {/* Add Student Form */}
           {showAddStudent && (
             <Card>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Nieuwe student toevoegen</h3>
@@ -875,7 +619,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                     required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <Input
                     label="Studentnummer"
                     value={newStudentNumber}
@@ -886,19 +630,15 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                     value={newStudentGradeLevel}
                     onChange={(e) => setNewStudentGradeLevel(e.target.value)}
                   />
+                  <Input
+                    label="Geboortedatum"
+                    type="date"
+                    value={newStudentDateOfBirth}
+                    onChange={(e) => setNewStudentDateOfBirth(e.target.value)}
+                  />
                 </div>
-                <Input
-                  label="Geboortedatum"
-                  type="date"
-                  value={newStudentDateOfBirth}
-                  onChange={(e) => setNewStudentDateOfBirth(e.target.value)}
-                />
                 <div className="flex justify-end space-x-3">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setShowAddStudent(false)}
-                  >
+                  <Button type="button" variant="secondary" onClick={() => setShowAddStudent(false)}>
                     Annuleren
                   </Button>
                   <Button type="submit" loading={loading}>
@@ -909,24 +649,23 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             </Card>
           )}
 
-          {/* Students List */}
-          <div className="space-y-4">
+          <div className="grid gap-4">
             {filteredStudents.length === 0 ? (
               <Card className="text-center py-12">
                 <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {students.length === 0 ? 'Nog geen studenten' : 'Geen studenten gevonden'}
+                  {students.length === 0 ? 'Geen leerlingen gevonden' : 'Geen leerlingen gevonden met deze zoekopdracht'}
                 </h3>
                 <p className="text-gray-600 mb-6">
                   {students.length === 0 
-                    ? 'Voeg studenten toe om te beginnen.'
+                    ? 'Voeg leerlingen toe om te beginnen met het beheren van je school.'
                     : 'Probeer een andere zoekopdracht.'
                   }
                 </p>
                 {students.length === 0 && (
                   <Button onClick={() => setShowAddStudent(true)}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Eerste student toevoegen
+                    Eerste leerling toevoegen
                   </Button>
                 )}
               </Card>
@@ -935,8 +674,8 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                 <Card key={student.id} className="hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                        <GraduationCap className="w-6 h-6 text-indigo-600" />
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <GraduationCap className="w-6 h-6 text-blue-600" />
                       </div>
                       <div>
                         <button
@@ -950,21 +689,15 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                         )}
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                           {student.grade_level && (
-                            <div className="flex items-center">
-                              <GraduationCap className="w-4 h-4 mr-1" />
-                              {student.grade_level}
-                            </div>
+                            <span>Klas: {student.grade_level}</span>
                           )}
                           {student.date_of_birth && (
-                            <div className="flex items-center">
-                              <Calendar className="w-4 h-4 mr-1" />
-                              {formatDate(student.date_of_birth)}
-                            </div>
+                            <span>Geboren: {formatDate(student.date_of_birth)}</span>
                           )}
                         </div>
                       </div>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex items-center space-x-3">
                       <Button
                         variant="secondary"
                         size="sm"
@@ -973,13 +706,15 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                         <Eye className="w-4 h-4 mr-2" />
                         Bekijken
                       </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => showDeleteStudentConfirmation(student)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      {isAdmin && (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => showDeleteStudentConfirmation(student)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -991,60 +726,45 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
 
       {activeTab === 'groups' && (
         <div className="space-y-6">
-          {/* Groups Header */}
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Groepen ({filteredGroups.length})
-            </h2>
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Zoek klassen..."
+                  value={groupSearch}
+                  onChange={(e) => setGroupSearch(e.target.value)}
+                  className="pl-10 w-64"
+                />
+              </div>
+            </div>
             <Button onClick={() => setShowAddGroup(true)}>
               <Plus className="w-4 h-4 mr-2" />
-              Groep toevoegen
+              Klas toevoegen
             </Button>
           </div>
 
-          {/* Group Search */}
-          <Card>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Zoek groepen..."
-                value={groupSearch}
-                onChange={(e) => setGroupSearch(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </Card>
-
-          {/* Add Group Form */}
           {showAddGroup && (
             <Card>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Nieuwe groep toevoegen</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Nieuwe klas toevoegen</h3>
               <form onSubmit={addGroup} className="space-y-4">
                 <Input
-                  label="Groepsnaam"
+                  label="Klasnaam"
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
                   required
                   placeholder="Bijv. 3A, Bovenbouw"
                 />
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Beschrijving
-                  </label>
-                  <textarea
-                    value={newGroupDescription}
-                    onChange={(e) => setNewGroupDescription(e.target.value)}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Beschrijf deze groep..."
-                  />
-                </div>
+                <Input
+                  label="Beschrijving"
+                  value={newGroupDescription}
+                  onChange={(e) => setNewGroupDescription(e.target.value)}
+                />
                 <div className="grid grid-cols-2 gap-4">
                   <Input
                     label="Klas/Niveau"
                     value={newGroupGradeLevel}
                     onChange={(e) => setNewGroupGradeLevel(e.target.value)}
-                    placeholder="Bijv. 3, Bovenbouw"
                   />
                   <Input
                     label="Schooljaar"
@@ -1054,39 +774,34 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                   />
                 </div>
                 <div className="flex justify-end space-x-3">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setShowAddGroup(false)}
-                  >
+                  <Button type="button" variant="secondary" onClick={() => setShowAddGroup(false)}>
                     Annuleren
                   </Button>
                   <Button type="submit" loading={loading}>
-                    Groep toevoegen
+                    Klas toevoegen
                   </Button>
                 </div>
               </form>
             </Card>
           )}
 
-          {/* Groups List */}
-          <div className="space-y-4">
+          <div className="grid gap-4">
             {filteredGroups.length === 0 ? (
               <Card className="text-center py-12">
                 <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {groups.length === 0 ? 'Nog geen groepen' : 'Geen groepen gevonden'}
+                  {groups.length === 0 ? 'Geen klassen gevonden' : 'Geen klassen gevonden met deze zoekopdracht'}
                 </h3>
                 <p className="text-gray-600 mb-6">
                   {groups.length === 0 
-                    ? 'Voeg groepen toe om studenten te organiseren.'
+                    ? 'Voeg klassen toe om leerlingen te organiseren.'
                     : 'Probeer een andere zoekopdracht.'
                   }
                 </p>
                 {groups.length === 0 && (
                   <Button onClick={() => setShowAddGroup(true)}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Eerste groep toevoegen
+                    Eerste klas toevoegen
                   </Button>
                 )}
               </Card>
@@ -1110,223 +825,33 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                         )}
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                           {group.grade_level && (
-                            <div className="flex items-center">
-                              <GraduationCap className="w-4 h-4 mr-1" />
-                              {group.grade_level}
-                            </div>
+                            <span>Niveau: {group.grade_level}</span>
                           )}
                           {group.school_year && (
-                            <div className="flex items-center">
-                              <Calendar className="w-4 h-4 mr-1" />
-                              {group.school_year}
-                            </div>
+                            <span>Schooljaar: {group.school_year}</span>
                           )}
                         </div>
                       </div>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex items-center space-x-3">
                       <Button
                         variant="secondary"
                         size="sm"
                         onClick={() => handleGroupClick(group)}
                       >
                         <Eye className="w-4 h-4 mr-2" />
-                        Bekijken
+                        Beheren
                       </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => showDeleteGroupConfirmation(group)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'teammembers' && (
-        <div className="space-y-6">
-          {/* Teammembers Header */}
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Teammembers ({filteredTeammembers.length})
-            </h2>
-            {isAdmin && (
-              <Button onClick={() => setShowInviteForm(true)}>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Teammember uitnodigen
-              </Button>
-            )}
-          </div>
-
-          {/* Teammember Search */}
-          <Card>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Zoek teammembers..."
-                value={teammemberSearch}
-                onChange={(e) => setTeammemberSearch(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </Card>
-
-          {/* Invite Form */}
-          {showInviteForm && (
-            <Card>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Teammember uitnodigen</h3>
-              <form onSubmit={inviteTeammember} className="space-y-4">
-                <Input
-                  label="E-mailadres"
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  required
-                  placeholder="naam@school.nl"
-                  helperText="De gebruiker moet al een account hebben"
-                />
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Rol
-                  </label>
-                  <select
-                    value={inviteRole}
-                    onChange={(e) => setInviteRole(e.target.value as 'teacher' | 'admin')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  >
-                    <option value="teacher">Docent</option>
-                    <option value="admin">Beheerder</option>
-                  </select>
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setShowInviteForm(false)}
-                  >
-                    Annuleren
-                  </Button>
-                  <Button type="submit" loading={inviteLoading}>
-                    Uitnodigen
-                  </Button>
-                </div>
-              </form>
-            </Card>
-          )}
-
-          {/* School Code Info */}
-          <Card className="bg-blue-50 border-blue-200">
-            <div className="flex items-start space-x-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-blue-900 mb-2">Teammembers toevoegen</h3>
-                <p className="text-blue-800 mb-2">
-                  Deel de schoolcode <strong>{school.school_code}</strong> met collega's zodat zij zich kunnen aansluiten.
-                </p>
-                <p className="text-sm text-blue-700">
-                  Zij krijgen direct toegang na het invoeren van de code - geen goedkeuring nodig.
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          {/* Teammembers List */}
-          <div className="space-y-4">
-            {filteredTeammembers.length === 0 ? (
-              <Card className="text-center py-12">
-                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {teammembers.length === 0 ? 'Nog geen teammembers' : 'Geen teammembers gevonden'}
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  {teammembers.length === 0 
-                    ? 'Nodig collega\'s uit of deel de schoolcode om te beginnen.'
-                    : 'Probeer een andere zoekopdracht.'
-                  }
-                </p>
-                {teammembers.length === 0 && isAdmin && (
-                  <Button onClick={() => setShowInviteForm(true)}>
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Eerste teammember uitnodigen
-                  </Button>
-                )}
-              </Card>
-            ) : (
-              filteredTeammembers.map((teammember) => (
-                <Card key={teammember.id} className="hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                        {teammember.role === 'admin' ? (
-                          <Shield className="w-6 h-6 text-indigo-600" />
-                        ) : (
-                          <User className="w-6 h-6 text-indigo-600" />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {teammember.profiles ? (
-                            `${teammember.profiles.first_name} ${teammember.profiles.last_name}`
-                          ) : (
-                            'Profiel niet gevonden'
-                          )}
-                          {teammember.user_id === user?.id && (
-                            <span className="ml-2 text-sm text-gray-500">(jij)</span>
-                          )}
-                        </h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          <div className="flex items-center">
-                            <Mail className="w-4 h-4 mr-1" />
-                            {teammember.profiles?.email || 'Geen email'}
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            Toegevoegd: {formatDate(teammember.joined_at)}
-                          </div>
-                        </div>
-                        <div className="mt-1">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(teammember.role)}`}>
-                            {getRoleText(teammember.role)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {isAdmin && teammember.user_id !== user?.id && (
-                      <div className="flex items-center space-x-2">
-                        <select
-                          value={teammember.role}
-                          onChange={(e) => updateTeammemberRole(teammember.id, e.target.value as 'teacher' | 'admin')}
-                          className="px-3 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                          <option value="teacher">Docent</option>
-                          <option value="admin">Beheerder</option>
-                        </select>
+                      {isAdmin && (
                         <Button
                           variant="danger"
                           size="sm"
-                          onClick={() => setConfirmModal({
-                            isOpen: true,
-                            title: 'Teammember verwijderen',
-                            message: `Weet je zeker dat je ${teammember.profiles?.first_name} ${teammember.profiles?.last_name} uit de school wilt verwijderen?`,
-                            onConfirm: () => {
-                              removeTeammember(teammember.id);
-                              setConfirmModal(prev => ({ ...prev, isOpen: false }));
-                            },
-                          })}
+                          onClick={() => showDeleteGroupConfirmation(group)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </Card>
               ))
@@ -1337,32 +862,129 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
 
       {activeTab === 'grades' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setShowGradeManagement(true)}>
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <GraduationCap className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Leerjaren/Niveaus</h3>
-                  <p className="text-gray-600">Beheer de leerjaren en niveaus voor je school</p>
-                </div>
-              </div>
-            </Card>
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold text-gray-900">Leerjaren en Niveaus</h3>
+            <div className="flex space-x-3">
+              <Button
+                variant="secondary"
+                onClick={() => setShowSubjectsManagement(true)}
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                Vakken beheren
+              </Button>
+              <Button onClick={() => setShowGradeManagement(true)}>
+                <Settings className="w-4 h-4 mr-2" />
+                Leerjaren beheren
+              </Button>
+            </div>
+          </div>
 
-            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setShowSubjectsManagement(true)}>
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Vakken</h3>
-                  <p className="text-gray-600">Beheer de vakken voor je school</p>
-                </div>
+          <Card className="text-center py-12">
+            <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Leerjaar beheer</h3>
+            <p className="text-gray-600 mb-6">
+              Beheer de leerjaren en vakken voor je school. Deze worden gebruikt bij het maken van schema's en het registreren van technieken.
+            </p>
+            <div className="flex justify-center space-x-3">
+              <Button onClick={() => setShowGradeManagement(true)}>
+                <Settings className="w-4 h-4 mr-2" />
+                Leerjaren beheren
+              </Button>
+              <Button variant="secondary" onClick={() => setShowSubjectsManagement(true)}>
+                <BookOpen className="w-4 h-4 mr-2" />
+                Vakken beheren
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {activeTab === 'teamleden' && (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Zoek teamleden..."
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  className="pl-10 w-64"
+                />
               </div>
-            </Card>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            {filteredUsers.length === 0 ? (
+              <Card className="text-center py-12">
+                <UserPlus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {schoolUsers.length === 0 ? 'Geen teamleden gevonden' : 'Geen teamleden gevonden met deze zoekopdracht'}
+                </h3>
+                <p className="text-gray-600">
+                  {schoolUsers.length === 0 
+                    ? 'Er zijn nog geen teamleden verbonden met deze school.'
+                    : 'Probeer een andere zoekopdracht.'
+                  }
+                </p>
+              </Card>
+            ) : (
+              filteredUsers.map((schoolUser) => (
+                <Card key={schoolUser.id} className="hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <UserPlus className="w-6 h-6 text-indigo-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">
+                          {schoolUser.profiles.first_name} {schoolUser.profiles.last_name}
+                        </h3>
+                        <p className="text-sm text-gray-600">{schoolUser.profiles.email}</p>
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            schoolUser.role === 'admin' 
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {schoolUser.role === 'admin' ? 'Beheerder' : 'Teammember'}
+                          </span>
+                          <span>Toegevoegd: {formatDate(schoolUser.joined_at)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
           </div>
         </div>
+      )}
+
+      {/* Import Students Modal */}
+      {showImportStudents && (
+        <StudentImport
+          schoolId={school.id}
+          onImportComplete={fetchStudents}
+          onClose={() => setShowImportStudents(false)}
+        />
+      )}
+
+      {/* Grade Management Modal */}
+      {showGradeManagement && (
+        <GradeManagement
+          schoolId={school.id}
+          onClose={() => setShowGradeManagement(false)}
+        />
+      )}
+
+      {/* Subjects Management Modal */}
+      {showSubjectsManagement && (
+        <SubjectsManagement
+          schoolId={school.id}
+          onClose={() => setShowSubjectsManagement(false)}
+        />
       )}
 
       {/* Confirmation Modal */}
@@ -1372,7 +994,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
         onConfirm={confirmModal.onConfirm}
         title={confirmModal.title}
         message={confirmModal.message}
-        confirmText="Verwijderen"
+        confirmText="Bevestigen"
         cancelText="Annuleren"
         variant="danger"
       />

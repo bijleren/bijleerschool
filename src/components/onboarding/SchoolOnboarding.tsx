@@ -43,21 +43,46 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
     setMessage('');
 
     try {
-      // Use the new join_school_by_code function
-      const { data: result, error } = await supabase
-        .rpc('join_school_by_code', { 
-          school_code_input: schoolCode.toUpperCase() 
+      // Find the school by code
+      const { data: school, error: schoolError } = await supabase
+        .from('schools')
+        .select('*')
+        .eq('school_code', schoolCode.toUpperCase())
+        .single();
+
+      if (schoolError || !school) {
+        setMessage('School met deze code niet gevonden. Controleer de code en probeer opnieuw.');
+        setLoading(false);
+        return;
+      }
+
+      // Check if user is already connected to this school
+      const { data: existing } = await supabase
+        .from('user_schools')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('school_id', school.id)
+        .maybeSingle();
+
+      if (existing) {
+        setMessage('Je bent al verbonden met deze school.');
+        setLoading(false);
+        return;
+      }
+
+      // Join the school
+      const { error } = await supabase
+        .from('user_schools')
+        .insert({
+          user_id: user.id,
+          school_id: school.id,
+          role: 'teacher',
+          status: 'approved',
         });
 
       if (error) throw error;
 
-      if (!result.success) {
-        setMessage(result.error || 'Er is een fout opgetreden.');
-        setJoinLoading(false);
-        return;
-      }
-
-      setMessage(result.message + ' Je hebt nu direct toegang tot alle functies.');
+      setMessage('Succesvol toegevoegd aan de school! Je hebt nu toegang tot alle functies.');
       setSchoolCode('');
       
       // Refresh the parent component after a short delay
@@ -99,16 +124,17 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
 
       if (schoolError) throw schoolError;
 
-      // Add user as admin of the school using new table
-      const { error: teammemberError } = await supabase
-        .from('school_teammembers')
+      // Add user as admin of the school
+      const { error: userSchoolError } = await supabase
+        .from('user_schools')
         .insert({
           user_id: user.id,
           school_id: school.id,
           role: 'admin',
+          status: 'approved',
         });
 
-      if (teammemberError) throw teammemberError;
+      if (userSchoolError) throw userSchoolError;
 
       setMessage(`School succesvol aangemaakt! Schoolcode: ${generatedSchoolCode}. Je hebt nu toegang tot alle functies.`);
       

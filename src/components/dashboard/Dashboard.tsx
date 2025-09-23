@@ -116,32 +116,18 @@ export function Dashboard() {
     if (!user) return;
 
     try {
-      // First, get school IDs from user_schools
-      const { data: teammemberData, error: teammemberError } = await supabase
+      const { data, error } = await supabase
         .from('user_schools')
-        .select('school_id, status')
+        .select(`
+          schools (*)
+        `)
         .eq('user_id', user.id)
         .eq('status', 'approved')
         .eq('is_active', true);
 
-      if (teammemberError) throw teammemberError;
+      if (error) throw error;
 
-      if (!teammemberData || teammemberData.length === 0) {
-        setUserSchools([]);
-        setShowOnboarding(true);
-        return;
-      }
-
-      // Then, get school details using the school IDs
-      const schoolIds = teammemberData.map(tm => tm.school_id);
-      const { data: schoolsData, error: schoolsError } = await supabase
-        .from('schools')
-        .select('*')
-        .in('id', schoolIds);
-
-      if (schoolsError) throw schoolsError;
-
-      const schools = schoolsData || [];
+      const schools = data?.map(us => us.schools).filter(Boolean) || [];
       setUserSchools(schools);
 
       // Check if user has any schools
