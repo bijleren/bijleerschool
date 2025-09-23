@@ -273,9 +273,10 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
 
       // First get all approved user_schools for this school
       const { data: userSchoolData, error: userSchoolError } = await supabase
-        .from('school_teammembers')
+        .from('user_schools')
         .select('user_id')
         .eq('school_id', schoolId)
+        .eq('status', 'approved')
         .eq('is_active', true);
 
       if (userSchoolError) throw userSchoolError;

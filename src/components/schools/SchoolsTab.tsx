@@ -22,6 +22,7 @@ interface UserSchool {
   id: string;
   role: string;
   joined_at: string;
+  status: string;
   is_active: boolean;
   schools: School;
 }
@@ -54,12 +55,13 @@ export function SchoolsTab() {
 
     try {
       const { data, error } = await supabase
-        .from('school_teammembers')
+        .from('user_schools')
         .select(`
           *,
           schools (*)
         `)
         .eq('user_id', user.id)
+        .eq('status', 'approved')
         .eq('is_active', true);
 
       if (error) throw error;

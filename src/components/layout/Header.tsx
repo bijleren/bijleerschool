@@ -63,11 +63,12 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
     if (!user) return;
 
     try {
-      // First, get school IDs from school_teammembers
+      // First, get school IDs from user_schools
       const { data: teammemberData, error: teammemberError } = await supabase
-        .from('school_teammembers')
-        .select('id, school_id')
+        .from('user_schools')
+        .select('id, school_id, status')
         .eq('user_id', user.id)
+        .eq('status', 'approved')
         .eq('is_active', true);
 
       if (teammemberError) throw teammemberError;

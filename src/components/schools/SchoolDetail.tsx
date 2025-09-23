@@ -166,10 +166,11 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
 
     try {
       const { data, error } = await supabase
-        .from('school_teammembers')
+        .from('user_schools')
         .select('role')
         .eq('user_id', user.id)
         .eq('school_id', school.id)
+        .eq('status', 'approved')
         .eq('is_active', true)
         .single();
 
