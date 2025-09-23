@@ -681,7 +681,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                   )}
                   <div className="flex items-center">
                     <User className="w-3 h-3 mr-1" />
-                    {incident.profiles.first_name} {incident.profiles.last_name}
+                    {incident.profiles ? `${incident.profiles.first_name} ${incident.profiles.last_name}` : 'Onbekend'}
                   </div>
                 </div>
               </div>
