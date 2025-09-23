@@ -431,8 +431,8 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
 
   const filteredUsers = schoolUsers.filter(schoolUser =>
     userSearch === '' ||
-    `${schoolUser.profiles.first_name} ${schoolUser.profiles.last_name}`.toLowerCase().includes(userSearch.toLowerCase()) ||
-    schoolUser.profiles.email.toLowerCase().includes(userSearch.toLowerCase()) ||
+    `${schoolUser.profiles?.first_name || ''} ${schoolUser.profiles?.last_name || ''}`.toLowerCase().includes(userSearch.toLowerCase()) ||
+    (schoolUser.profiles?.email || '').toLowerCase().includes(userSearch.toLowerCase()) ||
     schoolUser.role.toLowerCase().includes(userSearch.toLowerCase())
   );
 
@@ -939,9 +939,9 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900">
-                          {schoolUser.profiles.first_name} {schoolUser.profiles.last_name}
+                          {schoolUser.profiles?.first_name} {schoolUser.profiles?.last_name}
                         </h3>
-                        <p className="text-sm text-gray-600">{schoolUser.profiles.email}</p>
+                        <p className="text-sm text-gray-600">{schoolUser.profiles?.email}</p>
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             schoolUser.role === 'admin' 
