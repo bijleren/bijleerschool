@@ -139,6 +139,12 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [newGroupGradeLevel, setNewGroupGradeLevel] = useState('');
   const [newGroupSchoolYear, setNewGroupSchoolYear] = useState('');
 
+  // Teammember management states
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState<'teacher' | 'admin'>('teacher');
+  const [pendingInvites, setPendingInvites] = useState<any[]>([]);
+
   // Confirmation modal
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -157,6 +163,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     fetchStudents();
     fetchGroups();
     fetchSchoolUsers();
+    fetchPendingInvites();
   }, []);
 
   const fetchUserRole = async () => {
@@ -226,13 +233,214 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
         .eq('school_id', school.id)
         .eq('status', 'approved')
         .eq('is_active', true)
-        .order('role')
-        .order('profiles(first_name)');
+        .order('role');
 
       if (error) throw error;
-      setSchoolUsers(data || []);
+      
+      // Sort client-side to avoid complex ordering syntax
+      const sortedData = (data || []).sort((a, b) => {
+        // First sort by role (admin first)
+        if (a.role !== b.role) {
+          return a.role === 'admin' ? -1 : 1;
+        }
+        // Then sort by first name
+        const aName = a.profiles?.first_name || '';
+        const bName = b.profiles?.first_name || '';
+        return aName.localeCompare(bName);
+      });
+      
+      setSchoolUsers(sortedData);
     } catch (error) {
       console.error('Error fetching school users:', error);
+    }
+  };
+
+  const fetchPendingInvites = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_schools')
+        .select(`
+          id,
+          user_id,
+          role,
+          joined_at,
+          status,
+          profiles (
+            first_name,
+            last_name,
+            email
+          )
+        `)
+        .eq('school_id', school.id)
+        .eq('status', 'pending')
+        .eq('is_active', true)
+        .order('joined_at', { ascending: false });
+
+      if (error) throw error;
+      setPendingInvites(data || []);
+    } catch (error) {
+      console.error('Error fetching pending invites:', error);
+    }
+  };
+
+  const inviteTeammember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+
+    try {
+      // Check if user already exists in the system
+      const { data: existingProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', inviteEmail)
+        .maybeSingle();
+
+      if (profileError) throw profileError;
+
+      if (existingProfile) {
+        // User exists, check if already connected to school
+        const { data: existingConnection, error: connectionError } = await supabase
+          .from('user_schools')
+          .select('*')
+          .eq('user_id', existingProfile.id)
+          .eq('school_id', school.id)
+          .maybeSingle();
+
+        if (connectionError) throw connectionError;
+
+        if (existingConnection) {
+          setMessage('Deze gebruiker is al verbonden met de school.');
+          setLoading(false);
+          return;
+        }
+
+        // Add existing user to school
+        const { error: userSchoolError } = await supabase
+          .from('user_schools')
+          .insert({
+            user_id: existingProfile.id,
+            school_id: school.id,
+            role: inviteRole,
+            status: 'approved'
+          });
+
+        if (userSchoolError) throw userSchoolError;
+
+        // Add to teammembers table
+        const { error: teammemberError } = await supabase
+          .from('teammembers')
+          .insert({
+            user_id: existingProfile.id,
+            is_active: true
+          });
+
+        // Don't throw error if teammember already exists
+        if (teammemberError && !teammemberError.message?.includes('duplicate')) {
+          console.warn('Error creating teammember profile:', teammemberError);
+        }
+
+        setMessage('Teammember succesvol toegevoegd!');
+      } else {
+        // User doesn't exist yet, create a placeholder profile
+        const { data: placeholderProfile, error: placeholderError } = await supabase
+          .from('profiles')
+          .insert({
+            id: crypto.randomUUID(),
+            email: inviteEmail,
+            first_name: '',
+            last_name: ''
+          })
+          .select()
+          .single();
+
+        if (placeholderError) throw placeholderError;
+
+        // Add to user_schools as pending
+        const { error: userSchoolError } = await supabase
+          .from('user_schools')
+          .insert({
+            user_id: placeholderProfile.id,
+            school_id: school.id,
+            role: inviteRole,
+            status: 'pending'
+          });
+
+        if (userSchoolError) throw userSchoolError;
+
+        setMessage('Uitnodiging verstuurd! De gebruiker wordt toegevoegd zodra ze zich registreren.');
+      }
+
+      setInviteEmail('');
+      setInviteRole('teacher');
+      setShowInviteForm(false);
+      fetchSchoolUsers();
+      fetchPendingInvites();
+    } catch (error) {
+      console.error('Error inviting teammember:', error);
+      setMessage('Er is een fout opgetreden bij het uitnodigen van de teammember.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateTeammemberRole = async (userSchoolId: string, newRole: 'teacher' | 'admin') => {
+    try {
+      const { error } = await supabase
+        .from('user_schools')
+        .update({ role: newRole })
+        .eq('id', userSchoolId);
+
+      if (error) throw error;
+
+      setMessage('Rol succesvol bijgewerkt!');
+      fetchSchoolUsers();
+    } catch (error) {
+      console.error('Error updating role:', error);
+      setMessage('Er is een fout opgetreden bij het bijwerken van de rol.');
+    }
+  };
+
+  const removeTeammember = async (userSchoolId: string, isCurrentUser: boolean = false) => {
+    try {
+      const { error } = await supabase
+        .from('user_schools')
+        .update({ is_active: false })
+        .eq('id', userSchoolId);
+
+      if (error) throw error;
+
+      if (isCurrentUser) {
+        setMessage('Je hebt jezelf succesvol verwijderd uit de school.');
+        // Redirect back to schools list after removing self
+        setTimeout(() => {
+          onBack();
+        }, 2000);
+      } else {
+        setMessage('Teammember succesvol verwijderd uit school.');
+        fetchSchoolUsers();
+        fetchPendingInvites();
+      }
+    } catch (error) {
+      console.error('Error removing teammember:', error);
+      setMessage('Er is een fout opgetreden bij het verwijderen van de teammember.');
+    }
+  };
+
+  const cancelInvite = async (inviteId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_schools')
+        .update({ is_active: false })
+        .eq('id', inviteId);
+
+      if (error) throw error;
+
+      setMessage('Uitnodiging succesvol ingetrokken.');
+      fetchPendingInvites();
+    } catch (error) {
+      console.error('Error canceling invite:', error);
+      setMessage('Er is een fout opgetreden bij het intrekken van de uitnodiging.');
     }
   };
 
@@ -902,18 +1110,130 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       {activeTab === 'teamleden' && (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Zoek teamleden..."
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                  className="pl-10 w-64"
-                />
-              </div>
+            <h3 className="text-lg font-semibold text-gray-900">Teammembers</h3>
+            <div className="flex space-x-3">
+              <Button
+                variant="secondary"
+                onClick={() => setShowInviteForm(true)}
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Teammember uitnodigen
+              </Button>
             </div>
           </div>
+
+          {/* Invite Form */}
+          {showInviteForm && (
+            <Card>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Teammember uitnodigen</h4>
+              <form onSubmit={inviteTeammember} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label="E-mailadres"
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    required
+                    placeholder="naam@school.nl"
+                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Rol
+                    </label>
+                    <select
+                      value={inviteRole}
+                      onChange={(e) => setInviteRole(e.target.value as 'teacher' | 'admin')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="teacher">Teammember</option>
+                      <option value="admin">Beheerder</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-1">Schoolcode delen</p>
+                      <p>Je kunt ook de schoolcode <strong>{school.school_code}</strong> delen met collega's zodat zij zich kunnen aansluiten.</p>
+                      <p className="mt-1">Zij krijgen direct toegang na het invoeren van de code - geen goedkeuring nodig.</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-3">
+                  <Button type="button" variant="secondary" onClick={() => setShowInviteForm(false)}>
+                    Annuleren
+                  </Button>
+                  <Button type="submit" loading={loading}>
+                    Uitnodigen
+                  </Button>
+                </div>
+              </form>
+            </Card>
+          )}
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Zoek teamleden..."
+              value={userSearch}
+              onChange={(e) => setUserSearch(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+
+          {/* Pending Invites */}
+          {pendingInvites.length > 0 && (
+            <Card>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <Clock className="w-5 h-5 mr-2" />
+                Uitstaande uitnodigingen ({pendingInvites.length})
+              </h4>
+              <div className="space-y-3">
+                {pendingInvites.map((invite) => (
+                  <div key={invite.id} className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <Clock className="w-5 h-5 text-yellow-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{invite.profiles?.email || 'Onbekend e-mailadres'}</p>
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            invite.role === 'admin' 
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {invite.role === 'admin' ? 'Beheerder' : 'Teammember'}
+                          </span>
+                          <span>Uitgenodigd: {formatDate(invite.joined_at)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    {isAdmin && (
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => setConfirmModal({
+                          isOpen: true,
+                          title: 'Uitnodiging intrekken',
+                          message: `Weet je zeker dat je de uitnodiging voor ${invite.profiles?.email} wilt intrekken?`,
+                          onConfirm: () => {
+                            cancelInvite(invite.id);
+                            setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                          },
+                        })}
+                      >
+                        <XCircle className="w-4 h-4 mr-1" />
+                        Intrekken
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
 
           <div className="grid gap-4">
             {filteredUsers.length === 0 ? (
@@ -943,6 +1263,17 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                         </h3>
                         <p className="text-sm text-gray-600">{schoolUser.profiles.email}</p>
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          {isAdmin && schoolUser.user_id !== user?.id ? (
+                            <select
+                              value={schoolUser.role}
+                              onChange={(e) => updateTeammemberRole(schoolUser.id, e.target.value as 'teacher' | 'admin')}
+                              className="px-2 py-1 text-xs border border-gray-300 rounded"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <option value="teacher">Teammember</option>
+                              <option value="admin">Beheerder</option>
+                            </select>
+                          ) : (
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             schoolUser.role === 'admin' 
                               ? 'bg-purple-100 text-purple-800'
@@ -950,9 +1281,46 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                           }`}>
                             {schoolUser.role === 'admin' ? 'Beheerder' : 'Teammember'}
                           </span>
+                          )}
                           <span>Toegevoegd: {formatDate(schoolUser.joined_at)}</span>
                         </div>
                       </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {schoolUser.user_id === user?.id ? (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => setConfirmModal({
+                            isOpen: true,
+                            title: 'Jezelf verwijderen',
+                            message: 'Weet je zeker dat je jezelf uit deze school wilt verwijderen? Je verliest toegang tot alle schooldata.',
+                            onConfirm: () => {
+                              removeTeammember(schoolUser.id, true);
+                              setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                            },
+                          })}
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Jezelf verwijderen
+                        </Button>
+                      ) : isAdmin ? (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => setConfirmModal({
+                            isOpen: true,
+                            title: 'Teammember verwijderen',
+                            message: `Weet je zeker dat je ${schoolUser.profiles.first_name} ${schoolUser.profiles.last_name} uit de school wilt verwijderen?`,
+                            onConfirm: () => {
+                              removeTeammember(schoolUser.id);
+                              setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                            },
+                          })}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      ) : null}
                     </div>
                   </div>
                 </Card>
