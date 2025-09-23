@@ -16,7 +16,6 @@ import {
   Plus, 
   Users, 
   GraduationCap,
-  UserPlus,
   Trash2,
   Search,
   Heart,
