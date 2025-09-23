@@ -1064,7 +1064,9 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                   <option value="">Selecteer leerkracht om toe te voegen</option>
                   {teachers.map((teacher) => (
                     <option key={teacher.id} value={teacher.id}>
-                      {teacher.first_name} {teacher.last_name}
+                      {teacher.first_name && teacher.last_name 
+                        ? `${teacher.first_name} ${teacher.last_name}` 
+                        : teacher.email || 'Onbekende docent'}
                     </option>
                   ))}
                 </select>
