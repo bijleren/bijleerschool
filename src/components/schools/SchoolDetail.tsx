@@ -343,33 +343,8 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
 
         setMessage('Teammember succesvol toegevoegd!');
       } else {
-        // User doesn't exist yet, create a placeholder profile
-        const { data: placeholderProfile, error: placeholderError } = await supabase
-          .from('profiles')
-          .insert({
-            id: crypto.randomUUID(),
-            email: inviteEmail,
-            first_name: '',
-            last_name: ''
-          })
-          .select()
-          .single();
-
-        if (placeholderError) throw placeholderError;
-
-        // Add to user_schools as pending
-        const { error: userSchoolError } = await supabase
-          .from('user_schools')
-          .insert({
-            user_id: placeholderProfile.id,
-            school_id: school.id,
-            role: inviteRole,
-            status: 'pending'
-          });
-
-        if (userSchoolError) throw userSchoolError;
-
-        setMessage('Uitnodiging verstuurd! De gebruiker wordt toegevoegd zodra ze zich registreren.');
+        // User doesn't exist yet
+        setMessage('Deze gebruiker bestaat nog niet in het systeem. Vraag hen om eerst een account aan te maken, daarna kunnen ze de schoolcode gebruiken om zich aan te sluiten.');
       }
 
       setInviteEmail('');
