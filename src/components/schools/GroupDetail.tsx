@@ -376,8 +376,12 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
   };
 
   const addTeammemberToGroup = async (teammemberId: string) => {
-    // Check if teammember is already in the group
-    const isAlreadyInGroup = groupTeammembers.some(gt => gt.teammembers.id === teammemberId);
+    // Check if teammember is already in the group using multiple comparison methods
+    const isAlreadyInGroup = groupTeammembers.some(gt => 
+      gt.teammember_id === teammemberId || 
+      gt.teammembers?.id === teammemberId
+    );
+    
     if (isAlreadyInGroup) {
       setMessage('Dit teammember is al toegevoegd aan de groep.');
       return;
@@ -396,7 +400,6 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
 
       fetchGroupMembers();
       setMessage('Teammember succesvol toegevoegd aan groep!');
-      setShowAddTeammember(false);
       setTeammemberSearch('');
     } catch (error) {
       console.error('Error adding teammember to group:', error);
@@ -508,10 +511,17 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
     );
 
   const filteredAvailableTeammembers = availableTeammembers
-    .filter(teammember => !groupTeammembers.some(gt => gt.teammembers.id === teammember.id))
+    .filter(teammember => !groupTeammembers.some(gt => 
+      gt.teammember_id === teammember.id || 
+      gt.teammembers?.id === teammember.id
+    ))
     .filter(teammember => 
       teammemberSearch === '' || 
       `${teammember.profiles.first_name} ${teammember.profiles.last_name}`.toLowerCase().includes(teammemberSearch.toLowerCase())
+    )
+    .filter((teammember, index, self) => 
+      // Remove duplicates based on user_id
+      index === self.findIndex(t => t.user_id === teammember.user_id)
     );
 
   return (
