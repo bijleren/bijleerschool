@@ -232,7 +232,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
           )
         `)
         .eq('school_id', school.id)
-        .eq('status', 'approved')
         .eq('is_active', true)
         .order('role');
 
@@ -343,8 +342,19 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
 
         setMessage('Teammember succesvol toegevoegd!');
       } else {
-        // User doesn't exist yet
-        setMessage('Deze gebruiker bestaat nog niet in het systeem. Vraag hen om eerst een account aan te maken, daarna kunnen ze de schoolcode gebruiken om zich aan te sluiten.');
+        // User doesn't exist yet - create a pending invitation
+        const { error: userSchoolError } = await supabase
+          .from('user_schools')
+          .insert({
+            user_id: '00000000-0000-0000-0000-000000000000', // Placeholder UUID for pending invites
+            school_id: school.id,
+            role: inviteRole,
+            status: 'pending'
+          });
+
+        if (userSchoolError) throw userSchoolError;
+
+        setMessage(`Uitnodiging verstuurd naar ${inviteEmail}. Ze kunnen de schoolcode ${school.school_code} gebruiken om zich aan te sluiten.`);
       }
 
       setInviteEmail('');
@@ -1239,7 +1249,17 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                         </h3>
                         <p className="text-sm text-gray-600">{schoolUser.profiles.email}</p>
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          {isAdmin && schoolUser.user_id !== user?.id ? (
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            schoolUser.status === 'approved' 
+                              ? (schoolUser.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800')
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {schoolUser.status === 'approved' 
+                              ? (schoolUser.role === 'admin' ? 'Beheerder' : 'Teammember')
+                              : 'In afwachting'
+                            }
+                          </span>
+                          {isAdmin && schoolUser.user_id !== user?.id && schoolUser.status === 'approved' ? (
                             <select
                               value={schoolUser.role}
                               onChange={(e) => updateTeammemberRole(schoolUser.id, e.target.value as 'teacher' | 'admin')}
@@ -1249,21 +1269,40 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                               <option value="teacher">Teammember</option>
                               <option value="admin">Beheerder</option>
                             </select>
-                          ) : (
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            schoolUser.role === 'admin' 
-                              ? 'bg-purple-100 text-purple-800'
-                              : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {schoolUser.role === 'admin' ? 'Beheerder' : 'Teammember'}
-                          </span>
                           )}
                           <span>Toegevoegd: {formatDate(schoolUser.joined_at)}</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {schoolUser.user_id === user?.id ? (
+                      {schoolUser.status === 'pending' && isAdmin ? (
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => approveTeammember(schoolUser.id)}
+                          >
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            Goedkeuren
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => setConfirmModal({
+                              isOpen: true,
+                              title: 'Aanvraag afwijzen',
+                              message: `Weet je zeker dat je de aanvraag van ${schoolUser.profiles.first_name} ${schoolUser.profiles.last_name} wilt afwijzen?`,
+                              onConfirm: () => {
+                                rejectTeammember(schoolUser.id);
+                                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                              },
+                            })}
+                          >
+                            <XCircle className="w-4 h-4 mr-1" />
+                            Afwijzen
+                          </Button>
+                        </div>
+                      ) : schoolUser.user_id === user?.id ? (
                         <Button
                           variant="danger"
                           size="sm"
