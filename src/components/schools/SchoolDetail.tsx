@@ -219,7 +219,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
         .from('school_teammembers')
         .select(`
           *,
-          profiles (
+          profiles!school_teammembers_user_id_fkey (
             first_name,
             last_name,
             email
@@ -228,7 +228,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
         .eq('school_id', school.id)
         .eq('is_active', true)
         .order('role')
-        .order('profiles(first_name)');
+        .order('profiles!school_teammembers_user_id_fkey(first_name)');
 
       if (error) throw error;
       setSchoolUsers(data || []);
