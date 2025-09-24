@@ -1264,37 +1264,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
             )}
           </div>
 
-          {/* Follow-up Action */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Follow-up actie
-            </label>
-            <select
-              value={selectedFollowupAction}
-              onChange={(e) => setSelectedFollowupAction(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="">Geen follow-up actie</option>
-              {followupActions.map((action) => (
-                <option key={action.id} value={action.id}>
-                  {action.name}
-                </option>
-              ))}
-              <option value="other">Andere...</option>
-            </select>
-            
-            {selectedFollowupAction === 'other' && (
-              <div className="mt-3">
-                <Input
-                  label="Beschrijf de follow-up actie"
-                  value={followupActionOther}
-                  onChange={(e) => setFollowupActionOther(e.target.value)}
-                  placeholder="Beschrijf de specifieke follow-up actie..."
-                  required
-                />
-              </div>
-            )}
-          </div>
+        
 
           {/* File Attachments */}
           <div>
