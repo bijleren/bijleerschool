@@ -271,54 +271,35 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
       if (studentError) throw studentError;
       setAvailableStudents(studentData || []);
 
-      // First get all approved user_schools for this school
-      const { data: userSchoolData, error: userSchoolError } = await supabase
+      // Fetch all approved teammembers for this school from user_schools
+      const { data: teammemberData, error: teammemberError } = await supabase
         .from('user_schools')
-        .select('user_id')
+        .select(`
+          id,
+          user_id,
+          role,
+          profiles (
+            id,
+            first_name,
+            last_name,
+            email
+          )
+        `)
         .eq('school_id', schoolId)
         .eq('status', 'approved')
         .eq('is_active', true);
 
-      if (userSchoolError) throw userSchoolError;
-
-      const userIds = userSchoolData?.map(us => us.user_id) || [];
-
-      if (userIds.length === 0) {
-        setAvailableTeammembers([]);
-        return;
-      }
-
-      // Ensure current user has a teammember profile if they're approved for this school
-      if (user && userIds.includes(user.id)) {
-        const { data: existingTeammembers } = await supabase
-          .from('teammembers')
-          .select('id')
-          .limit(1)
-          .eq('user_id', user.id);
-
-        if (!existingTeammembers || existingTeammembers.length === 0) {
-          // Create teammember profile for current user
-          await supabase
-            .from('teammembers')
-            .insert({
-              user_id: user.id,
-              is_active: true
-            });
-        }
-      }
-
-      // Then fetch teammembers for those users
-      const { data: teammemberData, error: teammemberError } = await supabase
-        .from('teammembers')
-        .select(`
-          *,
-          profiles (*)
-        `)
-        .eq('is_active', true)
-        .in('user_id', userIds);
 
       if (teammemberError) throw teammemberError;
-      setAvailableTeammembers(teammemberData || []);
+      
+      // Transform the data to match the expected structure
+      const transformedTeammembers = teammemberData?.map(userSchool => ({
+        id: userSchool.id, // Use user_school id as teammember id
+        user_id: userSchool.user_id,
+        profiles: userSchool.profiles
+      })) || [];
+      
+      setAvailableTeammembers(transformedTeammembers);
     } catch (error) {
       console.error('Error fetching available members:', error);
     }
@@ -376,12 +357,16 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
   };
 
   const addTeammemberToGroup = async (teammemberId: string) => {
-    // Double-check if teammember is already in the group
-    const teammember = availableTeammembers.find(tm => tm.id === teammemberId);
+    // Find the user_school record to get the user_id
+    const userSchool = availableTeammembers.find(tm => tm.id === teammemberId);
+    if (!userSchool) {
+      setMessage('Teammember niet gevonden.');
+      return;
+    }
+
+    // Check if this user is already in the group
     const isAlreadyInGroup = groupTeammembers.some(gt => 
-      gt.teammember_id === teammemberId || 
-      gt.teammembers?.id === teammemberId ||
-      (teammember && gt.teammembers?.user_id === teammember.user_id)
+      gt.teammembers?.user_id === userSchool.user_id
     );
     
     if (isAlreadyInGroup) {
@@ -389,11 +374,50 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
       return;
     }
 
+    // First ensure the user has a teammember profile
+    let teammemberProfileId;
+    
+    // Check if teammember profile exists
+    const { data: existingTeammember, error: checkError } = await supabase
+      .from('teammembers')
+      .select('id')
+      .eq('user_id', userSchool.user_id)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error('Error checking teammember profile:', checkError);
+      setMessage('Er is een fout opgetreden bij het controleren van het teammember profiel.');
+      return;
+    }
+
+    if (existingTeammember) {
+      teammemberProfileId = existingTeammember.id;
+    } else {
+      // Create teammember profile
+      const { data: newTeammember, error: createError } = await supabase
+        .from('teammembers')
+        .insert({
+          user_id: userSchool.user_id,
+          is_active: true
+        })
+        .select('id')
+        .single();
+
+      if (createError) {
+        console.error('Error creating teammember profile:', createError);
+        setMessage('Er is een fout opgetreden bij het aanmaken van het teammember profiel.');
+        return;
+      }
+
+      teammemberProfileId = newTeammember.id;
+    }
+
     try {
       const { error } = await supabase
         .from('teammember_groups')
         .insert({
-          teammember_id: teammemberId,
+          teammember_id: teammemberProfileId,
           group_id: group.id,
           role: 'teacher',
         });
@@ -402,8 +426,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
 
       fetchGroupMembers();
       setMessage('Teammember succesvol toegevoegd aan groep!');
-      // Don't clear search or close form to allow multiple additions
-      // setTeammemberSearch('');
+      setTeammemberSearch('');
     } catch (error) {
       console.error('Error adding teammember to group:', error);
       setMessage('Er is een fout opgetreden bij het toevoegen van het teammember.');
@@ -514,22 +537,20 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
     );
 
   const filteredAvailableTeammembers = availableTeammembers
-    .filter(teammember => {
-      // Check if this teammember is already in the group
+    .filter(userSchool => {
+      // Check if this user is already in the group
       const isAlreadyInGroup = groupTeammembers.some(gt => 
-        gt.teammember_id === teammember.id || 
-        gt.teammembers?.id === teammember.id ||
-        gt.teammembers?.user_id === teammember.user_id
+        gt.teammembers?.user_id === userSchool.user_id
       );
       return !isAlreadyInGroup;
     })
-    .filter(teammember => 
+    .filter(userSchool => 
       teammemberSearch === '' || 
-      `${teammember.profiles.first_name} ${teammember.profiles.last_name}`.toLowerCase().includes(teammemberSearch.toLowerCase())
+      `${userSchool.profiles.first_name} ${userSchool.profiles.last_name}`.toLowerCase().includes(teammemberSearch.toLowerCase())
     )
-    .filter((teammember, index, self) => 
+    .filter((userSchool, index, self) => 
       // Remove duplicates based on user_id
-      index === self.findIndex(t => t.user_id === teammember.user_id)
+      index === self.findIndex(t => t.user_id === userSchool.user_id)
     );
 
   return (
@@ -837,15 +858,15 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
               </Button>
             </div>
             <div className="max-h-48 overflow-y-auto space-y-2">
-              {filteredAvailableTeammembers.map((teammember) => (
-                <div key={teammember.id} className="flex items-center justify-between p-2 bg-white rounded border">
+              {filteredAvailableTeammembers.map((userSchool) => (
+                <div key={userSchool.id} className="flex items-center justify-between p-2 bg-white rounded border">
                   <div>
                     <span className="font-medium">
-                      {teammember.profiles.first_name} {teammember.profiles.last_name}
+                      {userSchool.profiles.first_name} {userSchool.profiles.last_name}
                     </span>
-                    <span className="text-sm text-gray-500 ml-2">{teammember.profiles.email}</span>
+                    <span className="text-sm text-gray-500 ml-2">{userSchool.profiles.email}</span>
                   </div>
-                  <Button size="sm" onClick={() => addTeammemberToGroup(teammember.id)}>
+                  <Button size="sm" onClick={() => addTeammemberToGroup(userSchool.id)}>
                     Toevoegen
                   </Button>
                 </div>
