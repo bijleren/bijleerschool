@@ -194,7 +194,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
   const getStatusText = (status: string) => {
     switch (status) {
       case 'pending': return 'Melding';
-      case 'in_progress': return 'Onderzoek';
+      case 'in_progress': return 'Bezig';
       case 'resolved': return 'Afgerond';
       default: return status;
     }
