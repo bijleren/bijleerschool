@@ -1031,7 +1031,6 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
         </Button>
       </div>
                   >
-      {showAddForm && activeTab === 'consequences' && (
         <Card>
           <h4 className="text-lg font-semibold mb-4">
             {editingItem ? 'Consequentie bewerken' : 'Nieuwe consequentie toevoegen'}
