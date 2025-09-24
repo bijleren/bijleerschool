@@ -486,3 +486,4 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
       ))}
     </div>
   );
+}
