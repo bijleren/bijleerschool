@@ -128,7 +128,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [defaultRoleId, setDefaultRoleId] = useState<string>('');
 
   // Form state
-  const [selectedStudents, setSelectedStudents] = useState<SelectedStudent[]>([{ student_id: '', role_id: '' }]);
+  const [selectedStudents, setSelectedStudents] = useState<SelectedStudent[]>([]);
   const [selectedBehaviorItem, setSelectedBehaviorItem] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSeverityLevel, setSelectedSeverityLevel] = useState('');
@@ -232,25 +232,21 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     fetchGroups();
     fetchConsequences();
     fetchLessonBlocks();
-    fetchDefaultRole();
   }, [schoolId]);
 
-  // Initialize with one student slot and default role
+  // Initialize with one student slot and default role after roles are loaded
   useEffect(() => {
-    if (defaultRoleId && selectedStudents.length === 1 && !selectedStudents[0].role_id) {
-      const updated = [...selectedStudents];
-      updated[0].role_id = defaultRoleId;
-      setSelectedStudents(updated);
-    }
-  }, [defaultRoleId]);
-
-  // Initialize student searches array
-  useEffect(() => {
-    if (studentSearches.length === 0) {
+    if (studentRoles.length > 0 && selectedStudents.length === 0) {
+      // Find default role
+      const defaultRole = studentRoles.find(role => role.is_default);
+      const roleId = defaultRole ? defaultRole.id : studentRoles[0]?.id || '';
+      
+      setDefaultRoleId(roleId);
+      setSelectedStudents([{ student_id: '', role_id: roleId }]);
       setStudentSearches(['']);
       setShowStudentDropdowns([false]);
     }
-  }, []);
+  }, [studentRoles, selectedStudents.length]);
 
   // Icon mapping for categories
   const getIconComponent = (iconName: string) => {
@@ -269,10 +265,32 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
   const fetchDefaultRole = async () => {
     try {
-      // Look for a role marked as default (we'll need to add this field to student_roles)
-      // For now, just get the first role as default
-      if (studentRoles.length > 0) {
-        setDefaultRoleId(studentRoles[0].id);
+      const { data, error } = await supabase
+        .from('student_roles')
+        .select('*')
+        .eq('school_id', schoolId)
+        .eq('is_active', true)
+        .eq('is_default', true)
+        .maybeSingle();
+
+      if (error) throw error;
+      
+      if (data) {
+        setDefaultRoleId(data.id);
+      } else {
+        // Fallback to first role if no default is set
+        const { data: firstRole } = await supabase
+          .from('student_roles')
+          .select('*')
+          .eq('school_id', schoolId)
+          .eq('is_active', true)
+          .order('name')
+          .limit(1)
+          .maybeSingle();
+        
+        if (firstRole) {
+          setDefaultRoleId(firstRole.id);
+        }
       }
     } catch (error) {
       console.error('Error fetching default role:', error);
@@ -408,6 +426,13 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
         setStudentRoles([]);
       } else {
         setStudentRoles(data || []);
+        
+        // Set default role after roles are loaded
+        if (data && data.length > 0) {
+          const defaultRole = data.find(role => role.is_default);
+          const roleId = defaultRole ? defaultRole.id : data[0]?.id || '';
+          setDefaultRoleId(roleId);
+        }
       }
     } catch (error) {
       console.warn('Error fetching student roles:', error);
@@ -604,7 +629,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   };
 
   const addStudent = () => {
-    setSelectedStudents([...selectedStudents, { student_id: '', role_id: defaultRoleId }]);
+    setSelectedStudents([...selectedStudents, { student_id: '', role_id: defaultRoleId || '' }]);
     setStudentSearches([...studentSearches, '']);
     setShowStudentDropdowns([...showStudentDropdowns, false]);
   };
