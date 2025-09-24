@@ -303,43 +303,40 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       const today = new Date();
       const dayOfWeek = today.getDay();
       
-      // Get active templates for this school
-      const { data: schoolTemplates, error: templatesError } = await supabase
-        .from('school_day_templates')
+      // First, get all active day templates for this school
+      const { data: dayTemplates, error: templatesError } = await supabase
+        .from('day_templates')
         .select(`
-          day_templates (
+          id,
+          name,
+          day_template_blocks (
             id,
-            name,
-            day_template_blocks (
-              id,
-              day_of_week,
-              start_time,
-              end_time,
+            day_of_week,
+            start_time,
+            end_time,
+            title,
+            block_type,
+            school_subjects (
               title,
-              block_type,
-              school_subjects (
-                title,
-                color
-              )
+              color
             )
           )
         `)
         .eq('school_id', schoolId)
-        .lte('effective_from', today.toISOString().split('T')[0])
-        .or(`effective_until.is.null,effective_until.gte.${today.toISOString().split('T')[0]}`);
+        .eq('is_active', true);
 
       if (templatesError) throw templatesError;
 
       // Extract lesson blocks for today
       const todayBlocks: any[] = [];
-      schoolTemplates?.forEach((st: any) => {
-        if (st.day_templates?.day_template_blocks) {
-          st.day_templates.day_template_blocks
+      dayTemplates?.forEach((template: any) => {
+        if (template.day_template_blocks) {
+          template.day_template_blocks
             .filter((block: any) => block.day_of_week === dayOfWeek && block.is_active)
             .forEach((block: any) => {
               todayBlocks.push({
                 ...block,
-                template_name: st.day_templates.name
+                template_name: template.name
               });
             });
         }
