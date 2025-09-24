@@ -115,8 +115,8 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
   const [incidentDate, setIncidentDate] = useState(incident.incident_date.slice(0, 16));
   const [location, setLocation] = useState(incident.location || '');
   const [description, setDescription] = useState(incident.description);
-  const [actionTakenConsequenceId, setActionTakenConsequenceId] = useState(incident.followup_action_id || '');
-  const [actionTakenOther, setActionTakenOther] = useState(incident.followup_action_other || incident.action_taken || '');
+  const [actionTakenConsequenceId, setActionTakenConsequenceId] = useState('');
+  const [actionTakenOther, setActionTakenOther] = useState('');
   const [followUpRequired, setFollowUpRequired] = useState(incident.follow_up_required);
   const [followUpDate, setFollowUpDate] = useState(incident.follow_up_date?.slice(0, 10) || '');
   const [followUpNotes, setFollowUpNotes] = useState(incident.follow_up_notes || '');
@@ -144,6 +144,23 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     fetchConsequences();
     fetchAttachments();
   }, []);
+
+  // Set initial action taken values after consequences are loaded
+  useEffect(() => {
+    if (consequences.length > 0) {
+      // Check if the current action_taken matches any consequence
+      const matchingConsequence = consequences.find(c => c.name === incident.action_taken);
+      
+      if (matchingConsequence) {
+        setActionTakenConsequenceId(matchingConsequence.id);
+        setActionTakenOther('');
+      } else if (incident.action_taken) {
+        // If action_taken exists but doesn't match any consequence, set as "other"
+        setActionTakenConsequenceId('other');
+        setActionTakenOther(incident.action_taken);
+      }
+    }
+  }, [consequences, incident.action_taken]);
 
   const fetchStudents = async () => {
     try {
