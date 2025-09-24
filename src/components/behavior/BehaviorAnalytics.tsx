@@ -166,7 +166,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
       setSeverityStats(severityStatsData);
 
     } catch (error) {
-      case 'in_progress': return 'Bezig';
+      console.error('Error fetching analytics:', error);
     } finally {
       setLoading(false);
     }
