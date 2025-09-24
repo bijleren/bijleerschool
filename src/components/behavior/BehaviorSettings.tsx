@@ -679,6 +679,22 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                       title: 'Ernst niveau verwijderen',
                       message: `Weet je zeker dat je "${level.name}" wilt verwijderen?`,
                       onConfirm: () => {
+                        handleDelete(level.id);
+                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                      },
+                    })}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
   const renderBehaviorItems = () => (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -887,7 +903,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
       </div>
     </div>
   );
-                        handleDelete(level.id);
+
   const renderStudentRoles = () => (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -897,6 +913,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
           Rol toevoegen
         </Button>
       </div>
+
       {showAddForm && activeTab === 'roles' && (
         <Card>
           <h4 className="text-lg font-semibold mb-4">
@@ -959,7 +976,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
           </div>
         </Card>
       )}
-                      },
+
       <div className="space-y-3">
         {studentRoles.length === 0 ? (
           <Card className="text-center py-8">
@@ -1019,7 +1036,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
       </div>
     </div>
   );
-                    })}
+
   const renderConsequences = () => (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -1029,7 +1046,8 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
           Consequentie toevoegen
         </Button>
       </div>
-                  >
+
+      {showAddForm && activeTab === 'consequences' && (
         <Card>
           <h4 className="text-lg font-semibold mb-4">
             {editingItem ? 'Consequentie bewerken' : 'Nieuwe consequentie toevoegen'}
@@ -1075,7 +1093,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
           </div>
         </Card>
       )}
-                    <Trash2 className="w-4 h-4" />
+
       <div className="space-y-3">
         {consequences.length === 0 ? (
           <Card className="text-center py-8">
@@ -1128,119 +1146,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
       </div>
     </div>
   );
-                  </Button>
-  const renderFollowupActions = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Follow-up Acties ({followupActions.length})</h3>
-        <Button onClick={() => setShowAddForm(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Actie toevoegen
-        </Button>
-      </div>
-                </div>
-      {showAddForm && activeTab === 'followup' && (
-        <Card>
-          <h4 className="text-lg font-semibold mb-4">
-            {editingItem ? 'Follow-up actie bewerken' : 'Nieuwe follow-up actie toevoegen'}
-          </h4>
-          <div className="space-y-4">
-            <Input
-              label="Naam"
-              value={formData.name || ''}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
-              placeholder="Bijv. Groeigesprek, Time-out"
-            />
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Beschrijving
-              </label>
-              <textarea
-                value={formData.description || ''}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Beschrijf deze follow-up actie..."
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Kleur
-              </label>
-              <input
-                type="color"
-                value={formData.color || '#6B7280'}
-                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                className="h-10 w-20 border border-gray-300 rounded-lg"
-              />
-            </div>
-            <div className="flex justify-end space-x-3">
-              <Button variant="secondary" onClick={cancelEdit}>
-                Annuleren
-              </Button>
-              <Button onClick={handleSave} loading={loading}>
-                <Save className="w-4 h-4 mr-2" />
-                {editingItem ? 'Bijwerken' : 'Toevoegen'}
-              </Button>
-            </div>
-          </div>
-        </Card>
-      )}
-              </div>
-      <div className="space-y-3">
-        {followupActions.length === 0 ? (
-          <Card className="text-center py-8">
-            <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen follow-up acties gevonden</h3>
-            <p className="text-gray-600">Voeg follow-up acties toe om standaard vervolgstappen te definiëren.</p>
-          </Card>
-        ) : (
-          followupActions.map((action) => (
-            <Card key={action.id} padding="sm">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
-                    style={{ backgroundColor: action.color }}
-                  >
-                    <Target className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">{action.name}</h4>
-                    {action.description && (
-                      <p className="text-sm text-gray-600">{action.description}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex space-x-2">
-                  <Button variant="secondary" size="sm" onClick={() => startEdit(action)}>
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setConfirmModal({
-                      isOpen: true,
-                      title: 'Follow-up actie verwijderen',
-                      message: `Weet je zeker dat je "${action.name}" wilt verwijderen?`,
-                      onConfirm: () => {
-                        handleDelete(action.id);
-                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
-                      },
-                    })}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))
-        )}
-      </div>
-    </div>
-  );
-            </Card>
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center mb-8">
@@ -1253,7 +1159,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
           <p className="text-gray-600">Beheer categorieën, ernst niveaus en gedragsitems</p>
         </div>
       </div>
-          ))
+
       {message && (
         <div className={`mb-6 p-4 rounded-lg ${
           message.includes('succesvol')
@@ -1263,10 +1169,10 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
           {message}
         </div>
       )}
-        )}
+
       {/* Info Block */}
       {renderInfoBlock()}
-      </div>
+
       {/* Tabs */}
       <div className="border-b border-gray-200 mb-6">
         <nav className="-mb-px flex space-x-8">
@@ -1328,28 +1234,28 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
           </button>
           <button
             onClick={() => {
-              setActiveTab('followup');
+              setActiveTab('consequences');
               cancelEdit();
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'followup'
+              activeTab === 'consequences'
                 ? 'border-indigo-500 text-indigo-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
             <Target className="w-4 h-4 inline mr-2" />
-            Follow-up Acties
+            Consequenties
           </button>
         </nav>
       </div>
-    </div>
+
       {/* Tab Content */}
       {activeTab === 'categories' && renderCategories()}
       {activeTab === 'levels' && renderSeverityLevels()}
       {activeTab === 'items' && renderBehaviorItems()}
       {activeTab === 'roles' && renderStudentRoles()}
-      {activeTab === 'followup' && renderFollowupActions()}
-  );
+      {activeTab === 'consequences' && renderConsequences()}
+
       {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={confirmModal.isOpen}
