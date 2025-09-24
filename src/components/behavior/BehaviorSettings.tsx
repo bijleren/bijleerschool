@@ -440,3 +440,49 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
 
   const renderCategories = () => (
     <div className="space-y-4">
+      {categories.map((category) => (
+        <Card key={category.id} className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div 
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white"
+                style={{ backgroundColor: category.color }}
+              >
+                {React.createElement(getIconComponent(category.icon), { className: "w-4 h-4" })}
+              </div>
+              <div>
+                <h3 className="font-medium">{category.name}</h3>
+                {category.description && (
+                  <p className="text-sm text-gray-600">{category.description}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => startEdit(category)}
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setConfirmModal({
+                  isOpen: true,
+                  title: 'Categorie verwijderen',
+                  message: `Weet je zeker dat je "${category.name}" wilt verwijderen?`,
+                  onConfirm: () => {
+                    handleDelete(category.id);
+                    setConfirmModal({ ...confirmModal, isOpen: false });
+                  }
+                })}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
