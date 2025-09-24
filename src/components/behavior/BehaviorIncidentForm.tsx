@@ -27,14 +27,6 @@ interface Student {
 }
 
 interface StudentRole {
-interface FollowupAction {
-  id: string;
-  name: string;
-  description: string | null;
-  color: string;
-  sort_order: number;
-}
-
   id: string;
   name: string;
   description: string | null;
