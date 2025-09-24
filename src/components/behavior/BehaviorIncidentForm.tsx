@@ -695,7 +695,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
         .insert({
           school_id: schoolId,
           student_id: selectedStudents[0].student_id, // Keep for backward compatibility
-          behavior_item_id: selectedBehaviorItem,
+          behavior_item_id: selectedBehaviorItem === 'other' ? null : selectedBehaviorItem,
           reported_by: user.id,
           incident_date: incidentDate,
           location: location || null,
