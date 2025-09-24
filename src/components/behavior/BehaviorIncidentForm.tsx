@@ -125,9 +125,10 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [showAllConsequences, setShowAllConsequences] = useState(false);
   const [studentSearches, setStudentSearches] = useState<string[]>([]);
   const [showStudentDropdowns, setShowStudentDropdowns] = useState<boolean[]>([]);
+  const [defaultRoleId, setDefaultRoleId] = useState<string>('');
 
   // Form state
-  const [selectedStudents, setSelectedStudents] = useState<SelectedStudent[]>([]);
+  const [selectedStudents, setSelectedStudents] = useState<SelectedStudent[]>([{ student_id: '', role_id: '' }]);
   const [selectedBehaviorItem, setSelectedBehaviorItem] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSeverityLevel, setSelectedSeverityLevel] = useState('');
@@ -231,7 +232,25 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     fetchGroups();
     fetchConsequences();
     fetchLessonBlocks();
+    fetchDefaultRole();
   }, [schoolId]);
+
+  // Initialize with one student slot and default role
+  useEffect(() => {
+    if (defaultRoleId && selectedStudents.length === 1 && !selectedStudents[0].role_id) {
+      const updated = [...selectedStudents];
+      updated[0].role_id = defaultRoleId;
+      setSelectedStudents(updated);
+    }
+  }, [defaultRoleId]);
+
+  // Initialize student searches array
+  useEffect(() => {
+    if (studentSearches.length === 0) {
+      setStudentSearches(['']);
+      setShowStudentDropdowns([false]);
+    }
+  }, []);
 
   // Icon mapping for categories
   const getIconComponent = (iconName: string) => {
@@ -246,6 +265,18 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       Tag
     };
     return icons[iconName] || Tag;
+  };
+
+  const fetchDefaultRole = async () => {
+    try {
+      // Look for a role marked as default (we'll need to add this field to student_roles)
+      // For now, just get the first role as default
+      if (studentRoles.length > 0) {
+        setDefaultRoleId(studentRoles[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching default role:', error);
+    }
   };
 
   const fetchLessonBlocks = async () => {
@@ -573,7 +604,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   };
 
   const addStudent = () => {
-    setSelectedStudents([...selectedStudents, { student_id: '', role_id: '' }]);
+    setSelectedStudents([...selectedStudents, { student_id: '', role_id: defaultRoleId }]);
     setStudentSearches([...studentSearches, '']);
     setShowStudentDropdowns([...showStudentDropdowns, false]);
   };
@@ -724,9 +755,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
             {selectedStudents.length === 0 && (
               <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
                 <p className="text-gray-500">Geen studenten geselecteerd</p>
-                <Button type="button" variant="secondary" size="sm" onClick={addStudent} className="mt-2">
-                  Eerste student toevoegen
-                </Button>
               </div>
             )}
 
