@@ -311,6 +311,73 @@ export type Database = {
           updated_at?: string | null;
         };
       };
+      followup_actions: {
+        Row: {
+          id: string;
+          school_id: string;
+          name: string;
+          description: string | null;
+          color: string;
+          is_active: boolean;
+          sort_order: number;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          school_id: string;
+          name: string;
+          description?: string | null;
+          color?: string;
+          is_active?: boolean;
+          sort_order?: number;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          school_id?: string;
+          name?: string;
+          description?: string | null;
+          color?: string;
+          is_active?: boolean;
+          sort_order?: number;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      behavior_incident_attachments: {
+        Row: {
+          id: string;
+          incident_id: string;
+          file_name: string;
+          file_url: string;
+          file_type: string;
+          file_size: number;
+          uploaded_by: string;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          incident_id: string;
+          file_name: string;
+          file_url: string;
+          file_type: string;
+          file_size?: number;
+          uploaded_by: string;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          incident_id?: string;
+          file_name?: string;
+          file_url?: string;
+          file_type?: string;
+          file_size?: number;
+          uploaded_by?: string;
+          created_at?: string | null;
+        };
+      };
       behavior_incident_students: {
         Row: {
           id: string;

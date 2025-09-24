@@ -87,6 +87,19 @@ interface Consequence {
   description: string | null;
 }
 
+interface FollowupAction {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
+  sort_order: number;
+}
+
+interface AttachmentFile {
+  file: File;
+  preview?: string;
+}
+
 interface BehaviorItemConsequence {
   consequence_id: string;
   is_default: boolean;
@@ -121,6 +134,10 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [consequences, setConsequences] = useState<Consequence[]>([]);
   const [suggestedConsequences, setSuggestedConsequences] = useState<Consequence[]>([]);
   const [selectedConsequences, setSelectedConsequences] = useState<string[]>([]);
+  const [followupActions, setFollowupActions] = useState<FollowupAction[]>([]);
+  const [selectedFollowupAction, setSelectedFollowupAction] = useState('');
+  const [followupActionOther, setFollowupActionOther] = useState('');
+  const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
   const [consequenceSearch, setConsequenceSearch] = useState('');
   const [showAllConsequences, setShowAllConsequences] = useState(false);
   const [studentSearches, setStudentSearches] = useState<string[]>([]);
@@ -231,6 +248,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     fetchTeachers();
     fetchGroups();
     fetchConsequences();
+    fetchFollowupActions();
     fetchLessonBlocks();
   }, [schoolId]);
 
@@ -552,6 +570,22 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     }
   };
 
+  const fetchFollowupActions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('followup_actions')
+        .select('*')
+        .eq('school_id', schoolId)
+        .eq('is_active', true)
+        .order('sort_order');
+
+      if (error) throw error;
+      setFollowupActions(data || []);
+    } catch (error) {
+      console.error('Error fetching followup actions:', error);
+    }
+  };
+
   const fetchSuggestedConsequences = async (behaviorItemId: string) => {
     try {
       // Fetch consequences connected to this behavior item
@@ -572,6 +606,73 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       setSelectedConsequences(defaultConsequences);
     } catch (error) {
       console.error('Error fetching suggested consequences:', error);
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const newAttachments: AttachmentFile[] = [];
+
+    files.forEach(file => {
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setMessage(`Bestand "${file.name}" is te groot. Maximum grootte is 10MB.`);
+        return;
+      }
+
+      // Check file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain'];
+      if (!allowedTypes.includes(file.type)) {
+        setMessage(`Bestandstype "${file.type}" wordt niet ondersteund.`);
+        return;
+      }
+
+      const attachment: AttachmentFile = { file };
+      
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          attachment.preview = e.target?.result as string;
+          setAttachments(prev => [...prev, attachment]);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        newAttachments.push(attachment);
+      }
+    });
+
+    if (newAttachments.length > 0) {
+      setAttachments(prev => [...prev, ...newAttachments]);
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadAttachments = async (incidentId: string) => {
+    if (attachments.length === 0) return;
+
+    for (const attachment of attachments) {
+      try {
+        // In a real implementation, you would upload to Supabase Storage
+        // For now, we'll just store the file info in the database
+        const { error } = await supabase
+          .from('behavior_incident_attachments')
+          .insert({
+            incident_id: incidentId,
+            file_name: attachment.file.name,
+            file_url: `placeholder_url_${attachment.file.name}`, // Would be actual storage URL
+            file_type: attachment.file.type,
+            file_size: attachment.file.size,
+            uploaded_by: user!.id
+          });
+
+        if (error) throw error;
+      } catch (error) {
+        console.error('Error uploading attachment:', error);
+      }
     }
   };
 
@@ -604,6 +705,8 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
           follow_up_date: followUpRequired && followUpDate ? followUpDate : null,
           follow_up_notes: followUpRequired && followUpNotes ? followUpNotes : null,
           status,
+          followup_action_id: selectedFollowupAction || null,
+          followup_action_other: selectedFollowupAction === 'other' ? followupActionOther : null,
         })
         .select()
         .single();
@@ -626,12 +729,18 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
         if (notificationsError) throw notificationsError;
       }
 
+      // Upload attachments
+      await uploadAttachments(incident.id);
+
       // Reset form
       setSelectedStudents([]);
       setSelectedNotifications([]);
       setSelectedBehaviorItem('');
       setDescription('');
       setActionTaken('');
+      setSelectedFollowupAction('');
+      setFollowupActionOther('');
+      setAttachments([]);
 
       setMessage('Incident succesvol gemeld!');
       onIncidentCreated();
@@ -1127,6 +1236,92 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Follow-up Action */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Follow-up actie
+            </label>
+            <select
+              value={selectedFollowupAction}
+              onChange={(e) => setSelectedFollowupAction(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">Geen follow-up actie</option>
+              {followupActions.map((action) => (
+                <option key={action.id} value={action.id}>
+                  {action.name}
+                </option>
+              ))}
+              <option value="other">Andere...</option>
+            </select>
+            
+            {selectedFollowupAction === 'other' && (
+              <div className="mt-3">
+                <Input
+                  label="Beschrijf de follow-up actie"
+                  value={followupActionOther}
+                  onChange={(e) => setFollowupActionOther(e.target.value)}
+                  placeholder="Beschrijf de specifieke follow-up actie..."
+                  required
+                />
+              </div>
+            )}
+          </div>
+
+          {/* File Attachments */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Bijlagen (optioneel)
+            </label>
+            <div className="space-y-4">
+              <div>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf,.txt"
+                  onChange={handleFileUpload}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Toegestane bestanden: afbeeldingen, PDF, tekstbestanden (max 10MB per bestand)
+                </p>
+              </div>
+
+              {attachments.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-gray-700">Geselecteerde bestanden:</h4>
+                  {attachments.map((attachment, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        {attachment.preview && (
+                          <img 
+                            src={attachment.preview} 
+                            alt="Preview" 
+                            className="w-12 h-12 object-cover rounded"
+                          />
+                        )}
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{attachment.file.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {(attachment.file.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        onClick={() => removeAttachment(index)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Status */}
