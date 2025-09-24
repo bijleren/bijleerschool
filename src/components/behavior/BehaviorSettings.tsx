@@ -440,50 +440,929 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
 
   const renderCategories = () => (
     <div className="space-y-4">
-      {categories.map((category) => (
-        <Card key={category.id} className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div 
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-                style={{ backgroundColor: category.color }}
-              >
-                {React.createElement(getIconComponent(category.icon), { className: "w-4 h-4" })}
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-900">Gedragscategorieën ({categories.length})</h3>
+        <Button onClick={() => setShowAddForm(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Categorie toevoegen
+        </Button>
+      </div>
+
+      {showAddForm && activeTab === 'categories' && (
+        <Card>
+          <h4 className="text-lg font-semibold mb-4">
+            {editingItem ? 'Categorie bewerken' : 'Nieuwe categorie toevoegen'}
+          </h4>
+          <div className="space-y-4">
+            <Input
+              label="Naam"
+              value={formData.name || ''}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+              placeholder="Bijv. Pesten, Verstoring"
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Beschrijving
+              </label>
+              <textarea
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Beschrijf deze categorie..."
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Icoon
+                </label>
+                <select
+                  value={formData.icon || 'Tag'}
+                  onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="Tag">Tag</option>
+                  <option value="AlertTriangle">AlertTriangle</option>
+                  <option value="Lightbulb">Lightbulb</option>
+                  <option value="Zap">Zap</option>
+                  <option value="Ban">Ban</option>
+                  <option value="Package">Package</option>
+                  <option value="Handshake">Handshake</option>
+                  <option value="Target">Target</option>
+                </select>
               </div>
               <div>
-                <h3 className="font-medium">{category.name}</h3>
-                {category.description && (
-                  <p className="text-sm text-gray-600">{category.description}</p>
-                )}
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kleur
+                </label>
+                <input
+                  type="color"
+                  value={formData.color || '#6B7280'}
+                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                  className="h-10 w-20 border border-gray-300 rounded-lg"
+                />
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => startEdit(category)}
-              >
-                <Edit className="w-4 h-4" />
+            <div className="flex justify-end space-x-3">
+              <Button variant="secondary" onClick={cancelEdit}>
+                Annuleren
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setConfirmModal({
-                  isOpen: true,
-                  title: 'Categorie verwijderen',
-                  message: `Weet je zeker dat je "${category.name}" wilt verwijderen?`,
-                  onConfirm: () => {
-                    handleDelete(category.id);
-                    setConfirmModal({ ...confirmModal, isOpen: false });
-                  }
-                })}
-              >
-                <Trash2 className="w-4 h-4" />
+              <Button onClick={handleSave} loading={loading}>
+                <Save className="w-4 h-4 mr-2" />
+                {editingItem ? 'Bijwerken' : 'Toevoegen'}
               </Button>
             </div>
           </div>
         </Card>
-      ))}
+      )}
+
+      <div className="space-y-3">
+        {categories.length === 0 ? (
+          <Card className="text-center py-8">
+            <Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen categorieën gevonden</h3>
+            <p className="text-gray-600">Voeg categorieën toe om gedrag te organiseren.</p>
+          </Card>
+        ) : (
+          categories.map((category) => (
+            <Card key={category.id} padding="sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div 
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white"
+                    style={{ backgroundColor: category.color }}
+                  >
+                    {React.createElement(getIconComponent(category.icon), { className: "w-4 h-4" })}
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">{category.name}</h4>
+                    {category.description && (
+                      <p className="text-sm text-gray-600">{category.description}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button variant="secondary" size="sm" onClick={() => startEdit(category)}>
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setConfirmModal({
+                      isOpen: true,
+                      title: 'Categorie verwijderen',
+                      message: `Weet je zeker dat je "${category.name}" wilt verwijderen?`,
+                      onConfirm: () => {
+                        handleDelete(category.id);
+                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                      },
+                    })}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderSeverityLevels = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-900">Ernst Niveaus ({severityLevels.length})</h3>
+        <Button onClick={() => setShowAddForm(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Niveau toevoegen
+        </Button>
+      </div>
+
+      {showAddForm && activeTab === 'levels' && (
+        <Card>
+          <h4 className="text-lg font-semibold mb-4">
+            {editingItem ? 'Niveau bewerken' : 'Nieuw ernst niveau toevoegen'}
+          </h4>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Naam"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+                placeholder="Bijv. Licht, Matig, Ernstig"
+              />
+              <Input
+                label="Niveau (1-5)"
+                type="number"
+                min="1"
+                max="5"
+                value={formData.level || ''}
+                onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) })}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Beschrijving
+              </label>
+              <textarea
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Beschrijf dit ernst niveau..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Kleur
+              </label>
+              <input
+                type="color"
+                value={formData.color || '#6B7280'}
+                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                className="h-10 w-20 border border-gray-300 rounded-lg"
+              />
+            </div>
+            <div className="flex justify-end space-x-3">
+              <Button variant="secondary" onClick={cancelEdit}>
+                Annuleren
+              </Button>
+              <Button onClick={handleSave} loading={loading}>
+                <Save className="w-4 h-4 mr-2" />
+                {editingItem ? 'Bijwerken' : 'Toevoegen'}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      <div className="space-y-3">
+        {severityLevels.length === 0 ? (
+          <Card className="text-center py-8">
+            <Scale className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen ernst niveaus gevonden</h3>
+            <p className="text-gray-600">Voeg ernst niveaus toe om gedrag te classificeren.</p>
+          </Card>
+        ) : (
+          severityLevels.map((level) => (
+            <Card key={level.id} padding="sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div 
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold"
+                    style={{ backgroundColor: level.color }}
+                  >
+                    {level.level}
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">{level.name}</h4>
+                    {level.description && (
+                      <p className="text-sm text-gray-600">{level.description}</p>
+                    )}
+                    <p className="text-xs text-gray-500">Niveau: {level.level}</p>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button variant="secondary" size="sm" onClick={() => startEdit(level)}>
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setConfirmModal({
+                      isOpen: true,
+                      title: 'Ernst niveau verwijderen',
+                      message: `Weet je zeker dat je "${level.name}" wilt verwijderen?`,
+                      onConfirm: () => {
+  const renderBehaviorItems = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-900">Gedragsitems ({behaviorItems.length})</h3>
+        <Button onClick={() => setShowAddForm(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Item toevoegen
+        </Button>
+      </div>
+
+      {showAddForm && activeTab === 'items' && (
+        <Card>
+          <h4 className="text-lg font-semibold mb-4">
+            {editingItem ? 'Item bewerken' : 'Nieuw gedragsitem toevoegen'}
+          </h4>
+          <div className="space-y-4">
+            <Input
+              label="Naam"
+              value={formData.name || ''}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+              placeholder="Bijv. Hardop praten, Pesten"
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Beschrijving
+              </label>
+              <textarea
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Beschrijf dit gedragsitem..."
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Categorie
+                </label>
+                <select
+                  value={formData.category_id || ''}
+                  onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">Selecteer categorie</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ernst niveau
+                </label>
+                <select
+                  value={formData.severity_level_id || ''}
+                  onChange={(e) => setFormData({ ...formData, severity_level_id: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="">Selecteer ernst niveau</option>
+                  {severityLevels.map((level) => (
+                    <option key={level.id} value={level.id}>
+                      {level.name} (Niveau {level.level})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <Button variant="secondary" onClick={cancelEdit}>
+                Annuleren
+              </Button>
+              <Button onClick={handleSave} loading={loading}>
+                <Save className="w-4 h-4 mr-2" />
+                {editingItem ? 'Bijwerken' : 'Toevoegen'}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      <div className="space-y-3">
+        {behaviorItems.length === 0 ? (
+          <Card className="text-center py-8">
+            <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen gedragsitems gevonden</h3>
+            <p className="text-gray-600">Voeg gedragsitems toe om incidenten te kunnen melden.</p>
+          </Card>
+        ) : (
+          behaviorItems.map((item) => (
+            <Card key={item.id} padding="sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2">
+                    <div 
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs"
+                      style={{ backgroundColor: item.behavior_categories.color }}
+                    >
+                      {React.createElement(getIconComponent(item.behavior_categories.icon), { className: "w-3 h-3" })}
+                    </div>
+                    <div 
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                      style={{ backgroundColor: item.behavior_severity_levels.color }}
+                    >
+                      {item.behavior_severity_levels.level}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">{item.name}</h4>
+                    {item.description && (
+                      <p className="text-sm text-gray-600">{item.description}</p>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      {item.behavior_categories.name} • {item.behavior_severity_levels.name}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    onClick={() => {
+                      if (showConsequenceConnections === item.id) {
+                        setShowConsequenceConnections(null);
+                      } else {
+                        setShowConsequenceConnections(item.id);
+                        fetchBehaviorItemConsequences(item.id);
+                      }
+                    }}
+                  >
+                    <Link className="w-4 h-4" />
+                  </Button>
+                  <Button variant="secondary" size="sm" onClick={() => startEdit(item)}>
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setConfirmModal({
+                      isOpen: true,
+                      title: 'Gedragsitem verwijderen',
+                      message: `Weet je zeker dat je "${item.name}" wilt verwijderen?`,
+                      onConfirm: () => {
+                        handleDelete(item.id);
+                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                      },
+                    })}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Consequence Connections */}
+              {showConsequenceConnections === item.id && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <h5 className="font-medium text-gray-900 mb-3">Gekoppelde consequenties</h5>
+                  
+                  {/* Available consequences to connect */}
+                  <div className="mb-4">
+                    <h6 className="text-sm font-medium text-gray-700 mb-2">Beschikbare consequenties</h6>
+                    <div className="flex flex-wrap gap-2">
+                      {consequences
+                        .filter(consequence => 
+                          !behaviorItemConsequences[item.id]?.some(bic => bic.consequence_id === consequence.id)
+                        )
+                        .map((consequence) => (
+                        <Button
+                          key={consequence.id}
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => connectConsequence(item.id, consequence.id)}
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          {consequence.name}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Connected consequences */}
+                  <div className="space-y-2">
+                    {behaviorItemConsequences[item.id]?.map((connection) => (
+                      <div key={connection.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <span className="text-sm">{connection.consequences.name}</span>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => disconnectConsequence(connection.id, item.id)}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )) || []}
+                  </div>
+                </div>
+              )}
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+                        handleDelete(level.id);
+  const renderStudentRoles = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-900">Student Rollen ({studentRoles.length})</h3>
+        <Button onClick={() => setShowAddForm(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Rol toevoegen
+        </Button>
+      </div>
+                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      {showAddForm && activeTab === 'roles' && (
+        <Card>
+          <h4 className="text-lg font-semibold mb-4">
+            {editingItem ? 'Rol bewerken' : 'Nieuwe student rol toevoegen'}
+          </h4>
+          <div className="space-y-4">
+            <Input
+              label="Naam"
+              value={formData.name || ''}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+              placeholder="Bijv. Dader, Slachtoffer, Getuige"
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Beschrijving
+              </label>
+              <textarea
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Beschrijf deze rol..."
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kleur
+                </label>
+                <input
+                  type="color"
+                  value={formData.color || '#6B7280'}
+                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                  className="h-10 w-20 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isDefault"
+                  checked={formData.is_default || false}
+                  onChange={(e) => setFormData({ ...formData, is_default: e.target.checked })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isDefault" className="ml-2 block text-sm text-gray-900">
+                  Standaard rol
+                </label>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <Button variant="secondary" onClick={cancelEdit}>
+                Annuleren
+              </Button>
+              <Button onClick={handleSave} loading={loading}>
+                <Save className="w-4 h-4 mr-2" />
+                {editingItem ? 'Bijwerken' : 'Toevoegen'}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+                      },
+      <div className="space-y-3">
+        {studentRoles.length === 0 ? (
+          <Card className="text-center py-8">
+            <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen student rollen gevonden</h3>
+            <p className="text-gray-600">Voeg rollen toe om studenten te categoriseren bij incidenten.</p>
+          </Card>
+        ) : (
+          studentRoles.map((role) => (
+            <Card key={role.id} padding="sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div 
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white"
+                    style={{ backgroundColor: role.color }}
+                  >
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <h4 className="font-medium text-gray-900">{role.name}</h4>
+                      {role.is_default && (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                          Standaard
+                        </span>
+                      )}
+                    </div>
+                    {role.description && (
+                      <p className="text-sm text-gray-600">{role.description}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button variant="secondary" size="sm" onClick={() => startEdit(role)}>
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setConfirmModal({
+                      isOpen: true,
+                      title: 'Student rol verwijderen',
+                      message: `Weet je zeker dat je "${role.name}" wilt verwijderen?`,
+                      onConfirm: () => {
+                        handleDelete(role.id);
+                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                      },
+                    })}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+                    })}
+  const renderConsequences = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-900">Consequenties ({consequences.length})</h3>
+        <Button onClick={() => setShowAddForm(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Consequentie toevoegen
+        </Button>
+      </div>
+                  >
+      {showAddForm && activeTab === 'consequences' && (
+        <Card>
+          <h4 className="text-lg font-semibold mb-4">
+            {editingItem ? 'Consequentie bewerken' : 'Nieuwe consequentie toevoegen'}
+          </h4>
+          <div className="space-y-4">
+            <Input
+              label="Naam"
+              value={formData.name || ''}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+              placeholder="Bijv. Nablijven, Gesprek met mentor"
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Beschrijving
+              </label>
+              <textarea
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Beschrijf deze consequentie..."
+              />
+            </div>
+            <Input
+              label="Ernst niveau (1-5, optioneel)"
+              type="number"
+              min="1"
+              max="5"
+              value={formData.severity_level || ''}
+              onChange={(e) => setFormData({ ...formData, severity_level: e.target.value ? parseInt(e.target.value) : null })}
+              helperText="Geef aan voor welk ernst niveau deze consequentie geschikt is"
+            />
+            <div className="flex justify-end space-x-3">
+              <Button variant="secondary" onClick={cancelEdit}>
+                Annuleren
+              </Button>
+              <Button onClick={handleSave} loading={loading}>
+                <Save className="w-4 h-4 mr-2" />
+                {editingItem ? 'Bijwerken' : 'Toevoegen'}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+                    <Trash2 className="w-4 h-4" />
+      <div className="space-y-3">
+        {consequences.length === 0 ? (
+          <Card className="text-center py-8">
+            <Scale className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen consequenties gevonden</h3>
+            <p className="text-gray-600">Voeg consequenties toe om follow-up acties te definiëren.</p>
+          </Card>
+        ) : (
+          consequences.map((consequence) => (
+            <Card key={consequence.id} padding="sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <Scale className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">{consequence.name}</h4>
+                    {consequence.description && (
+                      <p className="text-sm text-gray-600">{consequence.description}</p>
+                    )}
+                    {consequence.severity_level && (
+                      <p className="text-xs text-gray-500">Voor ernst niveau: {consequence.severity_level}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button variant="secondary" size="sm" onClick={() => startEdit(consequence)}>
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setConfirmModal({
+                      isOpen: true,
+                      title: 'Consequentie verwijderen',
+                      message: `Weet je zeker dat je "${consequence.name}" wilt verwijderen?`,
+                      onConfirm: () => {
+                        handleDelete(consequence.id);
+                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                      },
+                    })}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+                  </Button>
+  const renderFollowupActions = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-900">Follow-up Acties ({followupActions.length})</h3>
+        <Button onClick={() => setShowAddForm(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Actie toevoegen
+        </Button>
+      </div>
+                </div>
+      {showAddForm && activeTab === 'followup' && (
+        <Card>
+          <h4 className="text-lg font-semibold mb-4">
+            {editingItem ? 'Follow-up actie bewerken' : 'Nieuwe follow-up actie toevoegen'}
+          </h4>
+          <div className="space-y-4">
+            <Input
+              label="Naam"
+              value={formData.name || ''}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+              placeholder="Bijv. Groeigesprek, Time-out"
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Beschrijving
+              </label>
+              <textarea
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Beschrijf deze follow-up actie..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Kleur
+              </label>
+              <input
+                type="color"
+                value={formData.color || '#6B7280'}
+                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                className="h-10 w-20 border border-gray-300 rounded-lg"
+              />
+            </div>
+            <div className="flex justify-end space-x-3">
+              <Button variant="secondary" onClick={cancelEdit}>
+                Annuleren
+              </Button>
+              <Button onClick={handleSave} loading={loading}>
+                <Save className="w-4 h-4 mr-2" />
+                {editingItem ? 'Bijwerken' : 'Toevoegen'}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+              </div>
+      <div className="space-y-3">
+        {followupActions.length === 0 ? (
+          <Card className="text-center py-8">
+            <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen follow-up acties gevonden</h3>
+            <p className="text-gray-600">Voeg follow-up acties toe om standaard vervolgstappen te definiëren.</p>
+          </Card>
+        ) : (
+          followupActions.map((action) => (
+            <Card key={action.id} padding="sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div 
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
+                    style={{ backgroundColor: action.color }}
+                  >
+                    <Target className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">{action.name}</h4>
+                    {action.description && (
+                      <p className="text-sm text-gray-600">{action.description}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button variant="secondary" size="sm" onClick={() => startEdit(action)}>
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setConfirmModal({
+                      isOpen: true,
+                      title: 'Follow-up actie verwijderen',
+                      message: `Weet je zeker dat je "${action.name}" wilt verwijderen?`,
+                      onConfirm: () => {
+                        handleDelete(action.id);
+                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                      },
+                    })}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+            </Card>
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="flex items-center mb-8">
+        <Button variant="ghost" onClick={onBack}>
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Terug naar incidenten
+        </Button>
+        <div className="ml-4">
+          <h1 className="text-2xl font-bold text-gray-900">Gedrag Instellingen</h1>
+          <p className="text-gray-600">Beheer categorieën, ernst niveaus en gedragsitems</p>
+        </div>
+      </div>
+          ))
+      {message && (
+        <div className={`mb-6 p-4 rounded-lg ${
+          message.includes('succesvol')
+            ? 'bg-green-50 border border-green-200 text-green-700'
+            : 'bg-red-50 border border-red-200 text-red-700'
+        }`}>
+          {message}
+        </div>
+      )}
+        )}
+      {/* Info Block */}
+      {renderInfoBlock()}
+      </div>
+      {/* Tabs */}
+      <div className="border-b border-gray-200 mb-6">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => {
+              setActiveTab('categories');
+              cancelEdit();
+            }}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'categories'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <Tag className="w-4 h-4 inline mr-2" />
+            Categorieën
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('levels');
+              cancelEdit();
+            }}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'levels'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <Scale className="w-4 h-4 inline mr-2" />
+            Ernst Niveaus
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('items');
+              cancelEdit();
+            }}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'items'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <AlertTriangle className="w-4 h-4 inline mr-2" />
+            Gedragsitems
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('roles');
+              cancelEdit();
+            }}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'roles'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <Users className="w-4 h-4 inline mr-2" />
+            Student Rollen
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('followup');
+              cancelEdit();
+            }}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'followup'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <Target className="w-4 h-4 inline mr-2" />
+            Follow-up Acties
+          </button>
+        </nav>
+      </div>
+    </div>
+      {/* Tab Content */}
+      {activeTab === 'categories' && renderCategories()}
+      {activeTab === 'levels' && renderSeverityLevels()}
+      {activeTab === 'items' && renderBehaviorItems()}
+      {activeTab === 'roles' && renderStudentRoles()}
+      {activeTab === 'followup' && renderFollowupActions()}
+  );
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Verwijderen"
+        cancelText="Annuleren"
+        variant="danger"
+      />
     </div>
   );
 }
