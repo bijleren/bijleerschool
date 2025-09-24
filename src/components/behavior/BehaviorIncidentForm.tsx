@@ -299,54 +299,72 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
   const fetchLessonBlocks = async () => {
     try {
-      // Get current day of week (0 = Sunday, 1 = Monday, etc.)
+      // Get current day of week (JavaScript: 0 = Sunday, 1 = Monday, etc.)
+      // But our database uses: 0 = Sunday, 1 = Monday, etc.
       const today = new Date();
       const dayOfWeek = today.getDay();
       
-      // First, get all active day templates for this school
-      const { data: dayTemplates, error: templatesError } = await supabase
+      console.log('Debug: Current day of week:', dayOfWeek, 'Date:', today.toDateString());
+      
+      // First, check if we have any day templates for this school
+      const { data: templates, error: templatesError } = await supabase
         .from('day_templates')
-        .select(`
-          id,
-          name,
-          day_template_blocks (
-            id,
-            day_of_week,
-            start_time,
-            end_time,
-            title,
-            block_type,
-            school_subjects (
-              title,
-              color
-            )
-          )
-        `)
+        .select('*')
         .eq('school_id', schoolId)
         .eq('is_active', true);
 
       if (templatesError) throw templatesError;
+      console.log('Debug: Found templates:', templates);
+      
+      if (!templates || templates.length === 0) {
+        console.log('Debug: No templates found for school');
+        setAvailableLessonBlocks([]);
+        return;
+      }
+      
+      // Get template IDs
+      const templateIds = templates.map(t => t.id);
+      console.log('Debug: Template IDs:', templateIds);
+      
+      // Now fetch blocks for these templates
+      const { data: blocks, error: blocksError } = await supabase
+        .from('day_template_blocks')
+        .select(`
+          id,
+          template_id,
+          day_of_week,
+          start_time,
+          end_time,
+          title,
+          block_type,
+          subject_id,
+          school_subjects (
+            title,
+            color
+          )
+        `)
+        .in('template_id', templateIds)
+        .eq('day_of_week', dayOfWeek)
+        .eq('is_active', true)
+        .order('start_time');
+      
+      if (blocksError) throw blocksError;
+      console.log('Debug: Found blocks for today:', blocks);
 
-      // Extract lesson blocks for today
-      const todayBlocks: any[] = [];
-      dayTemplates?.forEach((template: any) => {
-        if (template.day_template_blocks) {
-          template.day_template_blocks
-            .filter((block: any) => block.day_of_week === dayOfWeek && block.is_active)
-            .forEach((block: any) => {
-              todayBlocks.push({
-                ...block,
-                template_name: template.name
-              });
-            });
-        }
+      // Add template name to each block
+      const blocksWithTemplate = (blocks || []).map(block => {
+        const template = templates.find(t => t.id === block.template_id);
+        return {
+          ...block,
+          template_name: template?.name || 'Unknown Template'
+        };
       });
 
-      // Sort by start time
-      todayBlocks.sort((a, b) => a.start_time.localeCompare(b.start_time));
-      setAvailableLessonBlocks(todayBlocks);
+      console.log('Debug: Final blocks with template names:', blocksWithTemplate);
+      setAvailableLessonBlocks(blocksWithTemplate);
     } catch (error) {
       console.error('Error fetching lesson blocks:', error);
+      console.log('Debug: Error details:', error);
     }
   };
 
