@@ -290,13 +290,13 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
 
       // Ensure current user has a teammember profile if they're approved for this school
       if (user && userIds.includes(user.id)) {
-        const { data: existingTeammember } = await supabase
+        const { data: existingTeammembers } = await supabase
           .from('teammembers')
           .select('id')
-          .eq('user_id', user.id)
-          .single();
+          .limit(1)
+          .eq('user_id', user.id);
 
-        if (!existingTeammember) {
+        if (!existingTeammembers || existingTeammembers.length === 0) {
           // Create teammember profile for current user
           await supabase
             .from('teammembers')
