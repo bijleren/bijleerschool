@@ -897,7 +897,6 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
           Rol toevoegen
         </Button>
       </div>
-                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
       {showAddForm && activeTab === 'roles' && (
         <Card>
           <h4 className="text-lg font-semibold mb-4">
