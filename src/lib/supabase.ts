@@ -284,6 +284,7 @@ export type Database = {
           description: string | null;
           color: string;
           is_active: boolean;
+          is_default: boolean;
           created_at: string | null;
           updated_at: string | null;
         };
@@ -294,6 +295,7 @@ export type Database = {
           description?: string | null;
           color?: string;
           is_active?: boolean;
+          is_default?: boolean;
           created_at?: string | null;
           updated_at?: string | null;
         };
@@ -304,6 +306,7 @@ export type Database = {
           description?: string | null;
           color?: string;
           is_active?: boolean;
+          is_default?: boolean;
           created_at?: string | null;
           updated_at?: string | null;
         };
