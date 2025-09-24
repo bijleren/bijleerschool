@@ -259,8 +259,8 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
           follow_up_date: followUpRequired && followUpDate ? followUpDate : null,
           follow_up_notes: followUpRequired && followUpNotes ? followUpNotes : null,
           status,
-          followup_action_id: actionTakenConsequenceId && actionTakenConsequenceId !== 'other' ? actionTakenConsequenceId : null,
-          followup_action_other: actionTakenConsequenceId === 'other' ? actionTakenOther : null,
+          // Note: followup_action_id references followup_actions table which doesn't exist in current schema
+          // The action_taken field already stores the consequence name, so we don't need these fields
         })
         .eq('id', incident.id);
 
