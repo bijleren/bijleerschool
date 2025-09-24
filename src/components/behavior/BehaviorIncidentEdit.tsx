@@ -73,13 +73,12 @@ interface BehaviorItem {
   behavior_severity_levels: BehaviorSeverityLevel;
 }
 
-interface FollowupAction {
+interface Consequence {
   id: string;
   name: string;
   description: string | null;
-  color: string | null;
+  severity_level: number | null;
   is_active: boolean;
-  sort_order: number | null;
 }
 
 interface IncidentAttachment {
@@ -107,7 +106,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
   // Data states
   const [students, setStudents] = useState<Student[]>([]);
   const [behaviorItems, setBehaviorItems] = useState<BehaviorItem[]>([]);
-  const [followupActions, setFollowupActions] = useState<FollowupAction[]>([]);
+  const [consequences, setConsequences] = useState<Consequence[]>([]);
   const [attachments, setAttachments] = useState<IncidentAttachment[]>([]);
 
   // Form state
@@ -142,7 +141,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
   useEffect(() => {
     fetchStudents();
     fetchBehaviorItems();
-    fetchFollowupActions();
+    fetchConsequences();
     fetchAttachments();
   }, []);
 
@@ -182,19 +181,19 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     }
   };
 
-  const fetchFollowupActions = async () => {
+  const fetchConsequences = async () => {
     try {
       const { data, error } = await supabase
-        .from('followup_actions')
+        .from('consequences')
         .select('*')
         .eq('school_id', incident.school_id)
         .eq('is_active', true)
         .order('name');
 
       if (error) throw error;
-      setFollowupActions(data || []);
+      setConsequences(data || []);
     } catch (error) {
-      console.error('Error fetching followup actions:', error);
+      console.error('Error fetching consequences:', error);
     }
   };
 
@@ -224,8 +223,8 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
       // Determine action taken value
       let actionTakenValue = '';
       if (actionTakenConsequenceId && actionTakenConsequenceId !== 'other') {
-        const selectedAction = followupActions.find(c => c.id === actionTakenConsequenceId);
-        actionTakenValue = selectedAction?.name || '';
+        const selectedConsequence = consequences.find(c => c.id === actionTakenConsequenceId);
+        actionTakenValue = selectedConsequence?.name || '';
       } else if (actionTakenConsequenceId === 'other') {
         actionTakenValue = actionTakenOther;
       }
@@ -474,10 +473,10 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-3"
             >
               <option value="">Geen actie ondernomen</option>
-              {followupActions.map((action) => (
-                <option key={action.id} value={action.id}>
-                  {action.name}
-                  {action.description && ` - ${action.description}`}
+              {consequences.map((consequence) => (
+                <option key={consequence.id} value={consequence.id}>
+                  {consequence.name}
+                  {consequence.severity_level && ` (Niveau ${consequence.severity_level})`}
                 </option>
               ))}
               <option value="other">Andere...</option>
