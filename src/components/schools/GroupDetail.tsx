@@ -364,56 +364,57 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
       return;
     }
 
-    // Check if this user is already in the group
-    const isAlreadyInGroup = groupTeammembers.some(gt => 
-      gt.teammembers?.user_id === userSchool.user_id
-    );
-    
-    if (isAlreadyInGroup) {
-      setMessage('Dit teammember is al toegevoegd aan de groep.');
-      return;
-    }
-
-    // First ensure the user has a teammember profile
-    let teammemberProfileId;
-    
-    // Check if teammember profile exists
-    const { data: existingTeammember, error: checkError } = await supabase
-      .from('teammembers')
-      .select('id')
-      .eq('user_id', userSchool.user_id)
-      .eq('is_active', true)
-      .maybeSingle();
-
-    if (checkError) {
-      console.error('Error checking teammember profile:', checkError);
-      setMessage('Er is een fout opgetreden bij het controleren van het teammember profiel.');
-      return;
-    }
-
-    if (existingTeammember) {
-      teammemberProfileId = existingTeammember.id;
-    } else {
-      // Create teammember profile
-      const { data: newTeammember, error: createError } = await supabase
-        .from('teammembers')
-        .insert({
-          user_id: userSchool.user_id,
-          is_active: true
-        })
-        .select('id')
-        .single();
-
-      if (createError) {
-        console.error('Error creating teammember profile:', createError);
-        setMessage('Er is een fout opgetreden bij het aanmaken van het teammember profiel.');
+    try {
+      // Check if this user is already in the group
+      const isAlreadyInGroup = groupTeammembers.some(gt => 
+        gt.teammembers?.user_id === userSchool.user_id
+      );
+      
+      if (isAlreadyInGroup) {
+        setMessage('Dit teammember is al toegevoegd aan de groep.');
         return;
       }
 
-      teammemberProfileId = newTeammember.id;
-    }
+      // First ensure the user has a teammember profile
+      let teammemberProfileId;
+      
+      // Check if teammember profile exists
+      const { data: existingTeammember, error: checkError } = await supabase
+        .from('teammembers')
+        .select('id')
+        .eq('user_id', userSchool.user_id)
+        .eq('is_active', true)
+        .maybeSingle();
 
-    try {
+      if (checkError) {
+        console.error('Error checking teammember profile:', checkError);
+        setMessage('Er is een fout opgetreden bij het controleren van het teammember profiel.');
+        return;
+      }
+
+      if (existingTeammember) {
+        teammemberProfileId = existingTeammember.id;
+      } else {
+        // Create teammember profile
+        const { data: newTeammember, error: createError } = await supabase
+          .from('teammembers')
+          .insert({
+            user_id: userSchool.user_id,
+            is_active: true
+          })
+          .select('id')
+          .single();
+
+        if (createError) {
+          console.error('Error creating teammember profile:', createError);
+          setMessage('Er is een fout opgetreden bij het aanmaken van het teammember profiel.');
+          return;
+        }
+
+        teammemberProfileId = newTeammember.id;
+      }
+
+      // Now add to the group using the teammember profile ID
       const { error } = await supabase
         .from('teammember_groups')
         .insert({
