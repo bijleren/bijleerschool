@@ -249,6 +249,15 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
       let error;
       const tableName = getTableName();
       
+      // For student roles, handle default role logic
+      if (activeTab === 'roles' && formData.is_default) {
+        // First, remove default from all other roles
+        await supabase
+          .from('student_roles')
+          .update({ is_default: false })
+          .eq('school_id', schoolId);
+      }
+      
       // For behavior_items, filter out nested objects that are not actual columns
       let saveData = formData;
       if (tableName === 'behavior_items') {
@@ -990,16 +999,37 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                 placeholder="Beschrijf deze rol..."
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Kleur
-              </label>
-              <input
-                type="color"
-                value={formData.color || '#6B7280'}
-                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                className="h-10 w-20 border border-gray-300 rounded-lg"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kleur
+                </label>
+                <input
+                  type="color"
+                  value={formData.color || '#6B7280'}
+                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                  className="h-10 w-20 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isDefault"
+                  checked={formData.is_default || false}
+                  onChange={(e) => setFormData({ ...formData, is_default: e.target.checked })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isDefault" className="ml-2 block text-sm text-gray-900">
+                  Standaard rol voor nieuwe incidenten
+                </label>
+              </div>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800">
+                <strong>Tip:</strong> De standaard rol wordt automatisch geselecteerd bij nieuwe incidenten. 
+                Je kunt maar één standaard rol hebben - het instellen van een nieuwe standaard rol 
+                verwijdert de standaard status van andere rollen.
+              </p>
             </div>
             <div className="flex justify-end space-x-3">
               <Button variant="secondary" onClick={cancelEdit}>
@@ -1031,7 +1061,14 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                     style={{ backgroundColor: role.color }}
                   />
                   <div>
-                    <h4 className="font-medium text-gray-900">{role.name}</h4>
+                    <div className="flex items-center space-x-2">
+                      <h4 className="font-medium text-gray-900">{role.name}</h4>
+                      {role.is_default && (
+                        <span className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">
+                          Standaard
+                        </span>
+                      )}
+                    </div>
                     {role.description && (
                       <p className="text-sm text-gray-600">{role.description}</p>
                     )}
