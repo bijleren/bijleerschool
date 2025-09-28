@@ -463,7 +463,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                       
                       {incident.action_taken && (
                         <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                          <h5 className="font-medium text-blue-900 mb-1">Actie ondernomen:</h5>
+                          <h5 className="font-medium text-blue-900 mb-1">Consequentie:</h5>
                           <p className="text-blue-800 text-sm">{incident.action_taken}</p>
                         </div>
                       )}
