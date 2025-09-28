@@ -519,7 +519,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
           {/* Action Taken */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Actie ondernomen
+              Consequentie:
             </label>
             <select
               value={actionTakenConsequenceId}
