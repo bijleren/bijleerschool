@@ -90,6 +90,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
     if (user && focusSchool) {
       fetchDashboardData();
     }
+  }, [user, focusSchool]);
 
   const fetchDashboardData = async () => {
     if (!user || !focusSchool) return;
@@ -129,7 +130,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             schools (name)
           `)
           .in('id', studentIds)
-          .eq('school_id', selectedSchoolId);
+          .eq('school_id', focusSchool.id);
 
         if (studentsDataError) throw studentsDataError;
 
@@ -160,7 +161,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             schools (name)
           `)
           .in('id', groupIds)
-          .eq('school_id', selectedSchoolId);
+          .eq('school_id', focusSchool.id);
 
         if (groupsDataError) throw groupsDataError;
 
@@ -227,14 +228,14 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         .select('*', { count: 'exact', head: true })
         .eq('school_id', focusSchool.id)
         .eq('is_active', true);
-        .eq('school_id', focusSchool.id);</parameter>
+
       // Count user's favorites for selected school
       const { data: favStudents } = await supabase
         .from('user_favorites')
         .select('favoritable_id')
         .eq('user_id', user.id)
         .eq('favoritable_type', 'student');
-        .eq('school_id', focusSchool.id);</parameter>
+
       const { data: favGroups } = await supabase
         .from('user_favorites')
         .select('favoritable_id')
@@ -351,8 +352,6 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
     onNavigateToBehaviorWithStudent(student.school_id, student.id);
   };
 
-  const selectedSchool = userSchools.find(school => school.id === selectedSchoolId);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -366,7 +365,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Geen focus school geselecteerd</p>
+          <p className="text-gray-600">Geen school geselecteerd</p>
         </div>
       </div>
     );
@@ -442,7 +441,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             </Card>
           </div>
         </div>
-    {/* Favorite Students */}
+        {/* Favorite Students */}
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
@@ -576,7 +575,6 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             )}
           </div>
         </div>
-    
       </div>
     </div>
   );
