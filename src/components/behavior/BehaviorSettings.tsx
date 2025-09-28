@@ -1072,15 +1072,6 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                 placeholder="Beschrijf deze consequentie..."
               />
             </div>
-            <Input
-              label="Ernst niveau (1-5, optioneel)"
-              type="number"
-              min="1"
-              max="5"
-              value={formData.severity_level || ''}
-              onChange={(e) => setFormData({ ...formData, severity_level: e.target.value ? parseInt(e.target.value) : null })}
-              helperText="Geef aan voor welk ernst niveau deze consequentie geschikt is"
-            />
             <div className="flex justify-end space-x-3">
               <Button variant="secondary" onClick={cancelEdit}>
                 Annuleren
