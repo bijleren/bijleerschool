@@ -48,23 +48,6 @@ interface Group {
 
 interface SelectedStudent {
   student_id: string;
-}
-
-interface GroupTemplate {
-  id: string;
-  template_id: string;
-  is_default: boolean;
-  effective_from: string;
-  effective_until: string | null;
-  day_templates: {
-    id: string;
-    name: string;
-    description: string | null;
-  };
-}
-
-}
-
   role_id: string;
 }
 
@@ -147,7 +130,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [studentRoles, setStudentRoles] = useState<StudentRole[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
-  const [groupTemplates, setGroupTemplates] = useState<GroupTemplate[]>([]);
   const [message, setMessage] = useState('');
   const [consequences, setConsequences] = useState<Consequence[]>([]);
   const [actionTakenConsequenceId, setActionTakenConsequenceId] = useState('');
@@ -166,8 +148,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
   // Form state
   const [selectedStudents, setSelectedStudents] = useState<SelectedStudent[]>([]);
-  const [selectedGroupId, setSelectedGroupId] = useState('');
-  const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [selectedBehaviorItem, setSelectedBehaviorItem] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSeverityLevel, setSelectedSeverityLevel] = useState('');
@@ -594,10 +574,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
   const fetchFollowupActions = async () => {
     try {
-      const { data, error } =
-    }
-  }
-} await supabase
+      const { data, error } = await supabase
         .from('followup_actions')
         .select('*')
         .eq('school_id', schoolId)
@@ -1074,76 +1051,15 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
             </div>
           )}
 
-          {/* Group Template Selection - only show when lesson context is selected */}
-          {incidentContext === 'lesson' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Klas/Groep *
-              </label>
-              <select
-                value={selectedGroupId}
-                onChange={(e) => {
-                  setSelectedGroupId(e.target.value);
-                  setSelectedTemplateId('');
-                  setSelectedLessonBlockId('');
-                  if (e.target.value) {
-                    fetchGroupTemplates(e.target.value);
-                  }
-                }}
-                required={incidentContext === 'lesson'}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">Selecteer klas/groep</option>
-                {groups.map((group) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                    {group.grade_level && ` (${group.grade_level})`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Template Selection - only show when group is selected */}
-          {incidentContext === 'lesson' && selectedGroupId && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Dagschema Template *
-              </label>
-              <select
-                value={selectedTemplateId}
-                onChange={(e) => {
-                  setSelectedTemplateId(e.target.value);
-                  setSelectedLessonBlockId('');
-                  if (e.target.value) {
-                    fetchLessonBlocks(e.target.value);
-                  }
-                }}
-                required={incidentContext === 'lesson'}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">Selecteer dagschema</option>
-                {groupTemplates.map((template) => (
-                  <option key={template.id} value={template.id}>
-                    {template.name}
-                    {template.is_default && ' (Standaard)'}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
           {/* Behavior Item Selection - Only show if both category and severity are selected */}
-          {incidentContext === 'lesson' && selectedTemplateId && (
+          {selectedCategory && selectedSeverityLevel && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Gedragsitem *
               </label>
-                <div className="p-4 bg-yellow-50 rounded-lg text-center">
+              {filteredBehaviorItems.length === 0 ? (
                 <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
-                  <p className="text-sm text-gray-500 mt-1">
-                    Controleer of er lesblokken zijn gedefinieerd voor {DAYS_OF_WEEK.find(d => d.value === currentDayOfWeek)?.label.toLowerCase()}
-                  </p>
+                  Geen gedragsitems gevonden voor deze combinatie van categorie en ernst niveau.
                 </div>
               ) : (
                 <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg">
