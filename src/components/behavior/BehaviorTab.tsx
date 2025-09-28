@@ -84,6 +84,8 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
     const preselectedStudentId = sessionStorage.getItem('preselectedStudentId');
     if (preselectedStudentId) {
       setActiveView('form');
+      // Clear the preselected student after using it
+      sessionStorage.removeItem('preselectedStudentId');
     }
 
     // Listen for navigation events from header dropdown
