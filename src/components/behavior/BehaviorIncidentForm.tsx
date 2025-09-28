@@ -498,32 +498,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     }
   };
 
-  const fetchLessonBlocks = async () => {
-    if (!selectedTemplateId || !incidentDate) return;
-
-    try {
-      // Get day of week from incident date (0 = Sunday, 1 = Monday, etc.)
-      const incidentDateObj = new Date(incidentDate);
-      const dayOfWeek = incidentDateObj.getDay();
-
-      const { data, error } = await supabase
-        .from('day_template_blocks')
-        .select(`
-          *,
-          school_subjects (*)
-        `)
-        .eq('template_id', selectedTemplateId)
-        .eq('day_of_week', dayOfWeek)
-        .eq('is_active', true)
-        .order('start_time');
-
-      if (error) throw error;
-      setLessonBlocks(data || []);
-    } catch (error) {
-      console.error('Error fetching lesson blocks:', error);
-    }
-  };
-
   const fetchBehaviorData = async () => {
     try {
       // Fetch categories
