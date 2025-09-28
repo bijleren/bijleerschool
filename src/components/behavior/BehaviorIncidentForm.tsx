@@ -31,7 +31,6 @@ interface StudentRole {
   name: string;
   description: string | null;
   color: string;
-  is_default?: boolean;
 }
 
 interface Teacher {
@@ -45,7 +44,6 @@ interface Group {
   id: string;
   name: string;
   description: string | null;
-  grade_level?: string;
 }
 
 interface SelectedStudent {
@@ -59,11 +57,28 @@ interface GroupTemplate {
   is_default: boolean;
   effective_from: string;
   effective_until: string | null;
-  name: string;
   day_templates: {
     id: string;
     name: string;
     description: string | null;
+  };
+}
+
+interface LessonBlock {
+  id: string;
+  template_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  block_type: 'lesson' | 'break' | 'lunch' | 'other';
+  title: string;
+  description: string | null;
+  subject_id: string | null;
+  school_subjects?: {
+    id: string;
+    title: string;
+    icon: string;
+    color: string;
   };
 }
 
@@ -136,16 +151,6 @@ interface BehaviorIncidentFormProps {
   };
 }
 
-const DAYS_OF_WEEK = [
-  { value: 0, label: 'Zondag' },
-  { value: 1, label: 'Maandag' },
-  { value: 2, label: 'Dinsdag' },
-  { value: 3, label: 'Woensdag' },
-  { value: 4, label: 'Donderdag' },
-  { value: 5, label: 'Vrijdag' },
-  { value: 6, label: 'Zaterdag' }
-];
-
 export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, preloadData }: BehaviorIncidentFormProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -156,7 +161,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [studentRoles, setStudentRoles] = useState<StudentRole[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
-  const [groupTemplates, setGroupTemplates] = useState<GroupTemplate[]>([]);
   const [message, setMessage] = useState('');
   const [consequences, setConsequences] = useState<Consequence[]>([]);
   const [actionTakenConsequenceId, setActionTakenConsequenceId] = useState('');
@@ -172,18 +176,20 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [studentSearches, setStudentSearches] = useState<string[]>([]);
   const [showStudentDropdowns, setShowStudentDropdowns] = useState<boolean[]>([]);
   const [defaultRoleId, setDefaultRoleId] = useState<string>('');
-  const [incidentContext, setIncidentContext] = useState<'manual' | 'lesson'>('manual');
-  const [currentDayOfWeek, setCurrentDayOfWeek] = useState(new Date().getDay());
-  const [selectedLessonBlockId, setSelectedLessonBlockId] = useState('');
 
   // Form state
   const [selectedStudents, setSelectedStudents] = useState<SelectedStudent[]>([]);
-  const [selectedGroupId, setSelectedGroupId] = useState('');
-  const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [selectedBehaviorItem, setSelectedBehaviorItem] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSeverityLevel, setSelectedSeverityLevel] = useState('');
   const [selectedNotifications, setSelectedNotifications] = useState<SelectedNotification[]>([]);
+  const [selectedFollowupAction, setSelectedFollowupAction] = useState('');
+  const [selectedGroupId, setSelectedGroupId] = useState('');
+  const [selectedTemplateId, setSelectedTemplateId] = useState('');
+  const [selectedLessonBlockId, setSelectedLessonBlockId] = useState('');
+  const [groupTemplates, setGroupTemplates] = useState<GroupTemplate[]>([]);
+  const [lessonBlocks, setLessonBlocks] = useState<LessonBlock[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [incidentDate, setIncidentDate] = useState(new Date().toISOString().slice(0, 16));
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
@@ -276,15 +282,30 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   }, [selectedLessonBlock, incidentDateOnly, timeSelectionMode, availableLessonBlocks]);
 
   useEffect(() => {
-    fetchStudents();
-    fetchBehaviorData();
-    fetchStudentRoles();
-    fetchTeachers();
-    fetchGroups();
-    fetchConsequences();
-    fetchFollowupActions();
-    fetchLessonBlocks();
+    if (schoolId) {
+      fetchStudents();
+      fetchGroups();
+      fetchBehaviorData();
+      fetchStudentRoles();
+      fetchTeachers();
+      fetchGroups();
+      fetchConsequences();
+      fetchFollowupActions();
+      fetchLessonBlocks();
+    }
   }, [schoolId]);
+
+  useEffect(() => {
+    if (selectedGroupId) {
+      fetchGroupTemplates();
+    }
+  }, [selectedGroupId]);
+
+  useEffect(() => {
+    if (selectedTemplateId && incidentDate) {
+      fetchLessonBlocks();
+    }
+  }, [selectedTemplateId, incidentDate]);
 
   // Initialize with one student slot and default role after roles are loaded
   useEffect(() => {
@@ -433,6 +454,76 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       setStudents(data || []);
     } catch (error) {
       console.error('Error fetching students:', error);
+    }
+  };
+
+  const fetchGroups = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('groups')
+        .select('*')
+        .eq('school_id', schoolId)
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) throw error;
+      setGroups(data || []);
+    } catch (error) {
+      console.error('Error fetching groups:', error);
+    }
+  };
+
+  const fetchGroupTemplates = async () => {
+    if (!selectedGroupId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('group_day_templates')
+        .select(`
+          *,
+          day_templates (*)
+        `)
+        .eq('group_id', selectedGroupId)
+        .order('is_default', { ascending: false });
+
+      if (error) throw error;
+      setGroupTemplates(data || []);
+
+      // Auto-select default template if available
+      const defaultTemplate = data?.find(gt => gt.is_default);
+      if (defaultTemplate) {
+        setSelectedTemplateId(defaultTemplate.template_id);
+      } else if (data && data.length > 0) {
+        setSelectedTemplateId(data[0].template_id);
+      }
+    } catch (error) {
+      console.error('Error fetching group templates:', error);
+    }
+  };
+
+  const fetchLessonBlocks = async () => {
+    if (!selectedTemplateId || !incidentDate) return;
+
+    try {
+      // Get day of week from incident date (0 = Sunday, 1 = Monday, etc.)
+      const incidentDateObj = new Date(incidentDate);
+      const dayOfWeek = incidentDateObj.getDay();
+
+      const { data, error } = await supabase
+        .from('day_template_blocks')
+        .select(`
+          *,
+          school_subjects (*)
+        `)
+        .eq('template_id', selectedTemplateId)
+        .eq('day_of_week', dayOfWeek)
+        .eq('is_active', true)
+        .order('start_time');
+
+      if (error) throw error;
+      setLessonBlocks(data || []);
+    } catch (error) {
+      console.error('Error fetching lesson blocks:', error);
     }
   };
 
@@ -620,28 +711,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     }
   };
 
-  const fetchGroupTemplates = async (groupId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('group_templates')
-        .select(`
-          *,
-          day_templates (
-            id,
-            name,
-            description
-          )
-        `)
-        .eq('group_id', groupId)
-        .eq('is_active', true);
-
-      if (error) throw error;
-      setGroupTemplates(data || []);
-    } catch (error) {
-      console.error('Error fetching group templates:', error);
-    }
-  };
-
   const fetchSuggestedConsequences = async (behaviorItemId: string) => {
     try {
       // Fetch consequences connected to this behavior item
@@ -745,6 +814,22 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     setMessage('');
 
     try {
+      // Store lesson block context data if applicable
+      let lessonBlockData = null;
+      if (incidentContext === 'lesblok') {
+        if (selectedLessonBlockId) {
+          const selectedBlock = lessonBlocks.find(block => block.id === selectedLessonBlockId);
+          if (selectedBlock) {
+            lessonBlockData = {
+              template_block_id: selectedBlock.id,
+              group_id: selectedGroupId,
+              block_title: selectedBlock.title,
+              time_of_day: selectedBlock.start_time,
+            };
+          }
+        }
+      }
+
       // Create the incident (without student_id as we'll use the junction table)
       const { data: incident, error: incidentError } = await supabase
         .from('behavior_incidents')
@@ -764,6 +849,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
           status,
           followup_action_id: selectedFollowupAction || null,
           followup_action_other: selectedFollowupAction === 'other' ? followupActionOther : null,
+          // Store lesson block context in a JSON field or separate table if needed
         })
         .select()
         .single();
@@ -798,6 +884,11 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       setSelectedFollowupAction('');
       setFollowupActionOther('');
       setAttachments([]);
+      setSelectedGroupId('');
+      setSelectedTemplateId('');
+      setSelectedLessonBlockId('');
+      setGroupTemplates([]);
+      setLessonBlocks([]);
 
       setMessage('Incident succesvol gemeld!');
       onIncidentCreated();
@@ -1105,65 +1196,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
             </div>
           )}
 
-          {/* Group Template Selection - only show when lesson context is selected */}
-          {incidentContext === 'lesson' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Klas/Groep *
-              </label>
-              <select
-                value={selectedGroupId}
-                onChange={(e) => {
-                  setSelectedGroupId(e.target.value);
-                  setSelectedTemplateId('');
-                  setSelectedLessonBlockId('');
-                  if (e.target.value) {
-                    fetchGroupTemplates(e.target.value);
-                  }
-                }}
-                required={incidentContext === 'lesson'}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">Selecteer klas/groep</option>
-                {groups.map((group) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                    {group.grade_level && ` (${group.grade_level})`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Template Selection - only show when group is selected */}
-          {incidentContext === 'lesson' && selectedGroupId && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Dagschema Template *
-              </label>
-              <select
-                value={selectedTemplateId}
-                onChange={(e) => {
-                  setSelectedTemplateId(e.target.value);
-                  setSelectedLessonBlockId('');
-                  if (e.target.value) {
-                    fetchLessonBlocks(e.target.value);
-                  }
-                }}
-                required={incidentContext === 'lesson'}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">Selecteer dagschema</option>
-                {groupTemplates.map((template) => (
-                  <option key={template.id} value={template.id}>
-                    {template.name}
-                    {template.is_default && ' (Standaard)'}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
           {/* Behavior Item Selection - Only show if both category and severity are selected */}
           {selectedCategory && selectedSeverityLevel && (
             <div>
@@ -1171,10 +1203,8 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                 Gedragsitem *
               </label>
               {filteredBehaviorItems.length === 0 ? (
-                <div className="p-4 bg-yellow-50 rounded-lg text-center">
-                  <p className="text-sm text-gray-500 mt-1">
-                    Geen gedragsitems gevonden voor deze combinatie van categorie en ernst niveau
-                  </p>
+                <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
+                  Geen gedragsitems gevonden voor deze combinatie van categorie en ernst niveau.
                 </div>
               ) : (
                 <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg">
@@ -1251,6 +1281,90 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
               />
             ) : (
               <div>
+                {/* Group Selection for Lesson Block */}
+                {incidentContext === 'lesblok' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Klas/Groep *
+                    </label>
+                    <select
+                      value={selectedGroupId}
+                      onChange={(e) => {
+                        setSelectedGroupId(e.target.value);
+                        setSelectedTemplateId('');
+                        setSelectedLessonBlockId('');
+                      }}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="">Selecteer klas/groep</option>
+                      {groups.map((group) => (
+                        <option key={group.id} value={group.id}>
+                          {group.name}
+                          {group.grade_level && ` (${group.grade_level})`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Template Selection for Lesson Block */}
+                {incidentContext === 'lesblok' && selectedGroupId && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Dagschema Template *
+                    </label>
+                    <select
+                      value={selectedTemplateId}
+                      onChange={(e) => {
+                        setSelectedTemplateId(e.target.value);
+                        setSelectedLessonBlockId('');
+                      }}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="">Selecteer dagschema</option>
+                      {groupTemplates.map((template) => (
+                        <option key={template.id} value={template.template_id}>
+                          {template.day_templates.name}
+                          {template.is_default && ' (Standaard)'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Lesson Block Selection */}
+                {incidentContext === 'lesblok' && selectedTemplateId && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Lesblok *
+                    </label>
+                    {lessonBlocks.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>Geen lesblokken gevonden voor vandaag</p>
+                        <p className="text-sm">Controleer of er een dagschema is ingesteld voor deze dag</p>
+                      </div>
+                    ) : (
+                      <select
+                        value={selectedLessonBlockId}
+                        onChange={(e) => setSelectedLessonBlockId(e.target.value)}
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="">Selecteer lesblok</option>
+                        {lessonBlocks.map((block) => (
+                          <option key={block.id} value={block.id}>
+                            {block.start_time} - {block.end_time}: {block.title}
+                            {block.school_subjects && ` (${block.school_subjects.title})`}
+                            {block.block_type !== 'lesson' && ` [${block.block_type}]`}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                )}
+
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Lesblok *
                 </label>
@@ -1378,6 +1492,8 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
               </div>
             )}
           </div>
+
+        
 
           {/* File Attachments */}
           <div>
