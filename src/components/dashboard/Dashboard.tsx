@@ -52,6 +52,7 @@ export function Dashboard() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [userSchools, setUserSchools] = useState<School[]>([]);
+  const [focusSchool, setFocusSchool] = useState<School | null>(null);
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -136,6 +137,11 @@ export function Dashboard() {
       } else if (schools.length === 1 && !selectedSchool) {
         // Auto-select first school if user has only one school
         setSelectedSchool(schools[0]);
+        setFocusSchool(schools[0]);
+        setShowOnboarding(false);
+      } else if (schools.length > 1 && !focusSchool) {
+        // Auto-select first school as focus school if user has multiple schools
+        setFocusSchool(schools[0]);
         setShowOnboarding(false);
       } else {
         setShowOnboarding(false);
@@ -163,7 +169,7 @@ export function Dashboard() {
   };
 
   const handleNavigateToBehavior = () => {
-    setSelectedSchool(null);
+    setSelectedSchool(focusSchool);
     setSelectedStudent(null);
     setSelectedGroup(null);
     setActiveTab('behavior');
@@ -184,11 +190,8 @@ export function Dashboard() {
   };
 
   const handleNavigateToBehaviorWithSchool = (school: { id: string; name: string }) => {
-    // Find the full school object from userSchools
-    const fullSchool = userSchools.find(s => s.id === school.id);
-    if (fullSchool) {
-      setSelectedSchool(fullSchool);
-    }
+    // Use focus school instead of passed school
+    setSelectedSchool(focusSchool);
     setSelectedStudent(null);
     setSelectedGroup(null);
     setActiveTab('behavior');
@@ -350,6 +353,7 @@ export function Dashboard() {
         onNavigateToBehaviorWithSchool={handleNavigateToBehaviorWithSchool}
         onNavigateToTeaching={handleNavigateToTeaching}
         onNavigateToSchoolDay={handleNavigateToSchoolDay}
+        focusSchool={focusSchool}
       />
       <main className="p-8">
         {activeTab === 'dashboard' && (
@@ -360,6 +364,8 @@ export function Dashboard() {
             onNavigateToBehaviorWithStudent={handleNavigateToBehaviorWithStudent}
             onNavigateToBehavior={handleNavigateToBehavior}
             userSchools={userSchools}
+            focusSchool={focusSchool}
+            onFocusSchoolChange={setFocusSchool}
           />
         )}
         {activeTab === 'profile' && <ProfileTab />}

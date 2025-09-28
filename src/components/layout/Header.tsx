@@ -29,9 +29,10 @@ interface HeaderProps {
   onNavigateToBehaviorWithSchool: (school: { id: string; name: string }) => void;
   onNavigateToTeaching: () => void;
   onNavigateToSchoolDay: () => void;
+  focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToSchoolDay }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToSchoolDay, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -90,11 +91,11 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
   };
 
   const handleBehaviorClick = () => {
-    if (userSchools.length === 1) {
-      // If only one school, navigate directly to behavior for that school
-      onNavigateToBehaviorWithSchool(userSchools[0].schools);
+    if (focusSchool) {
+      // Use focus school for behavior navigation
+      onNavigateToBehaviorWithSchool(focusSchool);
     } else {
-      // If multiple schools or no schools, go to behavior selection
+      // Fallback to behavior selection if no focus school
       onNavigateToBehavior();
     }
   };
@@ -140,16 +141,19 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                 <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                   <button
                     onClick={() => {
-                      if (userSchools.length === 1) {
-                        // If only one school, navigate directly to behavior form for that school
-                        onNavigateToBehaviorWithSchool(userSchools[0].schools);
-                        // Navigate directly to form view
-                        window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
+                      if (focusSchool) {
+                        // Use focus school for incident reporting
+                        onNavigateToBehaviorWithSchool(focusSchool);
+                        // Navigate directly to form view  
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
+                        }, 100);
                       } else {
-                        // If multiple schools or no schools, go to behavior selection
+                        // Fallback to behavior selection if no focus school
                         onNavigateToBehavior();
-                        // Navigate directly to form view
-                        window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
+                        }, 100);
                       }
                       setShowBehaviorDropdown(false);
                     }}
@@ -164,7 +168,9 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                       handleBehaviorClick();
                       setShowBehaviorDropdown(false);
                       // Navigate to incidents list view (default)
-                      window.dispatchEvent(new CustomEvent('navigateToBehaviorIncidents'));
+                      setTimeout(() => {
+                        window.dispatchEvent(new CustomEvent('navigateToBehaviorIncidents'));
+                      }, 100);
                     }}
                     className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
@@ -177,7 +183,9 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                       handleBehaviorClick();
                       setShowBehaviorDropdown(false);
                       // Navigate to analytics view
-                      window.dispatchEvent(new CustomEvent('navigateToBehaviorAnalytics'));
+                      setTimeout(() => {
+                        window.dispatchEvent(new CustomEvent('navigateToBehaviorAnalytics'));
+                      }, 100);
                     }}
                     className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
@@ -190,7 +198,9 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                       handleBehaviorClick();
                       setShowBehaviorDropdown(false);
                       // Navigate to settings view
-                      window.dispatchEvent(new CustomEvent('navigateToBehaviorSettings'));
+                      setTimeout(() => {
+                        window.dispatchEvent(new CustomEvent('navigateToBehaviorSettings'));
+                      }, 100);
                     }}
                     className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >

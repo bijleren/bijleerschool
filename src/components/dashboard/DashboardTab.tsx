@@ -66,11 +66,12 @@ interface DashboardTabProps {
   onNavigateToBehaviorWithStudent: (schoolId: string, studentId: string) => void;
   onNavigateToBehavior: () => void;
   userSchools: { id: string; name: string }[];
+  focusSchool: { id: string; name: string } | null;
+  onFocusSchoolChange: (school: { id: string; name: string }) => void;
 }
 
-export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigateToSchools, onNavigateToBehaviorWithStudent, onNavigateToBehavior, userSchools }: DashboardTabProps) {
+export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigateToSchools, onNavigateToBehaviorWithStudent, onNavigateToBehavior, userSchools, focusSchool, onFocusSchoolChange }: DashboardTabProps) {
   const { user } = useAuth();
-  const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
   const [favoriteStudents, setFavoriteStudents] = useState<FavoriteStudent[]>([]);
   const [favoriteGroups, setFavoriteGroups] = useState<FavoriteGroup[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
@@ -86,22 +87,12 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Auto-select school if user has only one school
-    if (userSchools.length === 1 && !selectedSchoolId) {
-      setSelectedSchoolId(userSchools[0].id);
-    } else if (userSchools.length > 1 && !selectedSchoolId) {
-      setSelectedSchoolId(userSchools[0].id); // Default to first school
-    }
-  }, [userSchools, selectedSchoolId]);
-
-  useEffect(() => {
-    if (user && selectedSchoolId) {
+    if (user && focusSchool) {
       fetchDashboardData();
     }
-  }, [user, selectedSchoolId]);
 
   const fetchDashboardData = async () => {
-    if (!user || !selectedSchoolId) return;
+    if (!user || !focusSchool) return;
 
     try {
       // Fetch favorite student IDs for the selected school
@@ -220,30 +211,30 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   };
 
   const fetchStats = async () => {
-    if (!user || !selectedSchoolId) return;
+    if (!user || !focusSchool) return;
 
     try {
       // Count students in selected school
       const { count: studentCount } = await supabase
         .from('students')
         .select('*', { count: 'exact', head: true })
-        .eq('school_id', selectedSchoolId)
+        .eq('school_id', focusSchool.id)
         .eq('is_active', true);
 
       // Count groups in selected school
       const { count: groupCount } = await supabase
         .from('groups')
         .select('*', { count: 'exact', head: true })
-        .eq('school_id', selectedSchoolId)
+        .eq('school_id', focusSchool.id)
         .eq('is_active', true);
-
+        .eq('school_id', focusSchool.id);</parameter>
       // Count user's favorites for selected school
       const { data: favStudents } = await supabase
         .from('user_favorites')
         .select('favoritable_id')
         .eq('user_id', user.id)
         .eq('favoritable_type', 'student');
-
+        .eq('school_id', focusSchool.id);</parameter>
       const { data: favGroups } = await supabase
         .from('user_favorites')
         .select('favoritable_id')
@@ -259,7 +250,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
           .from('students')
           .select('*', { count: 'exact', head: true })
           .in('id', favStudents.map(f => f.favoritable_id))
-          .eq('school_id', selectedSchoolId);
+          .eq('school_id', focusSchool.id);
         favStudentCount = count || 0;
       }
 
@@ -268,7 +259,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
           .from('groups')
           .select('*', { count: 'exact', head: true })
           .in('id', favGroups.map(f => f.favoritable_id))
-          .eq('school_id', selectedSchoolId);
+          .eq('school_id', focusSchool.id);
         favGroupCount = count || 0;
       }
 
@@ -291,7 +282,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   };
 
   const fetchBehaviorStats = async () => {
-    if (!user || !selectedSchoolId) return;
+    if (!user || !focusSchool) return;
 
     try {
       // Get today's date range
@@ -303,7 +294,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       const { count: reportsToday } = await supabase
         .from('behavior_incidents')
         .select('*', { count: 'exact', head: true })
-        .eq('school_id', selectedSchoolId)
+        .eq('school_id', focusSchool.id)
         .gte('incident_date', startOfDay.toISOString())
         .lt('incident_date', endOfDay.toISOString());
 
@@ -311,7 +302,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       const { count: openReports } = await supabase
         .from('behavior_incidents')
         .select('*', { count: 'exact', head: true })
-        .eq('school_id', selectedSchoolId)
+        .eq('school_id', focusSchool.id)
         .in('status', ['pending', 'in_progress']);
 
       // Update stats with behavior data
@@ -370,12 +361,12 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
     );
   }
 
-  if (!selectedSchoolId || !selectedSchool) {
+  if (!focusSchool) {
     return (
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Geen school geselecteerd</p>
+          <p className="text-gray-600">Geen focus school geselecteerd</p>
         </div>
       </div>
     );
@@ -387,12 +378,15 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600">Overzicht van {selectedSchool.name}</p>
+            <p className="text-gray-600">Overzicht van {focusSchool.name}</p>
           </div>
           {userSchools.length > 1 && (
             <select
-              value={selectedSchoolId}
-              onChange={(e) => setSelectedSchoolId(e.target.value)}
+              value={focusSchool.id}
+              onChange={(e) => {
+                const school = userSchools.find(s => s.id === e.target.value);
+                if (school) onFocusSchoolChange(school);
+              }}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               {userSchools.map((school) => (
