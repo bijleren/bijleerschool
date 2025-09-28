@@ -51,6 +51,19 @@ interface SelectedStudent {
   role_id: string;
 }
 
+interface GroupTemplate {
+  id: string;
+  template_id: string;
+  is_default: boolean;
+  effective_from: string;
+  effective_until: string | null;
+  day_templates: {
+    id: string;
+    name: string;
+    description: string | null;
+  };
+}
+
 interface SelectedNotification {
   type: 'teacher' | 'group';
   id: string;
@@ -130,6 +143,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [studentRoles, setStudentRoles] = useState<StudentRole[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
+  const [groupTemplates, setGroupTemplates] = useState<GroupTemplate[]>([]);
   const [message, setMessage] = useState('');
   const [consequences, setConsequences] = useState<Consequence[]>([]);
   const [actionTakenConsequenceId, setActionTakenConsequenceId] = useState('');
@@ -148,6 +162,8 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
   // Form state
   const [selectedStudents, setSelectedStudents] = useState<SelectedStudent[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState('');
+  const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [selectedBehaviorItem, setSelectedBehaviorItem] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSeverityLevel, setSelectedSeverityLevel] = useState('');
@@ -1059,7 +1075,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
               </label>
               {filteredBehaviorItems.length === 0 ? (
                 <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
-                  Geen gedragsitems gevonden voor deze combinatie van categorie en ernst niveau.
+                  Geen gedragsitems gevonden voor deze combinatie
                 </div>
               ) : (
                 <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg">
@@ -1263,8 +1279,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
               </div>
             )}
           </div>
-
-        
 
           {/* File Attachments */}
           <div>
