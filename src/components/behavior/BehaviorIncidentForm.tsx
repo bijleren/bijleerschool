@@ -50,6 +50,8 @@ interface SelectedStudent {
   student_id: string;
 }
 
+}
+
 interface GroupTemplate {
   id: string;
   template_id: string;
@@ -61,6 +63,8 @@ interface GroupTemplate {
     name: string;
     description: string | null;
   };
+}
+
 }
 
   role_id: string;
