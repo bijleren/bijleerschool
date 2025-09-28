@@ -183,7 +183,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSeverityLevel, setSelectedSeverityLevel] = useState('');
   const [selectedNotifications, setSelectedNotifications] = useState<SelectedNotification[]>([]);
-  const [selectedFollowupAction, setSelectedFollowupAction] = useState('');
   const [selectedGroupId, setSelectedGroupId] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [selectedLessonBlockId, setSelectedLessonBlockId] = useState('');
