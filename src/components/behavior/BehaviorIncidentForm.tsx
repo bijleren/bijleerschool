@@ -31,7 +31,7 @@ interface StudentRole {
   name: string;
   description: string | null;
   color: string;
-  is_default: boolean;
+  is_default?: boolean;
 }
 
 interface Teacher {
@@ -45,6 +45,7 @@ interface Group {
   id: string;
   name: string;
   description: string | null;
+  grade_level?: string;
 }
 
 interface SelectedStudent {
@@ -58,6 +59,7 @@ interface GroupTemplate {
   is_default: boolean;
   effective_from: string;
   effective_until: string | null;
+  name: string;
   day_templates: {
     id: string;
     name: string;
@@ -134,6 +136,16 @@ interface BehaviorIncidentFormProps {
   };
 }
 
+const DAYS_OF_WEEK = [
+  { value: 0, label: 'Zondag' },
+  { value: 1, label: 'Maandag' },
+  { value: 2, label: 'Dinsdag' },
+  { value: 3, label: 'Woensdag' },
+  { value: 4, label: 'Donderdag' },
+  { value: 5, label: 'Vrijdag' },
+  { value: 6, label: 'Zaterdag' }
+];
+
 export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, preloadData }: BehaviorIncidentFormProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -160,6 +172,9 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [studentSearches, setStudentSearches] = useState<string[]>([]);
   const [showStudentDropdowns, setShowStudentDropdowns] = useState<boolean[]>([]);
   const [defaultRoleId, setDefaultRoleId] = useState<string>('');
+  const [incidentContext, setIncidentContext] = useState<'manual' | 'lesson'>('manual');
+  const [currentDayOfWeek, setCurrentDayOfWeek] = useState(new Date().getDay());
+  const [selectedLessonBlockId, setSelectedLessonBlockId] = useState('');
 
   // Form state
   const [selectedStudents, setSelectedStudents] = useState<SelectedStudent[]>([]);
@@ -602,6 +617,28 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       setFollowupActions(data || []);
     } catch (error) {
       console.error('Error fetching followup actions:', error);
+    }
+  };
+
+  const fetchGroupTemplates = async (groupId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('group_templates')
+        .select(`
+          *,
+          day_templates (
+            id,
+            name,
+            description
+          )
+        `)
+        .eq('group_id', groupId)
+        .eq('is_active', true);
+
+      if (error) throw error;
+      setGroupTemplates(data || []);
+    } catch (error) {
+      console.error('Error fetching group templates:', error);
     }
   };
 
@@ -1068,6 +1105,65 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
             </div>
           )}
 
+          {/* Group Template Selection - only show when lesson context is selected */}
+          {incidentContext === 'lesson' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Klas/Groep *
+              </label>
+              <select
+                value={selectedGroupId}
+                onChange={(e) => {
+                  setSelectedGroupId(e.target.value);
+                  setSelectedTemplateId('');
+                  setSelectedLessonBlockId('');
+                  if (e.target.value) {
+                    fetchGroupTemplates(e.target.value);
+                  }
+                }}
+                required={incidentContext === 'lesson'}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="">Selecteer klas/groep</option>
+                {groups.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                    {group.grade_level && ` (${group.grade_level})`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Template Selection - only show when group is selected */}
+          {incidentContext === 'lesson' && selectedGroupId && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Dagschema Template *
+              </label>
+              <select
+                value={selectedTemplateId}
+                onChange={(e) => {
+                  setSelectedTemplateId(e.target.value);
+                  setSelectedLessonBlockId('');
+                  if (e.target.value) {
+                    fetchLessonBlocks(e.target.value);
+                  }
+                }}
+                required={incidentContext === 'lesson'}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="">Selecteer dagschema</option>
+                {groupTemplates.map((template) => (
+                  <option key={template.id} value={template.id}>
+                    {template.name}
+                    {template.is_default && ' (Standaard)'}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Behavior Item Selection - Only show if both category and severity are selected */}
           {selectedCategory && selectedSeverityLevel && (
             <div>
@@ -1075,8 +1171,10 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                 Gedragsitem *
               </label>
               {filteredBehaviorItems.length === 0 ? (
-                <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
-                  Geen gedragsitems gevonden voor deze combinatie
+                <div className="p-4 bg-yellow-50 rounded-lg text-center">
+                  <p className="text-sm text-gray-500 mt-1">
+                    Geen gedragsitems gevonden voor deze combinatie van categorie en ernst niveau
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg">
