@@ -352,6 +352,8 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
     onNavigateToBehaviorWithStudent(student.school_id, student.id);
   };
 
+  const selectedSchool = userSchools.find(school => school.id === focusSchool?.id);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -360,7 +362,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
     );
   }
 
-  if (!focusSchool) {
+  if (!focusSchool || !selectedSchool) {
     return (
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
@@ -377,7 +379,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600">Overzicht van {focusSchool.name}</p>
+            <p className="text-gray-600">Overzicht van {selectedSchool.name}</p>
           </div>
           {userSchools.length > 1 && (
             <select
