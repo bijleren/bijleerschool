@@ -5,26 +5,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { 
-  ArrowLeft, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save, 
-  X,
-  AlertTriangle,
-  Tag,
-  Users,
-  Link,
-  Info,
-  Lightbulb,
-  Zap,
-  Ban,
-  Package,
-  Handshake,
-  Target,
-  Scale
-} from 'lucide-react';
+import { ArrowLeft, Plus, CreditCard as Edit, Trash2, Save, X, AlertTriangle, Tag, Users, Link, Info, Lightbulb, Zap, Ban, Package, Handshake, Target, Scale } from 'lucide-react';
 
 interface BehaviorCategory {
   id: string;
@@ -1113,6 +1094,9 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                     <h4 className="font-medium text-gray-900">{consequence.name}</h4>
                     {consequence.description && (
                       <p className="text-sm text-gray-600">{consequence.description}</p>
+                    )}
+                    {consequence.severity_level && (
+                      <p className="text-xs text-gray-500">Voor ernst niveau: {consequence.severity_level}</p>
                     )}
                   </div>
                 </div>
