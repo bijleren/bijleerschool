@@ -572,36 +572,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     }
   };
 
-  const fetchGroupTemplates = async (groupId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('group_day_templates')
-        .select(`
-          *,
-          day_templates (
-            id,
-            name,
-            description
-          )
-        `)
-        .eq('group_id', groupId)
-        .order('is_default', { ascending: false })
-        .order('effective_from', { ascending: false });
-
-      if (error) throw error;
-      setGroupTemplates(data || []);
-      
-      // Auto-select default template if available
-      const defaultTemplate = data?.find(gt => gt.is_default);
-      if (defaultTemplate) {
-        setSelectedTemplateId(defaultTemplate.template_id);
-        fetchLessonBlocks(defaultTemplate.template_id);
-      }
-    } catch (error) {
-      console.error('Error fetching group templates:', error);
-    }
-  };
-
   const fetchConsequences = async () => {
     try {
       const { data, error } = await supabase
@@ -620,7 +590,10 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
   const fetchFollowupActions = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } =
+    }
+  }
+} await supabase
         .from('followup_actions')
         .select('*')
         .eq('school_id', schoolId)
