@@ -48,6 +48,8 @@ interface Group {
 
 interface SelectedStudent {
   student_id: string;
+}
+
 interface GroupTemplate {
   id: string;
   template_id: string;
