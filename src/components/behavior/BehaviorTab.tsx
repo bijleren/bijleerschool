@@ -8,6 +8,7 @@ import { BehaviorIncidentForm } from './BehaviorIncidentForm';
 import { BehaviorSettings } from './BehaviorSettings';
 import { BehaviorAnalytics } from './BehaviorAnalytics';
 import { BehaviorIncidentEdit } from './BehaviorIncidentEdit';
+import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { 
   AlertTriangle, 
   Plus, 

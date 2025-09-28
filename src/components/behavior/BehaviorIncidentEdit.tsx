@@ -18,7 +18,8 @@ import {
   Trash2,
   FileText,
   Image,
-  File
+  File,
+  AlertTriangle
 } from 'lucide-react';
 
 interface BehaviorIncident {
@@ -124,6 +125,9 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
 
   // File upload state
   const [uploadingFile, setUploadingFile] = useState(false);
+
+  // Delete incident state
+  const [deletingIncident, setDeletingIncident] = useState(false);
 
   // Confirmation modal
   const [confirmModal, setConfirmModal] = useState<{
@@ -364,6 +368,39 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const deleteIncident = async () => {
+    setDeletingIncident(true);
+    
+    try {
+      const { error } = await supabase
+        .from('behavior_incidents')
+        .delete()
+        .eq('id', incident.id);
+
+      if (error) throw error;
+
+      // Navigate back to incidents list
+      onIncidentUpdated();
+    } catch (error) {
+      console.error('Error deleting incident:', error);
+      setMessage('Er is een fout opgetreden bij het verwijderen van het incident.');
+    } finally {
+      setDeletingIncident(false);
+    }
+  };
+
+  const showDeleteConfirmation = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Incident verwijderen',
+      message: 'Weet je zeker dat je dit incident wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt. Alle bijlagen en gerelateerde gegevens worden ook verwijderd.',
+      onConfirm: () => {
+        deleteIncident();
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      },
+    });
   };
 
   const getFileIcon = (fileType: string) => {
@@ -645,6 +682,15 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
 
           {/* Submit Buttons */}
           <div className="flex justify-end space-x-3 pt-6">
+            <Button 
+              type="button" 
+              variant="danger" 
+              onClick={showDeleteConfirmation}
+              loading={deletingIncident}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Incident verwijderen
+            </Button>
             <Button type="button" variant="secondary" onClick={onCancel}>
               Annuleren
             </Button>
