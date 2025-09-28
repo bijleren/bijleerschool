@@ -365,7 +365,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Geen school geselecteerd</p>
+          <p className="text-gray-600">Geen focus school geselecteerd</p>
         </div>
       </div>
     );
