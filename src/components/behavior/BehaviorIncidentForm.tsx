@@ -187,7 +187,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [selectedLessonBlockId, setSelectedLessonBlockId] = useState('');
   const [lessonBlocks, setLessonBlocks] = useState<LessonBlock[]>([]);
-  const [groups, setGroups] = useState<Group[]>([]);
   const [incidentDate, setIncidentDate] = useState(new Date().toISOString().slice(0, 16));
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
