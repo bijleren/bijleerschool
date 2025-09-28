@@ -165,8 +165,11 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [incidentDateOnly, setIncidentDateOnly] = useState(new Date().toISOString().split('T')[0]);
   const [timeSelectionMode, setTimeSelectionMode] = useState<'manual' | 'lesson'>('manual');
   const [incidentTimeOnly, setIncidentTimeOnly] = useState(new Date().toTimeString().slice(0, 5));
-  const [selectedLessonBlock, setSelectedLessonBlock] = useState('');
+  const [selectedGroupForLesson, setSelectedGroupForLesson] = useState('');
+  const [groupsWithTemplates, setGroupsWithTemplates] = useState<Group[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [availableLessonBlocks, setAvailableLessonBlocks] = useState<any[]>([]);
+  const [selectedLessonBlock, setSelectedLessonBlock] = useState('');
 
   // Initialize incident date to current timestamp when component loads
   useEffect(() => {
@@ -244,15 +247,28 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   }, [selectedLessonBlock, incidentDateOnly, timeSelectionMode, availableLessonBlocks]);
 
   useEffect(() => {
-    fetchStudents();
-    fetchBehaviorData();
-    fetchStudentRoles();
-    fetchTeachers();
-    fetchGroups();
-    fetchConsequences();
-    fetchFollowupActions();
-    fetchLessonBlocks();
+    if (schoolId) {
+      fetchStudents();
+      fetchGroupsWithTemplates();
+      fetchBehaviorData();
+      fetchStudentRoles();
+      fetchTeachers();
+      fetchConsequences();
+      fetchFollowupActions();
+    }
   }, [schoolId]);
+
+  useEffect(() => {
+    if (selectedGroupForLesson && incidentDateOnly) {
+      fetchTemplateForGroup();
+    }
+  }, [selectedGroupForLesson, incidentDateOnly]);
+
+  useEffect(() => {
+    if (selectedTemplate && incidentDateOnly) {
+      fetchLessonBlocksForTemplate();
+    }
+  }, [selectedTemplate, incidentDateOnly]);
 
   // Initialize with one student slot and default role after roles are loaded
   useEffect(() => {
@@ -317,74 +333,104 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     }
   };
 
-  const fetchLessonBlocks = async () => {
+  const fetchGroupsWithTemplates = async () => {
     try {
-      // Get current day of week (JavaScript: 0 = Sunday, 1 = Monday, etc.)
-      // But our database uses: 0 = Sunday, 1 = Monday, etc.
-      const today = new Date();
-      const dayOfWeek = today.getDay();
-      
-      console.log('Debug: Current day of week:', dayOfWeek, 'Date:', today.toDateString());
-      
-      // First, check if we have any day templates for this school
-      const { data: templates, error: templatesError } = await supabase
-        .from('day_templates')
-        .select('*')
-        .eq('school_id', schoolId)
-        .eq('is_active', true);
-
-      if (templatesError) throw templatesError;
-      console.log('Debug: Found templates:', templates);
-      
-      if (!templates || templates.length === 0) {
-        console.log('Debug: No templates found for school');
-        setAvailableLessonBlocks([]);
-        return;
-      }
-      
-      // Get template IDs
-      const templateIds = templates.map(t => t.id);
-      console.log('Debug: Template IDs:', templateIds);
-      
-      // Now fetch blocks for these templates
-      const { data: blocks, error: blocksError } = await supabase
-        .from('day_template_blocks')
+      // Get groups that have templates connected to them
+      const { data: groupTemplates, error: groupTemplatesError } = await supabase
+        .from('group_day_templates')
         .select(`
-          id,
-          template_id,
-          day_of_week,
-          start_time,
-          end_time,
-          title,
-          block_type,
-          subject_id,
-          school_subjects (
-            title,
-            color
+          group_id,
+          groups (
+            id,
+            name,
+            description,
+            grade_level
           )
         `)
-        .in('template_id', templateIds)
+        .eq('groups.school_id', schoolId)
+        .eq('groups.is_active', true);
+
+      if (groupTemplatesError) throw groupTemplatesError;
+
+      // Extract unique groups
+      const uniqueGroups = Array.from(
+        new Map(
+          groupTemplates?.map(gt => [gt.groups.id, gt.groups]) || []
+        ).values()
+      );
+
+      console.log('Debug: Groups with templates:', uniqueGroups);
+      setGroupsWithTemplates(uniqueGroups);
+    } catch (error) {
+      console.error('Error fetching groups with templates:', error);
+    }
+  };
+
+  const fetchTemplateForGroup = async () => {
+    if (!selectedGroupForLesson) return;
+
+    try {
+      const currentDate = new Date(incidentDateOnly);
+      
+      // Get the active template for this group on the selected date
+      const { data: groupTemplate, error } = await supabase
+        .from('group_day_templates')
+        .select(`
+          *,
+          day_templates (*)
+        `)
+        .eq('group_id', selectedGroupForLesson)
+        .lte('effective_from', incidentDateOnly)
+        .or(`effective_until.is.null,effective_until.gte.${incidentDateOnly}`)
+        .order('is_default', { ascending: false })
+        .order('effective_from', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (groupTemplate) {
+        setSelectedTemplate(groupTemplate.day_templates);
+        console.log('Debug: Selected template for group:', groupTemplate.day_templates);
+      } else {
+        setSelectedTemplate(null);
+        setAvailableLessonBlocks([]);
+        console.log('Debug: No template found for group on this date');
+      }
+    } catch (error) {
+      console.error('Error fetching template for group:', error);
+    }
+  };
+
+  const fetchLessonBlocksForTemplate = async () => {
+    if (!selectedTemplate) return;
+
+    try {
+      // Get day of week from incident date (0 = Sunday, 1 = Monday, etc.)
+      const incidentDateObj = new Date(incidentDateOnly);
+      const dayOfWeek = incidentDateObj.getDay();
+
+      console.log('Debug: Fetching blocks for template:', selectedTemplate.id, 'day:', dayOfWeek);
+
+      const { data: blocks, error } = await supabase
+        .from('day_template_blocks')
+        .select('*')
+        .eq('template_id', selectedTemplate.id)
         .eq('day_of_week', dayOfWeek)
         .eq('is_active', true)
         .order('start_time');
-      
-      if (blocksError) throw blocksError;
-      console.log('Debug: Found blocks for today:', blocks);
 
-      // Add template name to each block
-      const blocksWithTemplate = (blocks || []).map(block => {
-        const template = templates.find(t => t.id === block.template_id);
-        return {
-          ...block,
-          template_name: template?.name || 'Unknown Template'
-        };
-      });
+      if (error) throw error;
 
-      console.log('Debug: Final blocks with template names:', blocksWithTemplate);
-      setAvailableLessonBlocks(blocksWithTemplate);
+      console.log('Debug: Found lesson blocks:', blocks);
+      setAvailableLessonBlocks(blocks || []);
+
+      // Auto-select first lesson block if available
+      if (blocks && blocks.length > 0) {
+        setSelectedLessonBlock(blocks[0].id);
+      }
     } catch (error) {
-      console.error('Error fetching lesson blocks:', error);
-      console.log('Debug: Error details:', error);
+      console.error('Error fetching lesson blocks for template:', error);
     }
   };
 
@@ -1136,30 +1182,85 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
               />
             ) : (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Lesblok *
-                </label>
-                {availableLessonBlocks.length === 0 ? (
-                  <div className="p-4 bg-gray-50 rounded-lg text-center">
-                    <p className="text-gray-500">Geen lesblokken gevonden voor vandaag</p>
-                    <p className="text-sm text-gray-400 mt-1">Stel zelf de tijd in</p>
+                <div className="space-y-4">
+                  {/* Group Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Klas/Groep *
+                    </label>
+                    <select
+                      value={selectedGroupForLesson}
+                      onChange={(e) => {
+                        setSelectedGroupForLesson(e.target.value);
+                        setSelectedTemplate(null);
+                        setAvailableLessonBlocks([]);
+                        setSelectedLessonBlock('');
+                      }}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="">Selecteer klas/groep</option>
+                      {groupsWithTemplates.map((group) => (
+                        <option key={group.id} value={group.id}>
+                          {group.name}
+                          {group.grade_level && ` (${group.grade_level})`}
+                        </option>
+                      ))}
+                    </select>
+                    {groupsWithTemplates.length === 0 && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Geen groepen met dagschema's gevonden. Ga naar Schooldag om templates te koppelen aan groepen.
+                      </p>
+                    )}
                   </div>
-                ) : (
-                  <select
-                    value={selectedLessonBlock}
-                    onChange={(e) => setSelectedLessonBlock(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  >
-                    <option value="">Selecteer lesblok</option>
-                    {availableLessonBlocks.map((block) => (
-                      <option key={block.id} value={block.id}>
-                        {block.start_time} - {block.end_time}: {block.title}
-                        {block.school_subjects && ` (${block.school_subjects.title})`}
-                      </option>
-                    ))}
-                  </select>
-                )}
+
+                  {/* Template Info */}
+                  {selectedTemplate && (
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <p className="text-sm font-medium text-blue-900">
+                        Dagschema: {selectedTemplate.name}
+                      </p>
+                      {selectedTemplate.description && (
+                        <p className="text-sm text-blue-700">{selectedTemplate.description}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Lesson Block Selection */}
+                  {selectedGroupForLesson && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Lesblok *
+                      </label>
+                      {availableLessonBlocks.length === 0 ? (
+                        <div className="p-4 bg-gray-50 rounded-lg text-center">
+                          <p className="text-gray-500">Geen lesblokken gevonden voor vandaag</p>
+                          <p className="text-sm text-gray-400 mt-1">
+                            {selectedTemplate 
+                              ? 'Er zijn geen lesblokken ingepland voor deze dag in het dagschema'
+                              : 'Geen actief dagschema gevonden voor deze groep op deze datum'
+                            }
+                          </p>
+                        </div>
+                      ) : (
+                        <select
+                          value={selectedLessonBlock}
+                          onChange={(e) => setSelectedLessonBlock(e.target.value)}
+                          required
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                          <option value="">Selecteer lesblok</option>
+                          {availableLessonBlocks.map((block) => (
+                            <option key={block.id} value={block.id}>
+                              {block.start_time} - {block.end_time}: {block.title}
+                              {block.block_type !== 'lesson' && ` [${block.block_type}]`}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
