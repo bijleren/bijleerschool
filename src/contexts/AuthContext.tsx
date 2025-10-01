@@ -51,43 +51,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Get initial session with error handling
-    const initializeSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        // Handle refresh token errors
-        if (error && error.message?.includes('refresh_token_not_found')) {
-          console.warn('Refresh token not found, clearing session');
-          await signOut();
-          return;
-        }
-        
-        if (error) {
-          console.error('Session initialization error:', error);
-          setSession(null);
-          setUser(null);
-          setLoading(false);
-          return;
-        }
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        // Ensure profile exists after setting user state
-        if (session?.user) {
-          ensureProfileExists(session.user);
-        }
-      } catch (error) {
-        console.error('Failed to initialize session:', error);
+    // Simple session check - if it fails, just go to logged out state
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error || !session) {
         setSession(null);
         setUser(null);
-        setLoading(false);
+      } else {
+        setSession(session);
+        setUser(session.user);
+        // Ensure profile exists after setting user state
+        ensureProfileExists(session.user);
       }
-    };
-    
-    initializeSession();
+      setLoading(false);
+    });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -96,7 +72,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === 'SIGNED_OUT' || !session) {
           setSession(null);
           setUser(null);
-          setLoading(false);
           // Clear any remaining Supabase authentication tokens
           localStorage.removeItem('supabase.auth.token');
           localStorage.removeItem('sb-xtvmshymjewtfrtydtmc-auth-token');
@@ -105,7 +80,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         setSession(session);
         setUser(session?.user ?? null);
-        setLoading(false);
         
         // Ensure profile exists after setting user state
         if (session?.user) {
