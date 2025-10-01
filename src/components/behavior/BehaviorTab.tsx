@@ -154,6 +154,19 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
           profiles (
             first_name,
             last_name
+          ),
+          behavior_incident_notifications (
+            id,
+            notification_type,
+            teacher_id,
+            group_id,
+            profiles (
+              first_name,
+              last_name
+            ),
+            groups (
+              name
+            )
           )
         `)
         .eq('school_id', selectedSchool.id)
@@ -485,6 +498,26 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                       )}
                     </div>
                   </div>
+                  
+                  {/* Connected Teachers/Groups */}
+                  {incident.behavior_incident_notifications && incident.behavior_incident_notifications.length > 0 && (
+                    <div className="mt-3 p-3 bg-purple-50 rounded-lg">
+                      <h5 className="font-medium text-purple-900 mb-2">Geïnformeerde personen:</h5>
+                      <div className="flex flex-wrap gap-2">
+                        {incident.behavior_incident_notifications.map((notification: any) => (
+                          <span
+                            key={notification.id}
+                            className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
+                          >
+                            {notification.notification_type === 'teacher' 
+                              ? `${notification.profiles?.first_name} ${notification.profiles?.last_name}`
+                              : `Groep: ${notification.groups?.name}`
+                            }
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex flex-col items-end space-y-2">

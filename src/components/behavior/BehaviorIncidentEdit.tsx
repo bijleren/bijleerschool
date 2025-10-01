@@ -93,6 +93,44 @@ interface IncidentAttachment {
   created_at: string;
 }
 
+interface TeacherNotification {
+  id: string;
+  incident_id: string;
+  teacher_id: string;
+  notification_type: 'teacher';
+  profiles: {
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+}
+
+interface GroupNotification {
+  id: string;
+  incident_id: string;
+  group_id: string;
+  notification_type: 'group';
+  groups: {
+    name: string;
+  };
+}
+
+type IncidentNotification = TeacherNotification | GroupNotification;
+
+interface AvailableTeacher {
+  id: string;
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+interface AvailableGroup {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
 interface BehaviorIncidentEditProps {
   incident: BehaviorIncident;
   onIncidentUpdated: () => void;
@@ -109,6 +147,9 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
   const [behaviorItems, setBehaviorItems] = useState<BehaviorItem[]>([]);
   const [consequences, setConsequences] = useState<Consequence[]>([]);
   const [attachments, setAttachments] = useState<IncidentAttachment[]>([]);
+  const [notifications, setNotifications] = useState<IncidentNotification[]>([]);
+  const [availableTeachers, setAvailableTeachers] = useState<AvailableTeacher[]>([]);
+  const [availableGroups, setAvailableGroups] = useState<AvailableGroup[]>([]);
 
   // Form state
   const [studentId, setStudentId] = useState(incident.student_id);
@@ -125,6 +166,12 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
 
   // File upload state
   const [uploadingFile, setUploadingFile] = useState(false);
+
+  // Notification management state
+  const [showAddNotification, setShowAddNotification] = useState(false);
+  const [selectedNotificationType, setSelectedNotificationType] = useState<'teacher' | 'group'>('teacher');
+  const [selectedTeacherId, setSelectedTeacherId] = useState('');
+  const [selectedGroupId, setSelectedGroupId] = useState('');
 
   // Delete incident state
   const [deletingIncident, setDeletingIncident] = useState(false);
@@ -147,6 +194,9 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     fetchBehaviorItems();
     fetchConsequences();
     fetchAttachments();
+    fetchNotifications();
+    fetchAvailableTeachers();
+    fetchAvailableGroups();
   }, []);
 
   // Set initial action taken values after consequences are loaded
@@ -230,6 +280,130 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
       setAttachments(data || []);
     } catch (error) {
       console.error('Error fetching attachments:', error);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('behavior_incident_notifications')
+        .select(`
+          *,
+          profiles (
+            first_name,
+            last_name,
+            email
+          ),
+          groups (
+            name
+          )
+        `)
+        .eq('incident_id', incident.id);
+
+      if (error) throw error;
+      setNotifications(data || []);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  const fetchAvailableTeachers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_schools')
+        .select(`
+          user_id,
+          profiles (
+            id,
+            first_name,
+            last_name,
+            email
+          )
+        `)
+        .eq('school_id', incident.school_id)
+        .eq('status', 'approved')
+        .eq('is_active', true);
+
+      if (error) throw error;
+      
+      const teachers = data?.map(us => ({
+        id: us.profiles.id,
+        user_id: us.user_id,
+        first_name: us.profiles.first_name,
+        last_name: us.profiles.last_name,
+        email: us.profiles.email
+      })) || [];
+      
+      setAvailableTeachers(teachers);
+    } catch (error) {
+      console.error('Error fetching available teachers:', error);
+    }
+  };
+
+  const fetchAvailableGroups = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('groups')
+        .select('*')
+        .eq('school_id', incident.school_id)
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) throw error;
+      setAvailableGroups(data || []);
+    } catch (error) {
+      console.error('Error fetching available groups:', error);
+    }
+  };
+
+  const addNotification = async () => {
+    try {
+      const notificationData: any = {
+        incident_id: incident.id,
+        notification_type: selectedNotificationType,
+      };
+
+      if (selectedNotificationType === 'teacher') {
+        if (!selectedTeacherId) return;
+        notificationData.teacher_id = selectedTeacherId;
+        notificationData.group_id = null;
+      } else {
+        if (!selectedGroupId) return;
+        notificationData.group_id = selectedGroupId;
+        notificationData.teacher_id = null;
+      }
+
+      const { error } = await supabase
+        .from('behavior_incident_notifications')
+        .insert(notificationData);
+
+      if (error) throw error;
+
+      setMessage('Notificatie succesvol toegevoegd!');
+      setShowAddNotification(false);
+      setSelectedTeacherId('');
+      setSelectedGroupId('');
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error adding notification:', error);
+      setMessage('Er is een fout opgetreden bij het toevoegen van de notificatie.');
+    }
+  };
+
+  const removeNotification = async (notificationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('behavior_incident_notifications')
+        .delete()
+        .eq('id', notificationId);
+
+      if (error) throw error;
+
+      setMessage('Notificatie succesvol verwijderd!');
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error removing notification:', error);
+      setMessage('Er is een fout opgetreden bij het verwijderen van de notificatie.');
     }
   };
 
@@ -676,6 +850,156 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                     </div>
                   );
                 })}
+              </div>
+            )}
+          </div>
+
+          {/* Teacher/Group Notifications */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Geïnformeerde personen ({notifications.length})
+              </label>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowAddNotification(true)}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Persoon toevoegen
+              </Button>
+            </div>
+
+            {showAddNotification && (
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-medium text-gray-900 mb-4">Persoon informeren</h4>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Type
+                    </label>
+                    <select
+                      value={selectedNotificationType}
+                      onChange={(e) => setSelectedNotificationType(e.target.value as 'teacher' | 'group')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="teacher">Individuele docent</option>
+                      <option value="group">Hele groep</option>
+                    </select>
+                  </div>
+
+                  {selectedNotificationType === 'teacher' ? (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Docent
+                      </label>
+                      <select
+                        value={selectedTeacherId}
+                        onChange={(e) => setSelectedTeacherId(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="">Selecteer docent</option>
+                        {availableTeachers
+                          .filter(teacher => !notifications.some(n => 
+                            n.notification_type === 'teacher' && 
+                            (n as TeacherNotification).teacher_id === teacher.id
+                          ))
+                          .map((teacher) => (
+                          <option key={teacher.id} value={teacher.id}>
+                            {teacher.first_name} {teacher.last_name} ({teacher.email})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Groep
+                      </label>
+                      <select
+                        value={selectedGroupId}
+                        onChange={(e) => setSelectedGroupId(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="">Selecteer groep</option>
+                        {availableGroups
+                          .filter(group => !notifications.some(n => 
+                            n.notification_type === 'group' && 
+                            (n as GroupNotification).group_id === group.id
+                          ))
+                          .map((group) => (
+                          <option key={group.id} value={group.id}>
+                            {group.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end space-x-3">
+                    <Button 
+                      type="button" 
+                      variant="secondary" 
+                      onClick={() => setShowAddNotification(false)}
+                    >
+                      Annuleren
+                    </Button>
+                    <Button 
+                      type="button" 
+                      onClick={addNotification}
+                      disabled={selectedNotificationType === 'teacher' ? !selectedTeacherId : !selectedGroupId}
+                    >
+                      Toevoegen
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {notifications.length > 0 && (
+              <div className="space-y-2 p-4 bg-gray-50 rounded-lg">
+                {notifications.map((notification) => (
+                  <div key={notification.id} className="flex items-center justify-between p-3 bg-white rounded border">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        notification.notification_type === 'teacher' 
+                          ? 'bg-blue-100' 
+                          : 'bg-green-100'
+                      }`}>
+                        {notification.notification_type === 'teacher' ? (
+                          <User className="w-4 h-4 text-blue-600" />
+                        ) : (
+                          <Users className="w-4 h-4 text-green-600" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {notification.notification_type === 'teacher' 
+                            ? `${(notification as TeacherNotification).profiles.first_name} ${(notification as TeacherNotification).profiles.last_name}`
+                            : `Groep: ${(notification as GroupNotification).groups.name}`
+                          }
+                        </p>
+                        {notification.notification_type === 'teacher' && (
+                          <p className="text-sm text-gray-500">
+                            {(notification as TeacherNotification).profiles.email}
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-500">
+                          {notification.notification_type === 'teacher' ? 'Individuele docent' : 'Hele groep'}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      onClick={() => removeNotification(notification.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
