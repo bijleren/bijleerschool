@@ -51,18 +51,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Simple session check - if it fails, just go to logged out state
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error || !session) {
-        setSession(null);
-        setUser(null);
-      } else {
-        setSession(session);
-        setUser(session.user);
-        // Ensure profile exists after setting user state
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+      
+      // Ensure profile exists after setting user state
+      if (session?.user) {
         ensureProfileExists(session.user);
       }
-      setLoading(false);
     });
 
     // Listen for auth changes
@@ -72,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === 'SIGNED_OUT' || !session) {
           setSession(null);
           setUser(null);
+          setLoading(false);
           // Clear any remaining Supabase authentication tokens
           localStorage.removeItem('supabase.auth.token');
           localStorage.removeItem('sb-xtvmshymjewtfrtydtmc-auth-token');
@@ -80,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         setSession(session);
         setUser(session?.user ?? null);
+        setLoading(false);
         
         // Ensure profile exists after setting user state
         if (session?.user) {
@@ -136,8 +136,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await supabase.auth.signOut();
       
-      // Handle specific refresh token and session errors - these are not critical
-      if (error && (error.message?.includes('session_not_found') || error.message?.includes('refresh_token_not_found'))) {
+      // Handle specific session_not_found error - this is not critical
+      if (error && error.message?.includes('session_not_found')) {
         console.warn('Session was already invalidated on server, proceeding with client-side cleanup');
       } else if (error) {
         throw error;
@@ -149,7 +149,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Force clear client-side session data
       setUser(null);
       setSession(null);
-      setLoading(false);
       // Clear any remaining Supabase session data from localStorage
       localStorage.removeItem('supabase.auth.token');
       localStorage.removeItem('sb-xtvmshymjewtfrtydtmc-auth-token');

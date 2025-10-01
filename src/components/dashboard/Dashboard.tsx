@@ -111,7 +111,7 @@ export function Dashboard() {
       window.removeEventListener('navigateToStudentDetail', handleNavigateToStudentDetail as EventListener);
       window.removeEventListener('navigateToGroupDetail', handleNavigateToGroupDetail as EventListener);
     };
-  }, [user, userSchools]);
+  }, [user]);
 
   const fetchUserSchools = async () => {
     if (!user) return;
@@ -134,35 +134,26 @@ export function Dashboard() {
       // Check if user has any schools
       if (schools.length === 0) {
         setShowOnboarding(true);
-        setLoading(false);
       } else if (schools.length === 1 && !selectedSchool) {
         // Auto-select first school if user has only one school
         setSelectedSchool(schools[0]);
         setFocusSchool(schools[0]);
         setShowOnboarding(false);
-        setLoading(false);
       } else if (schools.length > 1 && !focusSchool) {
         // Auto-select first school as focus school if user has multiple schools
         setFocusSchool(schools[0]);
         setShowOnboarding(false);
-        setLoading(false);
       } else {
         setShowOnboarding(false);
-        setLoading(false);
       }
     } catch (error) {
       console.error('Error fetching user schools:', error);
-      setLoading(false);
     } finally {
       setLoading(false);
     }
   };
 
   const handleNavigateToDashboard = () => {
-    // Reset any selected items when navigating to dashboard
-    setSelectedSchool(null);
-    setSelectedStudent(null);
-    setSelectedGroup(null);
     setActiveTab('dashboard');
   };
 
