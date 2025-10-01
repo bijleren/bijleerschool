@@ -103,55 +103,101 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
 
     setLoading(true);
     try {
-      // Fetch favorites with optimized single queries
-      const [favStudentsResult, favGroupsResult, statsResult] = await Promise.all([
+      // First fetch favorite IDs
+      const [favStudentIds, favGroupIds] = await Promise.all([
         supabase
           .from('user_favorites')
-          .select(`
-            id,
-            favoritable_id,
-            students!inner (
-              id,
-              first_name,
-              last_name,
-              student_number,
-              grade_level,
-              school_id,
-              schools (name)
-            )
-          `)
+          .select('id, favoritable_id')
           .eq('user_id', user.id)
-          .eq('favoritable_type', 'student')
-          .eq('students.school_id', selectedSchoolId)
-          .eq('students.is_active', true),
+          .eq('favoritable_type', 'student'),
         supabase
           .from('user_favorites')
-          .select(`
-            id,
-            favoritable_id,
-            groups!inner (
-              id,
-              name,
-              description,
-              grade_level,
-              school_year,
-              school_id,
-              schools (name)
-            )
-          `)
+          .select('id, favoritable_id')
           .eq('user_id', user.id)
           .eq('favoritable_type', 'group')
-          .eq('groups.school_id', selectedSchoolId)
-          .eq('groups.is_active', true),
-        fetchBasicStats()
       ]);
 
-      if (favStudentsResult.error) throw favStudentsResult.error;
-      if (favGroupsResult.error) throw favGroupsResult.error;
+      if (favStudentIds.error) throw favStudentIds.error;
+      if (favGroupIds.error) throw favGroupIds.error;
 
-      setFavoriteStudents(favStudentsResult.data || []);
-      setFavoriteGroups(favGroupsResult.data || []);
-      setStats(statsResult);
+      // Fetch actual student and group data
+      let favoriteStudentsData: FavoriteStudent[] = [];
+      let favoriteGroupsData: FavoriteGroup[] = [];
+
+      if (favStudentIds.data && favStudentIds.data.length > 0) {
+        const studentIds = favStudentIds.data.map(fav => fav.favoritable_id);
+        const { data: studentsData, error: studentsError } = await supabase
+          .from('students')
+          .select(`
+            id,
+            first_name,
+            last_name,
+            student_number,
+            grade_level,
+            schools (name)
+          `)
+          .in('id', studentIds)
+          .eq('school_id', selectedSchoolId)
+          .eq('is_active', true);
+
+        if (studentsError) throw studentsError;
+
+        // Map back to FavoriteStudent structure
+        favoriteStudentsData = favStudentIds.data
+          .map(fav => {
+            const studentData = studentsData?.find(s => s.id === fav.favoritable_id);
+            if (!studentData) return null;
+            return {
+              id: fav.id,
+              favoritable_id: fav.favoritable_id,
+              students: studentData
+            };
+          })
+          .filter(fav => fav !== null) as FavoriteStudent[];
+      }
+
+      if (favGroupIds.data && favGroupIds.data.length > 0) {
+        const groupIds = favGroupIds.data.map(fav => fav.favoritable_id);
+        const { data: groupsData, error: groupsError } = await supabase
+          .from('groups')
+          .select(`
+            id,
+            name,
+            description,
+            grade_level,
+            school_year,
+            schools (name)
+          `)
+          .in('id', groupIds)
+          .eq('school_id', selectedSchoolId)
+          .eq('is_active', true);
+
+        if (groupsError) throw groupsError;
+
+        // Map back to FavoriteGroup structure
+        favoriteGroupsData = favGroupIds.data
+          .map(fav => {
+            const groupData = groupsData?.find(g => g.id === fav.favoritable_id);
+            if (!groupData) return null;
+            return {
+              id: fav.id,
+              favoritable_id: fav.favoritable_id,
+              groups: groupData
+            };
+          })
+          .filter(fav => fav !== null) as FavoriteGroup[];
+      }
+
+      setFavoriteStudents(favoriteStudentsData);
+      setFavoriteGroups(favoriteGroupsData);
+
+      // Fetch basic stats
+      const statsResult = await fetchBasicStats();
+      setStats({
+        ...statsResult,
+        favoriteStudents: favoriteStudentsData.length,
+        favoriteGroups: favoriteGroupsData.length
+      });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
