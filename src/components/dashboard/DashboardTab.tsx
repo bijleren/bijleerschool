@@ -90,16 +90,152 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   useEffect(() => {
     if (user && focusSchool) {
       setSelectedSchoolId(focusSchool.id);
-      fetchDashboardData();
     }
   }, [user, focusSchool]);
 
+  useEffect(() => {
+    if (selectedSchoolId) {
+      fetchDashboardData();
+    }
+  }, [selectedSchoolId]);
   const fetchDashboardData = async () => {
     if (!user || !selectedSchoolId) return;
 
+    setLoading(true);
     try {
-      // Fetch favorite student IDs for the selected school
-      const { data: favStudentIds, error: studentsError } = await supabase
+      // Fetch favorites with optimized single queries
+      const [favStudentsResult, favGroupsResult, statsResult] = await Promise.all([
+        supabase
+          .from('user_favorites')
+          .select(`
+            id,
+            favoritable_id,
+            students!inner (
+              id,
+              first_name,
+              last_name,
+              student_number,
+              grade_level,
+              school_id,
+              schools (name)
+            )
+          `)
+          .eq('user_id', user.id)
+          .eq('favoritable_type', 'student')
+          .eq('students.school_id', selectedSchoolId)
+          .eq('students.is_active', true),
+        supabase
+          .from('user_favorites')
+          .select(`
+            id,
+            favoritable_id,
+            groups!inner (
+              id,
+              name,
+              description,
+              grade_level,
+              school_year,
+              school_id,
+              schools (name)
+            )
+          `)
+          .eq('user_id', user.id)
+          .eq('favoritable_type', 'group')
+          .eq('groups.school_id', selectedSchoolId)
+          .eq('groups.is_active', true),
+        fetchBasicStats()
+      ]);
+
+      if (favStudentsResult.error) throw favStudentsResult.error;
+      if (favGroupsResult.error) throw favGroupsResult.error;
+
+      setFavoriteStudents(favStudentsResult.data || []);
+      setFavoriteGroups(favGroupsResult.data || []);
+      setStats(statsResult);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBasicStats = async () => {
+    if (!user || !selectedSchoolId) return {
+      totalSchools: 0,
+      totalStudents: 0,
+      totalGroups: 0,
+      favoriteStudents: 0,
+      favoriteGroups: 0,
+      reportsToday: 0,
+      openReports: 0,
+      notifications: 0,
+    };
+
+    try {
+      // Get today's date range for behavior stats
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+      // Fetch all stats in parallel
+      const [
+        { count: studentCount },
+        { count: groupCount },
+        { count: reportsToday },
+        { count: openReports }
+      ] = await Promise.all([
+        supabase
+          .from('students')
+          .select('*', { count: 'exact', head: true })
+          .eq('school_id', selectedSchoolId)
+          .eq('is_active', true),
+        supabase
+          .from('groups')
+          .select('*', { count: 'exact', head: true })
+          .eq('school_id', selectedSchoolId)
+          .eq('is_active', true),
+        supabase
+          .from('behavior_incidents')
+          .select('*', { count: 'exact', head: true })
+          .eq('school_id', selectedSchoolId)
+          .gte('incident_date', startOfDay.toISOString())
+          .lt('incident_date', endOfDay.toISOString()),
+        supabase
+          .from('behavior_incidents')
+          .select('*', { count: 'exact', head: true })
+          .eq('school_id', selectedSchoolId)
+          .in('status', ['pending', 'in_progress'])
+      ]);
+
+      return {
+        totalSchools: 1,
+        totalStudents: studentCount || 0,
+        totalGroups: groupCount || 0,
+        favoriteStudents: favoriteStudents.length,
+        favoriteGroups: favoriteGroups.length,
+        reportsToday: reportsToday || 0,
+        openReports: openReports || 0,
+        notifications: 0,
+      };
+    } catch (error) {
+      console.error('Error fetching basic stats:', error);
+      return {
+        totalSchools: 0,
+        totalStudents: 0,
+        totalGroups: 0,
+        favoriteStudents: 0,
+        favoriteGroups: 0,
+        reportsToday: 0,
+        openReports: 0,
+        notifications: 0,
+      };
+    }
+  };
+
+  const fetchStats = async () => {
+    if (!user || !selectedSchoolId) return;
+
+    try {
         .from('user_favorites')
         .select('id, favoritable_id')
         .eq('user_id', user.id)
@@ -285,7 +421,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   };
 
   const fetchBehaviorStats = async () => {
-    if (!user || !selectedSchoolId) return;
+    if (!user || !selectedSchoolId) return { reportsToday: 0, openReports: 0, notifications: 0 };
 
     try {
       // Get today's date range
@@ -293,30 +429,32 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
-      // Count reports today
-      const { count: reportsToday } = await supabase
-        .from('behavior_incidents')
-        .select('*', { count: 'exact', head: true })
-        .eq('school_id', selectedSchoolId)
-        .gte('incident_date', startOfDay.toISOString())
-        .lt('incident_date', endOfDay.toISOString());
+      // Fetch behavior stats in parallel
+      const [
+        { count: reportsToday },
+        { count: openReports }
+      ] = await Promise.all([
+        supabase
+          .from('behavior_incidents')
+          .select('*', { count: 'exact', head: true })
+          .eq('school_id', selectedSchoolId)
+          .gte('incident_date', startOfDay.toISOString())
+          .lt('incident_date', endOfDay.toISOString()),
+        supabase
+          .from('behavior_incidents')
+          .select('*', { count: 'exact', head: true })
+          .eq('school_id', selectedSchoolId)
+          .in('status', ['pending', 'in_progress'])
+      ]);
 
-      // Count open reports (pending and in_progress)
-      const { count: openReports } = await supabase
-        .from('behavior_incidents')
-        .select('*', { count: 'exact', head: true })
-        .eq('school_id', selectedSchoolId)
-        .in('status', ['pending', 'in_progress']);
-
-      // Update stats with behavior data
-      setStats(prev => ({
-        ...prev,
+      return {
         reportsToday: reportsToday || 0,
         openReports: openReports || 0,
-        notifications: 0, // Set to 0 until behavior_incident_notifications table is created
-      }));
+        notifications: 0
+      };
     } catch (error) {
       console.error('Error fetching behavior stats:', error);
+      return { reportsToday: 0, openReports: 0, notifications: 0 };
     }
   };
 
