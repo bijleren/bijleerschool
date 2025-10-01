@@ -39,6 +39,7 @@ interface FavoriteGroup {
     description: string | null;
     grade_level: string | null;
     school_year: string | null;
+    school_id: string;
     schools: {
       name: string;
     };
@@ -166,6 +167,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             description,
             grade_level,
             school_year,
+            school_id,
             schools (name)
           `)
           .in('id', groupIds)
