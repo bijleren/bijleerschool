@@ -19,7 +19,9 @@ import {
   FileText,
   Image,
   File,
-  AlertTriangle
+  AlertTriangle,
+  Plus,
+  Users
 } from 'lucide-react';
 
 interface BehaviorIncident {
