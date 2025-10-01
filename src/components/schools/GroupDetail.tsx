@@ -379,12 +379,12 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
       let teammemberProfileId;
       
       // Check if teammember profile exists
-      const { data: existingTeammember, error: checkError } = await supabase
+      const { data: existingTeammembers, error: checkError } = await supabase
         .from('teammembers')
         .select('id')
         .eq('user_id', userSchool.user_id)
         .eq('is_active', true)
-        .maybeSingle();
+        .limit(1);
 
       if (checkError) {
         console.error('Error checking teammember profile:', checkError);
@@ -392,8 +392,8 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
         return;
       }
 
-      if (existingTeammember) {
-        teammemberProfileId = existingTeammember.id;
+      if (existingTeammembers && existingTeammembers.length > 0) {
+        teammemberProfileId = existingTeammembers[0].id;
       } else {
         // Create teammember profile
         const { data: newTeammember, error: createError } = await supabase
