@@ -5,20 +5,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { 
-  ArrowLeft, 
-  Edit, 
-  Save, 
-  X, 
-  Plus, 
-  Users, 
-  GraduationCap,
-  UserPlus,
-  Trash2,
-  Search,
-  Heart,
-  Star
-} from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star } from 'lucide-react';
 
 interface Group {
   id: string;
