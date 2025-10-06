@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { Link, Plus, Video, FileText, ExternalLink, Trash2, CreditCard as Edit2, Users, BarChart3, Eye, Zap, Star, X, Filter } from 'lucide-react';
+import { Link, Plus, Video, FileText, ExternalLink, Trash2, Pencil, Users, BarChart3, Eye, Zap, Star, X, Filter } from 'lucide-react';
 import { WebWijzerContentForm } from './WebWijzerContentForm';
 import { WebWijzerAssignments } from './WebWijzerAssignments';
 import { WebWijzerAnalytics } from './WebWijzerAnalytics';
@@ -423,7 +423,7 @@ export function WebWijzerTab() {
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                     title="Edit content"
                   >
-                    <Edit2 className="w-4 h-4 text-gray-600" />
+                    <Pencil className="w-4 h-4 text-gray-600" />
                   </button>
                   <button
                     onClick={() => handleDelete(content.id)}
@@ -437,10 +437,13 @@ export function WebWijzerTab() {
 
               <h3 className="font-semibold text-gray-900 mb-2">{content.title}</h3>
 
-              <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+              <button
+                onClick={() => window.open(content.content_url, '_blank')}
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 mb-4 transition-colors"
+              >
                 {getContentIcon(content.content_type)}
                 <span className="capitalize">{content.content_type}</span>
-              </div>
+              </button>
 
               {/* Statistics */}
               <div className="grid grid-cols-2 gap-2 mb-4 pb-4 border-b border-gray-200">
@@ -457,22 +460,20 @@ export function WebWijzerTab() {
               </div>
 
               {/* Badges */}
-              {(content.push_count! > 0 || content.favorite_count! > 0) && (
-                <div className="flex gap-2 mb-4">
-                  {content.push_count! > 0 && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 text-orange-700 text-xs font-medium rounded-full">
-                      <Zap className="w-3 h-3" />
-                      {content.push_count} Push
-                    </span>
-                  )}
-                  {content.favorite_count! > 0 && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-50 text-yellow-700 text-xs font-medium rounded-full">
-                      <Star className="w-3 h-3" />
-                      {content.favorite_count} Favorite
-                    </span>
-                  )}
-                </div>
-              )}
+              <div className="flex gap-2 mb-4" style={{ minHeight: '28px' }}>
+                {content.push_count! > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 text-orange-700 text-xs font-medium rounded-full">
+                    <Zap className="w-3 h-3" />
+                    {content.push_count} Push
+                  </span>
+                )}
+                {content.favorite_count! > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-50 text-yellow-700 text-xs font-medium rounded-full">
+                    <Star className="w-3 h-3" />
+                    {content.favorite_count} Favorite
+                  </span>
+                )}
+              </div>
 
               {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-2">
