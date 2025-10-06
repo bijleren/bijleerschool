@@ -613,17 +613,17 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
               favoriteStudents.map((favorite) => (
                 <Card key={favorite.id} className="hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <div
+                      className="flex items-start space-x-3 flex-1 cursor-pointer"
+                      onClick={() => handleStudentClick(favorite.students)}
+                    >
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <GraduationCap className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <button
-                          onClick={() => handleStudentClick(favorite.students)}
-                          className="font-medium text-gray-900 hover:text-indigo-600 transition-colors text-left"
-                        >
+                        <div className="font-medium text-gray-900 hover:text-indigo-600 transition-colors">
                           {favorite.students.first_name} {favorite.students.last_name}
-                        </button>
+                        </div>
                         {favorite.students.student_number && (
                           <p className="text-sm text-gray-600">#{favorite.students.student_number}</p>
                         )}
@@ -645,11 +645,14 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 flex-shrink-0">
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => handleQuickIncidentReport(favorite.students)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleQuickIncidentReport(favorite.students);
+                        }}
                         className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                         title="Incident melden"
                       >
@@ -692,17 +695,17 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
               favoriteGroups.map((favorite) => (
                 <Card key={favorite.id} className="hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <div
+                      className="flex items-start space-x-3 flex-1 cursor-pointer"
+                      onClick={() => handleGroupClick(favorite.groups)}
+                    >
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <Users className="w-5 h-5 text-green-600" />
                       </div>
                       <div>
-                        <button
-                          onClick={() => handleGroupClick(favorite.groups)}
-                          className="font-semibold text-gray-900 hover:text-indigo-600 transition-colors text-left"
-                        >
+                        <div className="font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
                           {favorite.groups.name}
-                        </button>
+                        </div>
                         {favorite.groups.description && (
                           <p className="text-sm text-gray-600">{favorite.groups.description}</p>
                         )}
@@ -729,7 +732,11 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                     <Button
                       variant="secondary"
                       size="sm"
-                      onClick={() => handleGroupClick(favorite.groups)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleGroupClick(favorite.groups);
+                      }}
+                      className="flex-shrink-0"
                     >
                       Bekijk klas
                     </Button>
