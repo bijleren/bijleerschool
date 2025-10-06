@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { X, ExternalLink, Download } from 'lucide-react';
+import { X, ExternalLink, Download, Youtube } from 'lucide-react';
 
 interface WebWijzerContent {
   id: string;
@@ -28,14 +28,25 @@ export function WebWijzerContentViewer({ content, onClose }: WebWijzerContentVie
       case 'video':
         const embedUrl = getYouTubeEmbedUrl(content.content_url);
         return embedUrl ? (
-          <div className="aspect-video w-full bg-black rounded-lg overflow-hidden">
-            <iframe
-              src={embedUrl}
-              title={content.title}
-              className="w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+          <div className="space-y-4">
+            <div className="flex justify-center">
+              <Button
+                onClick={() => window.open(content.content_url, '_blank')}
+                className="inline-flex items-center gap-2"
+              >
+                <Youtube className="w-5 h-5" />
+                View Video on YouTube
+              </Button>
+            </div>
+            <div className="aspect-video w-full bg-black rounded-lg overflow-hidden">
+              <iframe
+                src={embedUrl}
+                title={content.title}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
           </div>
         ) : (
           <div className="text-center py-12">
