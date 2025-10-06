@@ -1131,7 +1131,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                 )}
                 <div className="flex-1">
                   <p className="text-sm font-medium text-blue-900 mb-2">
-                    https://bijleer.school/?h={accessHash || '...'}
+                    https://bijleer.school/webwijzer?h={accessHash || '...'}
                   </p>
                   <p className="text-xs text-blue-700 mb-2">
                     Students can scan this QR code for instant access to their WebWijzer
