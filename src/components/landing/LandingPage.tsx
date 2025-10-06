@@ -38,7 +38,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-5xl font-bold text-gray-900 mb-6">
-              Didactische Toolkit voor Docenten
+              Didactische Toolkit voor leerkrachten
             </h1>
             <p className="text-xl text-gray-600 mb-8">
               BijleerSchool helpt docenten bij het verbeteren van hun lessen met bewezen didactische technieken,
