@@ -197,11 +197,11 @@ export function PublicWebWijzerAccess() {
         </div>
 
         <Link
-          to="/login"
-          className="fixed top-4 right-4 flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow text-sm font-medium"
+          to="/"
+          className="fixed top-4 left-4 flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow text-sm font-medium"
         >
           <GraduationCap className="w-4 h-4" />
-          <span>Docent login</span>
+          <span>Terug naar home</span>
         </Link>
 
         {!accessMethod ? (
