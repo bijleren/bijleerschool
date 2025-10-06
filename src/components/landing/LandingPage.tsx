@@ -26,7 +26,7 @@ export function LandingPage() {
                 WebWijzer
               </Link>
               <Button onClick={() => navigate('/login')} variant="primary">
-                Docent Login
+                Leerkracht Login
               </Button>
             </div>
           </div>
@@ -119,7 +119,7 @@ export function LandingPage() {
             Klaar om te beginnen?
           </h2>
           <p className="text-xl mb-8 text-blue-50">
-            Sluit je aan bij docenten die BijleerSchool gebruiken om hun onderwijs te verbeteren.
+            Sluit je aan bij leerkrachten die BijleerSchool gebruiken om hun onderwijs te verbeteren.
           </p>
           <Button
             onClick={() => navigate('/login')}
