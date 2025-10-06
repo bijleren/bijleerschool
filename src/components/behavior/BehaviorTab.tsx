@@ -78,6 +78,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [severityFilter, setSeverityFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   useEffect(() => {
     // Check if there's a preselected student and auto-open the form
@@ -104,17 +105,31 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
     const handleNavigateToBehaviorSettings = () => {
       setActiveView('settings');
     };
+
+    const handleFilterByCategory = (event: any) => {
+      setCategoryFilter(event.detail.categoryName);
+      setActiveView('incidents');
+    };
+
+    const handleFilterBySeverity = (event: any) => {
+      setSeverityFilter(event.detail.severityLevel.toString());
+      setActiveView('incidents');
+    };
     
     window.addEventListener('navigateToBehaviorForm', handleNavigateToBehaviorForm);
     window.addEventListener('navigateToBehaviorIncidents', handleNavigateToBehaviorIncidents);
     window.addEventListener('navigateToBehaviorAnalytics', handleNavigateToBehaviorAnalytics);
     window.addEventListener('navigateToBehaviorSettings', handleNavigateToBehaviorSettings);
+    window.addEventListener('filterByCategory', handleFilterByCategory as EventListener);
+    window.addEventListener('filterBySeverity', handleFilterBySeverity as EventListener);
     
     return () => {
       window.removeEventListener('navigateToBehaviorForm', handleNavigateToBehaviorForm);
       window.removeEventListener('navigateToBehaviorIncidents', handleNavigateToBehaviorIncidents);
       window.removeEventListener('navigateToBehaviorAnalytics', handleNavigateToBehaviorAnalytics);
       window.removeEventListener('navigateToBehaviorSettings', handleNavigateToBehaviorSettings);
+      window.removeEventListener('filterByCategory', handleFilterByCategory as EventListener);
+      window.removeEventListener('filterBySeverity', handleFilterBySeverity as EventListener);
     };
   }, [selectedSchool]);
 
@@ -252,17 +267,20 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
   };
 
   const filteredIncidents = incidents.filter(incident => {
-    const matchesSearch = searchTerm === '' || 
+    const matchesSearch = searchTerm === '' ||
       `${incident.students.first_name} ${incident.students.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       incident.behavior_items.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       incident.description.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus = statusFilter === 'all' || incident.status === statusFilter;
-    
-    const matchesSeverity = severityFilter === 'all' || 
+
+    const matchesSeverity = severityFilter === 'all' ||
       incident.behavior_items.behavior_severity_levels.level.toString() === severityFilter;
 
-    return matchesSearch && matchesStatus && matchesSeverity;
+    const matchesCategory = categoryFilter === 'all' ||
+      incident.behavior_items.behavior_categories.name === categoryFilter;
+
+    return matchesSearch && matchesStatus && matchesSeverity && matchesCategory;
   });
 
   if (!selectedSchool) {
@@ -392,7 +410,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
 
       {/* Filters */}
       <Card className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
@@ -411,6 +429,18 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
             <option value="pending">Melding</option>
             <option value="in_progress">Onderzoek</option>
             <option value="resolved">Afgerond</option>
+          </select>
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="all">Alle categorieën</option>
+            {Array.from(new Set(incidents.map(i => i.behavior_items.behavior_categories.name)))
+              .sort()
+              .map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
           </select>
           <select
             value={severityFilter}

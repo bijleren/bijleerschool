@@ -310,7 +310,15 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
           </h3>
           <div className="space-y-3">
             {categoryStats.map((category) => (
-              <div key={category.category_name} className="space-y-2">
+              <div
+                key={category.category_name}
+                className="space-y-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('filterByCategory', {
+                    detail: { categoryName: category.category_name }
+                  }));
+                }}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <div
@@ -354,7 +362,15 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
           </h3>
           <div className="space-y-3">
             {severityStats.map((severity) => (
-              <div key={severity.level} className="space-y-2">
+              <div
+                key={severity.level}
+                className="space-y-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('filterBySeverity', {
+                    detail: { severityLevel: severity.level }
+                  }));
+                }}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <div
