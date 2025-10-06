@@ -99,7 +99,8 @@ export function PublicWebWijzerAccess() {
       if (queryError) throw queryError;
 
       if (!data) {
-        setError('Invalid or expired QR code');
+        setError('Invalid or expired QR code. Please try entering your code manually.');
+        setAccessMethod('code');
         return;
       }
 
