@@ -37,18 +37,12 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
                   <span className="text-indigo-600 mr-2">•</span>
                   <span>Mogelijkheid om meerdere studenten toe te voegen aan één incident</span>
                 </li>
+               
                 <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
-                  <span>Toewijzen van verschillende rollen aan studenten (bijv. hoofddader, slachtoffer, toeschouwer)</span>
+                  <span>Bij incidenten zie je nu meerdere studenten en hun rol.</span>
                 </li>
-                <li className="flex items-start">
-                  <span className="text-indigo-600 mr-2">•</span>
-                  <span>Nieuwe 'Studentrollen' beheer pagina in instellingen voor het configureren van rollen</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-indigo-600 mr-2">•</span>
-                  <span>Automatische migratie van bestaande incidenten met één student</span>
-                </li>
+               
               </ul>
             </div>
 
@@ -57,15 +51,15 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
-                  <span>Nieuwe 'Gevolgen' beheer pagina voor het configureren van acties en sancties</span>
+                  <span>Je kan meerdere consequenties toevoegen aan één incident.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
-                  <span>Onderscheid tussen 'Eerste acties' (direct genomen) en 'Follow-up acties' (later uitgevoerd)</span>
+                  <span>Je kan na het maken van een incident follow-upconsequenties toevoegen.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
-                  <span>Mogelijkheid om meerdere acties per incident toe te voegen met notities</span>
+                  <span>Mogelijkheid om notities toe te voegen</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
@@ -74,43 +68,20 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
               </ul>
             </div>
 
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Database verbeteringen</h3>
-              <ul className="space-y-2 text-gray-700">
-                <li className="flex items-start">
-                  <span className="text-indigo-600 mr-2">•</span>
-                  <span>Nieuwe tabellen voor studentrollen, gevolgen en acties</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-indigo-600 mr-2">•</span>
-                  <span>Junction tabel voor meerdere studenten per incident</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-indigo-600 mr-2">•</span>
-                  <span>Achterwaartse compatibiliteit met bestaande incidenten</span>
-                </li>
-              </ul>
-            </div>
+           
 
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Gebruikersinterface</h3>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
-                  <span>Verbeterde incidentweergave met studentrollen en meerdere acties</span>
+                  <span>Dashboard heeft nieuwe gegevens en berekent nu ook specifiek incidenten per gebruiker</span>
                 </li>
-                <li className="flex items-start">
+                 <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
-                  <span>Nieuw tabblad 'Studentrollen' in gedragsinstellingen</span>
+                  <span>Fix analysepagina met snellere doorklikmogelijkheden.</span>
                 </li>
-                <li className="flex items-start">
-                  <span className="text-indigo-600 mr-2">•</span>
-                  <span>Nieuw tabblad 'Gevolgen' in gedragsinstellingen</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-indigo-600 mr-2">•</span>
-                  <span>Betere organisatie van eerste acties en follow-up acties in formulieren</span>
-                </li>
+                
               </ul>
             </div>
           </div>
