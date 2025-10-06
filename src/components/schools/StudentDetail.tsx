@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette, Link, QrCode, RefreshCw, ExternalLink } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette, Link, QrCode, RefreshCw, ExternalLink, Download } from 'lucide-react';
 import { ColorPicker } from '../ui/ColorPicker';
 import { StudentWebWijzer } from '../webwijzer/StudentWebWijzer';
+import QRCodeLib from 'qrcode';
 
 interface Student {
   id: string;
@@ -99,7 +100,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  
+
   // Student editing states
   const [editFirstName, setEditFirstName] = useState(student.first_name);
   const [editLastName, setEditLastName] = useState(student.last_name);
@@ -115,6 +116,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const [symbolFile, setSymbolFile] = useState<File | null>(null);
   const [profilePicturePreview, setProfilePicturePreview] = useState(student.profile_picture_url || '');
   const [symbolPreview, setSymbolPreview] = useState(student.symbol_url || '');
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
 
   // Student groups
   const [studentGroups, setStudentGroups] = useState<StudentGroup[]>([]);
@@ -153,7 +155,40 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
     fetchStudentGrades();
     fetchRecentIncidents();
     fetchIncidentStatistics();
+    generateQRCode();
   }, []);
+
+  useEffect(() => {
+    generateQRCode();
+  }, [student.access_hash]);
+
+  const generateQRCode = async () => {
+    if (student.access_hash) {
+      const url = `${window.location.origin}/webwijzer?h=${student.access_hash}`;
+      try {
+        const dataUrl = await QRCodeLib.toDataURL(url, {
+          width: 300,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF',
+          },
+        });
+        setQrCodeDataUrl(dataUrl);
+      } catch (err) {
+        console.error('Error generating QR code:', err);
+      }
+    }
+  };
+
+  const downloadQRCode = () => {
+    if (qrCodeDataUrl) {
+      const link = document.createElement('a');
+      link.download = `${student.first_name}-${student.last_name}-QR.png`;
+      link.href = qrCodeDataUrl;
+      link.click();
+    }
+  };
 
   const fetchRecentIncidents = async () => {
     try {
@@ -1072,16 +1107,42 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">QR Code URL</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">QR Code</label>
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-              <div className="flex items-start gap-3">
-                <QrCode className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="flex items-start gap-4">
+                {qrCodeDataUrl ? (
+                  <div className="flex-shrink-0">
+                    <div
+                      className="bg-white p-2 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow border-2 border-transparent hover:border-blue-300"
+                      onClick={downloadQRCode}
+                      title="Click to download QR code"
+                    >
+                      <img src={qrCodeDataUrl} alt="QR Code" className="w-32 h-32" />
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={downloadQRCode}
+                      className="w-full mt-2"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <QrCode className="w-12 h-12 text-gray-400" />
+                  </div>
+                )}
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-blue-900 mb-1">
-                    https://bijleren.school/webwijzer?h={accessHash || '...'}
+                  <p className="text-sm font-medium text-blue-900 mb-2">
+                    {window.location.origin}/webwijzer?h={accessHash || '...'}
                   </p>
-                  <p className="text-xs text-blue-700">
-                    Generate a QR code for this URL to give students instant access
+                  <p className="text-xs text-blue-700 mb-2">
+                    Students can scan this QR code for instant access to their WebWijzer
+                  </p>
+                  <p className="text-xs text-blue-600 font-medium">
+                    Click the QR code to download it
                   </p>
                 </div>
               </div>
