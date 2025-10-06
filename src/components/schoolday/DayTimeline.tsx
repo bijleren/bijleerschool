@@ -4,23 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { 
-  Calendar, 
-  Clock, 
-  BookOpen, 
-  Coffee, 
-  Utensils, 
-  MoreHorizontal,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  AlertTriangle,
-  Target,
-  Edit,
-  X,
-  Search,
-  BookOpen as BookOpenIcon
-} from 'lucide-react';
+import { Calendar, Clock, BookOpen, Coffee, Utensils, MoreHorizontal, ChevronLeft, ChevronRight, Plus, AlertTriangle, Target, CreditCard as Edit, X, Search, BookOpen as BookOpenIcon } from 'lucide-react';
 import { BehaviorIncidentForm } from '../behavior/BehaviorIncidentForm';
 
 interface DayTemplate {
