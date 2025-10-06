@@ -87,6 +87,10 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   });
   const [loading, setLoading] = useState(true);
   const [selectedSchoolId, setSelectedSchoolId] = useState<string>('');
+  const [studentIncidentCounts, setStudentIncidentCounts] = useState<Record<string, { open: number; week: number }>>({});
+  const [groupIncidentCounts, setGroupIncidentCounts] = useState<Record<string, { open: number; week: number }>>({});
+  const [schoolOverviewPeriod, setSchoolOverviewPeriod] = useState<number>(7);
+  const [schoolStats, setSchoolStats] = useState({ today: 0, open: 0, students: 0 });
 
   useEffect(() => {
     if (user && focusSchool) {
@@ -200,6 +204,11 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         favoriteStudents: favoriteStudentsData.length,
         favoriteGroups: favoriteGroupsData.length
       });
+
+      // Fetch incident counts for favorites
+      await fetchStudentIncidentCounts(favoriteStudentsData.map(f => f.students.id));
+      await fetchGroupIncidentCounts(favoriteGroupsData.map(f => f.groups.id));
+      await fetchSchoolOverview();
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -228,9 +237,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       // Fetch all stats in parallel
       const [
         { count: studentCount },
-        { count: groupCount },
-        { count: reportsToday },
-        { count: openReports }
+        { count: groupCount }
       ] = await Promise.all([
         supabase
           .from('students')
@@ -241,29 +248,59 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
           .from('groups')
           .select('*', { count: 'exact', head: true })
           .eq('school_id', selectedSchoolId)
-          .eq('is_active', true),
-        supabase
-          .from('behavior_incidents')
-          .select('*', { count: 'exact', head: true })
-          .eq('school_id', selectedSchoolId)
-          .gte('incident_date', startOfDay.toISOString())
-          .lt('incident_date', endOfDay.toISOString()),
-        supabase
-          .from('behavior_incidents')
-          .select('*', { count: 'exact', head: true })
-          .eq('school_id', selectedSchoolId)
-          .in('status', ['pending', 'in_progress'])
+          .eq('is_active', true)
       ]);
+
+      // Fetch teacher-connected incidents (via notifications table)
+      // Get all incidents where teacher is directly notified OR their groups are notified
+      const { data: teacherNotifications } = await supabase
+        .from('behavior_incident_notifications')
+        .select('incident_id')
+        .eq('teacher_id', user.id);
+
+      const { data: groupNotifications } = await supabase
+        .from('behavior_incident_notifications')
+        .select('incident_id, group_id');
+
+      // Get unique incident IDs connected to this teacher
+      const directIncidentIds = new Set(teacherNotifications?.map(n => n.incident_id) || []);
+      const groupIncidentIds = new Set(groupNotifications?.map(n => n.incident_id) || []);
+      const allIncidentIds = new Set([...directIncidentIds, ...groupIncidentIds]);
+
+      // Count incidents for today
+      const { data: todayIncidents } = await supabase
+        .from('behavior_incidents')
+        .select('id')
+        .eq('school_id', selectedSchoolId)
+        .in('id', Array.from(allIncidentIds))
+        .gte('incident_date', startOfDay.toISOString())
+        .lt('incident_date', endOfDay.toISOString());
+
+      // Count open incidents (status 'pending' or 'in_progress')
+      const { data: openIncidents } = await supabase
+        .from('behavior_incidents')
+        .select('id')
+        .eq('school_id', selectedSchoolId)
+        .in('id', Array.from(allIncidentIds))
+        .in('status', ['pending', 'in_progress']);
+
+      // Count direct teacher notifications that are open
+      const { data: directOpenIncidents } = await supabase
+        .from('behavior_incidents')
+        .select('id')
+        .eq('school_id', selectedSchoolId)
+        .in('id', Array.from(directIncidentIds))
+        .in('status', ['pending', 'in_progress']);
 
       return {
         totalSchools: 1,
         totalStudents: studentCount || 0,
         totalGroups: groupCount || 0,
-        favoriteStudents: 0, // Will be updated after favorites are loaded
-        favoriteGroups: 0, // Will be updated after favorites are loaded
-        reportsToday: reportsToday || 0,
-        openReports: openReports || 0,
-        notifications: 0,
+        favoriteStudents: 0,
+        favoriteGroups: 0,
+        reportsToday: todayIncidents?.length || 0,
+        openReports: openIncidents?.length || 0,
+        notifications: directOpenIncidents?.length || 0,
       };
     } catch (error) {
       console.error('Error fetching basic stats:', error);
@@ -279,6 +316,152 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       };
     }
   };
+
+  const fetchStudentIncidentCounts = async (studentIds: string[]) => {
+    if (studentIds.length === 0) return;
+
+    try {
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+
+      const counts: Record<string, { open: number; week: number }> = {};
+
+      for (const studentId of studentIds) {
+        // Count open incidents
+        const { data: openIncidents } = await supabase
+          .from('behavior_incident_students')
+          .select(`
+            behavior_incidents!inner(id, status)
+          `)
+          .eq('student_id', studentId)
+          .in('behavior_incidents.status', ['pending', 'in_progress']);
+
+        // Count incidents from last week
+        const { data: weekIncidents } = await supabase
+          .from('behavior_incident_students')
+          .select(`
+            behavior_incidents!inner(id, incident_date)
+          `)
+          .eq('student_id', studentId)
+          .gte('behavior_incidents.incident_date', weekAgo.toISOString());
+
+        counts[studentId] = {
+          open: openIncidents?.length || 0,
+          week: weekIncidents?.length || 0
+        };
+      }
+
+      setStudentIncidentCounts(counts);
+    } catch (error) {
+      console.error('Error fetching student incident counts:', error);
+    }
+  };
+
+  const fetchGroupIncidentCounts = async (groupIds: string[]) => {
+    if (groupIds.length === 0) return;
+
+    try {
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+
+      const counts: Record<string, { open: number; week: number }> = {};
+
+      for (const groupId of groupIds) {
+        // Get all students in this group
+        const { data: groupStudents } = await supabase
+          .from('student_groups')
+          .select('student_id')
+          .eq('group_id', groupId)
+          .eq('is_active', true);
+
+        if (!groupStudents || groupStudents.length === 0) {
+          counts[groupId] = { open: 0, week: 0 };
+          continue;
+        }
+
+        const studentIds = groupStudents.map(gs => gs.student_id);
+
+        // Count open incidents for students in this group
+        const { data: openIncidents } = await supabase
+          .from('behavior_incident_students')
+          .select(`
+            behavior_incidents!inner(id, status)
+          `)
+          .in('student_id', studentIds)
+          .in('behavior_incidents.status', ['pending', 'in_progress']);
+
+        // Count incidents from last week
+        const { data: weekIncidents } = await supabase
+          .from('behavior_incident_students')
+          .select(`
+            behavior_incidents!inner(id, incident_date)
+          `)
+          .in('student_id', studentIds)
+          .gte('behavior_incidents.incident_date', weekAgo.toISOString());
+
+        counts[groupId] = {
+          open: openIncidents?.length || 0,
+          week: weekIncidents?.length || 0
+        };
+      }
+
+      setGroupIncidentCounts(counts);
+    } catch (error) {
+      console.error('Error fetching group incident counts:', error);
+    }
+  };
+
+  const fetchSchoolOverview = async () => {
+    if (!selectedSchoolId) return;
+
+    try {
+      const periodAgo = new Date();
+      periodAgo.setDate(periodAgo.getDate() - schoolOverviewPeriod);
+
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+      // Count today's incidents
+      const { data: todayIncidents } = await supabase
+        .from('behavior_incidents')
+        .select('id')
+        .eq('school_id', selectedSchoolId)
+        .gte('incident_date', startOfDay.toISOString());
+
+      // Count open incidents
+      const { data: openIncidents } = await supabase
+        .from('behavior_incidents')
+        .select('id')
+        .eq('school_id', selectedSchoolId)
+        .in('status', ['pending', 'in_progress']);
+
+      // Count unique students with incidents in the period
+      const { data: incidentStudents } = await supabase
+        .from('behavior_incident_students')
+        .select(`
+          student_id,
+          behavior_incidents!inner(incident_date, school_id)
+        `)
+        .eq('behavior_incidents.school_id', selectedSchoolId)
+        .gte('behavior_incidents.incident_date', periodAgo.toISOString());
+
+      const uniqueStudents = new Set(incidentStudents?.map(is => is.student_id) || []);
+
+      setSchoolStats({
+        today: todayIncidents?.length || 0,
+        open: openIncidents?.length || 0,
+        students: uniqueStudents.size
+      });
+    } catch (error) {
+      console.error('Error fetching school overview:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedSchoolId) {
+      fetchSchoolOverview();
+    }
+  }, [schoolOverviewPeriod, selectedSchoolId]);
 
   const removeFavorite = async (favoriteId: string, type: 'student' | 'group') => {
     try {
@@ -364,7 +547,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         <div className="lg:col-span-2 mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
             <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
-            Gedrag Overzicht
+            Betrokken incidenten
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior()}>
@@ -395,7 +578,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                   <Users className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Notificaties</p>
+                  <p className="text-sm font-medium text-gray-600">Betrokken incidenten</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.notifications}</p>
                 </div>
               </div>
@@ -448,6 +631,16 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                           <div className="flex items-center text-sm text-gray-500 mt-1">
                             <Calendar className="w-4 h-4 mr-1" />
                             Klas: {favorite.students.grade_level}
+                          </div>
+                        )}
+                        {studentIncidentCounts[favorite.students.id] && (
+                          <div className="flex items-center space-x-3 text-xs text-gray-500 mt-2">
+                            <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded">
+                              {studentIncidentCounts[favorite.students.id].open} open
+                            </span>
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded">
+                              {studentIncidentCounts[favorite.students.id].week} deze week
+                            </span>
                           </div>
                         )}
                       </div>
@@ -521,6 +714,16 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                             </div>
                           )}
                         </div>
+                        {groupIncidentCounts[favorite.groups.id] && (
+                          <div className="flex items-center space-x-3 text-xs text-gray-500 mt-2">
+                            <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded">
+                              {groupIncidentCounts[favorite.groups.id].open} open
+                            </span>
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded">
+                              {groupIncidentCounts[favorite.groups.id].week} deze week
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <Button
@@ -535,6 +738,67 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
               ))
             )}
           </div>
+        </div>
+      </div>
+
+      {/* School Overview Section */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+            <School className="w-5 h-5 text-blue-600 mr-2" />
+            School overzicht
+          </h2>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">Periode:</span>
+            <select
+              value={schoolOverviewPeriod}
+              onChange={(e) => setSchoolOverviewPeriod(Number(e.target.value))}
+              className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value={7}>Laatste 7 dagen</option>
+              <option value={14}>Laatste 14 dagen</option>
+              <option value={30}>Laatste 30 dagen</option>
+              <option value={90}>Laatste 90 dagen</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <div className="flex items-center">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Calendar className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Meldingen vandaag</p>
+                <p className="text-2xl font-bold text-gray-900">{schoolStats.today}</p>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="flex items-center">
+              <div className="p-3 bg-yellow-100 rounded-lg">
+                <AlertTriangle className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Open meldingen</p>
+                <p className="text-2xl font-bold text-gray-900">{schoolStats.open}</p>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-lg">
+                <Users className="w-6 h-6 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Betrokken leerlingen</p>
+                <p className="text-2xl font-bold text-gray-900">{schoolStats.students}</p>
+              </div>
+            </div>
+          </Card>
         </div>
       </div>
     </div>
