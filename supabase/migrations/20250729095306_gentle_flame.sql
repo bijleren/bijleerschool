@@ -256,7 +256,7 @@ BEGIN
     INSERT INTO behavior_categories (school_id, name, description, color) VALUES
       (school_record.id, 'Gedrag in de klas', 'Gedragsproblemen tijdens lessen', '#EF4444'),
       (school_record.id, 'Sociale interactie', 'Problemen met andere leerlingen', '#F59E0B'),
-      (school_record.id, 'Respect en beleefdheid', 'Onbeleefd gedrag naar docenten of medeleerlingen', '#8B5CF6'),
+      (school_record.id, 'Respect en beleefdheid', 'Onbeleefd gedrag naar leerkrachten of medeleerlingen', '#8B5CF6'),
       (school_record.id, 'Schoolregels', 'Overtreding van schoolregels', '#3B82F6'),
       (school_record.id, 'Positief gedrag', 'Voorbeeldgedrag en prestaties', '#10B981')
     ON CONFLICT (school_id, name) DO NOTHING;
