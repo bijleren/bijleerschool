@@ -78,7 +78,11 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
   };
 
   const selectAll = () => {
-    const filtered = filteredStudents;
+    const filtered = students.filter(s =>
+      `${s.first_name} ${s.last_name} ${s.student_number || ''} ${s.grade_level || ''}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    );
     setSelectedStudents(new Set(filtered.map(s => s.id)));
   };
 
