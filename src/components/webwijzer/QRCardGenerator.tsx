@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { X, Download, Loader } from 'lucide-react';
 import QRCode from 'qrcode';
-import { jsPDF } from 'jspdf';
+import jsPDF from 'jspdf';
 
 interface Student {
   id: string;
