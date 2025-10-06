@@ -163,7 +163,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
 
   const generateQRCode = () => {
     if (student.access_hash) {
-      const url = `${window.location.origin}/webwijzer?h=${student.access_hash}`;
+      const url = `https://bijleer.school/webwijzer?h=${student.access_hash}`;
       setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`);
     }
   };
@@ -1131,7 +1131,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                 )}
                 <div className="flex-1">
                   <p className="text-sm font-medium text-blue-900 mb-2">
-                    {window.location.origin}/webwijzer?h={accessHash || '...'}
+                    https://bijleer.school/webwijzer?h={accessHash || '...'}
                   </p>
                   <p className="text-xs text-blue-700 mb-2">
                     Students can scan this QR code for instant access to their WebWijzer
