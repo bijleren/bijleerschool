@@ -8,7 +8,7 @@ import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette, Link, QrCode, RefreshCw, ExternalLink, Download } from 'lucide-react';
 import { ColorPicker } from '../ui/ColorPicker';
 import { StudentWebWijzer } from '../webwijzer/StudentWebWijzer';
-import QRCodeLib from 'qrcode';
+import * as QRCodeLib from 'qrcode';
 
 interface Student {
   id: string;
