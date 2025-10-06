@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings } from 'lucide-react';
+import { VersionModal } from '../ui/VersionModal';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateToDashboard: () => void;
@@ -37,6 +38,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showBehaviorDropdown, setShowBehaviorDropdown] = useState(false);
+  const [showVersionModal, setShowVersionModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const behaviorDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -117,13 +119,22 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
 
           {/* Navigation */}
           <div className="flex items-center space-x-8">
-            <button
-              onClick={onNavigateToDashboard}
-              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-            >
-              <BarChart3 className="w-5 h-5" />
-              <span>Dashboard</span>
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={onNavigateToDashboard}
+                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+              >
+                <BarChart3 className="w-5 h-5" />
+                <span>Dashboard</span>
+              </button>
+              <button
+                onClick={() => setShowVersionModal(true)}
+                className="flex items-center space-x-1 px-2 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-full hover:bg-indigo-100 transition-colors"
+              >
+                <span>V1.1</span>
+                <Info className="w-3 h-3" />
+              </button>
+            </div>
 
             {/* Behavior Dropdown */}
             <div className="relative" ref={behaviorDropdownRef}>
@@ -287,6 +298,12 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
           </div>
         </div>
       </div>
+
+      {/* Version Modal */}
+      <VersionModal
+        isOpen={showVersionModal}
+        onClose={() => setShowVersionModal(false)}
+      />
     </header>
   );
 }
