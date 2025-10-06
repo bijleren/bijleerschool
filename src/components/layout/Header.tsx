@@ -39,9 +39,11 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showBehaviorDropdown, setShowBehaviorDropdown] = useState(false);
+  const [showWebWijzerDropdown, setShowWebWijzerDropdown] = useState(false);
   const [showVersionModal, setShowVersionModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const behaviorDropdownRef = useRef<HTMLDivElement>(null);
+  const webwijzerDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchUserSchools();
@@ -54,6 +56,9 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
       }
       if (behaviorDropdownRef.current && !behaviorDropdownRef.current.contains(event.target as Node)) {
         setShowBehaviorDropdown(false);
+      }
+      if (webwijzerDropdownRef.current && !webwijzerDropdownRef.current.contains(event.target as Node)) {
+        setShowWebWijzerDropdown(false);
       }
     }
 
@@ -239,13 +244,76 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
               <span>Schooldag</span>
             </button>
 
-            <button
-              onClick={onNavigateToWebWijzer}
-              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-            >
-              <Link className="w-5 h-5" />
-              <span>WebWijzer</span>
-            </button>
+            {/* WebWijzer Dropdown */}
+            <div className="relative" ref={webwijzerDropdownRef}>
+              <button
+                onClick={() => setShowWebWijzerDropdown(!showWebWijzerDropdown)}
+                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+              >
+                <Link className="w-5 h-5" />
+                <span>WebWijzer</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showWebWijzerDropdown ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* WebWijzer Dropdown Menu */}
+              {showWebWijzerDropdown && (
+                <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  <button
+                    onClick={() => {
+                      onNavigateToWebWijzer();
+                      setShowWebWijzerDropdown(false);
+                      // Navigate directly to form view
+                      setTimeout(() => {
+                        window.dispatchEvent(new CustomEvent('navigateToWebWijzerCreate'));
+                      }, 100);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Plus className="w-4 h-4 mr-3" />
+                    Nieuwe content
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      onNavigateToWebWijzer();
+                      setShowWebWijzerDropdown(false);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <List className="w-4 h-4 mr-3" />
+                    Content beheren
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      onNavigateToWebWijzer();
+                      setShowWebWijzerDropdown(false);
+                      setTimeout(() => {
+                        window.dispatchEvent(new CustomEvent('navigateToStudentWebWijzer'));
+                      }, 100);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <User className="w-4 h-4 mr-3" />
+                    Leerling WebWijzer
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      onNavigateToWebWijzer();
+                      setShowWebWijzerDropdown(false);
+                      setTimeout(() => {
+                        window.dispatchEvent(new CustomEvent('navigateToWebWijzerAnalytics'));
+                      }, 100);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <BarChart3 className="w-4 h-4 mr-3" />
+                    Analytics
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Profile Dropdown */}
             <div className="relative" ref={dropdownRef}>
