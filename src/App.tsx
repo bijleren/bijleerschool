@@ -6,10 +6,10 @@ import { Dashboard } from './components/dashboard/Dashboard';
 import { PublicWebWijzerAccess } from './components/webwijzer/PublicWebWijzerAccess';
 
 function AppContent() {
-  const { user, loading } = useAuth();
   const location = useLocation();
+  const { user, loading } = useAuth();
 
-  // Check if we're on the public WebWijzer page
+  // Check if we're on the public WebWijzer page FIRST, before any auth checks
   if (location.pathname === '/webwijzer') {
     return <PublicWebWijzerAccess />;
   }
