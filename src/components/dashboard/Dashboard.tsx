@@ -204,6 +204,13 @@ export function Dashboard() {
     setActiveTab('schoolday');
   };
 
+  const handleNavigateToWebWijzer = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('webwijzer');
+  };
+
   const handleNavigateToBehaviorWithSchool = (school: { id: string; name: string }) => {
     // Use focus school instead of passed school
     setSelectedSchool(focusSchool);
@@ -360,7 +367,7 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
+      <Header
         onNavigateToDashboard={handleNavigateToDashboard}
         onNavigateToProfile={handleNavigateToProfile}
         onNavigateToSchools={handleNavigateToSchools}
@@ -368,6 +375,7 @@ export function Dashboard() {
         onNavigateToBehaviorWithSchool={handleNavigateToBehaviorWithSchool}
         onNavigateToTeaching={handleNavigateToTeaching}
         onNavigateToSchoolDay={handleNavigateToSchoolDay}
+        onNavigateToWebWijzer={handleNavigateToWebWijzer}
         focusSchool={focusSchool}
       />
       <main className="p-8">

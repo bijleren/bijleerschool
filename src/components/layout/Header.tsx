@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateToDashboard: () => void;
@@ -12,6 +12,7 @@ interface HeaderProps {
   onNavigateToBehavior: () => void;
   onNavigateToTeaching: () => void;
   onNavigateToSchoolDay: () => void;
+  onNavigateToWebWijzer: () => void;
 }
 
 interface UserSchool {
@@ -33,7 +34,7 @@ interface HeaderProps {
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToSchoolDay, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToSchoolDay, onNavigateToWebWijzer, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -236,6 +237,14 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
             >
               <Calendar className="w-5 h-5" />
               <span>Schooldag</span>
+            </button>
+
+            <button
+              onClick={onNavigateToWebWijzer}
+              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+            >
+              <Link className="w-5 h-5" />
+              <span>WebWijzer</span>
             </button>
 
             {/* Profile Dropdown */}
