@@ -114,22 +114,22 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
       const selectedStudentsList = students.filter(s => selectedStudents.has(s.id));
       const totalPages = Math.ceil(selectedStudentsList.length / 9);
 
-      const A4_WIDTH = 793.7;
-      const A4_HEIGHT = 1122.5;
+      const A4_WIDTH_PX = 793.7;
+      const A4_HEIGHT_PX = 1122.5;
       const CARD_WIDTH_CM = 5.2;
       const CARD_HEIGHT_CM = 9;
       const CM_TO_PX = 37.795;
       const CARD_WIDTH = CARD_WIDTH_CM * CM_TO_PX;
       const CARD_HEIGHT = CARD_HEIGHT_CM * CM_TO_PX;
 
-      canvas.width = A4_WIDTH;
-      canvas.height = A4_HEIGHT * totalPages;
+      const CELL_WIDTH = A4_WIDTH_PX / 3;
+      const CELL_HEIGHT = A4_HEIGHT_PX / 3;
+
+      canvas.width = A4_WIDTH_PX;
+      canvas.height = A4_HEIGHT_PX * totalPages;
 
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const MARGIN_X = (A4_WIDTH - (CARD_WIDTH * 3)) / 2;
-      const MARGIN_Y = (A4_HEIGHT - (CARD_HEIGHT * 3)) / 2;
 
       for (let i = 0; i < selectedStudentsList.length; i++) {
         const student = selectedStudentsList[i];
@@ -138,10 +138,13 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
         const row = Math.floor(cardIndex / 3);
         const col = cardIndex % 3;
 
-        const x = MARGIN_X + (col * CARD_WIDTH);
-        const y = (page * A4_HEIGHT) + MARGIN_Y + (row * CARD_HEIGHT);
+        const cellX = col * CELL_WIDTH;
+        const cellY = (page * A4_HEIGHT_PX) + (row * CELL_HEIGHT);
 
-        await drawCard(ctx, student, x, y, CARD_WIDTH, CARD_HEIGHT);
+        const cardX = cellX + (CELL_WIDTH - CARD_WIDTH) / 2;
+        const cardY = cellY + (CELL_HEIGHT - CARD_HEIGHT) / 2;
+
+        await drawCard(ctx, student, cardX, cardY, CARD_WIDTH, CARD_HEIGHT);
       }
 
       const dataUrl = canvas.toDataURL('image/png');
@@ -158,6 +161,27 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     }
   };
 
+  const roundRect = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number
+  ) => {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+  };
+
   const drawCard = async (
     ctx: CanvasRenderingContext2D,
     student: Student,
@@ -167,38 +191,51 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     height: number
   ) => {
     const color = student.color || '#6B7280';
+    const radius = 12;
 
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x, y, width, height);
+    ctx.save();
+    roundRect(ctx, x, y, width, height, radius);
+    ctx.clip();
 
-    const headerHeight = height * 0.15;
+    ctx.fillStyle = 'white';
+    ctx.fillRect(x, y, width, height);
+
+    const headerHeight = 50;
     ctx.fillStyle = color;
     ctx.fillRect(x, y, width, headerHeight);
 
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 16px Arial';
+    ctx.font = 'bold 14px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('bijleren.school', x + width / 2, y + headerHeight / 2 + 6);
+    ctx.fillText('bijleren.school', x + width / 2, y + headerHeight / 2 + 5);
 
-    const colorBarHeight = 50;
     const colorBarY = y + headerHeight;
+    const colorBarWidth = width / 2;
+    const colorBarHeight = 60;
+
     ctx.fillStyle = color;
-    ctx.fillRect(x, colorBarY, width, colorBarHeight);
+    ctx.fillRect(x, colorBarY, colorBarWidth, colorBarHeight);
+
+    ctx.fillRect(x + colorBarWidth, colorBarY, colorBarWidth, colorBarHeight);
 
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 20px Arial';
-    ctx.textAlign = 'left';
+    ctx.font = 'bold 32px Arial';
+    ctx.textAlign = 'center';
     const gradeText = student.grade_level || '';
-    ctx.fillText(gradeText, x + 15, colorBarY + 33);
+    ctx.fillText(gradeText, x + colorBarWidth / 2, colorBarY + colorBarHeight / 2 + 12);
 
-    ctx.textAlign = 'right';
     const displayNumber = student.student_display_number?.toString() || '';
-    ctx.fillText(displayNumber, x + width - 15, colorBarY + 33);
+    ctx.fillText(displayNumber, x + colorBarWidth + colorBarWidth / 2, colorBarY + colorBarHeight / 2 + 12);
 
-    const photoSize = 150;
-    const photoY = colorBarY + colorBarHeight;
+    const photoSize = 130;
+    const photoY = colorBarY + colorBarHeight + 10;
     const photoX = x + (width - photoSize) / 2;
+
+    ctx.beginPath();
+    ctx.arc(photoX + photoSize / 2, photoY + photoSize / 2, photoSize / 2, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fillStyle = '#E5E7EB';
+    ctx.fill();
 
     ctx.save();
     ctx.beginPath();
@@ -220,38 +257,63 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
         ctx.fillStyle = '#E5E7EB';
         ctx.fillRect(photoX, photoY, photoSize, photoSize);
       }
-    } else {
-      ctx.fillStyle = '#E5E7EB';
-      ctx.fillRect(photoX, photoY, photoSize, photoSize);
     }
     ctx.restore();
 
-    const nameY = photoY + photoSize + 20;
+    if (student.symbol_url) {
+      try {
+        const symbolSize = 40;
+        const symbolImg = new Image();
+        symbolImg.crossOrigin = 'anonymous';
+        await new Promise((resolve, reject) => {
+          symbolImg.onload = resolve;
+          symbolImg.onerror = reject;
+          symbolImg.src = student.symbol_url!;
+        });
+
+        const symbolX = photoX + photoSize - symbolSize + 5;
+        const symbolY = photoY + photoSize - symbolSize + 5;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(symbolX + symbolSize / 2, symbolY + symbolSize / 2, symbolSize / 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(symbolImg, symbolX, symbolY, symbolSize, symbolSize);
+        ctx.restore();
+      } catch (error) {
+        console.error('Error loading symbol:', error);
+      }
+    }
+
+    const nameY = photoY + photoSize + 15;
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
 
-    let firstNameFontSize = 48;
+    let firstNameFontSize = 36;
     ctx.font = `bold ${firstNameFontSize}px Arial`;
     let textWidth = ctx.measureText(student.first_name).width;
-    while (textWidth > width - 20 && firstNameFontSize > 24) {
+    while (textWidth > width - 30 && firstNameFontSize > 20) {
       firstNameFontSize -= 2;
       ctx.font = `bold ${firstNameFontSize}px Arial`;
       textWidth = ctx.measureText(student.first_name).width;
     }
     ctx.fillText(student.first_name, x + width / 2, nameY);
 
-    let lastNameFontSize = 32;
+    let lastNameFontSize = 24;
     ctx.font = `${lastNameFontSize}px Arial`;
     let lastNameWidth = ctx.measureText(student.last_name).width;
-    while (lastNameWidth > width - 20 && lastNameFontSize > 16) {
+    while (lastNameWidth > width - 30 && lastNameFontSize > 14) {
       lastNameFontSize -= 2;
       ctx.font = `${lastNameFontSize}px Arial`;
       lastNameWidth = ctx.measureText(student.last_name).width;
     }
-    ctx.fillText(student.last_name, x + width / 2, nameY + 40);
+    ctx.fillText(student.last_name, x + width / 2, nameY + 30);
 
-    const qrSize = 120;
-    const qrY = nameY + 60;
+    const qrSize = 100;
+    const qrY = nameY + 45;
     const qrX = x + (width - qrSize) / 2;
     const qrDataUrl = await generateQRCode(student.id);
     const qrImg = new Image();
@@ -261,32 +323,23 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     });
     ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
 
-    if (student.symbol_url) {
-      try {
-        const symbolSize = 50;
-        const symbolImg = new Image();
-        symbolImg.crossOrigin = 'anonymous';
-        await new Promise((resolve, reject) => {
-          symbolImg.onload = resolve;
-          symbolImg.onerror = reject;
-          symbolImg.src = student.symbol_url!;
-        });
-        ctx.drawImage(symbolImg, x + width - symbolSize - 10, y + height - symbolSize - 50, symbolSize, symbolSize);
-      } catch (error) {
-        console.error('Error loading symbol:', error);
-      }
-    }
-
-    const footerHeight = 40;
+    const footerHeight = 35;
     const footerY = y + height - footerHeight;
     ctx.fillStyle = color;
     ctx.fillRect(x, footerY, width, footerHeight);
 
     ctx.fillStyle = 'white';
-    ctx.font = '16px Arial';
+    ctx.font = 'bold 14px Arial';
     ctx.textAlign = 'center';
     const studentCode = student.student_number || '';
-    ctx.fillText(studentCode, x + width / 2, footerY + 25);
+    ctx.fillText(studentCode, x + width / 2, footerY + 22);
+
+    ctx.restore();
+
+    ctx.strokeStyle = '#D1D5DB';
+    ctx.lineWidth = 2;
+    roundRect(ctx, x, y, width, height, radius);
+    ctx.stroke();
   };
 
   const filteredStudents = students.filter(s =>
