@@ -93,7 +93,7 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
   const generateQRCode = async (studentId: string): Promise<string> => {
     const url = `${window.location.origin}/webwijzer/${studentId}`;
     return QRCode.toDataURL(url, {
-      width: 400,
+      width: 800,
       margin: 1,
       color: {
         dark: '#000000',
@@ -119,11 +119,12 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
       const selectedStudentsList = students.filter(s => selectedStudents.has(s.id));
       const totalPages = Math.ceil(selectedStudentsList.length / 9);
 
-      const A4_WIDTH_PX = 793.7;
-      const A4_HEIGHT_PX = 1122.5;
+      const SCALE = 3;
+      const A4_WIDTH_PX = 793.7 * SCALE;
+      const A4_HEIGHT_PX = 1122.5 * SCALE;
       const CARD_WIDTH_CM = 5.2;
       const CARD_HEIGHT_CM = 9;
-      const CM_TO_PX = 37.795;
+      const CM_TO_PX = 37.795 * SCALE;
       const CARD_WIDTH = CARD_WIDTH_CM * CM_TO_PX;
       const CARD_HEIGHT = CARD_HEIGHT_CM * CM_TO_PX;
 
@@ -220,46 +221,42 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     height: number
   ) => {
     const color = student.color || '#6B7280';
-    const radius = 12;
+    const radius = 36;
+    const SCALE = 3;
 
-    ctx.save();
+    ctx.fillStyle = 'white';
     roundRect(ctx, x, y, width, height, radius);
-    ctx.clip();
+    ctx.fill();
 
-    ctx.fillStyle = 'white';
-    ctx.fillRect(x, y, width, height);
+    let currentY = y;
 
-    const headerHeight = 50;
+    const headerHeight = 50 * SCALE;
     ctx.fillStyle = color;
-    ctx.fillRect(x, y, width, headerHeight);
-
+    ctx.fillRect(x, currentY, width, headerHeight);
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 14px Arial';
+    ctx.font = `bold ${42 * SCALE}px Arial`;
     ctx.textAlign = 'center';
-    ctx.fillText('bijleren.school', x + width / 2, y + headerHeight / 2 + 5);
+    ctx.fillText('bijleren.school', x + width / 2, currentY + headerHeight / 2 + (5 * SCALE));
+    currentY += headerHeight;
 
-    const colorBarY = y + headerHeight;
+    const colorBarHeight = 60 * SCALE;
     const colorBarWidth = width / 2;
-    const colorBarHeight = 60;
-
     ctx.fillStyle = color;
-    ctx.fillRect(x, colorBarY, colorBarWidth, colorBarHeight);
-    ctx.fillRect(x + colorBarWidth, colorBarY, colorBarWidth, colorBarHeight);
-
+    ctx.fillRect(x, currentY, colorBarWidth, colorBarHeight);
+    ctx.fillRect(x + colorBarWidth, currentY, colorBarWidth, colorBarHeight);
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 32px Arial';
+    ctx.font = `bold ${96 * SCALE}px Arial`;
     ctx.textAlign = 'center';
     const gradeText = student.grade_level || '';
-    ctx.fillText(gradeText, x + colorBarWidth / 2, colorBarY + colorBarHeight / 2 + 12);
-
+    ctx.fillText(gradeText, x + colorBarWidth / 2, currentY + colorBarHeight / 2 + (12 * SCALE));
     const displayNumber = student.student_display_number?.toString() || '';
-    ctx.fillText(displayNumber, x + colorBarWidth + colorBarWidth / 2, colorBarY + colorBarHeight / 2 + 12);
+    ctx.fillText(displayNumber, x + colorBarWidth + colorBarWidth / 2, currentY + colorBarHeight / 2 + (12 * SCALE));
+    currentY += colorBarHeight;
 
-    ctx.restore();
-
-    const photoSize = 130;
-    const photoY = colorBarY + colorBarHeight + 10;
+    const photoSize = 130 * SCALE;
+    const photoMargin = 10 * SCALE;
     const photoX = x + (width - photoSize) / 2;
+    const photoY = currentY + photoMargin;
 
     ctx.save();
     ctx.beginPath();
@@ -288,7 +285,7 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
 
     if (student.symbol_url) {
       try {
-        const symbolSize = 40;
+        const symbolSize = 40 * SCALE;
         const symbolImg = new Image();
         symbolImg.crossOrigin = 'anonymous';
         await new Promise((resolve, reject) => {
@@ -297,8 +294,8 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
           symbolImg.src = student.symbol_url!;
         });
 
-        const symbolX = photoX + photoSize - symbolSize + 5;
-        const symbolY = photoY + photoSize - symbolSize + 5;
+        const symbolX = photoX + photoSize - symbolSize + (5 * SCALE);
+        const symbolY = photoY + photoSize - symbolSize + (5 * SCALE);
 
         ctx.save();
         ctx.beginPath();
@@ -314,38 +311,34 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
       }
     }
 
-    ctx.save();
-    roundRect(ctx, x, y, width, height, radius);
-    ctx.clip();
+    currentY = photoY + photoSize + (15 * SCALE);
 
-    const nameY = photoY + photoSize + 15;
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
 
-    let firstNameFontSize = 36;
+    let firstNameFontSize = 36 * SCALE;
     ctx.font = `bold ${firstNameFontSize}px Arial`;
     let textWidth = ctx.measureText(student.first_name).width;
-    while (textWidth > width - 30 && firstNameFontSize > 20) {
-      firstNameFontSize -= 2;
+    while (textWidth > width - (30 * SCALE) && firstNameFontSize > (20 * SCALE)) {
+      firstNameFontSize -= (2 * SCALE);
       ctx.font = `bold ${firstNameFontSize}px Arial`;
       textWidth = ctx.measureText(student.first_name).width;
     }
-    ctx.fillText(student.first_name, x + width / 2, nameY);
+    ctx.fillText(student.first_name, x + width / 2, currentY);
+    currentY += (30 * SCALE);
 
-    let lastNameFontSize = 24;
+    let lastNameFontSize = 24 * SCALE;
     ctx.font = `${lastNameFontSize}px Arial`;
     let lastNameWidth = ctx.measureText(student.last_name).width;
-    while (lastNameWidth > width - 30 && lastNameFontSize > 14) {
-      lastNameFontSize -= 2;
+    while (lastNameWidth > width - (30 * SCALE) && lastNameFontSize > (14 * SCALE)) {
+      lastNameFontSize -= (2 * SCALE);
       ctx.font = `${lastNameFontSize}px Arial`;
       lastNameWidth = ctx.measureText(student.last_name).width;
     }
-    ctx.fillText(student.last_name, x + width / 2, nameY + 30);
+    ctx.fillText(student.last_name, x + width / 2, currentY);
+    currentY += (20 * SCALE);
 
-    ctx.restore();
-
-    const qrSize = 100;
-    const qrY = nameY + 45;
+    const qrSize = 100 * SCALE;
     const qrX = x + (width - qrSize) / 2;
     const qrDataUrl = await generateQRCode(student.id);
     const qrImg = new Image();
@@ -353,27 +346,21 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
       qrImg.onload = resolve;
       qrImg.src = qrDataUrl;
     });
-    ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+    ctx.drawImage(qrImg, qrX, currentY, qrSize, qrSize);
 
-    ctx.save();
-    roundRect(ctx, x, y, width, height, radius);
-    ctx.clip();
-
-    const footerHeight = 35;
+    const footerHeight = 35 * SCALE;
     const footerY = y + height - footerHeight;
     ctx.fillStyle = color;
     ctx.fillRect(x, footerY, width, footerHeight);
 
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 14px Arial';
+    ctx.font = `bold ${42 * SCALE}px Arial`;
     ctx.textAlign = 'center';
     const studentCode = student.student_number || '';
-    ctx.fillText(studentCode, x + width / 2, footerY + 22);
-
-    ctx.restore();
+    ctx.fillText(studentCode, x + width / 2, footerY + (22 * SCALE));
 
     ctx.strokeStyle = '#D1D5DB';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 6;
     roundRect(ctx, x, y, width, height, radius);
     ctx.stroke();
   };
