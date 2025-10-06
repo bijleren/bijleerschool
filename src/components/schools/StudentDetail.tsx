@@ -779,103 +779,102 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Voornaam</label>
-              <p className="text-gray-900">{student.first_name}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Achternaam</label>
-              <p className="text-gray-900">{student.last_name}</p>
-            </div>
-            {student.student_number && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Studentnummer</label>
-                <p className="text-gray-900 flex items-center">
-                  <Hash className="w-4 h-4 mr-1" />
-                  {student.student_number}
-                </p>
-              </div>
-            )}
-            {student.grade_level && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Klas/Niveau</label>
-                <p className="text-gray-900">{student.grade_level}</p>
-              </div>
-            )}
-            {student.date_of_birth && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Geboortedatum</label>
-                <p className="text-gray-900 flex items-center">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  {formatDate(student.date_of_birth)}
-                </p>
-              </div>
-            )}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Toegevoegd op</label>
-              <p className="text-gray-900 flex items-center">
-                <Calendar className="w-4 h-4 mr-1" />
-                {formatDate(student.created_at)}
-              </p>
-            </div>
-            {student.color && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kleur</label>
-                <div className="flex items-center space-x-2">
-                  <div
-                    className="w-8 h-8 rounded border border-gray-300"
-                    style={{ backgroundColor: student.color }}
-                  />
-                  <p className="text-gray-900 font-mono text-sm">{student.color}</p>
-                </div>
-              </div>
-            )}
-            {student.student_display_number && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Student Nummer</label>
-                <p className="text-gray-900 flex items-center">
-                  <Hash className="w-4 h-4 mr-1" />
-                  {student.student_display_number}
-                </p>
-              </div>
-            )}
-            {student.profile_picture_url && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Profielfoto</label>
+          <div>
+            <div className="flex items-start space-x-6 mb-6 pb-6 border-b border-gray-200">
+              {student.profile_picture_url && (
                 <img
                   src={student.profile_picture_url}
                   alt="Profielfoto"
-                  className="w-16 h-16 rounded-full object-cover border-2 border-gray-300"
+                  className="w-20 h-20 rounded-full object-cover border-2 border-gray-300"
                 />
-              </div>
-            )}
-            {student.symbol_url && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Symbool</label>
+              )}
+              {student.symbol_url && (
                 <img
                   src={student.symbol_url}
                   alt="Symbool"
-                  className="w-16 h-16 rounded object-cover border-2 border-gray-300"
+                  className="w-20 h-20 rounded object-cover border-2 border-gray-300"
                 />
-              </div>
-            )}
-            {student.pin_code && (
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
-                <div className="flex items-center space-x-2">
-                  <p className="text-gray-900 font-mono">
-                    {showPinCode ? student.pin_code : '••••'}
-                  </p>
-                  <button
-                    onClick={() => setShowPinCode(!showPinCode)}
-                    className="p-1 text-gray-600 hover:text-gray-800 transition-colors"
-                  >
-                    {showPinCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Voornaam</label>
+                <p className="text-gray-900">{student.first_name}</p>
               </div>
-            )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Achternaam</label>
+                <p className="text-gray-900">{student.last_name}</p>
+              </div>
+              {student.student_number && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Studentnummer</label>
+                  <p className="text-gray-900 flex items-center">
+                    <Hash className="w-4 h-4 mr-1" />
+                    {student.student_number}
+                  </p>
+                </div>
+              )}
+              {student.grade_level && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Klas/Niveau</label>
+                  <p className="text-gray-900">{student.grade_level}</p>
+                </div>
+              )}
+              {student.date_of_birth && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Geboortedatum</label>
+                  <p className="text-gray-900 flex items-center">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    {formatDate(student.date_of_birth)}
+                  </p>
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Toegevoegd op</label>
+                <p className="text-gray-900 flex items-center">
+                  <Calendar className="w-4 h-4 mr-1" />
+                  {formatDate(student.created_at)}
+                </p>
+              </div>
+              {student.color && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Kleur</label>
+                  <div className="flex items-center space-x-2">
+                    <div
+                      className="w-8 h-8 rounded border border-gray-300"
+                      style={{ backgroundColor: student.color }}
+                    />
+                    <p className="text-gray-900 font-mono text-sm">{student.color}</p>
+                  </div>
+                </div>
+              )}
+              {student.student_display_number && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Student Nummer</label>
+                  <p className="text-gray-900 flex items-center">
+                    <Hash className="w-4 h-4 mr-1" />
+                    {student.student_display_number}
+                  </p>
+                </div>
+              )}
+              {student.pin_code && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-gray-900 font-mono">
+                      {showPinCode ? student.pin_code : '••••'}
+                    </p>
+                    <button
+                      onClick={() => setShowPinCode(!showPinCode)}
+                      className="p-1 text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                      {showPinCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </Card>
