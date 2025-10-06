@@ -139,7 +139,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
         category_name: name,
         category_color: data.color,
         incident_count: data.count,
-        percentage: totalIncidents > 0 ? (data.count / totalIncidents) * 100 : 0,
+        percentage: incidentData.length > 0 ? (data.count / incidentData.length) * 100 : 0,
       })).sort((a, b) => b.incident_count - a.incident_count);
       setCategoryStats(categoryStatsData);
 
@@ -149,7 +149,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
         const level = incident.behavior_items.behavior_severity_levels.level;
         const name = incident.behavior_items.behavior_severity_levels.name;
         const color = incident.behavior_items.behavior_severity_levels.color;
-        
+
         if (!severityMap.has(level)) {
           severityMap.set(level, { count: 0, name, color });
         }
@@ -161,7 +161,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
         level_name: data.name,
         level_color: data.color,
         incident_count: data.count,
-        percentage: totalIncidents > 0 ? (data.count / totalIncidents) * 100 : 0,
+        percentage: incidentData.length > 0 ? (data.count / incidentData.length) * 100 : 0,
       })).sort((a, b) => a.level - b.level);
       setSeverityStats(severityStatsData);
 
