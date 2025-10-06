@@ -390,11 +390,33 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
         .eq('incident_id', incident.id);
 
       if (error) throw error;
-      setIncidentStudents(data?.map(student => ({
+
+      const students = data?.map(student => ({
         id: student.id,
         student_id: student.student_id,
         role_id: student.role_id
-      })) || []);
+      })) || [];
+
+      // If no students in junction table but there's a legacy student_id, add it
+      if (students.length === 0 && incident.student_id) {
+        // Wait for student roles to be loaded to get default role
+        const rolesResponse = await supabase
+          .from('student_roles')
+          .select('*')
+          .eq('school_id', incident.school_id)
+          .eq('is_active', true);
+
+        const defaultRole = rolesResponse.data?.find(r => r.is_default) || rolesResponse.data?.[0];
+
+        if (defaultRole) {
+          students.push({
+            student_id: incident.student_id,
+            role_id: defaultRole.id
+          });
+        }
+      }
+
+      setIncidentStudents(students);
     } catch (error) {
       console.error('Error fetching incident students:', error);
     }
