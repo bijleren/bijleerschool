@@ -199,9 +199,15 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     fetchAvailableGroups();
     fetchEersteActies();
     fetchFollowupActies();
-    fetchIncidentStudents();
     fetchStudentRoles();
   }, []);
+
+  // Fetch incident students after student roles are loaded
+  useEffect(() => {
+    if (studentRoles.length > 0) {
+      fetchIncidentStudents();
+    }
+  }, [studentRoles.length]);
 
   const fetchStudents = async () => {
     try {
@@ -398,15 +404,8 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
       })) || [];
 
       // If no students in junction table but there's a legacy student_id, add it
-      if (students.length === 0 && incident.student_id) {
-        // Wait for student roles to be loaded to get default role
-        const rolesResponse = await supabase
-          .from('student_roles')
-          .select('*')
-          .eq('school_id', incident.school_id)
-          .eq('is_active', true);
-
-        const defaultRole = rolesResponse.data?.find(r => r.is_default) || rolesResponse.data?.[0];
+      if (students.length === 0 && incident.student_id && studentRoles.length > 0) {
+        const defaultRole = studentRoles.find(r => r.is_default) || studentRoles[0];
 
         if (defaultRole) {
           students.push({
