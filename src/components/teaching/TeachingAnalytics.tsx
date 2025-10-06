@@ -407,7 +407,7 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
               <Users className="w-6 h-6 text-purple-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Actieve docenten</p>
+              <p className="text-sm font-medium text-gray-600">Actieve leerkrachten</p>
               <p className="text-2xl font-bold text-gray-900">{overallStats.active_teachers}</p>
             </div>
           </div>
