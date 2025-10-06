@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { QrCode, KeyRound } from 'lucide-react';
+import { QrCode, KeyRound, Camera } from 'lucide-react';
 import { StudentWebWijzer } from './StudentWebWijzer';
+import { Html5Qrcode } from 'html5-qrcode';
 
 export function PublicWebWijzerAccess() {
   const [accessMethod, setAccessMethod] = useState<'code' | 'qr' | null>(null);
@@ -16,6 +17,9 @@ export function PublicWebWijzerAccess() {
     id: string;
     name: string;
   } | null>(null);
+  const [scannerStarted, setScannerStarted] = useState(false);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const qrReaderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -25,6 +29,60 @@ export function PublicWebWijzerAccess() {
       authenticateWithHash(hash);
     }
   }, []);
+
+  useEffect(() => {
+    if (accessMethod === 'qr' && !scannerStarted) {
+      startScanner();
+    }
+
+    return () => {
+      stopScanner();
+    };
+  }, [accessMethod]);
+
+  const startScanner = async () => {
+    try {
+      const scanner = new Html5Qrcode('qr-reader');
+      scannerRef.current = scanner;
+
+      await scanner.start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        (decodedText) => {
+          const url = new URL(decodedText);
+          const hash = url.searchParams.get('h');
+          if (hash) {
+            stopScanner();
+            authenticateWithHash(hash);
+          }
+        },
+        (errorMessage) => {
+          // Ignore decode errors, they happen frequently during scanning
+        }
+      );
+
+      setScannerStarted(true);
+    } catch (err) {
+      console.error('Error starting scanner:', err);
+      setError('Unable to access camera. Please check permissions.');
+    }
+  };
+
+  const stopScanner = async () => {
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.stop();
+        scannerRef.current.clear();
+      } catch (err) {
+        console.error('Error stopping scanner:', err);
+      }
+      scannerRef.current = null;
+      setScannerStarted(false);
+    }
+  };
 
   const authenticateWithHash = async (hash: string) => {
     setLoading(true);
@@ -153,22 +211,32 @@ export function PublicWebWijzerAccess() {
         ) : accessMethod === 'qr' ? (
           <Card>
             <div className="text-center mb-6">
-              <QrCode className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+              <Camera className="w-16 h-16 text-blue-600 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Scan Your QR Code</h2>
               <p className="text-gray-600 mb-4">Position your QR code in front of the camera</p>
             </div>
 
-            <div className="bg-gray-100 rounded-lg p-8 mb-6">
-              <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Camera view would go here</p>
+            <div id="qr-reader" className="mb-6 rounded-lg overflow-hidden"></div>
+
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4">
+                <p className="text-red-700">{error}</p>
               </div>
-            </div>
+            )}
 
             <p className="text-sm text-gray-600 text-center mb-4">
               Don't have your QR code? Ask your teacher for help.
             </p>
 
-            <Button variant="secondary" onClick={() => setAccessMethod(null)} className="w-full">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                stopScanner();
+                setAccessMethod(null);
+                setError('');
+              }}
+              className="w-full"
+            >
               Back
             </Button>
           </Card>

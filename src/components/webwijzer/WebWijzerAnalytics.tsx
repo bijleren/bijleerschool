@@ -309,10 +309,19 @@ export function WebWijzerAnalytics({ onBack }: { onBack: () => void }) {
             <p className="text-gray-600 mt-1">Overview of all content performance</p>
           </div>
         </div>
-        <Button onClick={() => setShowStudentAccess(true)}>
-          <UserCheck className="w-4 h-4 mr-2" />
-          Student Access
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => window.open('/webwijzer', '_blank')}
+            variant="secondary"
+          >
+            <UserCheck className="w-4 h-4 mr-2" />
+            Open Student Access
+          </Button>
+          <Button onClick={() => setShowStudentAccess(true)}>
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Access Analytics
+          </Button>
+        </div>
       </div>
 
       {loading ? (
