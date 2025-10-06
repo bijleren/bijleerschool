@@ -112,29 +112,29 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">BijleerSchool</h1>
+              <div className="flex items-center space-x-2">
+                <h1 className="text-xl font-bold text-gray-900">BijleerSchool</h1>
+                <button
+                  onClick={() => setShowVersionModal(true)}
+                  className="flex items-center space-x-1 px-2 py-0.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-full hover:bg-indigo-100 transition-colors"
+                >
+                  <span>V1.1</span>
+                  <Info className="w-3 h-3" />
+                </button>
+              </div>
               <p className="text-xs text-gray-500">Didactische toolkit</p>
             </div>
           </div>
 
           {/* Navigation */}
           <div className="flex items-center space-x-8">
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={onNavigateToDashboard}
-                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-              >
-                <BarChart3 className="w-5 h-5" />
-                <span>Dashboard</span>
-              </button>
-              <button
-                onClick={() => setShowVersionModal(true)}
-                className="flex items-center space-x-1 px-2 py-1 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-full hover:bg-indigo-100 transition-colors"
-              >
-                <span>V1.1</span>
-                <Info className="w-3 h-3" />
-              </button>
-            </div>
+            <button
+              onClick={onNavigateToDashboard}
+              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span>Dashboard</span>
+            </button>
 
             {/* Behavior Dropdown */}
             <div className="relative" ref={behaviorDropdownRef}>
