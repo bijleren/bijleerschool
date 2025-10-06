@@ -18,7 +18,7 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
         <div className="relative bg-white rounded-xl shadow-xl max-w-2xl w-full p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Versie 1.1</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Versie 1.3</h2>
               <p className="text-sm text-gray-500 mt-1">Wat is er nieuw?</p>
             </div>
             <button
@@ -30,6 +30,21 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
           </div>
 
           <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">WebWijzer - Deel met je leerlingen</h3>
+              <ul className="space-y-2 text-gray-700">
+                <li className="flex items-start">
+                  <span className="text-indigo-600 mr-2">•</span>
+                  <span>Koppel digitale content aan leerlingen</span>
+                </li>
+               
+                <li className="flex items-start">
+                  <span className="text-indigo-600 mr-2">•</span>
+                  <span>Leerlingen kunnen gebruik maken van de webwijzer login QR-code via hun platform</span>
+                </li>
+               
+              </ul>
+            </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Gedragsincidenten - Meerdere studenten</h3>
               <ul className="space-y-2 text-gray-700">
