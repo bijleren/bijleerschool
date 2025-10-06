@@ -51,7 +51,7 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          placeholder="jouw@email.nl"
+          placeholder="jouw@email.be"
         />
 
         <Input
