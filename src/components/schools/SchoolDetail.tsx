@@ -8,28 +8,7 @@ import { StudentImport } from './StudentImport';
 import { GradeManagement } from '../schoolday/GradeManagement';
 import { SubjectsManagement } from '../schoolday/SubjectsManagement';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { 
-  ArrowLeft, 
-  Edit, 
-  Save, 
-  X, 
-  Plus, 
-  Users, 
-  GraduationCap,
-  UserPlus,
-  Trash2,
-  Search,
-  Heart,
-  Star,
-  Upload,
-  Settings,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  BookOpen,
-  Eye
-} from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Settings, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye } from 'lucide-react';
 
 interface School {
   id: string;
@@ -674,8 +653,16 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                 <Card key={student.id} className="hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <GraduationCap className="w-6 h-6 text-blue-600" />
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {student.profile_picture_url ? (
+                          <img
+                            src={student.profile_picture_url}
+                            alt={`${student.first_name} ${student.last_name}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <GraduationCap className="w-6 h-6 text-blue-600" />
+                        )}
                       </div>
                       <div>
                         <button

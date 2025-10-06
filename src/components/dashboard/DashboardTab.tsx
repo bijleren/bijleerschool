@@ -626,8 +626,16 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                       className="flex items-start space-x-3 flex-1 cursor-pointer"
                       onClick={() => handleStudentClick(favorite.students)}
                     >
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <GraduationCap className="w-5 h-5 text-blue-600" />
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        {favorite.students.profile_picture_url ? (
+                          <img
+                            src={favorite.students.profile_picture_url}
+                            alt={`${favorite.students.first_name} ${favorite.students.last_name}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <GraduationCap className="w-5 h-5 text-blue-600" />
+                        )}
                       </div>
                       <div>
                         <div className="font-medium text-gray-900 hover:text-indigo-600 transition-colors">
