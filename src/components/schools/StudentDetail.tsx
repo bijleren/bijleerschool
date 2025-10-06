@@ -5,7 +5,8 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette } from 'lucide-react';
+import { ColorPicker } from '../ui/ColorPicker';
 
 interface Student {
   id: string;
@@ -16,6 +17,11 @@ interface Student {
   date_of_birth: string | null;
   is_active: boolean;
   created_at: string;
+  profile_picture_url: string | null;
+  color: string | null;
+  symbol_url: string | null;
+  student_display_number: number | null;
+  pin_code: string | null;
 }
 
 interface SchoolGrade {
@@ -98,6 +104,14 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const [editGradeLevel, setEditGradeLevel] = useState(student.grade_level || '');
   const [editDateOfBirth, setEditDateOfBirth] = useState(student.date_of_birth || '');
   const [editSelectedLeerjaar, setEditSelectedLeerjaar] = useState('');
+  const [editColor, setEditColor] = useState(student.color || '#3B82F6');
+  const [editDisplayNumber, setEditDisplayNumber] = useState(student.student_display_number?.toString() || '');
+  const [editPinCode, setEditPinCode] = useState(student.pin_code || '');
+  const [showPinCode, setShowPinCode] = useState(false);
+  const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
+  const [symbolFile, setSymbolFile] = useState<File | null>(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState(student.profile_picture_url || '');
+  const [symbolPreview, setSymbolPreview] = useState(student.symbol_url || '');
 
   // Student groups
   const [studentGroups, setStudentGroups] = useState<StudentGroup[]>([]);
@@ -446,6 +460,22 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
     }
   };
 
+  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
+      setProfilePictureFile(file);
+      setProfilePicturePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSymbolChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
+      setSymbolFile(file);
+      setSymbolPreview(URL.createObjectURL(file));
+    }
+  };
+
   const updateStudent = async () => {
     setLoading(true);
     setMessage('');
@@ -459,6 +489,9 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
           student_number: editStudentNumber || null,
           grade_level: editGradeLevel || null,
           date_of_birth: editDateOfBirth || null,
+          color: editColor,
+          student_display_number: editDisplayNumber ? parseInt(editDisplayNumber) : null,
+          pin_code: editPinCode || null,
         })
         .eq('id', student.id)
         .select()
@@ -646,6 +679,104 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
               value={editDateOfBirth}
               onChange={(e) => setEditDateOfBirth(e.target.value)}
             />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Profielfoto (PNG/JPG)
+                </label>
+                <div className="flex items-center space-x-4">
+                  {profilePicturePreview && (
+                    <img
+                      src={profilePicturePreview}
+                      alt="Profielfoto preview"
+                      className="w-16 h-16 rounded-full object-cover border-2 border-gray-300"
+                    />
+                  )}
+                  <label className="cursor-pointer px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2">
+                    <Upload className="w-4 h-4" />
+                    <span className="text-sm">Upload foto</span>
+                    <input
+                      type="file"
+                      accept="image/png, image/jpeg"
+                      onChange={handleProfilePictureChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Symbool (PNG/JPG)
+                </label>
+                <div className="flex items-center space-x-4">
+                  {symbolPreview && (
+                    <img
+                      src={symbolPreview}
+                      alt="Symbool preview"
+                      className="w-16 h-16 rounded object-cover border-2 border-gray-300"
+                    />
+                  )}
+                  <label className="cursor-pointer px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2">
+                    <Upload className="w-4 h-4" />
+                    <span className="text-sm">Upload symbool</span>
+                    <input
+                      type="file"
+                      accept="image/png, image/jpeg"
+                      onChange={handleSymbolChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <ColorPicker
+                label="Kleur"
+                value={editColor}
+                onChange={setEditColor}
+              />
+
+              <Input
+                label="Student Nummer (positief getal)"
+                type="number"
+                min="1"
+                value={editDisplayNumber}
+                onChange={(e) => setEditDisplayNumber(e.target.value)}
+                placeholder="1"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Pincode (4 cijfers)
+              </label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type={showPinCode ? 'text' : 'password'}
+                  value={editPinCode}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                    setEditPinCode(value);
+                  }}
+                  placeholder="0000"
+                  maxLength={4}
+                  className="flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPinCode(!showPinCode)}
+                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  {showPinCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {editPinCode && editPinCode.length !== 4 && (
+                <p className="mt-1 text-sm text-red-600">Pincode moet exact 4 cijfers zijn</p>
+              )}
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-6">
@@ -688,6 +819,63 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                 {formatDate(student.created_at)}
               </p>
             </div>
+            {student.color && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Kleur</label>
+                <div className="flex items-center space-x-2">
+                  <div
+                    className="w-8 h-8 rounded border border-gray-300"
+                    style={{ backgroundColor: student.color }}
+                  />
+                  <p className="text-gray-900 font-mono text-sm">{student.color}</p>
+                </div>
+              </div>
+            )}
+            {student.student_display_number && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Student Nummer</label>
+                <p className="text-gray-900 flex items-center">
+                  <Hash className="w-4 h-4 mr-1" />
+                  {student.student_display_number}
+                </p>
+              </div>
+            )}
+            {student.profile_picture_url && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Profielfoto</label>
+                <img
+                  src={student.profile_picture_url}
+                  alt="Profielfoto"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-gray-300"
+                />
+              </div>
+            )}
+            {student.symbol_url && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Symbool</label>
+                <img
+                  src={student.symbol_url}
+                  alt="Symbool"
+                  className="w-16 h-16 rounded object-cover border-2 border-gray-300"
+                />
+              </div>
+            )}
+            {student.pin_code && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+                <div className="flex items-center space-x-2">
+                  <p className="text-gray-900 font-mono">
+                    {showPinCode ? student.pin_code : '••••'}
+                  </p>
+                  <button
+                    onClick={() => setShowPinCode(!showPinCode)}
+                    className="p-1 text-gray-600 hover:text-gray-800 transition-colors"
+                  >
+                    {showPinCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Card>
