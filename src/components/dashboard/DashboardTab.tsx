@@ -486,7 +486,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   };
 
   const handleStudentClick = (student: FavoriteStudent['students']) => {
-    onNavigateToStudent(student.school_id, student.id);
+    onNavigateToStudent(selectedSchoolId, student.id);
   };
 
   const handleGroupClick = (group: FavoriteGroup['groups']) => {
@@ -494,7 +494,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   };
 
   const handleQuickIncidentReport = (student: FavoriteStudent['students']) => {
-    onNavigateToBehaviorWithStudent(student.school_id, student.id);
+    onNavigateToBehaviorWithStudent(selectedSchoolId, student.id);
   };
 
   const selectedSchool = userSchools.find(school => school.id === selectedSchoolId);

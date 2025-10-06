@@ -88,28 +88,42 @@ export function Dashboard() {
     };
     
     window.addEventListener('navigateToTechnique', handleNavigateToTechnique as EventListener);
-    
+
     // Listen for navigation events from SchoolDetail
     const handleNavigateToStudentDetail = (event: CustomEvent) => {
       const { studentId, schoolId } = event.detail;
       console.log('Dashboard received student navigation event:', studentId, schoolId);
       handleNavigateToStudent(schoolId, studentId);
     };
-    
+
     const handleNavigateToGroupDetail = (event: CustomEvent) => {
       const { groupId, schoolId } = event.detail;
       console.log('Dashboard received group navigation event:', groupId, schoolId);
       handleNavigateToGroup(schoolId, groupId);
     };
-    
+
+    // Listen for navigation to behavior from incident cards
+    const handleNavigateToBehaviorFromIncident = (event: CustomEvent) => {
+      const { incidentId } = event.detail;
+      setSelectedStudent(null);
+      setSelectedGroup(null);
+      setActiveTab('behavior');
+      // Store the incident ID to scroll to or highlight it
+      if (incidentId) {
+        sessionStorage.setItem('highlightIncidentId', incidentId);
+      }
+    };
+
     window.addEventListener('navigateToStudentDetail', handleNavigateToStudentDetail as EventListener);
     window.addEventListener('navigateToGroupDetail', handleNavigateToGroupDetail as EventListener);
-    
+    window.addEventListener('navigate-to-behavior', handleNavigateToBehaviorFromIncident as EventListener);
+
     return () => {
       window.removeEventListener('navigateToBehavior', handleNavigateToBehavior as EventListener);
       window.removeEventListener('navigateToTechnique', handleNavigateToTechnique as EventListener);
       window.removeEventListener('navigateToStudentDetail', handleNavigateToStudentDetail as EventListener);
       window.removeEventListener('navigateToGroupDetail', handleNavigateToGroupDetail as EventListener);
+      window.removeEventListener('navigate-to-behavior', handleNavigateToBehaviorFromIncident as EventListener);
     };
   }, [user]);
 
