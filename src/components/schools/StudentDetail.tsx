@@ -163,7 +163,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
 
   const generateQRCode = () => {
     if (student.access_hash) {
-      const url = `https://bijleer.school/?h=${student.access_hash}`;
+      const url = `https://bijleer.school/?h=${encodeURIComponent(student.access_hash)}`;
       setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`);
     }
   };
