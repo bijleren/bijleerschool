@@ -152,8 +152,13 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
     fetchGroupGrades();
     fetchSchoolGrades();
     checkIfGroupIsFavorite();
-    fetchGroupIncidents();
   }, [group.id, schoolId, user]);
+
+  useEffect(() => {
+    if (groupStudents.length > 0) {
+      fetchGroupIncidents();
+    }
+  }, [groupStudents]);
 
   const checkIfGroupIsFavorite = async () => {
     if (!user) return;
@@ -261,11 +266,6 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
 
       if (studentError) throw studentError;
       setGroupStudents(studentData || []);
-
-      // Refetch incidents when group members change
-      if (studentData && studentData.length > 0) {
-        fetchGroupIncidents();
-      }
 
       // Fetch teammembers in this group
       const { data: teammemberData, error: teammemberError } = await supabase
@@ -541,6 +541,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
 
       if (studentIds.length === 0) {
         setGroupIncidents([]);
+        setIncidentsLoading(false);
         return;
       }
 
