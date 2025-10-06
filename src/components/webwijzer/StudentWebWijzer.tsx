@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Star, Zap, X, Archive } from 'lucide-react';
+import { ArrowLeft, Star, Zap, X, Archive, LogOut } from 'lucide-react';
 import { WebWijzerContentViewer } from './WebWijzerContentViewer';
 
 interface ContentAssignment {
@@ -44,12 +44,42 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
   const [pushCountdown, setPushCountdown] = useState(5);
   const [pushCancelled, setPushCancelled] = useState(false);
   const [showArchive, setShowArchive] = useState(false);
+  const [sessionTimer, setSessionTimer] = useState(30 * 60);
+  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
 
   useEffect(() => {
     fetchAssignments();
     const interval = setInterval(fetchAssignments, 15000);
     return () => clearInterval(interval);
   }, [studentId]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSessionTimer((prev) => {
+        if (prev <= 1) {
+          handleLogout();
+          return 0;
+        }
+        if (prev === 11 && !showTimeoutWarning) {
+          setShowTimeoutWarning(true);
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [showTimeoutWarning]);
+
+  const handleExtendSession = () => {
+    setSessionTimer(30 * 60);
+    setShowTimeoutWarning(false);
+  };
+
+  const handleLogout = () => {
+    if (onBackToDashboard) {
+      onBackToDashboard();
+    }
+  };
 
   useEffect(() => {
     if (pushQueue.length > 0 && !showPushModal && !pushCancelled) {
@@ -259,8 +289,14 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
   };
 
   const pushAssignments = assignments.filter(a => a.is_push && !a.push_completed);
-  const favoriteAssignments = assignments.filter(a => a.is_favorite);
-  const activeContent = assignments.filter(a => !a.is_push || a.push_completed);
+  const favoriteAssignments = assignments.filter(a => a.is_favorite).sort((a, b) => {
+    return new Date(b.webwijzer_content.id).getTime() - new Date(a.webwijzer_content.id).getTime();
+  });
+  const activeContent = assignments
+    .filter(a => (!a.is_push || a.push_completed) && !a.is_favorite)
+    .sort((a, b) => {
+      return new Date(b.webwijzer_content.id).getTime() - new Date(a.webwijzer_content.id).getTime();
+    });
 
   if (selectedContent) {
     return (
@@ -273,6 +309,29 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4">
+      {showTimeoutWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-md w-full">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Session Timeout Warning
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Your session will expire in 10 seconds. Would you like to continue?
+              </p>
+              <div className="flex gap-4">
+                <Button onClick={handleLogout} variant="secondary" className="flex-1">
+                  Log Out
+                </Button>
+                <Button onClick={handleExtendSession} className="flex-1">
+                  Continue Session
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
       {showPushModal && pushQueue.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <Card className="max-w-md w-full">
@@ -337,6 +396,17 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
       )}
 
       <div className="max-w-7xl mx-auto">
+        <div className="flex justify-end mb-4">
+          <Button
+            onClick={handleLogout}
+            variant="secondary"
+            className="flex items-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Stop
+          </Button>
+        </div>
+
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Hello, {studentName}! 👋
