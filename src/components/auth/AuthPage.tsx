@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, ArrowLeft } from 'lucide-react';
 
 export function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center p-4">
+      <Link
+        to="/"
+        className="fixed top-4 left-4 flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow text-sm font-medium"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>Terug naar home</span>
+      </Link>
+
       <div className="w-full max-w-md">
         {/* Logo and Brand */}
         <div className="text-center mb-8">
