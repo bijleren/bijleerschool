@@ -41,7 +41,7 @@ export function LandingPage() {
               Didactische Toolkit voor leerkrachten
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              BijleerSchool helpt docenten bij het verbeteren van hun lessen met bewezen didactische technieken,
+              BijleerSchool helpt schoolteams bij het verbeteren van hun lessen met bewezen didactische technieken,
               gedragsmanagement en gepersonaliseerde leertools.
             </p>
             <div className="flex gap-4 justify-center">
