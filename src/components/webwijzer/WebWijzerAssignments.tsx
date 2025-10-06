@@ -49,6 +49,7 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
   const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'students' | 'groups'>('students');
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -119,7 +120,7 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
 
   const handleSubmit = async () => {
     if (selectedStudents.size === 0 && selectedGroups.size === 0) {
-      alert('Please select at least one student or group');
+      setMessage({ type: 'error', text: 'Please select at least one student or group' });
       return;
     }
 
@@ -150,11 +151,13 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
 
       if (error) throw error;
 
-      alert('Content assigned successfully!');
-      onBack();
+      setMessage({ type: 'success', text: 'Content assigned successfully!' });
+      setTimeout(() => {
+        onBack();
+      }, 1500);
     } catch (error) {
       console.error('Error assigning content:', error);
-      alert('Failed to assign content');
+      setMessage({ type: 'error', text: 'Failed to assign content' });
     } finally {
       setSaving(false);
     }
@@ -181,6 +184,16 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
           <p className="text-gray-600 mt-1">{content.title}</p>
         </div>
       </div>
+
+      {message && (
+        <div className={`p-4 rounded-lg border ${
+          message.type === 'success'
+            ? 'bg-green-50 border-green-200 text-green-800'
+            : 'bg-red-50 border-red-200 text-red-800'
+        }`}>
+          {message.text}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
