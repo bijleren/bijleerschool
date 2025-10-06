@@ -434,7 +434,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, userSchools
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">{usageStats.uniqueTeachers}</div>
-                <div className="text-sm text-gray-600">Unieke docenten</div>
+                <div className="text-sm text-gray-600">Unieke leerkrachten</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">{usageStats.uniqueGroups}</div>
