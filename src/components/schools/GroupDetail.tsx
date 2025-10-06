@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, AlertTriangle, Calendar, Clock } from 'lucide-react';
 
 interface Group {
   id: string;
@@ -62,6 +62,36 @@ interface TeammemberGroup {
   teammembers: Teammember;
 }
 
+interface GroupIncident {
+  id: string;
+  incident_date: string;
+  location: string;
+  description: string;
+  status: string;
+  behavior_items: {
+    name: string;
+    behavior_categories: {
+      name: string;
+      color: string;
+    };
+    behavior_severity_levels: {
+      name: string;
+      level: number;
+      color: string;
+    };
+  };
+  profiles: {
+    first_name: string;
+    last_name: string;
+  };
+  involved_students: Array<{
+    student_id: string;
+    student_name: string;
+    role_name: string;
+    role_color: string;
+  }>;
+}
+
 interface GroupDetailProps {
   group: Group;
   schoolId: string;
@@ -96,6 +126,10 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
   const [studentSearch, setStudentSearch] = useState('');
   const [teammemberSearch, setTeammemberSearch] = useState('');
 
+  // Group incidents
+  const [groupIncidents, setGroupIncidents] = useState<GroupIncident[]>([]);
+  const [incidentsLoading, setIncidentsLoading] = useState(false);
+
   // Confirmation modal states
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -118,6 +152,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
     fetchGroupGrades();
     fetchSchoolGrades();
     checkIfGroupIsFavorite();
+    fetchGroupIncidents();
   }, [group.id, schoolId, user]);
 
   const checkIfGroupIsFavorite = async () => {
@@ -226,6 +261,11 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
 
       if (studentError) throw studentError;
       setGroupStudents(studentData || []);
+
+      // Refetch incidents when group members change
+      if (studentData && studentData.length > 0) {
+        fetchGroupIncidents();
+      }
 
       // Fetch teammembers in this group
       const { data: teammemberData, error: teammemberError } = await supabase
@@ -490,6 +530,125 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
       console.error('Error removing grade from group:', error);
       setMessage('Er is een fout opgetreden bij het verwijderen van het leerjaar.');
     }
+  };
+
+  const fetchGroupIncidents = async () => {
+    try {
+      setIncidentsLoading(true);
+
+      // Get all student IDs in this group
+      const studentIds = groupStudents.map(sg => sg.students.id);
+
+      if (studentIds.length === 0) {
+        setGroupIncidents([]);
+        return;
+      }
+
+      // Fetch all incidents involving any student from this group
+      const { data: incidentStudents, error } = await supabase
+        .from('behavior_incident_students')
+        .select(`
+          incident_id,
+          student_id,
+          students (
+            first_name,
+            last_name
+          ),
+          student_roles (
+            name,
+            color
+          ),
+          behavior_incidents (
+            id,
+            incident_date,
+            location,
+            description,
+            status,
+            behavior_items (
+              name,
+              behavior_categories (
+                name,
+                color
+              ),
+              behavior_severity_levels (
+                name,
+                level,
+                color
+              )
+            ),
+            profiles (
+              first_name,
+              last_name
+            )
+          )
+        `)
+        .in('student_id', studentIds)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Group by incident and collect all involved students
+      const incidentMap = new Map<string, GroupIncident>();
+
+      incidentStudents?.forEach((is: any) => {
+        const incidentId = is.behavior_incidents.id;
+
+        if (!incidentMap.has(incidentId)) {
+          incidentMap.set(incidentId, {
+            id: is.behavior_incidents.id,
+            incident_date: is.behavior_incidents.incident_date,
+            location: is.behavior_incidents.location,
+            description: is.behavior_incidents.description,
+            status: is.behavior_incidents.status,
+            behavior_items: is.behavior_incidents.behavior_items,
+            profiles: is.behavior_incidents.profiles,
+            involved_students: []
+          });
+        }
+
+        const incident = incidentMap.get(incidentId)!;
+        incident.involved_students.push({
+          student_id: is.student_id,
+          student_name: `${is.students.first_name} ${is.students.last_name}`,
+          role_name: is.student_roles.name,
+          role_color: is.student_roles.color
+        });
+      });
+
+      const incidents = Array.from(incidentMap.values())
+        .sort((a, b) => new Date(b.incident_date).getTime() - new Date(a.incident_date).getTime());
+
+      setGroupIncidents(incidents);
+    } catch (error) {
+      console.error('Error fetching group incidents:', error);
+      setGroupIncidents([]);
+    } finally {
+      setIncidentsLoading(false);
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'open': return 'Open';
+      case 'in_progress': return 'In behandeling';
+      case 'resolved': return 'Opgelost';
+      case 'closed': return 'Gesloten';
+      default: return status;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'open': return 'bg-red-100 text-red-800';
+      case 'in_progress': return 'bg-yellow-100 text-yellow-800';
+      case 'resolved': return 'bg-green-100 text-green-800';
+      case 'closed': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handleIncidentClick = (incidentId: string) => {
+    window.dispatchEvent(new CustomEvent('navigate-to-behavior', { detail: { incidentId } }));
   };
 
   const showRemoveStudentConfirmation = (studentGroup: StudentGroup) => {
@@ -896,6 +1055,104 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
             ))
           )}
         </div>
+      </Card>
+
+      {/* Group Incidents Section */}
+      <Card className="mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <AlertTriangle className="w-5 h-5 mr-2" />
+            Gedragsincidenten ({groupIncidents.length})
+          </h3>
+        </div>
+
+        {incidentsLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : groupIncidents.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">Geen incidenten voor deze groep</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {groupIncidents.map((incident) => (
+              <div
+                key={incident.id}
+                className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                onClick={() => handleIncidentClick(incident.id)}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center space-x-2 flex-wrap">
+                    <span
+                      className="px-2 py-1 rounded-full text-xs font-medium text-white"
+                      style={{ backgroundColor: incident.behavior_items.behavior_categories.color }}
+                    >
+                      {incident.behavior_items.behavior_categories.name}
+                    </span>
+                    <span
+                      className="px-2 py-1 rounded-full text-xs font-medium text-white"
+                      style={{ backgroundColor: incident.behavior_items.behavior_severity_levels.color }}
+                    >
+                      Niveau {incident.behavior_items.behavior_severity_levels.level}
+                    </span>
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(incident.status)}`}>
+                    {getStatusText(incident.status)}
+                  </span>
+                </div>
+
+                <h4 className="font-medium text-gray-900 mb-2">
+                  {incident.behavior_items.name}
+                </h4>
+
+                <p className="text-gray-700 text-sm mb-3">{incident.description}</p>
+
+                {/* Involved Students */}
+                <div className="mb-3">
+                  <p className="text-xs text-gray-600 mb-1">Betrokken leerlingen:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {incident.involved_students.map((student, idx) => (
+                      <span
+                        key={`${student.student_id}-${idx}`}
+                        className="px-2 py-1 rounded-full text-xs font-medium"
+                        style={{
+                          backgroundColor: student.role_color + '20',
+                          color: student.role_color
+                        }}
+                      >
+                        {student.student_name} ({student.role_name})
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4 text-xs text-gray-500">
+                  <div className="flex items-center">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    {new Date(incident.incident_date).toLocaleDateString('nl-NL')}
+                  </div>
+                  <div className="flex items-center">
+                    <Clock className="w-3 h-3 mr-1" />
+                    {new Date(incident.incident_date).toLocaleTimeString('nl-NL', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </div>
+                  {incident.location && (
+                    <div className="flex items-center">
+                      <span>{incident.location}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center">
+                    <Users className="w-3 h-3 mr-1" />
+                    Gemeld door: {incident.profiles.first_name} {incident.profiles.last_name}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
 
       {/* Confirmation Modal */}
