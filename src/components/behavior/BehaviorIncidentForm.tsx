@@ -153,10 +153,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [incidentDate, setIncidentDate] = useState(new Date().toISOString().slice(0, 16));
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
-  const [actionTaken, setActionTaken] = useState('');
-  const [followUpRequired, setFollowUpRequired] = useState(false);
-  const [followUpDate, setFollowUpDate] = useState('');
-  const [followUpNotes, setFollowUpNotes] = useState('');
   const [status, setStatus] = useState<'pending' | 'in_progress' | 'resolved'>('pending');
 
   // Separate date and time states
@@ -222,9 +218,19 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       fetchSuggestedConsequences(selectedBehaviorItem);
     } else {
       setSuggestedConsequences([]);
-      setEersteActies([]);
+      // Keep at least one eerste actie available
+      if (eersteActies.length === 0) {
+        setEersteActies([{ consequence_id: '', notes: '' }]);
+      }
     }
   }, [selectedBehaviorItem]);
+
+  // Initialize with one eerste actie on component mount
+  useEffect(() => {
+    if (eersteActies.length === 0) {
+      setEersteActies([{ consequence_id: '', notes: '' }]);
+    }
+  }, []);
 
   // Update combined incident date when day or time changes
   useEffect(() => {
@@ -749,9 +755,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
           incident_date: incidentDate,
           location: location || null,
           description,
-          follow_up_required: followUpRequired,
-          follow_up_date: followUpRequired && followUpDate ? followUpDate : null,
-          follow_up_notes: followUpRequired && followUpNotes ? followUpNotes : null,
           status,
         })
         .select()
@@ -1380,47 +1383,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
               ))}
             </div>
           </div>
-
-          {/* Follow-up */}
-          <div className="space-y-4">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="followUpRequired"
-                checked={followUpRequired}
-                onChange={(e) => setFollowUpRequired(e.target.checked)}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label htmlFor="followUpRequired" className="ml-2 block text-sm text-gray-900">
-                Follow-up vereist
-              </label>
-            </div>
-
-            {followUpRequired && (
-              <div className="grid grid-cols-2 gap-4 pl-6">
-                <Input
-                  label="Follow-up datum"
-                  type="date"
-                  value={followUpDate}
-                  onChange={(e) => setFollowUpDate(e.target.value)}
-                />
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Follow-up notities
-                  </label>
-                  <textarea
-                    value={followUpNotes}
-                    onChange={(e) => setFollowUpNotes(e.target.value)}
-                    rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Wat moet er gedaan worden?"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-        
 
           {/* File Attachments */}
           <div>
