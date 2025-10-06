@@ -152,7 +152,8 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
       }
 
       // Dynamically import jsPDF
-      const { jsPDF } = await import('jspdf');
+      const jsPDFModule = await import('jspdf');
+      const jsPDF = jsPDFModule.jsPDF || jsPDFModule.default;
 
       const pdf = new jsPDF({
         orientation: 'portrait',
