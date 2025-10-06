@@ -148,14 +148,29 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
 
       const allAssignments = [...(directAssignments || []), ...groupAssignments];
 
-      const activeAssignments = allAssignments.filter(a => {
+      const contentMap = new Map<string, ContentAssignment>();
+      allAssignments.forEach(assignment => {
+        const contentId = assignment.webwijzer_content.id;
+        if (!contentMap.has(contentId)) {
+          contentMap.set(contentId, assignment);
+        } else {
+          const existing = contentMap.get(contentId)!;
+          existing.is_push = existing.is_push || assignment.is_push;
+          existing.is_favorite = existing.is_favorite || assignment.is_favorite;
+          existing.push_completed = existing.push_completed && assignment.push_completed;
+        }
+      });
+
+      const uniqueAssignments = Array.from(contentMap.values());
+
+      const activeAssignments = uniqueAssignments.filter(a => {
         if (a.is_archived) return false;
         const isAvailable = isContentAvailable(a.webwijzer_content);
         const hasReachedLimit = a.click_limit && a.clicks_used >= a.click_limit;
         return isAvailable && !hasReachedLimit;
       });
 
-      const archived = allAssignments.filter(a => {
+      const archived = uniqueAssignments.filter(a => {
         if (a.is_archived) return true;
         const isAvailable = isContentAvailable(a.webwijzer_content);
         const hasReachedLimit = a.click_limit && a.clicks_used >= a.click_limit;

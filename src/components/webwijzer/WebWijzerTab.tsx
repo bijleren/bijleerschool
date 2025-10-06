@@ -42,6 +42,7 @@ export function WebWijzerTab() {
   const [viewMode, setViewMode] = useState<'assign' | 'analytics'>('assign');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [studentSearchTerm, setStudentSearchTerm] = useState('');
+  const [showOnlyMyContent, setShowOnlyMyContent] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -142,11 +143,30 @@ export function WebWijzerTab() {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: userSchools } = await supabase
+        .from('user_schools')
+        .select('school_id')
+        .eq('user_id', user.id);
+
+      const schoolIds = userSchools?.map(us => us.school_id) || [];
+
+      let query = supabase
         .from('webwijzer_content')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .select('*, users!inner(id)');
+
+      if (showOnlyMyContent) {
+        query = query.eq('user_id', user.id);
+      } else if (schoolIds.length > 0) {
+        const { data: schoolUsers } = await supabase
+          .from('user_schools')
+          .select('user_id')
+          .in('school_id', schoolIds);
+
+        const userIds = schoolUsers?.map(su => su.user_id) || [];
+        query = query.in('user_id', userIds);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -300,9 +320,29 @@ export function WebWijzerTab() {
         </div>
       </div>
 
-      {/* Student Filter */}
-      <Card>
-        <div className="flex items-center gap-4">
+      {/* Filters */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showOnlyMyContent}
+                onChange={(e) => {
+                  setShowOnlyMyContent(e.target.checked);
+                  fetchContents();
+                }}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                Show only my content
+              </span>
+            </label>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="flex items-center gap-4">
           <Filter className="w-5 h-5 text-gray-500" />
           <div className="flex-1 relative">
             <Input
@@ -347,8 +387,9 @@ export function WebWijzerTab() {
               </button>
             </div>
           )}
-        </div>
-      </Card>
+          </div>
+        </Card>
+      </div>
 
       {loading ? (
         <div className="text-center py-12">
