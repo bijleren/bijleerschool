@@ -284,13 +284,22 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         .in('id', Array.from(allIncidentIds))
         .in('status', ['pending', 'in_progress']);
 
-      // Count direct teacher notifications that are open
-      const { data: directOpenIncidents } = await supabase
+      // Count incidents with follow-up actions added in the last day
+      const { data: recentFollowupActions } = await supabase
+        .from('behavior_incident_followup_acties')
+        .select('incident_id')
+        .gte('created_at', startOfDay.toISOString())
+        .lt('created_at', endOfDay.toISOString());
+
+      // Get unique incident IDs that have follow-up actions added today
+      const incidentsWithFollowups = new Set(recentFollowupActions?.map(a => a.incident_id) || []);
+
+      // Filter to only include incidents from this school
+      const { data: schoolIncidentsWithFollowups } = await supabase
         .from('behavior_incidents')
         .select('id')
         .eq('school_id', selectedSchoolId)
-        .in('id', Array.from(directIncidentIds))
-        .in('status', ['pending', 'in_progress']);
+        .in('id', Array.from(incidentsWithFollowups));
 
       return {
         totalSchools: 1,
@@ -300,7 +309,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         favoriteGroups: 0,
         reportsToday: todayIncidents?.length || 0,
         openReports: openIncidents?.length || 0,
-        notifications: directOpenIncidents?.length || 0,
+        notifications: schoolIncidentsWithFollowups?.length || 0,
       };
     } catch (error) {
       console.error('Error fetching basic stats:', error);
@@ -547,7 +556,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         <div className="lg:col-span-2 mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
             <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
-            Betrokken incidenten
+            Gedragsincidenten
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior()}>
@@ -578,7 +587,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                   <Users className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Betrokken incidenten</p>
+                  <p className="text-sm font-medium text-gray-600">Follow-up acties toegevoegd</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.notifications}</p>
                 </div>
               </div>
