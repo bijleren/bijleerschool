@@ -255,9 +255,9 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Main Content Section */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="xl:col-span-2 space-y-6">
             <Card>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Content Details</h2>
 
@@ -498,75 +498,82 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
             )}
           </div>
 
-          {/* Settings Sidebar - Only show for new content with assignments */}
-          {!content && (selectedStudents.size > 0 || selectedGroups.size > 0) && (
+          {/* Settings Sidebar - Only show for new content */}
+          {!content && (
             <div className="space-y-6">
               <Card>
                 <h3 className="font-semibold text-gray-900 mb-4">Content Settings</h3>
 
-                <div className="space-y-4">
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isPush}
-                      onChange={(e) => setIsPush(e.target.checked)}
-                      className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-orange-500" />
-                        <span className="font-medium text-gray-900">Push</span>
-                      </div>
-                      <p className="text-sm text-gray-600">Auto-open when student accesses page</p>
-                    </div>
-                  </label>
-
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isFavorite}
-                      onChange={(e) => setIsFavorite(e.target.checked)}
-                      className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-yellow-500" />
-                        <span className="font-medium text-gray-900">Favorite</span>
-                      </div>
-                      <p className="text-sm text-gray-600">Always available</p>
-                    </div>
-                  </label>
-
-                  <div>
-                    <label className="flex items-start gap-3 cursor-pointer mb-2">
+                {selectedStudents.size === 0 && selectedGroups.size === 0 ? (
+                  <div className="text-center py-8 text-gray-500 text-sm">
+                    <Users className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p>Select students or groups below to configure assignment settings</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={hasClickLimit}
-                        onChange={(e) => {
-                          setHasClickLimit(e.target.checked);
-                          if (!e.target.checked) setClickLimit(null);
-                        }}
+                        checked={isPush}
+                        onChange={(e) => setIsPush(e.target.checked)}
                         className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
                       <div>
                         <div className="flex items-center gap-2">
-                          <Hash className="w-4 h-4 text-blue-500" />
-                          <span className="font-medium text-gray-900">Click Limit</span>
+                          <Zap className="w-4 h-4 text-orange-500" />
+                          <span className="font-medium text-gray-900">Push</span>
                         </div>
-                        <p className="text-sm text-gray-600">Limit number of times content can be accessed</p>
+                        <p className="text-sm text-gray-600">Auto-open when student accesses page</p>
                       </div>
                     </label>
-                    {hasClickLimit && (
-                      <Input
-                        type="number"
-                        min="1"
-                        value={clickLimit || ''}
-                        onChange={(e) => setClickLimit(parseInt(e.target.value) || null)}
-                        placeholder="Number of clicks"
+
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isFavorite}
+                        onChange={(e) => setIsFavorite(e.target.checked)}
+                        className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
-                    )}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Star className="w-4 h-4 text-yellow-500" />
+                          <span className="font-medium text-gray-900">Favorite</span>
+                        </div>
+                        <p className="text-sm text-gray-600">Always available</p>
+                      </div>
+                    </label>
+
+                    <div>
+                      <label className="flex items-start gap-3 cursor-pointer mb-2">
+                        <input
+                          type="checkbox"
+                          checked={hasClickLimit}
+                          onChange={(e) => {
+                            setHasClickLimit(e.target.checked);
+                            if (!e.target.checked) setClickLimit(null);
+                          }}
+                          className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <Hash className="w-4 h-4 text-blue-500" />
+                            <span className="font-medium text-gray-900">Click Limit</span>
+                          </div>
+                          <p className="text-sm text-gray-600">Limit number of times content can be accessed</p>
+                        </div>
+                      </label>
+                      {hasClickLimit && (
+                        <Input
+                          type="number"
+                          min="1"
+                          value={clickLimit || ''}
+                          onChange={(e) => setClickLimit(parseInt(e.target.value) || null)}
+                          placeholder="Number of clicks"
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </Card>
             </div>
           )}
