@@ -91,7 +91,7 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
   };
 
   const generateQRCode = async (studentId: string): Promise<string> => {
-    const url = `${window.location.origin}/webwijzer/${studentId}`;
+    const url = `https://bijleer.school/webwijzer/${studentId}`;
     return QRCode.toDataURL(url, {
       width: 800,
       margin: 1,
@@ -212,6 +212,53 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     ctx.closePath();
   };
 
+  const drawRoundedHexagon = (
+    ctx: CanvasRenderingContext2D,
+    centerX: number,
+    centerY: number,
+    radius: number,
+    cornerRadius: number
+  ) => {
+    const angle = Math.PI / 3;
+    const points: Array<{x: number, y: number}> = [];
+
+    for (let i = 0; i < 6; i++) {
+      const pointAngle = angle * i - Math.PI / 2;
+      points.push({
+        x: centerX + radius * Math.cos(pointAngle),
+        y: centerY + radius * Math.sin(pointAngle)
+      });
+    }
+
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const current = points[i];
+      const next = points[(i + 1) % 6];
+      const prev = points[(i + 5) % 6];
+
+      const dx1 = current.x - prev.x;
+      const dy1 = current.y - prev.y;
+      const len1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+
+      const dx2 = next.x - current.x;
+      const dy2 = next.y - current.y;
+      const len2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+
+      const startX = current.x - (dx1 / len1) * cornerRadius;
+      const startY = current.y - (dy1 / len1) * cornerRadius;
+      const endX = current.x + (dx2 / len2) * cornerRadius;
+      const endY = current.y + (dy2 / len2) * cornerRadius;
+
+      if (i === 0) {
+        ctx.moveTo(startX, startY);
+      }
+
+      ctx.lineTo(startX, startY);
+      ctx.quadraticCurveTo(current.x, current.y, endX, endY);
+    }
+    ctx.closePath();
+  };
+
   const drawCard = async (
     ctx: CanvasRenderingContext2D,
     student: Student,
@@ -244,10 +291,10 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     ctx.fillStyle = 'white';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    let headerFontSize = 8 * CM_TO_PX / 10;
+    let headerFontSize = 4 * CM_TO_PX / 10;
     ctx.font = `bold ${headerFontSize}px Arial`;
     let headerWidth = ctx.measureText('bijleren.school').width;
-    while (headerWidth > width - (0.4 * CM_TO_PX) && headerFontSize > (4 * CM_TO_PX / 10)) {
+    while (headerWidth > width - (0.4 * CM_TO_PX) && headerFontSize > (2 * CM_TO_PX / 10)) {
       headerFontSize -= 0.5;
       ctx.font = `bold ${headerFontSize}px Arial`;
       headerWidth = ctx.measureText('bijleren.school').width;
@@ -269,11 +316,11 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     ctx.fill();
 
     ctx.fillStyle = 'white';
-    let footerFontSize = 8 * CM_TO_PX / 10;
+    let footerFontSize = 4 * CM_TO_PX / 10;
     ctx.font = `bold ${footerFontSize}px Arial`;
     const studentCode = student.student_number || '';
     let footerWidth = ctx.measureText(studentCode).width;
-    while (footerWidth > width - (0.4 * CM_TO_PX) && footerFontSize > (4 * CM_TO_PX / 10)) {
+    while (footerWidth > width - (0.4 * CM_TO_PX) && footerFontSize > (2 * CM_TO_PX / 10)) {
       footerFontSize -= 0.5;
       ctx.font = `bold ${footerFontSize}px Arial`;
       footerWidth = ctx.measureText(studentCode).width;
@@ -282,13 +329,12 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
 
     const photoSize = 3 * CM_TO_PX;
     const photoCenterY = y + height - (7 * CM_TO_PX);
-    const photoX = x + (width - photoSize) / 2;
-    const photoY = photoCenterY - photoSize / 2;
+    const photoCenterX = x + width / 2;
+    const hexRadius = photoSize / 2;
+    const hexCornerRadius = 0.5 * CM_TO_PX;
 
     ctx.save();
-    ctx.beginPath();
-    ctx.arc(x + width / 2, photoCenterY, photoSize / 2, 0, Math.PI * 2);
-    ctx.closePath();
+    drawRoundedHexagon(ctx, photoCenterX, photoCenterY, hexRadius, hexCornerRadius);
     ctx.fillStyle = color;
     ctx.fill();
     ctx.clip();
@@ -302,10 +348,12 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
           img.onerror = reject;
           img.src = student.profile_picture_url!;
         });
-        ctx.drawImage(img, photoX, photoY, photoSize, photoSize);
+        const imgSize = hexRadius * 2;
+        ctx.drawImage(img, photoCenterX - hexRadius, photoCenterY - hexRadius, imgSize, imgSize);
       } catch {
+        drawRoundedHexagon(ctx, photoCenterX, photoCenterY, hexRadius, hexCornerRadius);
         ctx.fillStyle = color;
-        ctx.fillRect(photoX, photoY, photoSize, photoSize);
+        ctx.fill();
       }
     }
     ctx.restore();
@@ -325,10 +373,10 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    let lastNameFontSize = 10 * CM_TO_PX / 10;
+    let lastNameFontSize = 5 * CM_TO_PX / 10;
     ctx.font = `${lastNameFontSize}px Arial`;
     let lastNameWidth = ctx.measureText(student.last_name).width;
-    while (lastNameWidth > width - (0.4 * CM_TO_PX) && lastNameFontSize > (4 * CM_TO_PX / 10)) {
+    while (lastNameWidth > width - (0.4 * CM_TO_PX) && lastNameFontSize > (2 * CM_TO_PX / 10)) {
       lastNameFontSize -= 0.5;
       ctx.font = `${lastNameFontSize}px Arial`;
       lastNameWidth = ctx.measureText(student.last_name).width;
@@ -336,10 +384,10 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     ctx.fillText(student.last_name, x + width / 2, lastNameY);
 
     const firstNameY = y + height / 2;
-    let firstNameFontSize = 20 * CM_TO_PX / 10;
+    let firstNameFontSize = 10 * CM_TO_PX / 10;
     ctx.font = `bold ${firstNameFontSize}px Arial`;
     let firstNameWidth = ctx.measureText(student.first_name).width;
-    while (firstNameWidth > width - (0.4 * CM_TO_PX) && firstNameFontSize > (8 * CM_TO_PX / 10)) {
+    while (firstNameWidth > width - (0.4 * CM_TO_PX) && firstNameFontSize > (4 * CM_TO_PX / 10)) {
       firstNameFontSize -= 0.5;
       ctx.font = `bold ${firstNameFontSize}px Arial`;
       firstNameWidth = ctx.measureText(student.first_name).width;
