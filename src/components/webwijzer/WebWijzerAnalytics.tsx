@@ -3,7 +3,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Users, Eye, TrendingUp, Clock, BarChart3, User, Video, FileText, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Users, Eye, TrendingUp, Clock, BarChart3, User, Video, FileText, ExternalLink, UserCheck } from 'lucide-react';
+import { StudentAccessAnalytics } from './StudentAccessAnalytics';
 
 interface WebWijzerContent {
   id: string;
@@ -35,6 +36,7 @@ export function WebWijzerAnalytics({ onBack }: { onBack: () => void }) {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedContent, setSelectedContent] = useState<AnalyticsData | null>(null);
+  const [showStudentAccess, setShowStudentAccess] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -167,6 +169,10 @@ export function WebWijzerAnalytics({ onBack }: { onBack: () => void }) {
     return date.toLocaleDateString();
   };
 
+  if (showStudentAccess) {
+    return <StudentAccessAnalytics onBack={() => setShowStudentAccess(false)} />;
+  }
+
   if (selectedContent) {
     return (
       <div className="space-y-6">
@@ -293,14 +299,20 @@ export function WebWijzerAnalytics({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="secondary" onClick={onBack}>
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">WebWijzer Analytics</h1>
-          <p className="text-gray-600 mt-1">Overview of all content performance</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="secondary" onClick={onBack}>
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">WebWijzer Analytics</h1>
+            <p className="text-gray-600 mt-1">Overview of all content performance</p>
+          </div>
         </div>
+        <Button onClick={() => setShowStudentAccess(true)}>
+          <UserCheck className="w-4 h-4 mr-2" />
+          Student Access
+        </Button>
       </div>
 
       {loading ? (
