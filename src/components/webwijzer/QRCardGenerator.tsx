@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { X, Download, Loader } from 'lucide-react';
 import QRCode from 'qrcode';
+import jsPDF from 'jspdf';
 
 interface Student {
   id: string;
@@ -88,7 +89,7 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
   const generateQRCode = async (studentId: string): Promise<string> => {
     const url = `${window.location.origin}/webwijzer/${studentId}`;
     return QRCode.toDataURL(url, {
-      width: 300,
+      width: 400,
       margin: 1,
       color: {
         dark: '#000000',
@@ -147,11 +148,35 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
         await drawCard(ctx, student, cardX, cardY, CARD_WIDTH, CARD_HEIGHT);
       }
 
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = 'webwijzer-qr-cards.png';
-      link.click();
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      for (let page = 0; page < totalPages; page++) {
+        if (page > 0) {
+          pdf.addPage();
+        }
+
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = A4_WIDTH_PX;
+        pageCanvas.height = A4_HEIGHT_PX;
+        const pageCtx = pageCanvas.getContext('2d');
+        if (pageCtx) {
+          pageCtx.drawImage(
+            canvas,
+            0, page * A4_HEIGHT_PX,
+            A4_WIDTH_PX, A4_HEIGHT_PX,
+            0, 0,
+            A4_WIDTH_PX, A4_HEIGHT_PX
+          );
+          const pageImgData = pageCanvas.toDataURL('image/png');
+          pdf.addImage(pageImgData, 'PNG', 0, 0, 210, 297);
+        }
+      }
+
+      pdf.save('webwijzer-qr-cards.pdf');
 
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -215,7 +240,6 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
 
     ctx.fillStyle = color;
     ctx.fillRect(x, colorBarY, colorBarWidth, colorBarHeight);
-
     ctx.fillRect(x + colorBarWidth, colorBarY, colorBarWidth, colorBarHeight);
 
     ctx.fillStyle = 'white';
@@ -227,20 +251,18 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     const displayNumber = student.student_display_number?.toString() || '';
     ctx.fillText(displayNumber, x + colorBarWidth + colorBarWidth / 2, colorBarY + colorBarHeight / 2 + 12);
 
+    ctx.restore();
+
     const photoSize = 130;
     const photoY = colorBarY + colorBarHeight + 10;
     const photoX = x + (width - photoSize) / 2;
-
-    ctx.beginPath();
-    ctx.arc(photoX + photoSize / 2, photoY + photoSize / 2, photoSize / 2, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.fillStyle = '#E5E7EB';
-    ctx.fill();
 
     ctx.save();
     ctx.beginPath();
     ctx.arc(photoX + photoSize / 2, photoY + photoSize / 2, photoSize / 2, 0, Math.PI * 2);
     ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
     ctx.clip();
 
     if (student.profile_picture_url) {
@@ -254,7 +276,7 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
         });
         ctx.drawImage(img, photoX, photoY, photoSize, photoSize);
       } catch {
-        ctx.fillStyle = '#E5E7EB';
+        ctx.fillStyle = color;
         ctx.fillRect(photoX, photoY, photoSize, photoSize);
       }
     }
@@ -288,6 +310,10 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
       }
     }
 
+    ctx.save();
+    roundRect(ctx, x, y, width, height, radius);
+    ctx.clip();
+
     const nameY = photoY + photoSize + 15;
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
@@ -312,6 +338,8 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     }
     ctx.fillText(student.last_name, x + width / 2, nameY + 30);
 
+    ctx.restore();
+
     const qrSize = 100;
     const qrY = nameY + 45;
     const qrX = x + (width - qrSize) / 2;
@@ -322,6 +350,10 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
       qrImg.src = qrDataUrl;
     });
     ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+
+    ctx.save();
+    roundRect(ctx, x, y, width, height, radius);
+    ctx.clip();
 
     const footerHeight = 35;
     const footerY = y + height - footerHeight;
@@ -445,7 +477,7 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
               ) : (
                 <>
                   <Download className="w-4 h-4 mr-2" />
-                  Generate Cards
+                  Generate PDF
                 </>
               )}
             </Button>
