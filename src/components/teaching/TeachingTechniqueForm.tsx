@@ -358,7 +358,7 @@ export function TeachingTechniqueForm({
               value={teacherVideoUrl}
               onChange={(e) => setTeacherVideoUrl(e.target.value)}
               placeholder="https://vimeo.com/..."
-              helperText="Vimeo URL voor docenten"
+              helperText="Vimeo URL voor Leerkrachten"
             />
 
             <Input
