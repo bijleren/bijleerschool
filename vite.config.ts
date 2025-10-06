@@ -5,6 +5,12 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    exclude: ['lucide-react']
+    exclude: ['lucide-react'],
+    include: ['jspdf', 'qrcode']
   },
+  resolve: {
+    alias: {
+      'jspdf': 'jspdf/dist/jspdf.es.min.js'
+    }
+  }
 });

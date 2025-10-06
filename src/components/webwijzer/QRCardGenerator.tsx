@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { X, Download, Loader } from 'lucide-react';
 import QRCode from 'qrcode';
+import { jsPDF } from 'jspdf';
 
 interface Student {
   id: string;
@@ -150,10 +151,6 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
 
         await drawCard(ctx, student, cardX, cardY, CARD_WIDTH, CARD_HEIGHT);
       }
-
-      // Dynamically import jsPDF
-      const jsPDFModule = await import('jspdf');
-      const jsPDF = jsPDFModule.jsPDF || jsPDFModule.default;
 
       const pdf = new jsPDF({
         orientation: 'portrait',
