@@ -476,11 +476,53 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
     }
   };
 
+  const uploadFile = async (file: File, folder: string): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${student.id}_${folder}_${Date.now()}.${fileExt}`;
+    const filePath = `${schoolId}/${fileName}`;
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('student-files')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('student-files')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
   const updateStudent = async () => {
     setLoading(true);
     setMessage('');
 
     try {
+      let profilePictureUrl = student.profile_picture_url;
+      let symbolUrl = student.symbol_url;
+
+      if (profilePictureFile) {
+        try {
+          profilePictureUrl = await uploadFile(profilePictureFile, 'profile');
+        } catch (uploadError) {
+          console.error('Error uploading profile picture:', uploadError);
+          setMessage('Fout bij uploaden van profielfoto. Andere wijzigingen worden opgeslagen.');
+        }
+      }
+
+      if (symbolFile) {
+        try {
+          symbolUrl = await uploadFile(symbolFile, 'symbol');
+        } catch (uploadError) {
+          console.error('Error uploading symbol:', uploadError);
+          setMessage('Fout bij uploaden van symbool. Andere wijzigingen worden opgeslagen.');
+        }
+      }
+
       const { data, error } = await supabase
         .from('students')
         .update({
@@ -492,6 +534,8 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
           color: editColor,
           student_display_number: editDisplayNumber ? parseInt(editDisplayNumber) : null,
           pin_code: editPinCode || null,
+          profile_picture_url: profilePictureUrl,
+          symbol_url: symbolUrl,
         })
         .eq('id', student.id)
         .select()
@@ -525,8 +569,12 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
       onStudentUpdated(data);
       setIsEditing(false);
       setEditSelectedLeerjaar('');
-      setMessage('Student succesvol bijgewerkt!');
-      fetchStudentGrades(); // Refresh the leerjaren display
+      setProfilePictureFile(null);
+      setSymbolFile(null);
+      if (!message) {
+        setMessage('Student succesvol bijgewerkt!');
+      }
+      fetchStudentGrades();
     } catch (error) {
       console.error('Error updating student:', error);
       setMessage('Er is een fout opgetreden bij het bijwerken van de student.');
