@@ -1,11 +1,18 @@
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AuthPage } from './components/auth/AuthPage';
 import { Dashboard } from './components/dashboard/Dashboard';
+import { PublicWebWijzerAccess } from './components/webwijzer/PublicWebWijzerAccess';
 
 function AppContent() {
   const { user, loading } = useAuth();
+  const location = useLocation();
+
+  // Check if we're on the public WebWijzer page
+  if (location.pathname === '/webwijzer') {
+    return <PublicWebWijzerAccess />;
+  }
 
   if (loading) {
     return (

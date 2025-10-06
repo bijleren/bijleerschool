@@ -5,8 +5,9 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette, Link, QrCode, RefreshCw, ExternalLink } from 'lucide-react';
 import { ColorPicker } from '../ui/ColorPicker';
+import { StudentWebWijzer } from '../webwijzer/StudentWebWijzer';
 
 interface Student {
   id: string;
@@ -22,6 +23,8 @@ interface Student {
   symbol_url: string | null;
   student_display_number: number | null;
   pin_code: string | null;
+  student_code: string | null;
+  access_hash: string | null;
 }
 
 interface SchoolGrade {
@@ -135,6 +138,12 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
     byCategory: [] as Array<{ name: string; count: number; color: string }>,
     bySeverity: [] as Array<{ level: number; count: number; color: string }>
   });
+
+  // WebWijzer states
+  const [studentCode, setStudentCode] = useState(student.student_code || '');
+  const [accessHash, setAccessHash] = useState(student.access_hash || '');
+  const [regeneratingCode, setRegeneratingCode] = useState(false);
+  const [showWebWijzer, setShowWebWijzer] = useState(false);
 
   useEffect(() => {
     fetchStudentGroups();
@@ -372,6 +381,83 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
       setFavoriteLoading(false);
     }
   };
+
+  const generateStudentCode = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  };
+
+  const generateAccessHash = () => {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return btoa(String.fromCharCode.apply(null, Array.from(array)));
+  };
+
+  const regenerateStudentCode = async () => {
+    if (!confirm('Are you sure you want to regenerate the student code? The old QR code will no longer work.')) {
+      return;
+    }
+
+    setRegeneratingCode(true);
+
+    try {
+      const newCode = generateStudentCode();
+      const newHash = generateAccessHash();
+
+      const { error } = await supabase
+        .from('students')
+        .update({
+          student_code: newCode,
+          access_hash: newHash,
+        })
+        .eq('id', student.id);
+
+      if (error) throw error;
+
+      setStudentCode(newCode);
+      setAccessHash(newHash);
+      setMessage('Student code successfully regenerated');
+    } catch (error) {
+      console.error('Error regenerating student code:', error);
+      setMessage('Failed to regenerate student code');
+    } finally {
+      setRegeneratingCode(false);
+    }
+  };
+
+  const generateInitialStudentCode = async () => {
+    if (studentCode) return;
+
+    try {
+      const newCode = generateStudentCode();
+      const newHash = generateAccessHash();
+
+      const { error } = await supabase
+        .from('students')
+        .update({
+          student_code: newCode,
+          access_hash: newHash,
+        })
+        .eq('id', student.id);
+
+      if (error) throw error;
+
+      setStudentCode(newCode);
+      setAccessHash(newHash);
+    } catch (error) {
+      console.error('Error generating student code:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (!studentCode) {
+      generateInitialStudentCode();
+    }
+  }, []);
 
   const fetchStudentGroups = async () => {
     try {
@@ -944,6 +1030,66 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
         )}
       </Card>
 
+      {/* WebWijzer Section */}
+      <Card className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <Link className="w-5 h-5 mr-2" />
+            WebWijzer
+          </h3>
+          <Button
+            variant="secondary"
+            onClick={() => setShowWebWijzer(true)}
+            size="sm"
+          >
+            <ExternalLink className="w-4 h-4 mr-2" />
+            View WebWijzer
+          </Button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Student Code</label>
+            <div className="flex items-center gap-4">
+              <div className="flex-1 bg-gray-50 px-4 py-3 rounded-lg border border-gray-200">
+                <p className="text-2xl font-mono font-bold text-gray-900 tracking-wider">
+                  {studentCode || 'Generating...'}
+                </p>
+              </div>
+              <Button
+                variant="secondary"
+                onClick={regenerateStudentCode}
+                disabled={regeneratingCode || !studentCode}
+                size="sm"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${regeneratingCode ? 'animate-spin' : ''}`} />
+                Regenerate
+              </Button>
+            </div>
+            <p className="text-sm text-gray-600 mt-2">
+              Students use this code with their PIN to access WebWijzer
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">QR Code URL</label>
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+              <div className="flex items-start gap-3">
+                <QrCode className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-blue-900 mb-1">
+                    https://bijleren.school/webwijzer?h={accessHash || '...'}
+                  </p>
+                  <p className="text-xs text-blue-700">
+                    Generate a QR code for this URL to give students instant access
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
       {/* Recent Incidents */}
       <Card className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -1250,6 +1396,29 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
           </div>
         </div>
       </Card>
+
+      {/* WebWijzer Modal */}
+      {showWebWijzer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900">
+                WebWijzer - {student.first_name} {student.last_name}
+              </h2>
+              <Button variant="ghost" onClick={() => setShowWebWijzer(false)}>
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+            <div className="p-6">
+              <StudentWebWijzer
+                studentId={student.id}
+                studentName={student.first_name}
+                onBackToDashboard={() => setShowWebWijzer(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

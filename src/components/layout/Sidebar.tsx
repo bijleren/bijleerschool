@@ -1,5 +1,5 @@
 import React from 'react';
-import { School, UserCheck, Users } from 'lucide-react';
+import { School, UserCheck, Users, Link } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -9,6 +9,7 @@ interface SidebarProps {
 const navigation = [
   { id: 'profile', name: 'Mijn Profiel', icon: UserCheck },
   { id: 'schools', name: 'Scholen', icon: School },
+  { id: 'webwijzer', name: 'WebWijzer', icon: Link },
 ];
 
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
