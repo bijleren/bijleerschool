@@ -288,6 +288,19 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     ctx.closePath();
     ctx.fill();
 
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    let headerFontSize = 4 * CM_TO_PX / 10;
+    ctx.font = `300 ${headerFontSize}px "Open Sans", sans-serif`;
+    let headerWidth = ctx.measureText('bijleren.school').width;
+    while (headerWidth > width - (0.4 * CM_TO_PX) && headerFontSize > (2 * CM_TO_PX / 10)) {
+      headerFontSize -= 0.5;
+      ctx.font = `300 ${headerFontSize}px "Open Sans", sans-serif`;
+      headerWidth = ctx.measureText('bijleren.school').width;
+    }
+    ctx.fillText('bijleren.school', x + width / 2, y + 0.25 * CM_TO_PX);
+
     const bottomHeight = 0.5 * CM_TO_PX;
     const bottomY = y + height - bottomHeight;
     ctx.fillStyle = color;
@@ -301,6 +314,25 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     ctx.lineTo(x, bottomY);
     ctx.closePath();
     ctx.fill();
+
+    ctx.fillStyle = 'white';
+    let footerFontSize = 4 * CM_TO_PX / 10;
+    ctx.font = `300 ${footerFontSize}px "Open Sans", sans-serif`;
+    const studentCode = student.student_number || '';
+    let footerWidth = ctx.measureText(studentCode).width;
+    while (footerWidth > width - (0.4 * CM_TO_PX) && footerFontSize > (2 * CM_TO_PX / 10)) {
+      footerFontSize -= 0.5;
+      ctx.font = `300 ${footerFontSize}px "Open Sans", sans-serif`;
+      footerWidth = ctx.measureText(studentCode).width;
+    }
+    ctx.fillText(studentCode, x + width / 2, y + height - (0.5 * CM_TO_PX));
+
+    const studentNumberY = y + height - (7.5 * CM_TO_PX);
+    const studentNumberX = x + width - (7 * CM_TO_PX);
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'left';
+    ctx.font = `300 ${footerFontSize}px "Open Sans", sans-serif`;
+    ctx.fillText(studentCode, studentNumberX, studentNumberY);
 
     const photoSize = 3 * CM_TO_PX;
     const photoCenterY = y + height - (7 * CM_TO_PX);
@@ -401,41 +433,6 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     ctx.lineWidth = 6;
     roundRect(ctx, x, y, width, height, radius);
     ctx.stroke();
-
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    let headerFontSize = 4 * CM_TO_PX / 10;
-    ctx.font = `300 ${headerFontSize}px "Open Sans", sans-serif`;
-    let headerWidth = ctx.measureText('bijleren.school').width;
-    while (headerWidth > width - (0.4 * CM_TO_PX) && headerFontSize > (2 * CM_TO_PX / 10)) {
-      headerFontSize -= 0.5;
-      ctx.font = `300 ${headerFontSize}px "Open Sans", sans-serif`;
-      headerWidth = ctx.measureText('bijleren.school').width;
-    }
-    ctx.fillText('bijleren.school', x + width / 2, y + 1 * CM_TO_PX);
-
-    const studentCode = student.student_number || '';
-    let footerFontSize = 4 * CM_TO_PX / 10;
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = `300 ${footerFontSize}px "Open Sans", sans-serif`;
-    let footerWidth = ctx.measureText(studentCode).width;
-    while (footerWidth > width - (0.4 * CM_TO_PX) && footerFontSize > (2 * CM_TO_PX / 10)) {
-      footerFontSize -= 0.5;
-      ctx.font = `300 ${footerFontSize}px "Open Sans", sans-serif`;
-      footerWidth = ctx.measureText(studentCode).width;
-    }
-    ctx.fillText(studentCode, x + width / 2, y + height - (0.25 * CM_TO_PX));
-
-    const studentNumberY = y + height - (7.5 * CM_TO_PX);
-    const studentNumberX = x + width - (7 * CM_TO_PX);
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.font = `300 ${footerFontSize}px "Open Sans", sans-serif`;
-    ctx.fillText(studentCode, studentNumberX, studentNumberY);
   };
 
   const filteredStudents = students.filter(s =>
