@@ -496,7 +496,7 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
         {/* Most Active Teachers */}
         <Card>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Meest actieve docenten
+            Meest actieve leerkrachten
           </h3>
           <div className="space-y-3">
             {teacherUsageStats.slice(0, 10).map((teacher, index) => (
