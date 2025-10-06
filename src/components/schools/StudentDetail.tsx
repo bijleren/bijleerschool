@@ -5,24 +5,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { 
-  ArrowLeft, 
-  Edit, 
-  Save, 
-  X, 
-  GraduationCap,
-  Calendar,
-  Hash,
-  Heart,
-  Star,
-  Users,
-  Plus,
-  Trash2,
-  AlertTriangle,
-  Clock,
-  MapPin,
-  User
-} from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User } from 'lucide-react';
 
 interface Student {
   id: string;
