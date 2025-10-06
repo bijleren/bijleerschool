@@ -150,6 +150,8 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
   const [consequences, setConsequences] = useState<Consequence[]>([]);
   const [attachments, setAttachments] = useState<IncidentAttachment[]>([]);
   const [notifications, setNotifications] = useState<IncidentNotification[]>([]);
+  const [eersteActies, setEersteActies] = useState<Array<{ id?: string; consequence_id: string; notes: string }>>([]);
+  const [followupActies, setFollowupActies] = useState<Array<{ id?: string; consequence_id: string; notes: string; action_date: string }>>([]);
   const [availableTeachers, setAvailableTeachers] = useState<AvailableTeacher[]>([]);
   const [availableGroups, setAvailableGroups] = useState<AvailableGroup[]>([]);
 
@@ -159,8 +161,6 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
   const [incidentDate, setIncidentDate] = useState(incident.incident_date.slice(0, 16));
   const [location, setLocation] = useState(incident.location || '');
   const [description, setDescription] = useState(incident.description);
-  const [actionTakenConsequenceId, setActionTakenConsequenceId] = useState('');
-  const [actionTakenOther, setActionTakenOther] = useState('');
   const [followUpRequired, setFollowUpRequired] = useState(incident.follow_up_required);
   const [followUpDate, setFollowUpDate] = useState(incident.follow_up_date?.slice(0, 10) || '');
   const [followUpNotes, setFollowUpNotes] = useState(incident.follow_up_notes || '');
@@ -199,24 +199,9 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     fetchNotifications();
     fetchAvailableTeachers();
     fetchAvailableGroups();
+    fetchEersteActies();
+    fetchFollowupActies();
   }, []);
-
-  // Set initial action taken values after consequences are loaded
-  useEffect(() => {
-    if (consequences.length > 0) {
-      // Check if the current action_taken matches any consequence
-      const matchingConsequence = consequences.find(c => c.name === incident.action_taken);
-      
-      if (matchingConsequence) {
-        setActionTakenConsequenceId(matchingConsequence.id);
-        setActionTakenOther('');
-      } else if (incident.action_taken) {
-        // If action_taken exists but doesn't match any consequence, set as "other"
-        setActionTakenConsequenceId('other');
-        setActionTakenOther(incident.action_taken);
-      }
-    }
-  }, [consequences, incident.action_taken]);
 
   const fetchStudents = async () => {
     try {
@@ -358,6 +343,45 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     }
   };
 
+  const fetchEersteActies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('behavior_incident_eerste_acties')
+        .select('*')
+        .eq('incident_id', incident.id)
+        .order('created_at');
+
+      if (error) throw error;
+      setEersteActies(data?.map(actie => ({
+        id: actie.id,
+        consequence_id: actie.consequence_id,
+        notes: actie.notes || ''
+      })) || []);
+    } catch (error) {
+      console.error('Error fetching eerste acties:', error);
+    }
+  };
+
+  const fetchFollowupActies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('behavior_incident_followup_acties')
+        .select('*')
+        .eq('incident_id', incident.id)
+        .order('action_date', { ascending: false });
+
+      if (error) throw error;
+      setFollowupActies(data?.map(actie => ({
+        id: actie.id,
+        consequence_id: actie.consequence_id,
+        notes: actie.notes || '',
+        action_date: actie.action_date
+      })) || []);
+    } catch (error) {
+      console.error('Error fetching followup acties:', error);
+    }
+  };
+
   const addNotification = async () => {
     try {
       const notificationData: any = {
@@ -417,15 +441,6 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     setMessage('');
 
     try {
-      // Determine action taken value
-      let actionTakenValue = '';
-      if (actionTakenConsequenceId && actionTakenConsequenceId !== 'other') {
-        const selectedConsequence = consequences.find(c => c.id === actionTakenConsequenceId);
-        actionTakenValue = selectedConsequence?.name || '';
-      } else if (actionTakenConsequenceId === 'other') {
-        actionTakenValue = actionTakenOther;
-      }
-
       const { error } = await supabase
         .from('behavior_incidents')
         .update({
@@ -434,17 +449,63 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
           incident_date: incidentDate,
           location: location || null,
           description,
-          action_taken: actionTakenValue || null,
           follow_up_required: followUpRequired,
           follow_up_date: followUpRequired && followUpDate ? followUpDate : null,
           follow_up_notes: followUpRequired && followUpNotes ? followUpNotes : null,
-          status,
-          // Note: followup_action_id references followup_actions table which doesn't exist in current schema
-          // The action_taken field already stores the consequence name, so we don't need these fields
+          status
         })
         .eq('id', incident.id);
 
       if (error) throw error;
+
+      // Update eerste acties
+      // First, delete existing eerste acties
+      const { error: deleteEersteError } = await supabase
+        .from('behavior_incident_eerste_acties')
+        .delete()
+        .eq('incident_id', incident.id);
+
+      if (deleteEersteError) throw deleteEersteError;
+
+      // Then insert new eerste acties
+      if (eersteActies.length > 0) {
+        const eersteActiesInserts = eersteActies.map(actie => ({
+          incident_id: incident.id,
+          consequence_id: actie.consequence_id,
+          notes: actie.notes || null,
+        }));
+
+        const { error: eersteActiesError } = await supabase
+          .from('behavior_incident_eerste_acties')
+          .insert(eersteActiesInserts);
+
+        if (eersteActiesError) throw eersteActiesError;
+      }
+
+      // Update followup acties
+      // Delete existing followup acties
+      const { error: deleteFollowupError } = await supabase
+        .from('behavior_incident_followup_acties')
+        .delete()
+        .eq('incident_id', incident.id);
+
+      if (deleteFollowupError) throw deleteFollowupError;
+
+      // Insert new followup acties
+      if (followupActies.length > 0) {
+        const followupActiesInserts = followupActies.map(actie => ({
+          incident_id: incident.id,
+          consequence_id: actie.consequence_id,
+          notes: actie.notes || null,
+          action_date: actie.action_date,
+        }));
+
+        const { error: followupActiesError } = await supabase
+          .from('behavior_incident_followup_acties')
+          .insert(followupActiesInserts);
+
+        if (followupActiesError) throw followupActiesError;
+      }
 
       setMessage('Incident succesvol bijgewerkt!');
       onIncidentUpdated();
@@ -593,6 +654,34 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const addEersteActie = () => {
+    setEersteActies([...eersteActies, { consequence_id: '', notes: '' }]);
+  };
+
+  const removeEersteActie = (index: number) => {
+    setEersteActies(eersteActies.filter((_, i) => i !== index));
+  };
+
+  const updateEersteActie = (index: number, field: 'consequence_id' | 'notes', value: string) => {
+    const updated = [...eersteActies];
+    updated[index][field] = value;
+    setEersteActies(updated);
+  };
+
+  const addFollowupActie = () => {
+    setFollowupActies([...followupActies, { consequence_id: '', notes: '', action_date: new Date().toISOString().split('T')[0] }]);
+  };
+
+  const removeFollowupActie = (index: number) => {
+    setFollowupActies(followupActies.filter((_, i) => i !== index));
+  };
+
+  const updateFollowupActie = (index: number, field: 'consequence_id' | 'notes' | 'action_date', value: string) => {
+    const updated = [...followupActies];
+    updated[index][field] = value;
+    setFollowupActies(updated);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center mb-8">
@@ -692,35 +781,140 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
             />
           </div>
 
-          {/* Action Taken */}
+          {/* Eerste Acties */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Consequentie:
-            </label>
-            <select
-              value={actionTakenConsequenceId}
-              onChange={(e) => setActionTakenConsequenceId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 mb-3"
-            >
-              <option value="">Geen actie ondernomen</option>
-              {consequences.map((consequence) => (
-                <option key={consequence.id} value={consequence.id}>
-                  {consequence.name}
-                  {consequence.severity_level && ` (Niveau ${consequence.severity_level})`}
-                </option>
-              ))}
-              <option value="other">Andere...</option>
-            </select>
+            <div className="flex items-center justify-between mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Eerste acties *
+              </label>
+              <Button type="button" variant="secondary" size="sm" onClick={addEersteActie}>
+                <Plus className="w-4 h-4 mr-1" />
+                Actie toevoegen
+              </Button>
+            </div>
 
-            {actionTakenConsequenceId === 'other' && (
-              <textarea
-                value={actionTakenOther}
-                onChange={(e) => setActionTakenOther(e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Beschrijf welke andere actie je hebt ondernomen..."
-                required
-              />
+            {eersteActies.length === 0 && (
+              <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-gray-500">Geen acties toegevoegd. Voeg minimaal één eerste actie toe.</p>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {eersteActies.map((actie, index) => (
+                <div key={index} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-1">
+                      <select
+                        value={actie.consequence_id}
+                        onChange={(e) => updateEersteActie(index, 'consequence_id', e.target.value)}
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="">Selecteer actie</option>
+                        {consequences.map((consequence) => (
+                          <option key={consequence.id} value={consequence.id}>
+                            {consequence.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      onClick={() => removeEersteActie(index)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Notities (optioneel)
+                    </label>
+                    <textarea
+                      value={actie.notes}
+                      onChange={(e) => updateEersteActie(index, 'notes', e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Voeg eventuele notities toe voor deze actie..."
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Follow-up Acties */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Follow-up acties
+              </label>
+              <Button type="button" variant="secondary" size="sm" onClick={addFollowupActie}>
+                <Plus className="w-4 h-4 mr-1" />
+                Follow-up actie toevoegen
+              </Button>
+            </div>
+
+            {followupActies.length === 0 ? (
+              <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-gray-500 text-sm">Geen follow-up acties toegevoegd</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {followupActies.map((actie, index) => (
+                  <div key={index} className="p-4 bg-blue-50 rounded-lg space-y-3">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-1 grid grid-cols-2 gap-3">
+                        <div>
+                          <select
+                            value={actie.consequence_id}
+                            onChange={(e) => updateFollowupActie(index, 'consequence_id', e.target.value)}
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          >
+                            <option value="">Selecteer actie</option>
+                            {consequences.map((consequence) => (
+                              <option key={consequence.id} value={consequence.id}>
+                                {consequence.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <input
+                            type="date"
+                            value={actie.action_date}
+                            onChange={(e) => updateFollowupActie(index, 'action_date', e.target.value)}
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        onClick={() => removeFollowupActie(index)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Notities (optioneel)
+                      </label>
+                      <textarea
+                        value={actie.notes}
+                        onChange={(e) => updateFollowupActie(index, 'notes', e.target.value)}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Voeg eventuele notities toe voor deze follow-up actie..."
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 

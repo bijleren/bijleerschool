@@ -132,10 +132,8 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [groups, setGroups] = useState<Group[]>([]);
   const [message, setMessage] = useState('');
   const [consequences, setConsequences] = useState<Consequence[]>([]);
-  const [actionTakenConsequenceId, setActionTakenConsequenceId] = useState('');
-  const [actionTakenOther, setActionTakenOther] = useState('');
   const [suggestedConsequences, setSuggestedConsequences] = useState<Consequence[]>([]);
-  const [selectedConsequences, setSelectedConsequences] = useState<string[]>([]);
+  const [eersteActies, setEersteActies] = useState<Array<{ consequence_id: string; notes: string }>>([]);
   const [followupActions, setFollowupActions] = useState<FollowupAction[]>([]);
   const [selectedFollowupAction, setSelectedFollowupAction] = useState('');
   const [followupActionOther, setFollowupActionOther] = useState('');
@@ -224,7 +222,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       fetchSuggestedConsequences(selectedBehaviorItem);
     } else {
       setSuggestedConsequences([]);
-      setSelectedConsequences([]);
+      setEersteActies([]);
     }
   }, [selectedBehaviorItem]);
 
@@ -648,10 +646,13 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       
       const suggested = data?.map(item => item.consequences).filter(Boolean) || [];
       setSuggestedConsequences(suggested);
-      
-      // Auto-select default consequences
-      const defaultConsequences = data?.filter(item => item.is_default).map(item => item.consequences.id) || [];
-      setSelectedConsequences(defaultConsequences);
+
+      // Auto-add default consequences to eerste acties
+      const defaultConsequences = data?.filter(item => item.is_default).map(item => ({
+        consequence_id: item.consequences.id,
+        notes: ''
+      })) || [];
+      setEersteActies(defaultConsequences);
     } catch (error) {
       console.error('Error fetching suggested consequences:', error);
     }
@@ -742,25 +743,36 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
         .from('behavior_incidents')
         .insert({
           school_id: schoolId,
-          student_id: selectedStudents[0].student_id, // Keep for backward compatibility
+          student_id: selectedStudents[0].student_id,
           behavior_item_id: selectedBehaviorItem === 'other' ? null : selectedBehaviorItem,
           reported_by: user.id,
           incident_date: incidentDate,
           location: location || null,
           description,
-          action_taken: actionTakenConsequenceId === 'other' ? actionTakenOther : 
-                       actionTakenConsequenceId ? consequences.find(c => c.id === actionTakenConsequenceId)?.name : null,
           follow_up_required: followUpRequired,
           follow_up_date: followUpRequired && followUpDate ? followUpDate : null,
           follow_up_notes: followUpRequired && followUpNotes ? followUpNotes : null,
           status,
-          followup_action_id: selectedFollowupAction || null,
-          followup_action_other: selectedFollowupAction === 'other' ? followupActionOther : null,
         })
         .select()
         .single();
 
       if (incidentError) throw incidentError;
+
+      // Add eerste acties (initial consequences)
+      if (eersteActies.length > 0) {
+        const eersteActiesInserts = eersteActies.map(actie => ({
+          incident_id: incident.id,
+          consequence_id: actie.consequence_id,
+          notes: actie.notes || null,
+        }));
+
+        const { error: eersteActiesError } = await supabase
+          .from('behavior_incident_eerste_acties')
+          .insert(eersteActiesInserts);
+
+        if (eersteActiesError) throw eersteActiesError;
+      }
 
       // Add notifications
       if (selectedNotifications.length > 0) {
@@ -786,9 +798,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       setSelectedNotifications([]);
       setSelectedBehaviorItem('');
       setDescription('');
-      setActionTaken('');
-      setSelectedFollowupAction('');
-      setFollowupActionOther('');
+      setEersteActies([]);
       setAttachments([]);
 
       setMessage('Incident succesvol gemeld!');
@@ -869,12 +879,18 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     return selectedStudents.some(selected => selected.student_id === studentId);
   };
 
-  const toggleConsequence = (consequenceId: string) => {
-    setSelectedConsequences(prev =>
-      prev.includes(consequenceId)
-        ? prev.filter(id => id !== consequenceId)
-        : [...prev, consequenceId]
-    );
+  const addEersteActie = () => {
+    setEersteActies([...eersteActies, { consequence_id: '', notes: '' }]);
+  };
+
+  const removeEersteActie = (index: number) => {
+    setEersteActies(eersteActies.filter((_, i) => i !== index));
+  };
+
+  const updateEersteActie = (index: number, field: 'consequence_id' | 'notes', value: string) => {
+    const updated = [...eersteActies];
+    updated[index][field] = value;
+    setEersteActies(updated);
   };
 
   const getFilteredConsequences = () => {
@@ -1289,41 +1305,67 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
             />
           </div>
 
-          {/* Action Taken */}
+          {/* Eerste Acties */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Consequentie *
-            </label>
-            <select
-              value={actionTakenConsequenceId}
-              onChange={(e) => setActionTakenConsequenceId(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="">Selecteer actie</option>
-              {consequences.map((consequence) => (
-                <option key={consequence.id} value={consequence.id}>
-                  {consequence.name}
-                </option>
-              ))}
-              <option value="other">Andere...</option>
-            </select>
-            
-            {actionTakenConsequenceId === 'other' && (
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Beschrijf de actie
-                </label>
-                <textarea
-                  value={actionTakenOther}
-                  onChange={(e) => setActionTakenOther(e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Beschrijf welke actie je hebt ondernomen..."
-                  required
-                />
+            <div className="flex items-center justify-between mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Eerste acties *
+              </label>
+              <Button type="button" variant="secondary" size="sm" onClick={addEersteActie}>
+                <Plus className="w-4 h-4 mr-1" />
+                Actie toevoegen
+              </Button>
+            </div>
+
+            {eersteActies.length === 0 && (
+              <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-gray-500">Geen acties toegevoegd. Voeg minimaal één eerste actie toe.</p>
               </div>
             )}
+
+            <div className="space-y-3">
+              {eersteActies.map((actie, index) => (
+                <div key={index} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-1">
+                      <select
+                        value={actie.consequence_id}
+                        onChange={(e) => updateEersteActie(index, 'consequence_id', e.target.value)}
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="">Selecteer actie</option>
+                        {consequences.map((consequence) => (
+                          <option key={consequence.id} value={consequence.id}>
+                            {consequence.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      onClick={() => removeEersteActie(index)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Notities (optioneel)
+                    </label>
+                    <textarea
+                      value={actie.notes}
+                      onChange={(e) => updateEersteActie(index, 'notes', e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Voeg eventuele notities toe voor deze actie..."
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Follow-up */}

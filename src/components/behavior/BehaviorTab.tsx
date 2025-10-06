@@ -167,6 +167,25 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
             groups (
               name
             )
+          ),
+          behavior_incident_eerste_acties (
+            id,
+            consequence_id,
+            notes,
+            consequences (
+              id,
+              name
+            )
+          ),
+          behavior_incident_followup_acties (
+            id,
+            consequence_id,
+            notes,
+            action_date,
+            consequences (
+              id,
+              name
+            )
           )
         `)
         .eq('school_id', selectedSchool.id)
@@ -458,7 +477,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                       
                       <h4 className="font-medium text-gray-900 mb-2">{incident.behavior_items.name}</h4>
                       <p className="text-gray-600 mb-3">{incident.description}</p>
-                      
+
                       <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-1" />
@@ -475,11 +494,41 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                           Gemeld door: {incident.profiles ? `${incident.profiles.first_name} ${incident.profiles.last_name}` : 'Onbekend'}
                         </div>
                       </div>
-                      
-                      {incident.action_taken && (
+
+                      {incident.behavior_incident_eerste_acties && incident.behavior_incident_eerste_acties.length > 0 && (
+                        <div className="mt-3 p-3 bg-green-50 rounded-lg">
+                          <h5 className="font-medium text-green-900 mb-2">Eerste acties:</h5>
+                          <div className="space-y-2">
+                            {incident.behavior_incident_eerste_acties.map((actie: any) => (
+                              <div key={actie.id} className="text-sm">
+                                <span className="text-green-900 font-medium">{actie.consequences.name}</span>
+                                {actie.notes && (
+                                  <p className="text-green-800 mt-1 ml-2">{actie.notes}</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {incident.behavior_incident_followup_acties && incident.behavior_incident_followup_acties.length > 0 && (
                         <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                          <h5 className="font-medium text-blue-900 mb-1">Consequentie:</h5>
-                          <p className="text-blue-800 text-sm">{incident.action_taken}</p>
+                          <h5 className="font-medium text-blue-900 mb-2">Follow-up acties:</h5>
+                          <div className="space-y-2">
+                            {incident.behavior_incident_followup_acties.map((actie: any) => (
+                              <div key={actie.id} className="text-sm">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-blue-900 font-medium">{actie.consequences.name}</span>
+                                  <span className="text-blue-700 text-xs">
+                                    {new Date(actie.action_date).toLocaleDateString('nl-NL')}
+                                  </span>
+                                </div>
+                                {actie.notes && (
+                                  <p className="text-blue-800 mt-1 ml-2">{actie.notes}</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                       
