@@ -131,6 +131,14 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const [recentIncidents, setRecentIncidents] = useState<BehaviorIncident[]>([]);
   const [incidentsLoading, setIncidentsLoading] = useState(true);
 
+  // Incident statistics
+  const [incidentStats, setIncidentStats] = useState({
+    total: 0,
+    recent: 0,
+    byCategory: [] as Array<{ name: string; count: number; color: string }>,
+    bySeverity: [] as Array<{ level: number; count: number; color: string }>
+  });
+
   useEffect(() => {
     fetchStudentGroups();
     fetchAvailableGroups();
@@ -138,50 +146,136 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
     fetchSchoolGrades();
     fetchStudentGrades();
     fetchRecentIncidents();
+    fetchIncidentStatistics();
   }, []);
 
   const fetchRecentIncidents = async () => {
     try {
       setIncidentsLoading(true);
-      
-      // Fetch incidents directly for this student
-      const { data: incidents, error: incidentsError } = await supabase
-        .from('behavior_incidents')
+
+      // Fetch incidents through the junction table to get role information
+      const { data: studentIncidents, error: incidentsError } = await supabase
+        .from('behavior_incident_students')
         .select(`
           id,
-          incident_date,
-          location,
-          description,
-          status,
-          behavior_items (
+          student_roles (
             name,
-            behavior_categories (
-              name,
-              color
-            ),
-            behavior_severity_levels (
-              name,
-              level,
-              color
-            )
+            color
           ),
-          profiles (
-            first_name,
-            last_name
+          behavior_incidents (
+            id,
+            incident_date,
+            location,
+            description,
+            status,
+            behavior_items (
+              name,
+              behavior_categories (
+                name,
+                color
+              ),
+              behavior_severity_levels (
+                name,
+                level,
+                color
+              )
+            ),
+            profiles (
+              first_name,
+              last_name
+            )
           )
         `)
         .eq('student_id', student.id)
-        .order('incident_date', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(5);
 
       if (incidentsError) throw incidentsError;
 
-      setRecentIncidents(incidents || []);
+      // Transform the data to match the expected format
+      const incidents = studentIncidents?.map(si => ({
+        id: si.behavior_incidents.id,
+        incident_date: si.behavior_incidents.incident_date,
+        location: si.behavior_incidents.location,
+        description: si.behavior_incidents.description,
+        status: si.behavior_incidents.status,
+        behavior_items: si.behavior_incidents.behavior_items,
+        behavior_incident_students: [{
+          student_roles: si.student_roles
+        }],
+        profiles: si.behavior_incidents.profiles
+      })) || [];
+
+      setRecentIncidents(incidents);
     } catch (error) {
       console.error('Error fetching recent incidents:', error);
       setRecentIncidents([]);
     } finally {
       setIncidentsLoading(false);
+    }
+  };
+
+  const fetchIncidentStatistics = async () => {
+    try {
+      // Fetch all incidents for this student to calculate statistics
+      const { data: allIncidents, error } = await supabase
+        .from('behavior_incident_students')
+        .select(`
+          id,
+          created_at,
+          behavior_incidents (
+            id,
+            incident_date,
+            behavior_items (
+              behavior_categories (
+                name,
+                color
+              ),
+              behavior_severity_levels (
+                level,
+                color
+              )
+            )
+          )
+        `)
+        .eq('student_id', student.id);
+
+      if (error) throw error;
+
+      const total = allIncidents?.length || 0;
+
+      // Calculate recent incidents (last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recent = allIncidents?.filter(inc =>
+        new Date(inc.behavior_incidents.incident_date) >= thirtyDaysAgo
+      ).length || 0;
+
+      // Group by category
+      const categoryMap = new Map<string, { count: number; color: string }>();
+      allIncidents?.forEach(inc => {
+        const category = inc.behavior_incidents.behavior_items.behavior_categories;
+        const current = categoryMap.get(category.name) || { count: 0, color: category.color };
+        categoryMap.set(category.name, { count: current.count + 1, color: category.color });
+      });
+      const byCategory = Array.from(categoryMap.entries())
+        .map(([name, data]) => ({ name, count: data.count, color: data.color }))
+        .sort((a, b) => b.count - a.count);
+
+      // Group by severity
+      const severityMap = new Map<number, { count: number; color: string }>();
+      allIncidents?.forEach(inc => {
+        const severity = inc.behavior_incidents.behavior_items.behavior_severity_levels;
+        const current = severityMap.get(severity.level) || { count: 0, color: severity.color };
+        severityMap.set(severity.level, { count: current.count + 1, color: severity.color });
+      });
+      const bySeverity = Array.from(severityMap.entries())
+        .map(([level, data]) => ({ level, count: data.count, color: data.color }))
+        .sort((a, b) => a.level - b.level);
+
+      setIncidentStats({ total, recent, byCategory, bySeverity });
+    } catch (error) {
+      console.error('Error fetching incident statistics:', error);
     }
   };
 
@@ -634,21 +728,32 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
         ) : (
           <div className="space-y-3">
             {recentIncidents.map((incident) => (
-              <div key={incident.id} className="p-4 bg-gray-50 rounded-lg">
+              <div key={incident.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-behavior', { detail: { incidentId: incident.id } }))}>
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center space-x-2">
-                    <span 
+                    <span
                       className="px-2 py-1 rounded-full text-xs font-medium text-white"
                       style={{ backgroundColor: incident.behavior_items.behavior_categories.color }}
                     >
                       {incident.behavior_items.behavior_categories.name}
                     </span>
-                    <span 
+                    <span
                       className="px-2 py-1 rounded-full text-xs font-medium text-white"
                       style={{ backgroundColor: incident.behavior_items.behavior_severity_levels.color }}
                     >
                       Niveau {incident.behavior_items.behavior_severity_levels.level}
                     </span>
+                    {incident.behavior_incident_students && incident.behavior_incident_students[0] && (
+                      <span
+                        className="px-2 py-1 rounded-full text-xs font-medium"
+                        style={{
+                          backgroundColor: incident.behavior_incident_students[0].student_roles.color + '20',
+                          color: incident.behavior_incident_students[0].student_roles.color
+                        }}
+                      >
+                        {incident.behavior_incident_students[0].student_roles.name}
+                      </span>
+                    )}
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(incident.status)}`}>
                     {getStatusText(incident.status)}
@@ -824,6 +929,90 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
               </div>
             ))
           )}
+        </div>
+      </Card>
+
+      {/* Incident Statistics */}
+      <Card>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900">Gedragsincidenten overzicht</h3>
+        </div>
+
+        <div className="grid grid-cols-4 gap-6">
+          {/* Total Incidents */}
+          <div className="bg-blue-50 rounded-lg p-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <AlertTriangle className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-blue-600 font-medium">Totaal incidenten</p>
+                <p className="text-2xl font-bold text-blue-900">{incidentStats.total}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Incidents */}
+          <div className="bg-orange-50 rounded-lg p-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Clock className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-orange-600 font-medium">Afgelopen 30 dagen</p>
+                <p className="text-2xl font-bold text-orange-900">{incidentStats.recent}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* By Category */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-gray-700 mb-3">Per categorie</h4>
+            <div className="space-y-2">
+              {incidentStats.byCategory.length === 0 ? (
+                <p className="text-xs text-gray-500">Geen data</p>
+              ) : (
+                incidentStats.byCategory.slice(0, 3).map((cat) => (
+                  <div key={cat.name} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: cat.color }}
+                      />
+                      <span className="text-sm text-gray-700">{cat.name}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900">{cat.count}</span>
+                  </div>
+                ))
+              )}
+              {incidentStats.byCategory.length > 3 && (
+                <p className="text-xs text-gray-500 mt-2">+{incidentStats.byCategory.length - 3} meer</p>
+              )}
+            </div>
+          </div>
+
+          {/* By Severity */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-gray-700 mb-3">Per ernst niveau</h4>
+            <div className="space-y-2">
+              {incidentStats.bySeverity.length === 0 ? (
+                <p className="text-xs text-gray-500">Geen data</p>
+              ) : (
+                incidentStats.bySeverity.map((sev) => (
+                  <div key={sev.level} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: sev.color }}
+                      />
+                      <span className="text-sm text-gray-700">Niveau {sev.level}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900">{sev.count}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       </Card>
     </div>
