@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Star, Zap, X } from 'lucide-react';
+import { ArrowLeft, Star, Zap, X, Archive } from 'lucide-react';
 import { WebWijzerContentViewer } from './WebWijzerContentViewer';
 
 interface ContentAssignment {
@@ -21,6 +21,9 @@ interface ContentAssignment {
     content_url: string;
     symbol: string;
     color: string;
+    has_date_limit: boolean;
+    available_from: string | null;
+    available_until: string | null;
   };
 }
 
@@ -33,13 +36,14 @@ interface StudentWebWijzerProps {
 export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: StudentWebWijzerProps) {
   const { user } = useAuth();
   const [assignments, setAssignments] = useState<ContentAssignment[]>([]);
+  const [archivedAssignments, setArchivedAssignments] = useState<ContentAssignment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'push' | 'favorites' | 'all'>('push');
   const [selectedContent, setSelectedContent] = useState<ContentAssignment | null>(null);
   const [pushQueue, setPushQueue] = useState<ContentAssignment[]>([]);
   const [showPushModal, setShowPushModal] = useState(false);
   const [pushCountdown, setPushCountdown] = useState(5);
   const [pushCancelled, setPushCancelled] = useState(false);
+  const [showArchive, setShowArchive] = useState(false);
 
   useEffect(() => {
     fetchAssignments();
@@ -63,6 +67,16 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
     }
   }, [showPushModal, pushCountdown, pushCancelled]);
 
+  const isContentAvailable = (content: ContentAssignment['webwijzer_content']): boolean => {
+    if (!content.has_date_limit) return true;
+
+    const now = new Date();
+    if (content.available_from && new Date(content.available_from) > now) return false;
+    if (content.available_until && new Date(content.available_until) < now) return false;
+
+    return true;
+  };
+
   const fetchAssignments = async () => {
     try {
       const { data: directAssignments, error: directError } = await supabase
@@ -81,12 +95,14 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
             content_type,
             content_url,
             symbol,
-            color
+            color,
+            has_date_limit,
+            available_from,
+            available_until
           )
         `)
         .eq('assignable_type', 'student')
-        .eq('assignable_id', studentId)
-        .eq('is_archived', false);
+        .eq('assignable_id', studentId);
 
       if (directError) throw directError;
 
@@ -117,30 +133,44 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
               content_type,
               content_url,
               symbol,
-              color
+              color,
+              has_date_limit,
+              available_from,
+              available_until
             )
           `)
           .eq('assignable_type', 'group')
-          .in('assignable_id', groupIds)
-          .eq('is_archived', false);
+          .in('assignable_id', groupIds);
 
         if (error) throw error;
         groupAssignments = data || [];
       }
 
       const allAssignments = [...(directAssignments || []), ...groupAssignments];
-      setAssignments(allAssignments);
 
-      const newPushItems = allAssignments.filter(
+      const activeAssignments = allAssignments.filter(a => {
+        if (a.is_archived) return false;
+        const isAvailable = isContentAvailable(a.webwijzer_content);
+        const hasReachedLimit = a.click_limit && a.clicks_used >= a.click_limit;
+        return isAvailable && !hasReachedLimit;
+      });
+
+      const archived = allAssignments.filter(a => {
+        if (a.is_archived) return true;
+        const isAvailable = isContentAvailable(a.webwijzer_content);
+        const hasReachedLimit = a.click_limit && a.clicks_used >= a.click_limit;
+        return !isAvailable || hasReachedLimit;
+      });
+
+      setAssignments(activeAssignments);
+      setArchivedAssignments(archived);
+
+      const newPushItems = activeAssignments.filter(
         a => a.is_push && !a.push_completed && !a.is_archived
       );
       setPushQueue(newPushItems);
 
-      if (allAssignments.length === 0) {
-        setLoading(false);
-      } else {
-        setLoading(false);
-      }
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching assignments:', error);
       setLoading(false);
@@ -213,20 +243,9 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
     setSelectedContent(assignment);
   };
 
-  const filterAssignments = () => {
-    switch (activeTab) {
-      case 'push':
-        return assignments.filter(a => a.is_push && !a.push_completed);
-      case 'favorites':
-        return assignments.filter(a => a.is_favorite);
-      case 'all':
-        return assignments;
-      default:
-        return assignments;
-    }
-  };
-
-  const filteredAssignments = filterAssignments();
+  const pushAssignments = assignments.filter(a => a.is_push && !a.push_completed);
+  const favoriteAssignments = assignments.filter(a => a.is_favorite);
+  const activeContent = assignments.filter(a => !a.is_push || a.push_completed);
 
   if (selectedContent) {
     return (
@@ -261,7 +280,48 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto">
+      {showArchive && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Archived Content</h2>
+              <Button variant="secondary" onClick={() => setShowArchive(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            {archivedAssignments.length === 0 ? (
+              <p className="text-center text-gray-500 py-8">No archived content</p>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {archivedAssignments.map((assignment) => (
+                  <div
+                    key={assignment.id}
+                    className="p-6 bg-gray-50 rounded-2xl opacity-60"
+                    style={{ borderTop: `6px solid ${assignment.webwijzer_content.color}` }}
+                  >
+                    <div
+                      className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-5xl"
+                      style={{ backgroundColor: assignment.webwijzer_content.color + '20' }}
+                    >
+                      {assignment.webwijzer_content.symbol}
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-600 text-center">
+                      {assignment.webwijzer_content.title}
+                    </h3>
+                    <p className="text-sm text-gray-500 text-center mt-2">
+                      {assignment.click_limit && assignment.clicks_used >= assignment.click_limit
+                        ? 'View limit reached'
+                        : 'No longer available'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
+
+      <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Hello, {studentName}! 👋
@@ -269,70 +329,127 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
           <p className="text-gray-600">Your learning content is ready</p>
         </div>
 
-        <div className="flex justify-center gap-4 mb-8">
-          <Button
-            variant={activeTab === 'push' ? 'primary' : 'secondary'}
-            onClick={() => setActiveTab('push')}
-            className="min-w-32"
-          >
-            <Zap className="w-4 h-4 mr-2" />
-            Push
-            {pushQueue.length > 0 && (
-              <span className="ml-2 bg-orange-500 text-white px-2 py-0.5 rounded-full text-xs">
-                {pushQueue.length}
-              </span>
-            )}
-          </Button>
-          <Button
-            variant={activeTab === 'favorites' ? 'primary' : 'secondary'}
-            onClick={() => setActiveTab('favorites')}
-            className="min-w-32"
-          >
-            <Star className="w-4 h-4 mr-2" />
-            Favorites
-          </Button>
-          <Button
-            variant={activeTab === 'all' ? 'primary' : 'secondary'}
-            onClick={() => setActiveTab('all')}
-            className="min-w-32"
-          >
-            All
-          </Button>
-        </div>
-
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
           </div>
-        ) : filteredAssignments.length === 0 ? (
-          <Card className="text-center py-12">
-            <p className="text-2xl text-gray-600">No content available</p>
-          </Card>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredAssignments.map((assignment) => (
-              <button
-                key={assignment.id}
-                onClick={() => handleContentClick(assignment)}
-                className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-                style={{ borderTop: `6px solid ${assignment.webwijzer_content.color}` }}
-              >
-                <div
-                  className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-5xl"
-                  style={{ backgroundColor: assignment.webwijzer_content.color + '20' }}
-                >
-                  {assignment.webwijzer_content.symbol}
+          <div className="space-y-8">
+            {pushAssignments.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Zap className="w-6 h-6 text-orange-500" />
+                  <h2 className="text-2xl font-bold text-gray-900">Push Content</h2>
+                  <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    {pushAssignments.length}
+                  </span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 text-center">
-                  {assignment.webwijzer_content.title}
-                </h3>
-              </button>
-            ))}
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {pushAssignments.map((assignment) => (
+                    <button
+                      key={assignment.id}
+                      onClick={() => handleContentClick(assignment)}
+                      className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                      style={{ borderTop: `6px solid ${assignment.webwijzer_content.color}` }}
+                    >
+                      <div
+                        className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-5xl"
+                        style={{ backgroundColor: assignment.webwijzer_content.color + '20' }}
+                      >
+                        {assignment.webwijzer_content.symbol}
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 text-center">
+                        {assignment.webwijzer_content.title}
+                      </h3>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Active Content</h2>
+                {activeContent.length === 0 ? (
+                  <Card className="text-center py-12">
+                    <p className="text-xl text-gray-600">No content available</p>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    {activeContent.map((assignment) => (
+                      <button
+                        key={assignment.id}
+                        onClick={() => handleContentClick(assignment)}
+                        className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                        style={{ borderTop: `6px solid ${assignment.webwijzer_content.color}` }}
+                      >
+                        <div
+                          className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-5xl"
+                          style={{ backgroundColor: assignment.webwijzer_content.color + '20' }}
+                        >
+                          {assignment.webwijzer_content.symbol}
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 text-center">
+                          {assignment.webwijzer_content.title}
+                        </h3>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Star className="w-6 h-6 text-yellow-500" />
+                  <h2 className="text-2xl font-bold text-gray-900">Favorites</h2>
+                </div>
+                {favoriteAssignments.length === 0 ? (
+                  <Card className="text-center py-12">
+                    <p className="text-xl text-gray-600">No favorite content</p>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    {favoriteAssignments.map((assignment) => (
+                      <button
+                        key={assignment.id}
+                        onClick={() => handleContentClick(assignment)}
+                        className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 relative"
+                        style={{ borderTop: `6px solid ${assignment.webwijzer_content.color}` }}
+                      >
+                        <Star className="w-5 h-5 text-yellow-500 absolute top-2 right-2 fill-yellow-500" />
+                        <div
+                          className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-5xl"
+                          style={{ backgroundColor: assignment.webwijzer_content.color + '20' }}
+                        >
+                          {assignment.webwijzer_content.symbol}
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 text-center">
+                          {assignment.webwijzer_content.title}
+                        </h3>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {archivedAssignments.length > 0 && (
+          <div className="fixed bottom-6 right-6">
+            <Button
+              onClick={() => setShowArchive(true)}
+              variant="secondary"
+              className="flex items-center gap-2 shadow-lg"
+            >
+              <Archive className="w-4 h-4" />
+              Archive ({archivedAssignments.length})
+            </Button>
           </div>
         )}
 
         {user && onBackToDashboard && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2">
+          <div className="fixed bottom-6 left-6">
             <Button onClick={onBackToDashboard} variant="secondary">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard

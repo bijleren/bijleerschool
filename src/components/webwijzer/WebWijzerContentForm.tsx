@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { ArrowLeft, Video, FileText, ExternalLink, Users, User, Star, Zap, Hash } from 'lucide-react';
+import { ArrowLeft, Video, FileText, ExternalLink, Users, User, Star, Zap, Hash, Calendar } from 'lucide-react';
 
 interface WebWijzerContent {
   id: string;
@@ -69,6 +69,9 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
     content_url: content?.content_url || '',
     symbol: content?.symbol || '📎',
     color: content?.color || '#3B82F6',
+    has_date_limit: false,
+    available_from: '',
+    available_until: '',
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -84,6 +87,9 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
   const [isFavorite, setIsFavorite] = useState(false);
   const [clickLimit, setClickLimit] = useState<number | null>(null);
   const [hasClickLimit, setHasClickLimit] = useState(false);
+  const [hasDateLimit, setHasDateLimit] = useState(false);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateUntil, setDateUntil] = useState('');
 
   useEffect(() => {
     if (user && !content) {
@@ -139,6 +145,9 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
           .from('webwijzer_content')
           .update({
             ...formData,
+            has_date_limit: hasDateLimit,
+            available_from: hasDateLimit && dateFrom ? new Date(dateFrom).toISOString() : null,
+            available_until: hasDateLimit && dateUntil ? new Date(dateUntil).toISOString() : null,
             updated_at: new Date().toISOString(),
           })
           .eq('id', content.id);
@@ -151,6 +160,9 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
           .insert({
             ...formData,
             user_id: user.id,
+            has_date_limit: hasDateLimit,
+            available_from: hasDateLimit && dateFrom ? new Date(dateFrom).toISOString() : null,
+            available_until: hasDateLimit && dateUntil ? new Date(dateUntil).toISOString() : null,
           })
           .select()
           .single();
@@ -570,6 +582,48 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
                           onChange={(e) => setClickLimit(parseInt(e.target.value) || null)}
                           placeholder="Number of clicks"
                         />
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="flex items-start gap-3 cursor-pointer mb-2">
+                        <input
+                          type="checkbox"
+                          checked={hasDateLimit}
+                          onChange={(e) => {
+                            setHasDateLimit(e.target.checked);
+                            if (!e.target.checked) {
+                              setDateFrom('');
+                              setDateUntil('');
+                            }
+                          }}
+                          className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-green-500" />
+                            <span className="font-medium text-gray-900">Date Limit</span>
+                          </div>
+                          <p className="text-sm text-gray-600">Set when content is available</p>
+                        </div>
+                      </label>
+                      {hasDateLimit && (
+                        <div className="space-y-2">
+                          <Input
+                            type="datetime-local"
+                            value={dateFrom}
+                            onChange={(e) => setDateFrom(e.target.value)}
+                            placeholder="Available from"
+                            label="From"
+                          />
+                          <Input
+                            type="datetime-local"
+                            value={dateUntil}
+                            onChange={(e) => setDateUntil(e.target.value)}
+                            placeholder="Available until"
+                            label="Until"
+                          />
+                        </div>
                       )}
                     </div>
                   </div>
