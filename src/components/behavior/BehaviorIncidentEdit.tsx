@@ -154,9 +154,10 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
   const [followupActies, setFollowupActies] = useState<Array<{ id?: string; consequence_id: string; notes: string; action_date: string }>>([]);
   const [availableTeachers, setAvailableTeachers] = useState<AvailableTeacher[]>([]);
   const [availableGroups, setAvailableGroups] = useState<AvailableGroup[]>([]);
+  const [incidentStudents, setIncidentStudents] = useState<Array<{ id?: string; student_id: string; role_id: string }>>([]);
+  const [studentRoles, setStudentRoles] = useState<any[]>([]);
 
   // Form state
-  const [studentId, setStudentId] = useState(incident.student_id);
   const [behaviorItemId, setBehaviorItemId] = useState(incident.behavior_item_id);
   const [incidentDate, setIncidentDate] = useState(incident.incident_date.slice(0, 16));
   const [location, setLocation] = useState(incident.location || '');
@@ -201,6 +202,8 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     fetchAvailableGroups();
     fetchEersteActies();
     fetchFollowupActies();
+    fetchIncidentStudents();
+    fetchStudentRoles();
   }, []);
 
   const fetchStudents = async () => {
@@ -382,6 +385,40 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     }
   };
 
+  const fetchIncidentStudents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('behavior_incident_students')
+        .select('*')
+        .eq('incident_id', incident.id);
+
+      if (error) throw error;
+      setIncidentStudents(data?.map(student => ({
+        id: student.id,
+        student_id: student.student_id,
+        role_id: student.role_id
+      })) || []);
+    } catch (error) {
+      console.error('Error fetching incident students:', error);
+    }
+  };
+
+  const fetchStudentRoles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('student_roles')
+        .select('*')
+        .eq('school_id', incident.school_id)
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) throw error;
+      setStudentRoles(data || []);
+    } catch (error) {
+      console.error('Error fetching student roles:', error);
+    }
+  };
+
   const addNotification = async () => {
     try {
       const notificationData: any = {
@@ -444,7 +481,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
       const { error } = await supabase
         .from('behavior_incidents')
         .update({
-          student_id: studentId,
+          student_id: incidentStudents[0]?.student_id || incident.student_id,
           behavior_item_id: behaviorItemId,
           incident_date: incidentDate,
           location: location || null,
@@ -457,6 +494,30 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
         .eq('id', incident.id);
 
       if (error) throw error;
+
+      // Update incident students
+      // Delete existing student relationships
+      const { error: deleteStudentsError } = await supabase
+        .from('behavior_incident_students')
+        .delete()
+        .eq('incident_id', incident.id);
+
+      if (deleteStudentsError) throw deleteStudentsError;
+
+      // Insert new student relationships
+      if (incidentStudents.length > 0) {
+        const studentInserts = incidentStudents.map(student => ({
+          incident_id: incident.id,
+          student_id: student.student_id,
+          role_id: student.role_id,
+        }));
+
+        const { error: studentsError } = await supabase
+          .from('behavior_incident_students')
+          .insert(studentInserts);
+
+        if (studentsError) throw studentsError;
+      }
 
       // Update eerste acties
       // First, delete existing eerste acties
@@ -682,6 +743,21 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     setFollowupActies(updated);
   };
 
+  const addIncidentStudent = () => {
+    const defaultRole = studentRoles.find(r => r.is_default) || studentRoles[0];
+    setIncidentStudents([...incidentStudents, { student_id: '', role_id: defaultRole?.id || '' }]);
+  };
+
+  const removeIncidentStudent = (index: number) => {
+    setIncidentStudents(incidentStudents.filter((_, i) => i !== index));
+  };
+
+  const updateIncidentStudent = (index: number, field: 'student_id' | 'role_id', value: string) => {
+    const updated = [...incidentStudents];
+    updated[index][field] = value;
+    setIncidentStudents(updated);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center mb-8">
@@ -707,26 +783,69 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
 
       <Card>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Student Selection */}
+          {/* Students Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Student *
-            </label>
-            <select
-              value={studentId}
-              onChange={(e) => setStudentId(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="">Selecteer student</option>
-              {students.map((student) => (
-                <option key={student.id} value={student.id}>
-                  {student.first_name} {student.last_name}
-                  {student.student_number && ` (#${student.student_number})`}
-                  {student.grade_level && ` - ${student.grade_level}`}
-                </option>
+            <div className="flex items-center justify-between mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Betrokken studenten *
+              </label>
+              <Button type="button" variant="secondary" size="sm" onClick={addIncidentStudent}>
+                <Plus className="w-4 h-4 mr-1" />
+                Student toevoegen
+              </Button>
+            </div>
+
+            {incidentStudents.length === 0 && (
+              <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-gray-500">Geen studenten geselecteerd</p>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {incidentStudents.map((incidentStudent, index) => (
+                <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <select
+                      value={incidentStudent.student_id}
+                      onChange={(e) => updateIncidentStudent(index, 'student_id', e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="">Selecteer student</option>
+                      {students.map((student) => (
+                        <option key={student.id} value={student.id}>
+                          {student.first_name} {student.last_name}
+                          {student.student_number && ` (#${student.student_number})`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex-1">
+                    <select
+                      value={incidentStudent.role_id}
+                      onChange={(e) => updateIncidentStudent(index, 'role_id', e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="">Selecteer rol</option>
+                      {studentRoles.map((role) => (
+                        <option key={role.id} value={role.id}>
+                          {role.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    onClick={() => removeIncidentStudent(index)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
               ))}
-            </select>
+            </div>
           </div>
 
           {/* Behavior Item Selection */}

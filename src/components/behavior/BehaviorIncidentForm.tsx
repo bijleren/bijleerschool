@@ -759,6 +759,19 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
       if (incidentError) throw incidentError;
 
+      // Add all selected students to the junction table
+      const studentInserts = selectedStudents.map(student => ({
+        incident_id: incident.id,
+        student_id: student.student_id,
+        role_id: student.role_id,
+      }));
+
+      const { error: studentsError } = await supabase
+        .from('behavior_incident_students')
+        .insert(studentInserts);
+
+      if (studentsError) throw studentsError;
+
       // Add eerste acties (initial consequences)
       if (eersteActies.length > 0) {
         const eersteActiesInserts = eersteActies.map(actie => ({

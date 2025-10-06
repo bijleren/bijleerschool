@@ -138,6 +138,22 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
             last_name,
             student_number
           ),
+          behavior_incident_students (
+            id,
+            student_id,
+            role_id,
+            students (
+              id,
+              first_name,
+              last_name,
+              student_number
+            ),
+            student_roles (
+              id,
+              name,
+              color
+            )
+          ),
           behavior_items (
             id,
             name,
@@ -455,26 +471,57 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                             <span className="text-sm text-gray-500">#{incident.students.student_number}</span>
                           )}
                         </div>
-                        <span 
+                        <span
                           className="px-2 py-1 rounded-full text-xs font-medium"
-                          style={{ 
+                          style={{
                             backgroundColor: incident.behavior_items.behavior_categories.color + '20',
-                            color: incident.behavior_items.behavior_categories.color 
+                            color: incident.behavior_items.behavior_categories.color
                           }}
                         >
                           {incident.behavior_items.behavior_categories.name}
                         </span>
-                        <span 
+                        <span
                           className="px-2 py-1 rounded-full text-xs font-medium"
-                          style={{ 
+                          style={{
                             backgroundColor: incident.behavior_items.behavior_severity_levels.color + '20',
-                            color: incident.behavior_items.behavior_severity_levels.color 
+                            color: incident.behavior_items.behavior_severity_levels.color
                           }}
                         >
                           Niveau {incident.behavior_items.behavior_severity_levels.level}
                         </span>
                       </div>
-                      
+
+                      {/* Display all connected students */}
+                      {incident.behavior_incident_students && incident.behavior_incident_students.length > 0 && (
+                        <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+                          <h5 className="text-xs font-medium text-gray-700 mb-2">Betrokken studenten:</h5>
+                          <div className="flex flex-wrap gap-2">
+                            {incident.behavior_incident_students.map((studentRel: any) => (
+                              <div key={studentRel.id} className="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-lg border border-gray-200">
+                                <button
+                                  onClick={() => onNavigateToStudent && studentRel.students.id && onNavigateToStudent(selectedSchool.id, studentRel.students.id)}
+                                  className="font-medium text-gray-900 hover:text-indigo-600 transition-colors text-sm"
+                                >
+                                  {studentRel.students.first_name} {studentRel.students.last_name}
+                                </button>
+                                {studentRel.students.student_number && (
+                                  <span className="text-xs text-gray-500">#{studentRel.students.student_number}</span>
+                                )}
+                                <span
+                                  className="px-2 py-0.5 rounded-full text-xs font-medium"
+                                  style={{
+                                    backgroundColor: studentRel.student_roles.color + '20',
+                                    color: studentRel.student_roles.color
+                                  }}
+                                >
+                                  {studentRel.student_roles.name}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       <h4 className="font-medium text-gray-900 mb-2">{incident.behavior_items.name}</h4>
                       <p className="text-gray-600 mb-3">{incident.description}</p>
 
