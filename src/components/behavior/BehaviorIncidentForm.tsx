@@ -137,6 +137,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [followupActions, setFollowupActions] = useState<FollowupAction[]>([]);
   const [selectedFollowupAction, setSelectedFollowupAction] = useState('');
   const [followupActionOther, setFollowupActionOther] = useState('');
+  const [followUpRequired, setFollowUpRequired] = useState(false);
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
   const [consequenceSearch, setConsequenceSearch] = useState('');
   const [showAllConsequences, setShowAllConsequences] = useState(false);
@@ -755,6 +756,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
           incident_date: incidentDate,
           location: location || null,
           description,
+          follow_up_required: followUpRequired,
           status,
         })
         .select()
@@ -1382,6 +1384,20 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Follow-up Required */}
+          <div className="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <input
+              type="checkbox"
+              id="followUpRequired"
+              checked={followUpRequired}
+              onChange={(e) => setFollowUpRequired(e.target.checked)}
+              className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label htmlFor="followUpRequired" className="text-sm font-medium text-gray-900 cursor-pointer">
+              Follow-up nodig
+            </label>
           </div>
 
           {/* File Attachments */}
