@@ -555,7 +555,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, userSchools
                 <div>
                   <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
                     <Play className="w-4 h-4 mr-2" />
-                    Voor Docenten
+                    Voor Leerkrachten
                   </h4>
                   <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
                     {getVimeoEmbedUrl(technique.teacher_video_url) ? (
