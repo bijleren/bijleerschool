@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { QrCode, KeyRound, Camera } from 'lucide-react';
+import { QrCode, KeyRound, Camera, GraduationCap } from 'lucide-react';
 import { StudentWebWijzer } from './StudentWebWijzer';
 import { Html5Qrcode } from 'html5-qrcode';
 
@@ -194,6 +195,14 @@ export function PublicWebWijzerAccess() {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">WebWijzer</h1>
           <p className="text-gray-600">Access your learning content</p>
         </div>
+
+        <Link
+          to="/login"
+          className="fixed top-4 right-4 flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow text-sm font-medium"
+        >
+          <GraduationCap className="w-4 h-4" />
+          <span>Docent login</span>
+        </Link>
 
         {!accessMethod ? (
           <div className="space-y-4">

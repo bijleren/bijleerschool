@@ -1,18 +1,12 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AuthPage } from './components/auth/AuthPage';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { PublicWebWijzerAccess } from './components/webwijzer/PublicWebWijzerAccess';
 
-function AppContent() {
-  const location = useLocation();
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-
-  // Check if we're on the public WebWijzer page FIRST, before any auth checks
-  if (location.pathname === '/webwijzer') {
-    return <PublicWebWijzerAccess />;
-  }
 
   if (loading) {
     return (
@@ -25,14 +19,25 @@ function AppContent() {
     );
   }
 
-  return user ? <Dashboard /> : <AuthPage />;
+  return user ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <Routes>
+          <Route path="/" element={<PublicWebWijzerAccess />} />
+          <Route path="/login" element={<AuthPage />} />
+          <Route
+            path="/dashboard/*"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
       </AuthProvider>
     </Router>
   );

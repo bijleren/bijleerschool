@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -15,6 +16,7 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
   const [error, setError] = useState('');
 
   const { signIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,9 +31,10 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
       } else {
         setError(error.message);
       }
+      setLoading(false);
+    } else {
+      navigate('/dashboard');
     }
-
-    setLoading(false);
   };
 
   return (
