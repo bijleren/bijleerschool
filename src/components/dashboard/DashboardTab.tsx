@@ -24,6 +24,7 @@ interface FavoriteStudent {
     last_name: string;
     student_number: string | null;
     grade_level: string | null;
+    profile_picture_url: string | null;
     schools: {
       name: string;
     };
@@ -139,6 +140,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             last_name,
             student_number,
             grade_level,
+            profile_picture_url,
             schools (name)
           `)
           .in('id', studentIds)
