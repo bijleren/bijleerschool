@@ -298,7 +298,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
 
   const findActiveTemplate = async () => {
     try {
-      // First try to find group-specific template
+      // If a group is selected, try to find group-specific template
       if (selectedGroup) {
         const { data: groupTemplate } = await supabase
           .from('group_day_templates')
@@ -310,31 +310,30 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
           .order('effective_from', { ascending: false })
           .maybeSingle();
 
-        if (groupTemplate) {
+        if (groupTemplate?.day_templates) {
           setCurrentTemplate(groupTemplate.day_templates);
-          return;
-        }
-      } else {
-        // When no group is selected, use school default template
-        const { data: schoolTemplate } = await supabase
-          .from('school_day_templates')
-          .select('template_id, day_templates(*)')
-          .eq('school_id', schoolId)
-          .lte('effective_from', selectedDate.toISOString().split('T')[0])
-          .or(`effective_until.is.null,effective_until.gte.${selectedDate.toISOString().split('T')[0]}`)
-          .order('is_default', { ascending: false })
-          .order('effective_from', { ascending: false })
-          .maybeSingle();
-
-        if (schoolTemplate) {
-          setCurrentTemplate(schoolTemplate.day_templates);
           return;
         }
       }
 
+      // If no group is selected OR no group template found, use school default template
+      const { data: schoolTemplate } = await supabase
+        .from('school_day_templates')
+        .select('template_id, day_templates(*)')
+        .eq('school_id', schoolId)
+        .lte('effective_from', selectedDate.toISOString().split('T')[0])
+        .or(`effective_until.is.null,effective_until.gte.${selectedDate.toISOString().split('T')[0]}`)
+        .order('is_default', { ascending: false })
+        .order('effective_from', { ascending: false })
+        .maybeSingle();
+
+      if (schoolTemplate?.day_templates) {
+        setCurrentTemplate(schoolTemplate.day_templates);
+        return;
+      }
+
       // Final fallback to first available template
       if (templates.length > 0) {
-        // Fallback to first available template
         setCurrentTemplate(templates[0]);
       } else {
         setCurrentTemplate(null);
