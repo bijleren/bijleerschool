@@ -24,7 +24,7 @@ export function AuthPage() {
             <GraduationCap className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">BijleerSchool</h1>
-          <p className="text-lg text-gray-600">Didactische toolkit voor docenten</p>
+          <p className="text-lg text-gray-600">Didactische toolkit voor leerkracht en leerling</p>
         </div>
 
         {/* Auth Forms */}
