@@ -477,7 +477,7 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
                       ))}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
-                      {technique.unique_teachers} docenten • {technique.unique_groups} groepen
+                      {technique.unique_teachers} Leerkrachten • {technique.unique_groups} groepen
                     </p>
                   </div>
                 </div>
