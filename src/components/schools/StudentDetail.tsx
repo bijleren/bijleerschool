@@ -8,7 +8,7 @@ import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette, Link, QrCode, RefreshCw, ExternalLink, Download } from 'lucide-react';
 import { ColorPicker } from '../ui/ColorPicker';
 import { StudentWebWijzer } from '../webwijzer/StudentWebWijzer';
-import QRCodeLib from 'qrcode/lib/browser.js';
+import { QRCodeCanvas } from 'qrcode.react';
 
 interface Student {
   id: string;
@@ -116,7 +116,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const [symbolFile, setSymbolFile] = useState<File | null>(null);
   const [profilePicturePreview, setProfilePicturePreview] = useState(student.profile_picture_url || '');
   const [symbolPreview, setSymbolPreview] = useState(student.symbol_url || '');
-  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
+  const qrCodeRef = useRef<HTMLDivElement>(null);
 
   // Student groups
   const [studentGroups, setStudentGroups] = useState<StudentGroup[]>([]);
@@ -155,37 +155,15 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
     fetchStudentGrades();
     fetchRecentIncidents();
     fetchIncidentStatistics();
-    generateQRCode();
   }, []);
 
-  useEffect(() => {
-    generateQRCode();
-  }, [student.access_hash]);
-
-  const generateQRCode = async () => {
-    if (student.access_hash) {
-      const url = `${window.location.origin}/webwijzer?h=${student.access_hash}`;
-      try {
-        const dataUrl = await QRCodeLib.toDataURL(url, {
-          width: 300,
-          margin: 2,
-          color: {
-            dark: '#000000',
-            light: '#FFFFFF',
-          },
-        });
-        setQrCodeDataUrl(dataUrl);
-      } catch (err) {
-        console.error('Error generating QR code:', err);
-      }
-    }
-  };
-
   const downloadQRCode = () => {
-    if (qrCodeDataUrl) {
+    const canvas = qrCodeRef.current?.querySelector('canvas');
+    if (canvas) {
+      const url = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = `${student.first_name}-${student.last_name}-QR.png`;
-      link.href = qrCodeDataUrl;
+      link.href = url;
       link.click();
     }
   };
@@ -1110,14 +1088,20 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
             <label className="block text-sm font-medium text-gray-700 mb-2">QR Code</label>
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
               <div className="flex items-start gap-4">
-                {qrCodeDataUrl ? (
+                {accessHash ? (
                   <div className="flex-shrink-0">
                     <div
+                      ref={qrCodeRef}
                       className="bg-white p-2 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow border-2 border-transparent hover:border-blue-300"
                       onClick={downloadQRCode}
                       title="Click to download QR code"
                     >
-                      <img src={qrCodeDataUrl} alt="QR Code" className="w-32 h-32" />
+                      <QRCodeCanvas
+                        value={`${window.location.origin}/webwijzer?h=${accessHash}`}
+                        size={128}
+                        level="H"
+                        includeMargin={true}
+                      />
                     </div>
                     <Button
                       variant="secondary"
