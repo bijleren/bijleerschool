@@ -477,9 +477,13 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   };
 
   const uploadFile = async (file: File, folder: string): Promise<string> => {
+    console.log('Starting file upload:', { fileName: file.name, fileType: file.type, fileSize: file.size, folder });
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${student.id}_${folder}_${Date.now()}.${fileExt}`;
     const filePath = `${schoolId}/${fileName}`;
+
+    console.log('Upload path:', filePath);
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('student-files')
@@ -488,11 +492,18 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
         upsert: true
       });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error('Upload error details:', uploadError);
+      throw uploadError;
+    }
+
+    console.log('Upload successful:', uploadData);
 
     const { data: { publicUrl } } = supabase.storage
       .from('student-files')
       .getPublicUrl(filePath);
+
+    console.log('Public URL:', publicUrl);
 
     return publicUrl;
   };
@@ -506,20 +517,26 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
       let symbolUrl = student.symbol_url;
 
       if (profilePictureFile) {
+        console.log('Uploading profile picture...');
         try {
           profilePictureUrl = await uploadFile(profilePictureFile, 'profile');
-        } catch (uploadError) {
+          console.log('Profile picture uploaded successfully');
+        } catch (uploadError: any) {
           console.error('Error uploading profile picture:', uploadError);
-          setMessage('Fout bij uploaden van profielfoto. Andere wijzigingen worden opgeslagen.');
+          const errorMsg = uploadError?.message || 'Onbekende fout';
+          setMessage(`Fout bij uploaden van profielfoto: ${errorMsg}`);
         }
       }
 
       if (symbolFile) {
+        console.log('Uploading symbol...');
         try {
           symbolUrl = await uploadFile(symbolFile, 'symbol');
-        } catch (uploadError) {
+          console.log('Symbol uploaded successfully');
+        } catch (uploadError: any) {
           console.error('Error uploading symbol:', uploadError);
-          setMessage('Fout bij uploaden van symbool. Andere wijzigingen worden opgeslagen.');
+          const errorMsg = uploadError?.message || 'Onbekende fout';
+          setMessage(`Fout bij uploaden van symbool: ${errorMsg}`);
         }
       }
 
