@@ -217,6 +217,44 @@ export function PublicWebWijzerAccess() {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Enter Code</h2>
               <p className="text-gray-600">Type your student code and PIN</p>
             </Card>
+
+            <Card className="p-6 bg-blue-50 border-blue-200">
+              <h3 className="font-semibold text-gray-900 mb-4 text-lg">Praktische informatie</h3>
+
+              <div className="space-y-4 text-left">
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-1">Wat is de WebWijzer?</h4>
+                  <p className="text-sm text-gray-700">
+                    De WebWijzer geeft je toegang tot alle leermaterialen die je leerkracht voor jou heeft klaargezet.
+                    Dit kunnen video's, bestanden of websites zijn.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-1">Hoe werkt het?</h4>
+                  <p className="text-sm text-gray-700">
+                    Je kunt op twee manieren toegang krijgen: scan de QR-code die je van je leerkracht hebt gekregen,
+                    of voer je persoonlijke studentcode en pincode in.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-1">Veiligheid</h4>
+                  <p className="text-sm text-gray-700">
+                    Je QR-code en pincode zijn persoonlijk. Deel deze niet met anderen.
+                    Als je problemen hebt met inloggen, vraag dan hulp aan je leerkracht.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-1">Problemen?</h4>
+                  <p className="text-sm text-gray-700">
+                    Lukt het niet om in te loggen? Controleer of je de juiste code invoert.
+                    Werkt de QR-scanner niet? Probeer dan de code handmatig in te voeren.
+                  </p>
+                </div>
+              </div>
+            </Card>
           </div>
         ) : accessMethod === 'qr' ? (
           <Card>
