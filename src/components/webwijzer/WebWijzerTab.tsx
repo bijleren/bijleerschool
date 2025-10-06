@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { Link, Plus, Video, FileText, ExternalLink, Trash2, Edit2 } from 'lucide-react';
+import { Link, Plus, Video, FileText, ExternalLink, Trash2, CreditCard as Edit2 } from 'lucide-react';
 import { WebWijzerContentForm } from './WebWijzerContentForm';
 import { WebWijzerAssignments } from './WebWijzerAssignments';
 
