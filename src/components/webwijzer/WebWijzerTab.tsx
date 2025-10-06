@@ -152,7 +152,7 @@ export function WebWijzerTab() {
 
       let query = supabase
         .from('webwijzer_content')
-        .select('*, users!inner(id)');
+        .select('*');
 
       if (showOnlyMyContent) {
         query = query.eq('user_id', user.id);
