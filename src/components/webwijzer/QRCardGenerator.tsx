@@ -17,6 +17,7 @@ interface Student {
   color: string | null;
   symbol_url: string | null;
   student_display_number: number | null;
+  access_hash: string | null;
 }
 
 interface QRCardGeneratorProps {
@@ -52,7 +53,7 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
 
       const { data, error } = await supabase
         .from('students')
-        .select('id, first_name, last_name, student_number, grade_level, profile_picture_url, color, symbol_url, student_display_number')
+        .select('id, first_name, last_name, student_number, grade_level, profile_picture_url, color, symbol_url, student_display_number, access_hash')
         .in('school_id', schoolIds)
         .eq('is_active', true)
         .order('grade_level', { ascending: true })
@@ -90,8 +91,11 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     setSelectedStudents(new Set());
   };
 
-  const generateQRCode = async (studentId: string): Promise<string> => {
-    const url = `https://bijleer.school/webwijzer/${studentId}`;
+  const generateQRCode = async (student: Student): Promise<string> => {
+    if (!student.access_hash) {
+      throw new Error('Student does not have an access hash');
+    }
+    const url = `https://bijleer.school/webwijzer?h=${encodeURIComponent(student.access_hash)}`;
     return QRCode.toDataURL(url, {
       width: 800,
       margin: 1,
@@ -368,7 +372,7 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     const qrSize = 2 * CM_TO_PX;
     const qrY = y + height - (1 * CM_TO_PX) - qrSize;
     const qrX = x + (width - qrSize) / 2;
-    const qrDataUrl = await generateQRCode(student.id);
+    const qrDataUrl = await generateQRCode(student);
     const qrImg = new Image();
     await new Promise((resolve) => {
       qrImg.onload = resolve;
