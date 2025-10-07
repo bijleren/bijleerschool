@@ -168,11 +168,21 @@ export function PublicWebWijzerAccess() {
     }
   };
 
+  const handleStop = () => {
+    setAuthenticatedStudent(null);
+    setAccessMethod('qr');
+    setStudentCode('');
+    setPinCode('');
+    setError('');
+    setPushCancelled(false);
+  };
+
   if (authenticatedStudent) {
     return (
       <StudentWebWijzer
         studentId={authenticatedStudent.id}
         studentName={authenticatedStudent.name}
+        onStop={handleStop}
       />
     );
   }
@@ -182,7 +192,7 @@ export function PublicWebWijzerAccess() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center p-4">
         <Card className="text-center p-12">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Loading your WebWijzer...</p>
+          <p className="text-gray-600 text-lg">Je WebWijzer wordt geladen...</p>
         </Card>
       </div>
     );
@@ -193,7 +203,7 @@ export function PublicWebWijzerAccess() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">WebWijzer</h1>
-          <p className="text-gray-600">Access your learning content</p>
+          <p className="text-gray-600">Toegang tot je leerinhoud</p>
         </div>
 
         <Link
@@ -208,14 +218,14 @@ export function PublicWebWijzerAccess() {
           <div className="space-y-4">
             <Card className="p-8 text-center hover:shadow-xl transition-shadow cursor-pointer" onClick={() => setAccessMethod('qr')}>
               <QrCode className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Scan QR Code</h2>
-              <p className="text-gray-600">Use your camera to scan your personal QR code</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Scan QR-code</h2>
+              <p className="text-gray-600">Gebruik je camera om je persoonlijke QR-code te scannen</p>
             </Card>
 
             <Card className="p-8 text-center hover:shadow-xl transition-shadow cursor-pointer" onClick={() => setAccessMethod('code')}>
               <KeyRound className="w-16 h-16 text-green-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Enter Code</h2>
-              <p className="text-gray-600">Type your student code and PIN</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Voer code in</h2>
+              <p className="text-gray-600">Typ je studentcode en pincode</p>
             </Card>
 
             <Card className="p-6 bg-blue-50 border-blue-200">
@@ -260,8 +270,8 @@ export function PublicWebWijzerAccess() {
           <Card>
             <div className="text-center mb-6">
               <Camera className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Scan Your QR Code</h2>
-              <p className="text-gray-600 mb-4">Position your QR code in front of the camera</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Scan je QR-code</h2>
+              <p className="text-gray-600 mb-4">Plaats je QR-code voor de camera</p>
             </div>
 
             <div id="qr-reader" className="mb-6 rounded-lg overflow-hidden"></div>
@@ -273,7 +283,7 @@ export function PublicWebWijzerAccess() {
             )}
 
             <p className="text-sm text-gray-600 text-center mb-4">
-              Don't have your QR code? Ask your teacher for help.
+              Heb je je QR-code niet? Vraag je leerkracht om hulp.
             </p>
 
             <Button
@@ -285,39 +295,39 @@ export function PublicWebWijzerAccess() {
               }}
               className="w-full"
             >
-              Back
+              Terug
             </Button>
           </Card>
         ) : (
           <Card>
             <div className="text-center mb-6">
               <KeyRound className="w-16 h-16 text-green-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Enter Your Code</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Voer je code in</h2>
             </div>
 
             <form onSubmit={handleCodeSubmit} className="space-y-4">
               <Input
-                label="Student Code"
+                label="Studentcode"
                 value={studentCode}
                 onChange={(e) => {
                   setStudentCode(e.target.value.toUpperCase());
                   setError('');
                 }}
-                placeholder="e.g., ABC12345"
+                placeholder="bijv., ABC12345"
                 maxLength={8}
                 required
                 className="text-center text-2xl font-mono tracking-wider"
               />
 
               <Input
-                label="PIN Code"
+                label="Pincode"
                 type="password"
                 value={pinCode}
                 onChange={(e) => {
                   setPinCode(e.target.value);
                   setError('');
                 }}
-                placeholder="Enter your 4-digit PIN"
+                placeholder="Voer je 4-cijferige pincode in"
                 maxLength={4}
                 required
                 className="text-center text-2xl font-mono tracking-wider"
@@ -331,10 +341,10 @@ export function PublicWebWijzerAccess() {
 
               <div className="space-y-2">
                 <Button type="submit" disabled={loading} className="w-full">
-                  {loading ? 'Checking...' : 'Access WebWijzer'}
+                  {loading ? 'Controleren...' : 'Toegang tot WebWijzer'}
                 </Button>
                 <Button type="button" variant="secondary" onClick={() => setAccessMethod(null)} className="w-full">
-                  Back
+                  Terug
                 </Button>
               </div>
             </form>

@@ -31,6 +31,7 @@ interface StudentWebWijzerProps {
   studentId: string;
   studentName: string;
   onBackToDashboard?: () => void;
+  onStop?: () => void;
 }
 
 export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: StudentWebWijzerProps) {
@@ -76,7 +77,9 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
   };
 
   const handleLogout = () => {
-    if (onBackToDashboard) {
+    if (onStop) {
+      onStop();
+    } else if (onBackToDashboard) {
       onBackToDashboard();
     }
   };
@@ -314,17 +317,17 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
           <Card className="max-w-md w-full">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Session Timeout Warning
+                Sessie verloopt bijna
               </h2>
               <p className="text-gray-600 mb-6">
-                Your session will expire in 10 seconds. Would you like to continue?
+                Je sessie verloopt over 10 seconden. Wil je doorgaan?
               </p>
               <div className="flex gap-4">
                 <Button onClick={handleLogout} variant="secondary" className="flex-1">
-                  Log Out
+                  Stoppen
                 </Button>
                 <Button onClick={handleExtendSession} className="flex-1">
-                  Continue Session
+                  Doorgaan
                 </Button>
               </div>
             </div>
@@ -345,9 +348,9 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 {pushQueue[0].webwijzer_content.title}
               </h2>
-              <p className="text-gray-600 mb-6">Opening in {pushCountdown} seconds...</p>
+              <p className="text-gray-600 mb-6">Opent over {pushCountdown} seconden...</p>
               <Button onClick={handlePushCancel} variant="secondary" className="w-full">
-                Cancel
+                Annuleren
               </Button>
             </div>
           </Card>
@@ -358,13 +361,13 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <Card className="max-w-4xl w-full max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Archived Content</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Gearchiveerde inhoud</h2>
               <Button variant="secondary" onClick={() => setShowArchive(false)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
             {archivedAssignments.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">No archived content</p>
+              <p className="text-center text-gray-500 py-8">Geen gearchiveerde inhoud</p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {archivedAssignments.map((assignment) => (
@@ -384,8 +387,8 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
                     </h3>
                     <p className="text-sm text-gray-500 text-center mt-2">
                       {assignment.click_limit && assignment.clicks_used >= assignment.click_limit
-                        ? 'View limit reached'
-                        : 'No longer available'}
+                        ? 'Limiet bereikt'
+                        : 'Niet meer beschikbaar'}
                     </p>
                   </div>
                 ))}
@@ -409,9 +412,9 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
 
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Hello, {studentName}! 👋
+            Hallo, {studentName}! 👋
           </h1>
-          <p className="text-gray-600">Your learning content is ready</p>
+          <p className="text-gray-600">Je leerinhoud staat klaar</p>
         </div>
 
         {loading ? (
@@ -424,7 +427,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <Zap className="w-6 h-6 text-orange-500" />
-                  <h2 className="text-2xl font-bold text-gray-900">Push Content</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">Push inhoud</h2>
                   <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                     {pushAssignments.length}
                   </span>
@@ -454,10 +457,10 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Active Content</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Actieve inhoud</h2>
                 {activeContent.length === 0 ? (
                   <Card className="text-center py-12">
-                    <p className="text-xl text-gray-600">No content available</p>
+                    <p className="text-xl text-gray-600">Geen inhoud beschikbaar</p>
                   </Card>
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
@@ -486,11 +489,11 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <Star className="w-6 h-6 text-yellow-500" />
-                  <h2 className="text-2xl font-bold text-gray-900">Favorites</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">Favorieten</h2>
                 </div>
                 {favoriteAssignments.length === 0 ? (
                   <Card className="text-center py-12">
-                    <p className="text-xl text-gray-600">No favorite content</p>
+                    <p className="text-xl text-gray-600">Geen favoriete inhoud</p>
                   </Card>
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
@@ -528,7 +531,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
               className="flex items-center gap-2 shadow-lg"
             >
               <Archive className="w-4 h-4" />
-              Archive ({archivedAssignments.length})
+              Archief ({archivedAssignments.length})
             </Button>
           </div>
         )}
@@ -537,7 +540,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
           <div className="fixed bottom-6 left-6">
             <Button onClick={onBackToDashboard} variant="secondary">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
+              Terug naar Dashboard
             </Button>
           </div>
         )}
