@@ -3,16 +3,19 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { 
-  Heart, 
-  Users, 
-  GraduationCap, 
+import {
+  Heart,
+  Users,
+  GraduationCap,
   Star,
   TrendingUp,
   Calendar,
   MapPin,
   School,
-  AlertTriangle
+  AlertTriangle,
+  Clock,
+  CheckCircle,
+  Filter
 } from 'lucide-react';
 
 interface FavoriteStudent {
@@ -61,6 +64,33 @@ interface DashboardStats {
   notifications: number;
 }
 
+interface BehaviorIncident {
+  id: string;
+  incident_date: string;
+  title: string;
+  status: 'pending' | 'in_progress' | 'resolved';
+  severity_level: string | null;
+  created_at: string;
+  profiles: {
+    first_name: string;
+    last_name: string;
+  };
+  behavior_items: {
+    name: string;
+    behavior_categories: {
+      name: string;
+      color: string;
+    };
+  };
+  behavior_incident_students: Array<{
+    student_id: string;
+    students: {
+      first_name: string;
+      last_name: string;
+    };
+  }>;
+}
+
 interface DashboardTabProps {
   onNavigateToStudent: (schoolId: string, studentId: string) => void;
   onNavigateToGroup: (schoolId: string, groupId: string) => void;
@@ -92,6 +122,9 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   const [groupIncidentCounts, setGroupIncidentCounts] = useState<Record<string, { open: number; week: number }>>({});
   const [schoolOverviewPeriod, setSchoolOverviewPeriod] = useState<number>(7);
   const [schoolStats, setSchoolStats] = useState({ today: 0, open: 0, students: 0 });
+  const [incidents, setIncidents] = useState<BehaviorIncident[]>([]);
+  const [statusFilters, setStatusFilters] = useState<string[]>(['pending', 'in_progress']);
+  const [incidentsLoading, setIncidentsLoading] = useState(false);
 
   useEffect(() => {
     if (user && focusSchool) {
@@ -474,6 +507,66 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
     }
   }, [schoolOverviewPeriod, selectedSchoolId]);
 
+  useEffect(() => {
+    if (selectedSchoolId && statusFilters.length > 0) {
+      fetchIncidents();
+    }
+  }, [selectedSchoolId, statusFilters]);
+
+  const fetchIncidents = async () => {
+    if (!selectedSchoolId) return;
+
+    setIncidentsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('behavior_incidents')
+        .select(`
+          id,
+          incident_date,
+          title,
+          status,
+          severity_level,
+          created_at,
+          profiles!behavior_incidents_reported_by_fkey(first_name, last_name),
+          behavior_items(
+            name,
+            behavior_categories(name, color)
+          ),
+          behavior_incident_students(
+            student_id,
+            students(first_name, last_name)
+          )
+        `)
+        .eq('school_id', selectedSchoolId)
+        .in('status', statusFilters)
+        .order('incident_date', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+
+      setIncidents(data || []);
+    } catch (error) {
+      console.error('Error fetching incidents:', error);
+    } finally {
+      setIncidentsLoading(false);
+    }
+  };
+
+  const toggleStatusFilter = (status: string) => {
+    setStatusFilters(prev => {
+      if (prev.includes(status)) {
+        return prev.filter(s => s !== status);
+      } else {
+        return [...prev, status];
+      }
+    });
+  };
+
+  const handleIncidentClick = (incidentId: string) => {
+    sessionStorage.setItem('highlightIncidentId', incidentId);
+    onNavigateToBehavior();
+  };
+
   const removeFavorite = async (favoriteId: string, type: 'student' | 'group') => {
     try {
       const { error } = await supabase
@@ -826,6 +919,152 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             </div>
           </Card>
         </div>
+      </div>
+
+      {/* Behavior Incidents List */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+            <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
+            Gedragsincidenten ({incidents.length})
+          </h2>
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-gray-500" />
+            <button
+              onClick={() => toggleStatusFilter('pending')}
+              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                statusFilters.includes('pending')
+                  ? 'bg-red-100 text-red-700 border border-red-300'
+                  : 'bg-gray-100 text-gray-600 border border-gray-300'
+              }`}
+            >
+              Onderzoek
+            </button>
+            <button
+              onClick={() => toggleStatusFilter('in_progress')}
+              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                statusFilters.includes('in_progress')
+                  ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+                  : 'bg-gray-100 text-gray-600 border border-gray-300'
+              }`}
+            >
+              In behandeling
+            </button>
+            <button
+              onClick={() => toggleStatusFilter('resolved')}
+              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                statusFilters.includes('resolved')
+                  ? 'bg-green-100 text-green-700 border border-green-300'
+                  : 'bg-gray-100 text-gray-600 border border-gray-300'
+              }`}
+            >
+              Afgerond
+            </button>
+          </div>
+        </div>
+
+        {incidentsLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          </div>
+        ) : incidents.length === 0 ? (
+          <Card className="text-center py-12">
+            <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen incidenten gevonden</h3>
+            <p className="text-gray-600">
+              Er zijn geen incidenten met de geselecteerde filters.
+            </p>
+          </Card>
+        ) : (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="space-y-4">
+              {incidents.map((incident) => (
+                <div
+                  key={incident.id}
+                  onClick={() => handleIncidentClick(incident.id)}
+                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  style={{ borderLeftWidth: '4px', borderLeftColor: incident.behavior_items.behavior_categories.color }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span
+                          className="px-2 py-1 rounded text-xs font-medium"
+                          style={{
+                            backgroundColor: incident.behavior_items.behavior_categories.color + '20',
+                            color: incident.behavior_items.behavior_categories.color
+                          }}
+                        >
+                          {incident.behavior_items.behavior_categories.name}
+                        </span>
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium ${
+                            incident.status === 'pending'
+                              ? 'bg-red-100 text-red-700'
+                              : incident.status === 'in_progress'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-green-100 text-green-700'
+                          }`}
+                        >
+                          {incident.status === 'pending' ? 'Niveau' : incident.status === 'in_progress' ? 'Niveau' : 'Niveau'}
+                        </span>
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium ${
+                            incident.status === 'pending'
+                              ? 'bg-red-50 text-red-700'
+                              : incident.status === 'in_progress'
+                              ? 'bg-yellow-50 text-yellow-700'
+                              : 'bg-green-50 text-green-700'
+                          }`}
+                        >
+                          {incident.status === 'pending' ? 'Onderzoek' : incident.status === 'in_progress' ? 'In behandeling' : 'Afgerond'}
+                        </span>
+                      </div>
+
+                      <h3 className="font-semibold text-gray-900 mb-1">{incident.title}</h3>
+
+                      <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                        <span>{incident.behavior_items.name}</span>
+                      </div>
+
+                      <div className="text-sm text-gray-600">
+                        <span className="font-medium">Betrokken leerlingen:</span>{' '}
+                        {incident.behavior_incident_students.map((bis, idx) => (
+                          <span key={bis.student_id}>
+                            {bis.students.first_name} {bis.students.last_name}
+                            {idx < incident.behavior_incident_students.length - 1 ? ', ' : ''}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(incident.incident_date).toLocaleDateString('nl-NL', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                          })}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {new Date(incident.incident_date).toLocaleTimeString('nl-NL', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          Gemeld door: {incident.profiles.first_name} {incident.profiles.last_name}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
