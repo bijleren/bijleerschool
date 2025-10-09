@@ -71,16 +71,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setSession(null);
           setUser(null);
           setLoading(false);
-          // Clear any remaining Supabase authentication tokens
-          localStorage.removeItem('supabase.auth.token');
-          localStorage.removeItem('sb-xtvmshymjewtfrtydtmc-auth-token');
           return;
         }
-        
+
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        
+
         // Ensure profile exists after setting user state
         if (session?.user) {
           ensureProfileExists(session.user);
@@ -135,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      
+
       // Handle specific session_not_found error - this is not critical
       if (error && error.message?.includes('session_not_found')) {
         console.warn('Session was already invalidated on server, proceeding with client-side cleanup');
@@ -149,9 +146,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Force clear client-side session data
       setUser(null);
       setSession(null);
-      // Clear any remaining Supabase session data from localStorage
-      localStorage.removeItem('supabase.auth.token');
-      localStorage.removeItem('sb-xtvmshymjewtfrtydtmc-auth-token');
     }
   };
 
