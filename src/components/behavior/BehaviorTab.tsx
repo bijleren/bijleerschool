@@ -67,9 +67,11 @@ interface BehaviorTabProps {
   userSchools: School[];
   onSchoolSelect: (school: School) => void;
   onNavigateToStudent?: (schoolId: string, studentId: string) => void;
+  initialFilter?: 'all' | 'today' | 'open' | 'followup';
+  onFilterChange?: (filter: 'all' | 'today' | 'open' | 'followup') => void;
 }
 
-export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNavigateToStudent }: BehaviorTabProps) {
+export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNavigateToStudent, initialFilter = 'all', onFilterChange }: BehaviorTabProps) {
   const { user } = useAuth();
   const [activeView, setActiveView] = useState<'incidents' | 'form' | 'settings' | 'analytics'>('incidents');
   const [editingIncident, setEditingIncident] = useState<BehaviorIncident | null>(null);
@@ -78,7 +80,13 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [severityFilter, setSeverityFilter] = useState<string>('all');
+  const [dashboardFilter, setDashboardFilter] = useState<'all' | 'today' | 'open' | 'followup'>(initialFilter);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+
+  // Update dashboard filter when initialFilter changes
+  useEffect(() => {
+    setDashboardFilter(initialFilter);
+  }, [initialFilter]);
 
   useEffect(() => {
     // Check if there's a preselected student and auto-open the form
@@ -280,7 +288,22 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
     const matchesCategory = categoryFilter === 'all' ||
       incident.behavior_items.behavior_categories.name === categoryFilter;
 
-    return matchesSearch && matchesStatus && matchesSeverity && matchesCategory;
+    // Apply dashboard filter
+    let matchesDashboardFilter = true;
+    if (dashboardFilter === 'today') {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const incidentDate = new Date(incident.incident_date);
+      matchesDashboardFilter = incidentDate >= today && incidentDate < tomorrow;
+    } else if (dashboardFilter === 'open') {
+      matchesDashboardFilter = incident.status === 'pending' || incident.status === 'in_progress';
+    } else if (dashboardFilter === 'followup') {
+      matchesDashboardFilter = incident.follow_up_required === true;
+    }
+
+    return matchesSearch && matchesStatus && matchesSeverity && matchesCategory && matchesDashboardFilter;
   });
 
   if (!selectedSchool) {
@@ -384,7 +407,25 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Gedragsincidenten</h1>
-          <p className="text-gray-600">{selectedSchool.name}</p>
+          <div className="flex items-center space-x-3">
+            <p className="text-gray-600">{selectedSchool.name}</p>
+            {dashboardFilter !== 'all' && (
+              <button
+                onClick={() => {
+                  setDashboardFilter('all');
+                  if (onFilterChange) onFilterChange('all');
+                }}
+                className="flex items-center space-x-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-colors"
+              >
+                <span>
+                  {dashboardFilter === 'today' && 'Vandaag'}
+                  {dashboardFilter === 'open' && 'Open meldingen'}
+                  {dashboardFilter === 'followup' && 'Follow-up nodig'}
+                </span>
+                <span className="text-blue-900">✕</span>
+              </button>
+            )}
+          </div>
         </div>
         <div className="flex space-x-3">
           <Button

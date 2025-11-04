@@ -96,7 +96,7 @@ interface DashboardTabProps {
   onNavigateToGroup: (schoolId: string, groupId: string) => void;
   onNavigateToSchools: () => void;
   onNavigateToBehaviorWithStudent: (schoolId: string, studentId: string) => void;
-  onNavigateToBehavior: () => void;
+  onNavigateToBehavior: (filter?: 'all' | 'today' | 'open' | 'followup') => void;
   userSchools: { id: string; name: string }[];
   focusSchool: { id: string; name: string } | null;
   onFocusSchoolChange: (school: { id: string; name: string }) => void;
@@ -654,7 +654,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             Gedragsincidenten
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior()}>
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior('today')}>
               <div className="flex items-center">
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Calendar className="w-6 h-6 text-blue-600" />
@@ -665,7 +665,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                 </div>
               </div>
             </Card>
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior()}>
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior('open')}>
               <div className="flex items-center">
                 <div className="p-2 bg-yellow-100 rounded-lg">
                   <AlertTriangle className="w-6 h-6 text-yellow-600" />
@@ -676,7 +676,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                 </div>
               </div>
             </Card>
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior()}>
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior('followup')}>
               <div className="flex items-center">
                 <div className="p-2 bg-green-100 rounded-lg">
                   <Users className="w-6 h-6 text-green-600" />

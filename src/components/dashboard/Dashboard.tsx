@@ -56,6 +56,7 @@ export function Dashboard() {
   const [focusSchool, setFocusSchool] = useState<School | null>(null);
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [behaviorFilter, setBehaviorFilter] = useState<'all' | 'today' | 'open' | 'followup'>('all');
 
   useEffect(() => {
     if (user) {
@@ -183,10 +184,11 @@ export function Dashboard() {
     setActiveTab('schools');
   };
 
-  const handleNavigateToBehavior = () => {
+  const handleNavigateToBehavior = (filter: 'all' | 'today' | 'open' | 'followup' = 'all') => {
     setSelectedSchool(focusSchool);
     setSelectedStudent(null);
     setSelectedGroup(null);
+    setBehaviorFilter(filter);
     setActiveTab('behavior');
   };
 
@@ -394,11 +396,13 @@ export function Dashboard() {
         {activeTab === 'profile' && <ProfileTab />}
         {activeTab === 'schools' && !selectedSchool && <SchoolsTab />}
         {activeTab === 'behavior' && (
-          <BehaviorTab 
-            selectedSchool={selectedSchool} 
+          <BehaviorTab
+            selectedSchool={selectedSchool}
             userSchools={userSchools}
             onSchoolSelect={handleSchoolSelect}
             onNavigateToStudent={handleNavigateToStudent}
+            initialFilter={behaviorFilter}
+            onFilterChange={setBehaviorFilter}
           />
         )}
         {activeTab === 'teaching' && <TeachingTab />}
