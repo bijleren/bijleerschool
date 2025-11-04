@@ -610,9 +610,11 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                               <div key={actie.id} className="text-sm">
                                 <div className="flex items-center justify-between">
                                   <span className="text-blue-900 font-medium">{actie.consequences.name}</span>
-                                  <span className="text-blue-700 text-xs">
-                                    {new Date(actie.action_date).toLocaleDateString('nl-NL')}
-                                  </span>
+                                  {actie.action_date && (
+                                    <span className="text-blue-700 text-xs">
+                                      {new Date(actie.action_date).toLocaleDateString('nl-NL')}
+                                    </span>
+                                  )}
                                 </div>
                                 {actie.notes && (
                                   <p className="text-blue-800 mt-1 ml-2">{actie.notes}</p>
