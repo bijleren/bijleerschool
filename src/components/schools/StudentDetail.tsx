@@ -1060,6 +1060,90 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
         )}
       </Card>
 
+      {/* Incident Statistics */}
+      <Card className="mb-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900">Gedragsincidenten overzicht</h3>
+        </div>
+
+        <div className="grid grid-cols-4 gap-6">
+          {/* Total Incidents */}
+          <div className="bg-blue-50 rounded-lg p-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <AlertTriangle className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-blue-600 font-medium">Totaal incidenten</p>
+                <p className="text-2xl font-bold text-blue-900">{incidentStats.total}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Incidents */}
+          <div className="bg-orange-50 rounded-lg p-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Clock className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-orange-600 font-medium">Afgelopen 30 dagen</p>
+                <p className="text-2xl font-bold text-orange-900">{incidentStats.recent}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* By Category */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-gray-700 mb-3">Per categorie</h4>
+            <div className="space-y-2">
+              {incidentStats.byCategory.length === 0 ? (
+                <p className="text-xs text-gray-500">Geen data</p>
+              ) : (
+                incidentStats.byCategory.slice(0, 3).map((cat) => (
+                  <div key={cat.name} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: cat.color }}
+                      />
+                      <span className="text-sm text-gray-700">{cat.name}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900">{cat.count}</span>
+                  </div>
+                ))
+              )}
+              {incidentStats.byCategory.length > 3 && (
+                <p className="text-xs text-gray-500 mt-2">+{incidentStats.byCategory.length - 3} meer</p>
+              )}
+            </div>
+          </div>
+
+          {/* By Severity */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-gray-700 mb-3">Per ernst niveau</h4>
+            <div className="space-y-2">
+              {incidentStats.bySeverity.length === 0 ? (
+                <p className="text-xs text-gray-500">Geen data</p>
+              ) : (
+                incidentStats.bySeverity.map((sev) => (
+                  <div key={sev.level} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: sev.color }}
+                      />
+                      <span className="text-sm text-gray-700">Niveau {sev.level}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900">{sev.count}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </Card>
+
       {/* Recent Incidents */}
       <Card className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -1369,90 +1453,6 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
               </div>
             ))
           )}
-        </div>
-      </Card>
-
-      {/* Incident Statistics */}
-      <Card>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">Gedragsincidenten overzicht</h3>
-        </div>
-
-        <div className="grid grid-cols-4 gap-6">
-          {/* Total Incidents */}
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <AlertTriangle className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-blue-600 font-medium">Totaal incidenten</p>
-                <p className="text-2xl font-bold text-blue-900">{incidentStats.total}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Incidents */}
-          <div className="bg-orange-50 rounded-lg p-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Clock className="w-6 h-6 text-orange-600" />
-              </div>
-              <div>
-                <p className="text-sm text-orange-600 font-medium">Afgelopen 30 dagen</p>
-                <p className="text-2xl font-bold text-orange-900">{incidentStats.recent}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* By Category */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Per categorie</h4>
-            <div className="space-y-2">
-              {incidentStats.byCategory.length === 0 ? (
-                <p className="text-xs text-gray-500">Geen data</p>
-              ) : (
-                incidentStats.byCategory.slice(0, 3).map((cat) => (
-                  <div key={cat.name} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: cat.color }}
-                      />
-                      <span className="text-sm text-gray-700">{cat.name}</span>
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900">{cat.count}</span>
-                  </div>
-                ))
-              )}
-              {incidentStats.byCategory.length > 3 && (
-                <p className="text-xs text-gray-500 mt-2">+{incidentStats.byCategory.length - 3} meer</p>
-              )}
-            </div>
-          </div>
-
-          {/* By Severity */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Per ernst niveau</h4>
-            <div className="space-y-2">
-              {incidentStats.bySeverity.length === 0 ? (
-                <p className="text-xs text-gray-500">Geen data</p>
-              ) : (
-                incidentStats.bySeverity.map((sev) => (
-                  <div key={sev.level} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: sev.color }}
-                      />
-                      <span className="text-sm text-gray-700">Niveau {sev.level}</span>
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900">{sev.count}</span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
         </div>
       </Card>
 
