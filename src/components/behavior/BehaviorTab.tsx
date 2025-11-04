@@ -588,6 +588,20 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                         </div>
                       )}
 
+                      {incident.follow_up_required && (
+                        <div className="mt-3 p-3 bg-yellow-50 rounded-lg">
+                          <h5 className="font-medium text-yellow-900 mb-1">Follow-up vereist</h5>
+                          {incident.follow_up_date && (
+                            <p className="text-yellow-800 text-sm">
+                              Datum: {new Date(incident.follow_up_date).toLocaleDateString('nl-NL')}
+                            </p>
+                          )}
+                          {incident.follow_up_notes && (
+                            <p className="text-yellow-800 text-sm mt-1">{incident.follow_up_notes}</p>
+                          )}
+                        </div>
+                      )}
+
                       {incident.behavior_incident_followup_acties && incident.behavior_incident_followup_acties.length > 0 && (
                         <div className="mt-3 p-3 bg-blue-50 rounded-lg">
                           <h5 className="font-medium text-blue-900 mb-2">Follow-up acties:</h5>
@@ -606,20 +620,6 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                               </div>
                             ))}
                           </div>
-                        </div>
-                      )}
-                      
-                      {incident.follow_up_required && (
-                        <div className="mt-3 p-3 bg-yellow-50 rounded-lg">
-                          <h5 className="font-medium text-yellow-900 mb-1">Follow-up vereist</h5>
-                          {incident.follow_up_date && (
-                            <p className="text-yellow-800 text-sm">
-                              Datum: {new Date(incident.follow_up_date).toLocaleDateString('nl-NL')}
-                            </p>
-                          )}
-                          {incident.follow_up_notes && (
-                            <p className="text-yellow-800 text-sm mt-1">{incident.follow_up_notes}</p>
-                          )}
                         </div>
                       )}
                     </div>
