@@ -582,7 +582,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
           incident_id: incident.id,
           consequence_id: actie.consequence_id,
           notes: actie.notes || null,
-          action_date: actie.action_date,
+          action_date: actie.action_date || null,
         }));
 
         const { error: followupActiesError } = await supabase
@@ -754,7 +754,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
   };
 
   const addFollowupActie = () => {
-    setFollowupActies([...followupActies, { consequence_id: '', notes: '', action_date: new Date().toISOString().split('T')[0] }]);
+    setFollowupActies([...followupActies, { consequence_id: '', notes: '', action_date: '' }]);
   };
 
   const removeFollowupActie = (index: number) => {
@@ -1041,9 +1041,9 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                         <div>
                           <input
                             type="date"
-                            value={actie.action_date}
+                            value={actie.action_date || ''}
                             onChange={(e) => updateFollowupActie(index, 'action_date', e.target.value)}
-                            required
+                            placeholder="Datum (optioneel)"
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                           />
                         </div>

@@ -138,6 +138,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
   const [selectedFollowupAction, setSelectedFollowupAction] = useState('');
   const [followupActionOther, setFollowupActionOther] = useState('');
   const [followUpRequired, setFollowUpRequired] = useState(false);
+  const [followupConsequences, setFollowupConsequences] = useState<Array<{ consequence_id: string }>>([]);
   const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
   const [consequenceSearch, setConsequenceSearch] = useState('');
   const [showAllConsequences, setShowAllConsequences] = useState(false);
@@ -792,6 +793,22 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
         if (eersteActiesError) throw eersteActiesError;
       }
 
+      // Add follow-up consequences (without date/notes)
+      if (followupConsequences.length > 0) {
+        const followupInserts = followupConsequences.map(consequence => ({
+          incident_id: incident.id,
+          consequence_id: consequence.consequence_id,
+          notes: null,
+          action_date: null,
+        }));
+
+        const { error: followupError } = await supabase
+          .from('behavior_incident_followup_acties')
+          .insert(followupInserts);
+
+        if (followupError) throw followupError;
+      }
+
       // Add notifications
       if (selectedNotifications.length > 0) {
         const notificationInserts = selectedNotifications.map(notification => ({
@@ -909,6 +926,20 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     const updated = [...eersteActies];
     updated[index][field] = value;
     setEersteActies(updated);
+  };
+
+  const addFollowupConsequence = () => {
+    setFollowupConsequences([...followupConsequences, { consequence_id: '' }]);
+  };
+
+  const removeFollowupConsequence = (index: number) => {
+    setFollowupConsequences(followupConsequences.filter((_, i) => i !== index));
+  };
+
+  const updateFollowupConsequence = (index: number, value: string) => {
+    const updated = [...followupConsequences];
+    updated[index].consequence_id = value;
+    setFollowupConsequences(updated);
   };
 
   const getFilteredConsequences = () => {
@@ -1399,6 +1430,57 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
               Follow-up nodig
             </label>
           </div>
+
+          {/* Follow-up Consequences */}
+          {followUpRequired && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Follow-up consequenties
+                </label>
+                <Button type="button" variant="secondary" size="sm" onClick={addFollowupConsequence}>
+                  <Plus className="w-4 h-4 mr-1" />
+                  Consequentie toevoegen
+                </Button>
+              </div>
+
+              {followupConsequences.length === 0 ? (
+                <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
+                  <p className="text-gray-500 text-sm">Geen follow-up consequenties toegevoegd</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {followupConsequences.map((consequence, index) => (
+                    <div key={index} className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                      <div className="flex-1">
+                        <select
+                          value={consequence.consequence_id}
+                          onChange={(e) => updateFollowupConsequence(index, e.target.value)}
+                          required
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                          <option value="">Selecteer consequentie</option>
+                          {consequences.map((cons) => (
+                            <option key={cons.id} value={cons.id}>
+                              {cons.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        onClick={() => removeFollowupConsequence(index)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* File Attachments */}
           <div>
