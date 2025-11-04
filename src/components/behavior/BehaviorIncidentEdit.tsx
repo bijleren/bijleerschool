@@ -163,6 +163,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
   const [location, setLocation] = useState(incident.location || '');
   const [description, setDescription] = useState(incident.description);
   const [status, setStatus] = useState<'pending' | 'in_progress' | 'resolved'>(incident.status);
+  const [followUpRequired, setFollowUpRequired] = useState(incident.follow_up_required);
 
   // File upload state
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -511,7 +512,8 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
           incident_date: incidentDate,
           location: location || null,
           description,
-          status
+          status,
+          follow_up_required: followUpRequired
         })
         .eq('id', incident.id);
 
@@ -990,8 +992,8 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
             <input
               type="checkbox"
               id="followUpRequired"
-              checked={incident.follow_up_required}
-              onChange={(e) => setIncident({ ...incident, follow_up_required: e.target.checked })}
+              checked={followUpRequired}
+              onChange={(e) => setFollowUpRequired(e.target.checked)}
               className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
             <label htmlFor="followUpRequired" className="text-sm font-medium text-gray-900 cursor-pointer">
