@@ -7,12 +7,35 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
+// Custom storage adapter to ensure persistent session storage
+const customStorage = {
+  getItem: (key: string) => {
+    if (typeof window !== 'undefined') {
+      const item = window.localStorage.getItem(key);
+      return item;
+    }
+    return null;
+  },
+  setItem: (key: string, value: string) => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(key, value);
+    }
+  },
+  removeItem: (key: string) => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(key);
+    }
+  },
+};
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storage: window.localStorage,
+    storage: customStorage,
+    storageKey: 'sb-auth-token',
+    flowType: 'pkce',
   },
 });
 

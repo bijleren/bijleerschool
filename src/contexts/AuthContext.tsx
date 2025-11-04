@@ -52,11 +52,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Error getting session:', error);
+      }
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      
+
       // Ensure profile exists after setting user state
       if (session?.user) {
         ensureProfileExists(session.user);
@@ -66,12 +69,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+
         // Handle signed out or invalid session
         if (event === 'SIGNED_OUT' || !session) {
           setSession(null);
           setUser(null);
           setLoading(false);
           return;
+        }
+
+        // Handle token refresh
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('Token refreshed successfully');
         }
 
         setSession(session);
