@@ -105,9 +105,28 @@ export function Dashboard() {
     };
 
     // Listen for navigation to behavior from incident cards
-    const handleNavigateToBehaviorFromIncident = (event: CustomEvent) => {
-      const { incidentId } = event.detail;
-      setSelectedSchool(focusSchool);
+    const handleNavigateToBehaviorFromIncident = async (event: CustomEvent) => {
+      const { incidentId, schoolId } = event.detail;
+
+      // If schoolId is provided, fetch and set that school
+      if (schoolId) {
+        try {
+          const { data: school, error } = await supabase
+            .from('schools')
+            .select('*')
+            .eq('id', schoolId)
+            .single();
+
+          if (error) throw error;
+          setSelectedSchool(school);
+        } catch (error) {
+          console.error('Error fetching school:', error);
+          setSelectedSchool(focusSchool);
+        }
+      } else {
+        setSelectedSchool(focusSchool);
+      }
+
       setSelectedStudent(null);
       setSelectedGroup(null);
       setBehaviorFilter('all');
