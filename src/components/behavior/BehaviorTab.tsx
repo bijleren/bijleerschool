@@ -103,6 +103,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
       const incident = incidents.find(i => i.id === highlightIncidentId);
       if (incident) {
         setEditingIncident(incident);
+        setActiveView('form');
         sessionStorage.removeItem('highlightIncidentId');
       }
     }
