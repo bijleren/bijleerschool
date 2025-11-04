@@ -1060,6 +1060,95 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
         )}
       </Card>
 
+      {/* Recent Incidents */}
+      <Card className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <AlertTriangle className="w-5 h-5 mr-2" />
+          Recente Incidenten
+        </h3>
+
+        {incidentsLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+          </div>
+        ) : recentIncidents.length === 0 ? (
+          <div className="text-center py-8">
+            <AlertTriangle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-500">Geen recente incidenten</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {recentIncidents.map((incident) => (
+              <div key={incident.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => {
+                sessionStorage.setItem('returnToStudent', JSON.stringify({ schoolId, studentId: student.id }));
+                window.dispatchEvent(new CustomEvent('navigate-to-behavior', { detail: { incidentId: incident.id, schoolId: schoolId } }));
+              }}>
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <span
+                      className="px-2 py-1 rounded-full text-xs font-medium text-white"
+                      style={{ backgroundColor: incident.behavior_items.behavior_categories.color }}
+                    >
+                      {incident.behavior_items.behavior_categories.name}
+                    </span>
+                    <span
+                      className="px-2 py-1 rounded-full text-xs font-medium text-white"
+                      style={{ backgroundColor: incident.behavior_items.behavior_severity_levels.color }}
+                    >
+                      Niveau {incident.behavior_items.behavior_severity_levels.level}
+                    </span>
+                    {incident.behavior_incident_students && incident.behavior_incident_students[0] && (
+                      <span
+                        className="px-2 py-1 rounded-full text-xs font-medium"
+                        style={{
+                          backgroundColor: incident.behavior_incident_students[0].student_roles.color + '20',
+                          color: incident.behavior_incident_students[0].student_roles.color
+                        }}
+                      >
+                        {incident.behavior_incident_students[0].student_roles.name}
+                      </span>
+                    )}
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(incident.status)}`}>
+                    {getStatusText(incident.status)}
+                  </span>
+                </div>
+
+                <h4 className="font-medium text-gray-900 mb-2">
+                  {incident.behavior_items.name}
+                </h4>
+
+                <p className="text-gray-700 text-sm mb-3">{incident.description}</p>
+
+                <div className="flex items-center space-x-4 text-xs text-gray-500">
+                  <div className="flex items-center">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    {new Date(incident.incident_date).toLocaleDateString('nl-NL')}
+                  </div>
+                  <div className="flex items-center">
+                    <Clock className="w-3 h-3 mr-1" />
+                    {new Date(incident.incident_date).toLocaleTimeString('nl-NL', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </div>
+                  {incident.location && (
+                    <div className="flex items-center">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      {incident.location}
+                    </div>
+                  )}
+                  <div className="flex items-center">
+                    <User className="w-3 h-3 mr-1" />
+                    {incident.profiles ? `${incident.profiles.first_name} ${incident.profiles.last_name}` : 'Onbekend'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
       {/* WebWijzer Section */}
       <Card className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -1144,95 +1233,6 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
             </div>
           </div>
         </div>
-      </Card>
-
-      {/* Recent Incidents */}
-      <Card className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <AlertTriangle className="w-5 h-5 mr-2" />
-          Recente Incidenten
-        </h3>
-        
-        {incidentsLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
-          </div>
-        ) : recentIncidents.length === 0 ? (
-          <div className="text-center py-8">
-            <AlertTriangle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-gray-500">Geen recente incidenten</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {recentIncidents.map((incident) => (
-              <div key={incident.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => {
-                sessionStorage.setItem('returnToStudent', JSON.stringify({ schoolId, studentId: student.id }));
-                window.dispatchEvent(new CustomEvent('navigate-to-behavior', { detail: { incidentId: incident.id, schoolId: schoolId } }));
-              }}>
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <span
-                      className="px-2 py-1 rounded-full text-xs font-medium text-white"
-                      style={{ backgroundColor: incident.behavior_items.behavior_categories.color }}
-                    >
-                      {incident.behavior_items.behavior_categories.name}
-                    </span>
-                    <span
-                      className="px-2 py-1 rounded-full text-xs font-medium text-white"
-                      style={{ backgroundColor: incident.behavior_items.behavior_severity_levels.color }}
-                    >
-                      Niveau {incident.behavior_items.behavior_severity_levels.level}
-                    </span>
-                    {incident.behavior_incident_students && incident.behavior_incident_students[0] && (
-                      <span
-                        className="px-2 py-1 rounded-full text-xs font-medium"
-                        style={{
-                          backgroundColor: incident.behavior_incident_students[0].student_roles.color + '20',
-                          color: incident.behavior_incident_students[0].student_roles.color
-                        }}
-                      >
-                        {incident.behavior_incident_students[0].student_roles.name}
-                      </span>
-                    )}
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(incident.status)}`}>
-                    {getStatusText(incident.status)}
-                  </span>
-                </div>
-                
-                <h4 className="font-medium text-gray-900 mb-2">
-                  {incident.behavior_items.name}
-                </h4>
-                
-                <p className="text-gray-700 text-sm mb-3">{incident.description}</p>
-                
-                <div className="flex items-center space-x-4 text-xs text-gray-500">
-                  <div className="flex items-center">
-                    <Calendar className="w-3 h-3 mr-1" />
-                    {new Date(incident.incident_date).toLocaleDateString('nl-NL')}
-                  </div>
-                  <div className="flex items-center">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {new Date(incident.incident_date).toLocaleTimeString('nl-NL', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
-                  </div>
-                  {incident.location && (
-                    <div className="flex items-center">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      {incident.location}
-                    </div>
-                  )}
-                  <div className="flex items-center">
-                    <User className="w-3 h-3 mr-1" />
-                    {incident.profiles ? `${incident.profiles.first_name} ${incident.profiles.last_name}` : 'Onbekend'}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </Card>
 
       {/* Student Groups */}
