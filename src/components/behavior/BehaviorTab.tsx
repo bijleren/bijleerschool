@@ -97,6 +97,16 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
       sessionStorage.removeItem('preselectedStudentId');
     }
 
+    // Check if there's a highlighted incident to open
+    const highlightIncidentId = sessionStorage.getItem('highlightIncidentId');
+    if (highlightIncidentId && incidents.length > 0) {
+      const incident = incidents.find(i => i.id === highlightIncidentId);
+      if (incident) {
+        setEditingIncident(incident);
+        sessionStorage.removeItem('highlightIncidentId');
+      }
+    }
+
     // Listen for navigation events from header dropdown
     const handleNavigateToBehaviorForm = () => {
       setActiveView('form');
@@ -139,7 +149,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
       window.removeEventListener('filterByCategory', handleFilterByCategory as EventListener);
       window.removeEventListener('filterBySeverity', handleFilterBySeverity as EventListener);
     };
-  }, [selectedSchool]);
+  }, [selectedSchool, incidents]);
 
   useEffect(() => {
     if (selectedSchool) {

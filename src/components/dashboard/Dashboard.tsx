@@ -107,8 +107,10 @@ export function Dashboard() {
     // Listen for navigation to behavior from incident cards
     const handleNavigateToBehaviorFromIncident = (event: CustomEvent) => {
       const { incidentId } = event.detail;
+      setSelectedSchool(focusSchool);
       setSelectedStudent(null);
       setSelectedGroup(null);
+      setBehaviorFilter('all');
       setActiveTab('behavior');
       // Store the incident ID to scroll to or highlight it
       if (incidentId) {
