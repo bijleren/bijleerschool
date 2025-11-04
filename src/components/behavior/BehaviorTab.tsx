@@ -259,7 +259,23 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
   const handleIncidentUpdated = () => {
     fetchIncidents();
     setEditingIncident(null);
-    setActiveView('incidents');
+
+    // Check if we should return to student detail
+    const returnToStudent = sessionStorage.getItem('returnToStudent');
+    if (returnToStudent) {
+      try {
+        const { schoolId, studentId } = JSON.parse(returnToStudent);
+        sessionStorage.removeItem('returnToStudent');
+        window.dispatchEvent(new CustomEvent('navigateToStudentDetail', {
+          detail: { schoolId, studentId }
+        }));
+      } catch (error) {
+        console.error('Error parsing returnToStudent:', error);
+        setActiveView('incidents');
+      }
+    } else {
+      setActiveView('incidents');
+    }
   };
 
   const handleEditIncident = (incident: BehaviorIncident) => {
