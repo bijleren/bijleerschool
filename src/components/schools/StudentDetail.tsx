@@ -1166,7 +1166,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
           <div className="space-y-3">
             {recentIncidents.map((incident) => (
               <div key={incident.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => {
-                sessionStorage.setItem('returnToStudent', JSON.stringify({ schoolId, studentId }));
+                sessionStorage.setItem('returnToStudent', JSON.stringify({ schoolId, studentId: student.id }));
                 window.dispatchEvent(new CustomEvent('navigate-to-behavior', { detail: { incidentId: incident.id, schoolId: schoolId } }));
               }}>
                 <div className="flex items-start justify-between mb-2">
