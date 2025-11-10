@@ -10,6 +10,7 @@ import { BehaviorTab } from '../behavior/BehaviorTab';
 import { TeachingTab } from '../teaching/TeachingTab';
 import { SchoolDayTab } from '../schoolday/SchoolDayTab';
 import { WebWijzerTab } from '../webwijzer/WebWijzerTab';
+import { ActivityBoardsTab } from '../activityboard/ActivityBoardsTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
@@ -48,7 +49,7 @@ interface Group {
 
 export function Dashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards'>('dashboard');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
@@ -234,6 +235,13 @@ export function Dashboard() {
     setActiveTab('webwijzer');
   };
 
+  const handleNavigateToActivityBoards = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('activityboards');
+  };
+
   const handleNavigateToBehaviorWithSchool = (school: { id: string; name: string }) => {
     // Use focus school instead of passed school
     setSelectedSchool(focusSchool);
@@ -399,6 +407,7 @@ export function Dashboard() {
         onNavigateToTeaching={handleNavigateToTeaching}
         onNavigateToSchoolDay={handleNavigateToSchoolDay}
         onNavigateToWebWijzer={handleNavigateToWebWijzer}
+        onNavigateToActivityBoards={handleNavigateToActivityBoards}
         focusSchool={focusSchool}
       />
       <main className="p-8">
@@ -429,6 +438,7 @@ export function Dashboard() {
         {activeTab === 'teaching' && <TeachingTab />}
         {activeTab === 'schoolday' && <SchoolDayTab />}
         {activeTab === 'webwijzer' && <WebWijzerTab />}
+        {activeTab === 'activityboards' && <ActivityBoardsTab />}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail
             school={selectedSchool}

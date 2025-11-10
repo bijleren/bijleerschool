@@ -31,10 +31,12 @@ interface HeaderProps {
   onNavigateToBehaviorWithSchool: (school: { id: string; name: string }) => void;
   onNavigateToTeaching: () => void;
   onNavigateToSchoolDay: () => void;
+  onNavigateToWebWijzer: () => void;
+  onNavigateToActivityBoards: () => void;
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToSchoolDay, onNavigateToWebWijzer, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -235,6 +237,16 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Schooldag
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToActivityBoards();
+                        setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Grid className="w-4 h-4 mr-2" />
+                      Activi-Tijd
                     </button>
                   </div>
 
