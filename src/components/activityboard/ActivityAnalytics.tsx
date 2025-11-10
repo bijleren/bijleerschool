@@ -582,7 +582,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
           </div>
         </Card>
 
-        {selectedStudent !== 'all' && collaborationPartners.length > 0 && (
+        {selectedStudent !== 'all' && (
           <Card>
             <div className="p-6">
               <div className="flex items-center space-x-3 mb-4">
@@ -592,38 +592,44 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
                 </h2>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                        Leerling
-                      </th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
-                        Aantal keer samengewerkt
-                      </th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
-                        Totale tijd
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {collaborationPartners.map((partner, index) => (
-                      <tr key={index} className="border-b border-gray-100">
-                        <td className="py-3 px-4 text-sm text-gray-900 font-medium">
-                          {partner.studentName}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-600 text-right">
-                          {partner.sessions}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-600 text-right">
-                          {formatDuration(partner.totalMinutes)}
-                        </td>
+              {collaborationPartners.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">
+                  Geen samenwerkingsgegevens voor deze periode
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                          Leerling
+                        </th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                          Aantal keer samengewerkt
+                        </th>
+                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                          Totale tijd samengewerkt
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {collaborationPartners.map((partner, index) => (
+                        <tr key={index} className="border-b border-gray-100">
+                          <td className="py-3 px-4 text-sm text-gray-900 font-medium">
+                            {partner.studentName}
+                          </td>
+                          <td className="py-3 px-4 text-sm text-gray-600 text-right">
+                            {partner.sessions}x
+                          </td>
+                          <td className="py-3 px-4 text-sm text-gray-600 text-right">
+                            {formatDuration(partner.totalMinutes)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </Card>
         )}
