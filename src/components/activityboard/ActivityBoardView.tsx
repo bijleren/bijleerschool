@@ -156,7 +156,6 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
   useEffect(() => {
     fetchOptions();
     fetchActiveSessions();
-    fetchUnassignedStudents();
 
     const channel = supabase
       .channel(`board-${board.id}`)
@@ -171,7 +170,6 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
         (payload) => {
           console.log('Session change detected:', payload);
           fetchActiveSessions();
-          fetchUnassignedStudents();
         }
       )
       .subscribe();
@@ -185,6 +183,10 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
       clearInterval(interval);
     };
   }, [board.id]);
+
+  useEffect(() => {
+    fetchUnassignedStudents();
+  }, [sessions]);
 
   const fetchOptions = async () => {
     try {
@@ -234,12 +236,16 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
     try {
       const assignedStudentIds = sessions.map(s => s.student_id);
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('students')
         .select('id, first_name, last_name, photo_url')
-        .eq('school_id', board.school_id)
-        .not('id', 'in', `(${assignedStudentIds.length > 0 ? assignedStudentIds.join(',') : '00000000-0000-0000-0000-000000000000'})`)
-        .order('first_name, last_name');
+        .eq('school_id', board.school_id);
+
+      if (assignedStudentIds.length > 0) {
+        query = query.not('id', 'in', `(${assignedStudentIds.join(',')})`);
+      }
+
+      const { data, error } = await query.order('first_name', { ascending: true });
 
       if (error) throw error;
       setUnassignedStudents(data || []);
@@ -305,7 +311,6 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
       });
       setScannedStudent(null);
       await fetchActiveSessions();
-      await fetchUnassignedStudents();
     } catch (error) {
       console.error('Error adding student:', error);
       setToast({ message: 'Fout bij toevoegen leerling', type: 'error' });
@@ -448,7 +453,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
           </Button>
         </Card>
       ) : (
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-2 gap-4 max-w-4xl">
           {options.map((option) => {
             const activitySessions = getSessionsForActivity(option.id);
             const isUnlimited = option.max_students === null;
