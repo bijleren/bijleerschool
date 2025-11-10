@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateToDashboard: () => void;
@@ -38,14 +38,10 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [showSchoolDropdown, setShowSchoolDropdown] = useState(false);
-  const [showBehaviorDropdown, setShowBehaviorDropdown] = useState(false);
-  const [showWebWijzerDropdown, setShowWebWijzerDropdown] = useState(false);
+  const [showAppsDropdown, setShowAppsDropdown] = useState(false);
   const [showVersionModal, setShowVersionModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const schoolDropdownRef = useRef<HTMLDivElement>(null);
-  const behaviorDropdownRef = useRef<HTMLDivElement>(null);
-  const webwijzerDropdownRef = useRef<HTMLDivElement>(null);
+  const appsDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchUserSchools();
@@ -56,14 +52,8 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowProfileDropdown(false);
       }
-      if (schoolDropdownRef.current && !schoolDropdownRef.current.contains(event.target as Node)) {
-        setShowSchoolDropdown(false);
-      }
-      if (behaviorDropdownRef.current && !behaviorDropdownRef.current.contains(event.target as Node)) {
-        setShowBehaviorDropdown(false);
-      }
-      if (webwijzerDropdownRef.current && !webwijzerDropdownRef.current.contains(event.target as Node)) {
-        setShowWebWijzerDropdown(false);
+      if (appsDropdownRef.current && !appsDropdownRef.current.contains(event.target as Node)) {
+        setShowAppsDropdown(false);
       }
     }
 
@@ -147,188 +137,185 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
               <span>Dashboard</span>
             </button>
 
-            {/* Gedrag Dropdown */}
-            <div className="relative" ref={behaviorDropdownRef}>
+            {/* Apps Dropdown */}
+            <div className="relative" ref={appsDropdownRef}>
               <button
-                onClick={() => setShowBehaviorDropdown(!showBehaviorDropdown)}
+                onClick={() => setShowAppsDropdown(!showAppsDropdown)}
                 className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
               >
-                <AlertTriangle className="w-5 h-5" />
-                <span>Gedrag</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showBehaviorDropdown ? 'rotate-180' : ''}`} />
+                <Grid className="w-5 h-5" />
+                <span>Apps</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showAppsDropdown ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Gedrag Dropdown Menu */}
-              {showBehaviorDropdown && (
-                <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                  <button
-                    onClick={() => {
-                      if (focusSchool) {
-                        onNavigateToBehaviorWithSchool(focusSchool);
+              {/* Apps Dropdown Menu */}
+              {showAppsDropdown && (
+                <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  {/* Gedrag Section */}
+                  <div className="px-3 py-2">
+                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span>Gedrag</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (focusSchool) {
+                          onNavigateToBehaviorWithSchool(focusSchool);
+                          setTimeout(() => {
+                            window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
+                          }, 100);
+                        } else {
+                          onNavigateToBehavior();
+                          setTimeout(() => {
+                            window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
+                          }, 100);
+                        }
+                        setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Incident melden
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleBehaviorClick();
+                        setShowAppsDropdown(false);
                         setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
+                          window.dispatchEvent(new CustomEvent('navigateToBehaviorIncidents'));
                         }, 100);
-                      } else {
-                        onNavigateToBehavior();
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <List className="w-4 h-4 mr-2" />
+                      Incidenten
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleBehaviorClick();
+                        setShowAppsDropdown(false);
                         setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
+                          window.dispatchEvent(new CustomEvent('navigateToBehaviorAnalytics'));
                         }, 100);
-                      }
-                      setShowBehaviorDropdown(false);
-                    }}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Plus className="w-4 h-4 mr-3" />
-                    Incident melden
-                  </button>
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Analyses
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleBehaviorClick();
+                        setShowAppsDropdown(false);
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('navigateToBehaviorSettings'));
+                        }, 100);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      Instellingen
+                    </button>
+                  </div>
 
-                  <button
-                    onClick={() => {
-                      handleBehaviorClick();
-                      setShowBehaviorDropdown(false);
-                      setTimeout(() => {
-                        window.dispatchEvent(new CustomEvent('navigateToBehaviorIncidents'));
-                      }, 100);
-                    }}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <List className="w-4 h-4 mr-3" />
-                    Incidenten
-                  </button>
+                  <div className="border-t border-gray-100 my-2"></div>
 
-                  <button
-                    onClick={() => {
-                      handleBehaviorClick();
-                      setShowBehaviorDropdown(false);
-                      setTimeout(() => {
-                        window.dispatchEvent(new CustomEvent('navigateToBehaviorAnalytics'));
-                      }, 100);
-                    }}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <BarChart3 className="w-4 h-4 mr-3" />
-                    Analyses
-                  </button>
+                  {/* Didactiek Section */}
+                  <div className="px-3 py-2">
+                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      <BookOpen className="w-4 h-4" />
+                      <span>Didactiek</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        onNavigateToTeaching();
+                        setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      Overzicht
+                    </button>
+                  </div>
 
-                  <button
-                    onClick={() => {
-                      handleBehaviorClick();
-                      setShowBehaviorDropdown(false);
-                      setTimeout(() => {
-                        window.dispatchEvent(new CustomEvent('navigateToBehaviorSettings'));
-                      }, 100);
-                    }}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Settings className="w-4 h-4 mr-3" />
-                    Instellingen
-                  </button>
-                </div>
-              )}
-            </div>
+                  <div className="border-t border-gray-100 my-2"></div>
 
-            <button
-              onClick={onNavigateToTeaching}
-              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-            >
-              <BookOpen className="w-5 h-5" />
-              <span>Didactiek</span>
-            </button>
+                  {/* School Section */}
+                  <div className="px-3 py-2">
+                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      <School className="w-4 h-4" />
+                      <span>School</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        onNavigateToSchoolDay();
+                        setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Schooldag
+                    </button>
+                  </div>
 
-            {/* School Dropdown */}
-            <div className="relative" ref={schoolDropdownRef}>
-              <button
-                onClick={() => setShowSchoolDropdown(!showSchoolDropdown)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-              >
-                <School className="w-5 h-5" />
-                <span>School</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showSchoolDropdown ? 'rotate-180' : ''}`} />
-              </button>
+                  <div className="border-t border-gray-100 my-2"></div>
 
-              {/* School Dropdown Menu */}
-              {showSchoolDropdown && (
-                <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                  <button
-                    onClick={() => {
-                      onNavigateToSchoolDay();
-                      setShowSchoolDropdown(false);
-                    }}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Calendar className="w-4 h-4 mr-3" />
-                    Schooldag
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* WebWijzer Dropdown */}
-            <div className="relative" ref={webwijzerDropdownRef}>
-              <button
-                onClick={() => setShowWebWijzerDropdown(!showWebWijzerDropdown)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-              >
-                <Link className="w-5 h-5" />
-                <span>WebWijzer</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showWebWijzerDropdown ? 'rotate-180' : ''}`} />
-              </button>
-
-              {/* WebWijzer Dropdown Menu */}
-              {showWebWijzerDropdown && (
-                <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                  <button
-                    onClick={() => {
-                      onNavigateToWebWijzer();
-                      setShowWebWijzerDropdown(false);
-                      setTimeout(() => {
-                        window.dispatchEvent(new CustomEvent('navigateToWebWijzerCreate'));
-                      }, 100);
-                    }}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Plus className="w-4 h-4 mr-3" />
-                    Nieuwe content
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      onNavigateToWebWijzer();
-                      setShowWebWijzerDropdown(false);
-                    }}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <List className="w-4 h-4 mr-3" />
-                    Content beheren
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      onNavigateToWebWijzer();
-                      setShowWebWijzerDropdown(false);
-                      setTimeout(() => {
-                        window.dispatchEvent(new CustomEvent('navigateToStudentWebWijzer'));
-                      }, 100);
-                    }}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <User className="w-4 h-4 mr-3" />
-                    Leerling WebWijzer
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      onNavigateToWebWijzer();
-                      setShowWebWijzerDropdown(false);
-                      setTimeout(() => {
-                        window.dispatchEvent(new CustomEvent('navigateToWebWijzerAnalytics'));
-                      }, 100);
-                    }}
-                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <BarChart3 className="w-4 h-4 mr-3" />
-                    Analytics
-                  </button>
+                  {/* WebWijzer Section */}
+                  <div className="px-3 py-2">
+                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      <Link className="w-4 h-4" />
+                      <span>WebWijzer</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        onNavigateToWebWijzer();
+                        setShowAppsDropdown(false);
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('navigateToWebWijzerCreate'));
+                        }, 100);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Nieuwe content
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToWebWijzer();
+                        setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <List className="w-4 h-4 mr-2" />
+                      Content beheren
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToWebWijzer();
+                        setShowAppsDropdown(false);
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('navigateToStudentWebWijzer'));
+                        }, 100);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Leerling WebWijzer
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToWebWijzer();
+                        setShowAppsDropdown(false);
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('navigateToWebWijzerAnalytics'));
+                        }, 100);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Analytics
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
