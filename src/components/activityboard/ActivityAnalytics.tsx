@@ -2,11 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Users, Clock, BarChart3, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Users, Clock, BarChart3, TrendingUp, User } from 'lucide-react';
 
 interface ActivityBoard {
   id: string;
   name: string;
+}
+
+interface Student {
+  id: string;
+  first_name: string;
+  last_name: string;
 }
 
 interface ActivityAnalyticsProps {
@@ -24,32 +30,64 @@ interface ActivityStats {
 }
 
 interface StudentActivityStats {
+  studentId: string;
   studentName: string;
   totalSessions: number;
   totalMinutes: number;
-  activities: Array<{ name: string; count: number }>;
+  activities: Array<{ name: string; count: number; minutes: number }>;
 }
 
-interface CollaborationStats {
-  student1: string;
-  student2: string;
+interface CollaborationPartner {
+  studentId: string;
+  studentName: string;
   totalMinutes: number;
   sessions: number;
 }
 
+interface ActivityLogEntry {
+  id: string;
+  activityName: string;
+  startTime: Date;
+  endTime: Date | null;
+  durationMinutes: number;
+  feedbackRating: number | null;
+  teacherNotes: string | null;
+}
+
 export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalyticsProps) {
-  const [selectedBoard, setSelectedBoard] = useState<string>(boards[0]?.id || '');
+  const [selectedBoard, setSelectedBoard] = useState<string>('all');
+  const [selectedStudent, setSelectedStudent] = useState<string>('all');
   const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'all'>('week');
   const [activityStats, setActivityStats] = useState<ActivityStats[]>([]);
   const [studentStats, setStudentStats] = useState<StudentActivityStats[]>([]);
-  const [collaborationStats, setCollaborationStats] = useState<CollaborationStats[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [collaborationPartners, setCollaborationPartners] = useState<CollaborationPartner[]>([]);
+  const [activityLog, setActivityLog] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (selectedBoard) {
-      fetchAnalytics();
+    fetchStudents();
+  }, [schoolId]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [selectedBoard, selectedStudent, dateRange]);
+
+  const fetchStudents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .select('id, first_name, last_name')
+        .eq('school_id', schoolId)
+        .eq('is_active', true)
+        .order('first_name');
+
+      if (error) throw error;
+      setStudents(data || []);
+    } catch (error) {
+      console.error('Error fetching students:', error);
     }
-  }, [selectedBoard, dateRange]);
+  };
 
   const getDateFilter = () => {
     const now = new Date();
@@ -74,7 +112,8 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
       await Promise.all([
         fetchActivityStats(),
         fetchStudentStats(),
-        fetchCollaborationStats()
+        selectedStudent !== 'all' && fetchCollaborationData(),
+        selectedStudent !== 'all' && fetchActivityLog()
       ]);
     } catch (error) {
       console.error('Error fetching analytics:', error);
@@ -92,12 +131,22 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
           start_time,
           end_time,
           student_id,
+          board_id,
           activity_options!inner (
             name
           )
         `)
-        .eq('board_id', selectedBoard)
         .not('end_time', 'is', null);
+
+      if (selectedBoard !== 'all') {
+        query = query.eq('board_id', selectedBoard);
+      } else if (boards.length > 0) {
+        query = query.in('board_id', boards.map(b => b.id));
+      }
+
+      if (selectedStudent !== 'all') {
+        query = query.eq('student_id', selectedStudent);
+      }
 
       const dateFilter = getDateFilter();
       if (dateFilter) {
@@ -143,7 +192,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
         })
       );
 
-      stats.sort((a, b) => b.totalSessions - a.totalSessions);
+      stats.sort((a, b) => b.totalMinutes - a.totalMinutes);
       setActivityStats(stats);
     } catch (error) {
       console.error('Error fetching activity stats:', error);
@@ -158,7 +207,9 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
           id,
           start_time,
           end_time,
+          student_id,
           students!inner (
+            id,
             first_name,
             last_name
           ),
@@ -166,8 +217,17 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
             name
           )
         `)
-        .eq('board_id', selectedBoard)
         .not('end_time', 'is', null);
+
+      if (selectedBoard !== 'all') {
+        query = query.eq('board_id', selectedBoard);
+      } else if (boards.length > 0) {
+        query = query.in('board_id', boards.map(b => b.id));
+      }
+
+      if (selectedStudent !== 'all') {
+        query = query.eq('student_id', selectedStudent);
+      }
 
       const dateFilter = getDateFilter();
       if (dateFilter) {
@@ -178,12 +238,14 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
       if (error) throw error;
 
       const studentMap = new Map<string, {
+        id: string;
         sessions: number;
         totalMinutes: number;
-        activities: Map<string, number>;
+        activities: Map<string, { count: number; minutes: number }>;
       }>();
 
       data?.forEach((session: any) => {
+        const studentId = session.students.id;
         const studentName = `${session.students.first_name} ${session.students.last_name}`;
         const activityName = session.activity_options.name;
         const start = new Date(session.start_time);
@@ -192,6 +254,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
 
         if (!studentMap.has(studentName)) {
           studentMap.set(studentName, {
+            id: studentId,
             sessions: 0,
             totalMinutes: 0,
             activities: new Map()
@@ -201,21 +264,24 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
         const stats = studentMap.get(studentName)!;
         stats.sessions++;
         stats.totalMinutes += minutes;
-        stats.activities.set(activityName, (stats.activities.get(activityName) || 0) + 1);
+
+        const activityStats = stats.activities.get(activityName) || { count: 0, minutes: 0 };
+        activityStats.count++;
+        activityStats.minutes += minutes;
+        stats.activities.set(activityName, activityStats);
       });
 
       const stats: StudentActivityStats[] = Array.from(studentMap.entries())
         .map(([name, data]) => ({
+          studentId: data.id,
           studentName: name,
           totalSessions: data.sessions,
           totalMinutes: data.totalMinutes,
           activities: Array.from(data.activities.entries())
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 3)
+            .map(([name, stats]) => ({ name, count: stats.count, minutes: stats.minutes }))
+            .sort((a, b) => b.minutes - a.minutes)
         }))
-        .sort((a, b) => b.totalSessions - a.totalSessions)
-        .slice(0, 10);
+        .sort((a, b) => b.totalMinutes - a.totalMinutes);
 
       setStudentStats(stats);
     } catch (error) {
@@ -223,16 +289,123 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
     }
   };
 
-  const fetchCollaborationStats = async () => {
+  const fetchCollaborationData = async () => {
+    if (selectedStudent === 'all') {
+      setCollaborationPartners([]);
+      return;
+    }
+
     try {
-      let query = supabase
+      const { data: collaborationData, error } = await supabase
         .from('activity_collaboration_logs')
         .select(`
           duration_minutes,
           session_id_1,
-          session_id_2
+          session_id_2,
+          start_time
+        `);
+
+      if (error) throw error;
+
+      const dateFilter = getDateFilter();
+      const filteredData = collaborationData?.filter(log => {
+        if (dateFilter && new Date(log.start_time) < new Date(dateFilter)) {
+          return false;
+        }
+        return true;
+      });
+
+      const { data: sessions, error: sessionError } = await supabase
+        .from('activity_sessions')
+        .select(`
+          id,
+          student_id,
+          students!inner (
+            id,
+            first_name,
+            last_name
+          )
         `)
-        .eq('activity_option_id', selectedBoard);
+        .in('id', [...new Set(filteredData?.flatMap(log => [log.session_id_1, log.session_id_2]) || [])]);
+
+      if (sessionError) throw sessionError;
+
+      const sessionMap = new Map(sessions?.map(s => [
+        s.id,
+        {
+          studentId: s.students.id,
+          studentName: `${s.students.first_name} ${s.students.last_name}`
+        }
+      ]));
+
+      const partnerMap = new Map<string, { name: string; minutes: number; sessions: number }>();
+
+      filteredData?.forEach((log: any) => {
+        const session1 = sessionMap.get(log.session_id_1);
+        const session2 = sessionMap.get(log.session_id_2);
+
+        if (!session1 || !session2) return;
+
+        let partnerId: string | null = null;
+        let partnerName: string | null = null;
+
+        if (session1.studentId === selectedStudent) {
+          partnerId = session2.studentId;
+          partnerName = session2.studentName;
+        } else if (session2.studentId === selectedStudent) {
+          partnerId = session1.studentId;
+          partnerName = session1.studentName;
+        }
+
+        if (partnerId && partnerName) {
+          const existing = partnerMap.get(partnerId) || { name: partnerName, minutes: 0, sessions: 0 };
+          existing.minutes += log.duration_minutes || 0;
+          existing.sessions++;
+          partnerMap.set(partnerId, existing);
+        }
+      });
+
+      const partners: CollaborationPartner[] = Array.from(partnerMap.entries())
+        .map(([id, data]) => ({
+          studentId: id,
+          studentName: data.name,
+          totalMinutes: data.minutes,
+          sessions: data.sessions
+        }))
+        .sort((a, b) => b.totalMinutes - a.totalMinutes);
+
+      setCollaborationPartners(partners);
+    } catch (error) {
+      console.error('Error fetching collaboration data:', error);
+      setCollaborationPartners([]);
+    }
+  };
+
+  const fetchActivityLog = async () => {
+    if (selectedStudent === 'all') {
+      setActivityLog([]);
+      return;
+    }
+
+    try {
+      let query = supabase
+        .from('activity_sessions')
+        .select(`
+          id,
+          start_time,
+          end_time,
+          feedback_rating,
+          teacher_notes,
+          activity_options!inner (
+            name
+          )
+        `)
+        .eq('student_id', selectedStudent)
+        .order('start_time', { ascending: false });
+
+      if (selectedBoard !== 'all') {
+        query = query.eq('board_id', selectedBoard);
+      }
 
       const dateFilter = getDateFilter();
       if (dateFilter) {
@@ -242,9 +415,26 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
       const { data, error } = await query;
       if (error) throw error;
 
-      setCollaborationStats([]);
+      const logs: ActivityLogEntry[] = (data || []).map((session: any) => {
+        const start = new Date(session.start_time);
+        const end = session.end_time ? new Date(session.end_time) : null;
+        const minutes = end ? Math.floor((end.getTime() - start.getTime()) / 60000) : 0;
+
+        return {
+          id: session.id,
+          activityName: session.activity_options.name,
+          startTime: start,
+          endTime: end,
+          durationMinutes: minutes,
+          feedbackRating: session.feedback_rating,
+          teacherNotes: session.teacher_notes
+        };
+      });
+
+      setActivityLog(logs);
     } catch (error) {
-      console.error('Error fetching collaboration stats:', error);
+      console.error('Error fetching activity log:', error);
+      setActivityLog([]);
     }
   };
 
@@ -255,6 +445,15 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
     return `${hours}u ${mins}m`;
   };
 
+  const formatDateTime = (date: Date) => {
+    return new Intl.DateTimeFormat('nl-NL', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -262,6 +461,8 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
       </div>
     );
   }
+
+  const selectedStudentData = studentStats.find(s => s.studentId === selectedStudent);
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -275,19 +476,31 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
         </div>
 
         <div className="flex items-center gap-3">
-          {boards.length > 1 && (
-            <select
-              value={selectedBoard}
-              onChange={(e) => setSelectedBoard(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {boards.map((board) => (
-                <option key={board.id} value={board.id}>
-                  {board.name}
-                </option>
-              ))}
-            </select>
-          )}
+          <select
+            value={selectedBoard}
+            onChange={(e) => setSelectedBoard(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="all">Alle borden</option>
+            {boards.map((board) => (
+              <option key={board.id} value={board.id}>
+                {board.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedStudent}
+            onChange={(e) => setSelectedStudent(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="all">Alle leerlingen</option>
+            {students.map((student) => (
+              <option key={student.id} value={student.id}>
+                {student.first_name} {student.last_name}
+              </option>
+            ))}
+          </select>
 
           <select
             value={dateRange}
@@ -307,7 +520,9 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
           <div className="p-6">
             <div className="flex items-center space-x-3 mb-4">
               <BarChart3 className="w-5 h-5 text-blue-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Activiteitsstatistieken</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                {selectedStudent !== 'all' ? 'Activiteitstijd per activiteit' : 'Activiteitsstatistieken'}
+              </h2>
             </div>
 
             {activityStats.length === 0 ? (
@@ -331,9 +546,11 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
                       <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
                         Gem. tijd
                       </th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
-                        Unieke leerlingen
-                      </th>
+                      {selectedStudent === 'all' && (
+                        <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                          Unieke leerlingen
+                        </th>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
@@ -351,9 +568,11 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
                         <td className="py-3 px-4 text-sm text-gray-600 text-right">
                           {formatDuration(stat.averageMinutes)}
                         </td>
-                        <td className="py-3 px-4 text-sm text-gray-600 text-right">
-                          {stat.uniqueStudents}
-                        </td>
+                        {selectedStudent === 'all' && (
+                          <td className="py-3 px-4 text-sm text-gray-600 text-right">
+                            {stat.uniqueStudents}
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
@@ -363,49 +582,158 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
           </div>
         </Card>
 
-        <Card>
-          <div className="p-6">
-            <div className="flex items-center space-x-3 mb-4">
-              <Users className="w-5 h-5 text-blue-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Top 10 Actieve Leerlingen</h2>
-            </div>
+        {selectedStudent !== 'all' && collaborationPartners.length > 0 && (
+          <Card>
+            <div className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <Users className="w-5 h-5 text-blue-600" />
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Samenwerking met andere leerlingen
+                </h2>
+              </div>
 
-            {studentStats.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">
-                Geen gegevens voor deze periode
-              </p>
-            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                        Leerling
+                      </th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                        Aantal keer samengewerkt
+                      </th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-700">
+                        Totale tijd
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {collaborationPartners.map((partner, index) => (
+                      <tr key={index} className="border-b border-gray-100">
+                        <td className="py-3 px-4 text-sm text-gray-900 font-medium">
+                          {partner.studentName}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-600 text-right">
+                          {partner.sessions}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-600 text-right">
+                          {formatDuration(partner.totalMinutes)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {selectedStudent !== 'all' && activityLog.length > 0 && (
+          <Card>
+            <div className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <Clock className="w-5 h-5 text-blue-600" />
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Gedetailleerd logboek
+                </h2>
+              </div>
+
               <div className="space-y-3">
-                {studentStats.map((stat, index) => (
+                {activityLog.map((log) => (
                   <div
-                    key={index}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                    key={log.id}
+                    className="p-4 bg-gray-50 rounded-lg border border-gray-200"
                   >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                        {index + 1}
-                      </div>
+                    <div className="flex justify-between items-start mb-2">
                       <div>
-                        <p className="font-medium text-gray-900">{stat.studentName}</p>
+                        <p className="font-medium text-gray-900">{log.activityName}</p>
                         <p className="text-xs text-gray-600">
-                          {stat.activities.map(a => a.name).join(', ')}
+                          {formatDateTime(log.startTime)}
+                          {log.endTime && ` - ${formatDateTime(log.endTime)}`}
                         </p>
                       </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-blue-600">
+                          {log.endTime ? formatDuration(log.durationMinutes) : 'Bezig'}
+                        </p>
+                        {log.feedbackRating && (
+                          <p className="text-xs text-gray-600">
+                            {'⭐'.repeat(log.feedbackRating)}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">
-                        {stat.totalSessions} sessies
+                    {log.teacherNotes && (
+                      <p className="text-sm text-gray-700 mt-2 pt-2 border-t border-gray-200">
+                        {log.teacherNotes}
                       </p>
-                      <p className="text-xs text-gray-600">
-                        {formatDuration(stat.totalMinutes)}
-                      </p>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-        </Card>
+            </div>
+          </Card>
+        )}
+
+        {selectedStudent === 'all' && (
+          <Card>
+            <div className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <User className="w-5 h-5 text-blue-600" />
+                <h2 className="text-lg font-semibold text-gray-900">Leerlingoverzicht</h2>
+              </div>
+
+              {studentStats.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">
+                  Geen gegevens voor deze periode
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {studentStats.map((stat, index) => (
+                    <div
+                      key={index}
+                      className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{stat.studentName}</p>
+                            <p className="text-xs text-gray-600">
+                              {stat.totalSessions} sessies • {formatDuration(stat.totalMinutes)}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => setSelectedStudent(stat.studentId)}
+                        >
+                          Bekijk details
+                        </Button>
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <p className="text-xs text-gray-600 mb-2">Meest gebruikte activiteiten:</p>
+                        <div className="space-y-1">
+                          {stat.activities.slice(0, 3).map((activity, idx) => (
+                            <div key={idx} className="flex justify-between text-xs">
+                              <span className="text-gray-700">{activity.name}</span>
+                              <span className="text-gray-600">
+                                {activity.count}x • {formatDuration(activity.minutes)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );
