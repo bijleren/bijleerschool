@@ -154,14 +154,20 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
           table: 'activity_sessions',
           filter: `board_id=eq.${board.id}`
         },
-        () => {
+        (payload) => {
+          console.log('Session change detected:', payload);
           fetchActiveSessions();
         }
       )
       .subscribe();
 
+    const interval = setInterval(() => {
+      fetchActiveSessions();
+    }, 5000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(interval);
     };
   }, [board.id]);
 
@@ -330,14 +336,17 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
           </Button>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="flex flex-wrap gap-4">
           {options.map((option) => {
             const activitySessions = getSessionsForActivity(option.id);
             const isUnlimited = option.max_students === null;
             const IconComponent = ICON_MAP[option.icon] || Grid;
 
+            const numSpots = isUnlimited ? activitySessions.length + 1 : option.max_students;
+            const minWidth = Math.max(200, Math.ceil(numSpots / 4) * 80 + 80);
+
             return (
-              <Card key={option.id} className="overflow-hidden">
+              <Card key={option.id} className="overflow-hidden" style={{ minWidth: `${minWidth}px`, maxWidth: '400px' }}>
                 <div
                   className="h-2"
                   style={{ backgroundColor: option.color }}

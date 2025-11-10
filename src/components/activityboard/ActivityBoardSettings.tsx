@@ -174,21 +174,23 @@ export function ActivityBoardSettings({
         if (boardError) throw boardError;
 
         const existingOptionIds = options.filter(o => o.id).map(o => o.id);
-        if (existingOptionIds.length > 0) {
+
+        const { data: allOptions, error: fetchError } = await supabase
+          .from('activity_options')
+          .select('id')
+          .eq('board_id', board.id);
+
+        if (fetchError) throw fetchError;
+
+        const optionsToDelete = allOptions?.filter(opt => !existingOptionIds.includes(opt.id)) || [];
+
+        for (const opt of optionsToDelete) {
           const { error: deleteError } = await supabase
             .from('activity_options')
             .delete()
-            .eq('board_id', board.id)
-            .not('id', 'in', `(${existingOptionIds.join(',')})`);
+            .eq('id', opt.id);
 
           if (deleteError) throw deleteError;
-        } else {
-          const { error: deleteAllError } = await supabase
-            .from('activity_options')
-            .delete()
-            .eq('board_id', board.id);
-
-          if (deleteAllError) throw deleteAllError;
         }
 
         for (let i = 0; i < options.length; i++) {
@@ -387,29 +389,18 @@ export function ActivityBoardSettings({
                       </div>
 
                       <div className="flex-1 space-y-3">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Naam *
-                          </label>
-                          <Input
-                            value={option.name}
-                            onChange={(e) => updateOption(index, 'name', e.target.value)}
-                            placeholder="Activiteitnaam"
-                          />
-                        </div>
+                        <div className="grid grid-cols-6 gap-3">
+                          <div className="col-span-2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Naam *
+                            </label>
+                            <Input
+                              value={option.name}
+                              onChange={(e) => updateOption(index, 'name', e.target.value)}
+                              placeholder="Activiteitnaam"
+                            />
+                          </div>
 
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Beschrijving
-                          </label>
-                          <Input
-                            value={option.description}
-                            onChange={(e) => updateOption(index, 'description', e.target.value)}
-                            placeholder="Optionele beschrijving"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-3">
                           <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                               Max. leerlingen
@@ -424,7 +415,7 @@ export function ActivityBoardSettings({
                                   e.target.value ? parseInt(e.target.value) : null
                                 )
                               }
-                              placeholder="Onbeperkt"
+                              placeholder="∞"
                               min="1"
                             />
                           </div>
@@ -443,25 +434,34 @@ export function ActivityBoardSettings({
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                               Icoon
                             </label>
-                            <div className="relative">
-                              <select
-                                value={option.icon}
-                                onChange={(e) => updateOption(index, 'icon', e.target.value)}
-                                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                              >
-                                {ICON_OPTIONS.map((icon) => (
-                                  <option key={icon.name} value={icon.name}>
-                                    {icon.name}
-                                  </option>
-                                ))}
-                              </select>
-                              <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                                {(() => {
-                                  const IconComponent = ICON_OPTIONS.find(i => i.name === option.icon)?.component || Grid;
-                                  return <IconComponent className="w-5 h-5 text-gray-600" />;
-                                })()}
-                              </div>
+                            <div className="grid grid-cols-4 gap-1 border border-gray-300 rounded-lg p-1">
+                              {ICON_OPTIONS.map((iconOption) => {
+                                const IconComponent = iconOption.component;
+                                return (
+                                  <button
+                                    key={iconOption.name}
+                                    type="button"
+                                    onClick={() => updateOption(index, 'icon', iconOption.name)}
+                                    className={`p-2 rounded hover:bg-gray-100 transition-colors ${
+                                      option.icon === iconOption.name ? 'bg-blue-100' : ''
+                                    }`}
+                                  >
+                                    <IconComponent className="w-4 h-4 text-gray-700" />
+                                  </button>
+                                );
+                              })}
                             </div>
+                          </div>
+
+                          <div className="col-span-2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Beschrijving
+                            </label>
+                            <Input
+                              value={option.description}
+                              onChange={(e) => updateOption(index, 'description', e.target.value)}
+                              placeholder="Optioneel"
+                            />
                           </div>
                         </div>
                       </div>
