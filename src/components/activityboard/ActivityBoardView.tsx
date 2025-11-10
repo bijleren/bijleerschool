@@ -6,6 +6,10 @@ import { Card } from '../ui/Card';
 import { Toast } from '../ui/Toast';
 import { StudentSelector } from './StudentSelector';
 import { FeedbackModal } from './FeedbackModal';
+import { BoardOptionsModal } from './BoardOptionsModal';
+import { ActivitySelectionModal } from './ActivitySelectionModal';
+import { UnassignedStudentsPanel } from './UnassignedStudentsPanel';
+import { QRScanner } from './QRScanner';
 import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap } from 'lucide-react';
 import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
@@ -143,10 +147,16 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<'teacher' | 'student'>('teacher');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [showOptionsModal, setShowOptionsModal] = useState(false);
+  const [showUnassignedPanel, setShowUnassignedPanel] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannedStudent, setScannedStudent] = useState<any | null>(null);
+  const [unassignedStudents, setUnassignedStudents] = useState<any[]>([]);
 
   useEffect(() => {
     fetchOptions();
     fetchActiveSessions();
+    fetchUnassignedStudents();
 
     const channel = supabase
       .channel(`board-${board.id}`)
@@ -161,6 +171,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
         (payload) => {
           console.log('Session change detected:', payload);
           fetchActiveSessions();
+          fetchUnassignedStudents();
         }
       )
       .subscribe();
@@ -216,6 +227,88 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
       setSessions(data || []);
     } catch (error) {
       console.error('Error fetching sessions:', error);
+    }
+  };
+
+  const fetchUnassignedStudents = async () => {
+    try {
+      const assignedStudentIds = sessions.map(s => s.student_id);
+
+      const { data, error } = await supabase
+        .from('students')
+        .select('id, first_name, last_name, photo_url')
+        .eq('school_id', board.school_id)
+        .not('id', 'in', `(${assignedStudentIds.length > 0 ? assignedStudentIds.join(',') : '00000000-0000-0000-0000-000000000000'})`)
+        .order('first_name, last_name');
+
+      if (error) throw error;
+      setUnassignedStudents(data || []);
+    } catch (error) {
+      console.error('Error fetching unassigned students:', error);
+    }
+  };
+
+  const handleQRScan = async (url: string) => {
+    try {
+      const urlObj = new URL(url);
+      const accessCode = urlObj.searchParams.get('code');
+
+      if (!accessCode) {
+        setToast({ message: 'Ongeldige QR-code', type: 'error' });
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('webwijzer_student_assignments')
+        .select('student:students(id, first_name, last_name, photo_url)')
+        .eq('access_code', accessCode)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!data || !data.student) {
+        setToast({ message: 'Leerling niet gevonden', type: 'error' });
+        return;
+      }
+
+      const existingSession = sessions.find(s => s.student_id === data.student.id);
+      if (existingSession) {
+        setToast({ message: `${data.student.first_name} heeft al een activiteit`, type: 'info' });
+        return;
+      }
+
+      setScannedStudent(data.student);
+    } catch (error) {
+      console.error('Error processing QR scan:', error);
+      setToast({ message: 'Fout bij verwerken QR-code', type: 'error' });
+    }
+  };
+
+  const handleActivitySelection = async (activityId: string) => {
+    if (!scannedStudent || !user) return;
+
+    try {
+      const { error } = await supabase
+        .from('activity_sessions')
+        .insert({
+          board_id: board.id,
+          activity_option_id: activityId,
+          student_id: scannedStudent.id,
+          added_by: user.id
+        });
+
+      if (error) throw error;
+
+      setToast({
+        message: `${scannedStudent.first_name} toegevoegd aan activiteit`,
+        type: 'success'
+      });
+      setScannedStudent(null);
+      await fetchActiveSessions();
+      await fetchUnassignedStudents();
+    } catch (error) {
+      console.error('Error adding student:', error);
+      setToast({ message: 'Fout bij toevoegen leerling', type: 'error' });
     }
   };
 
@@ -313,8 +406,9 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+    <div className="flex h-full">
+      <div className="flex-1 max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
           <Button variant="secondary" onClick={onBack}>
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -329,28 +423,14 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
         </div>
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => setMode(mode === 'teacher' ? 'student' : 'teacher')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg border-2 transition-all ${
-              mode === 'teacher'
-                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                : 'border-green-500 bg-green-50 text-green-700'
-            }`}
+            onClick={() => setShowOptionsModal(true)}
+            className="flex items-center space-x-2 px-4 py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all bg-white text-gray-700"
           >
-            {mode === 'teacher' ? (
-              <>
-                <GraduationCap className="w-5 h-5" />
-                <span className="font-medium">Leraar modus</span>
-              </>
-            ) : (
-              <>
-                <User className="w-5 h-5" />
-                <span className="font-medium">Leerling modus</span>
-              </>
-            )}
+            <Settings className="w-5 h-5" />
+            <span className="font-medium">Instellingen</span>
           </button>
           <Button variant="secondary" onClick={onEdit}>
-            <Settings className="w-4 h-4 mr-2" />
-            Instellingen
+            Bord bewerken
           </Button>
         </div>
       </div>
@@ -468,11 +548,51 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
         />
       )}
 
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )}
+
+        <BoardOptionsModal
+          isOpen={showOptionsModal}
+          onClose={() => setShowOptionsModal(false)}
+          mode={mode}
+          onModeChange={setMode}
+          showUnassignedPanel={showUnassignedPanel}
+          onToggleUnassignedPanel={() => setShowUnassignedPanel(!showUnassignedPanel)}
+          onQRScan={handleQRScan}
+          showScanner={showScanner}
+          onToggleScanner={() => setShowScanner(!showScanner)}
+        />
+
+        {scannedStudent && (
+          <ActivitySelectionModal
+            student={scannedStudent}
+            activities={options.map(opt => ({
+              ...opt,
+              current_count: getSessionsForActivity(opt.id).length
+            }))}
+            onSelect={handleActivitySelection}
+            onClose={() => setScannedStudent(null)}
+          />
+        )}
+
+        {showScanner && !showOptionsModal && (
+          <QRScanner
+            onScanSuccess={handleQRScan}
+            isVisible={false}
+            onClose={() => setShowScanner(false)}
+          />
+        )}
+      </div>
+
+      {showUnassignedPanel && (
+        <UnassignedStudentsPanel
+          students={unassignedStudents}
+          onSelectStudent={(student) => setScannedStudent(student)}
         />
       )}
     </div>
