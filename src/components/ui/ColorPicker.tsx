@@ -57,28 +57,16 @@ export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
         </label>
       )}
 
-      <div className="flex items-center space-x-2">
-        <button
-          type="button"
-          onClick={() => setShowPicker(!showPicker)}
-          className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <div
-            className="w-6 h-6 rounded border border-gray-300"
-            style={{ backgroundColor: value || '#3B82F6' }}
-          />
-          <Palette className="w-4 h-4 text-gray-600" />
-        </button>
-
-        <input
-          type="text"
-          value={hexInput}
-          onChange={(e) => handleHexInputChange(e.target.value)}
-          placeholder="#000000"
-          maxLength={7}
-          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+      <button
+        type="button"
+        onClick={() => setShowPicker(!showPicker)}
+        className="flex items-center justify-center w-full h-10 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+      >
+        <div
+          className="w-6 h-6 rounded border border-gray-300"
+          style={{ backgroundColor: value || '#3B82F6' }}
         />
-      </div>
+      </button>
 
       {showPicker && (
         <div

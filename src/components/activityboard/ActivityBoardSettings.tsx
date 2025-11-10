@@ -73,16 +73,68 @@ export function ActivityBoardSettings({
   const [name, setName] = useState(board?.name || '');
   const [description, setDescription] = useState(board?.description || '');
   const [isActive, setIsActive] = useState(board?.is_active ?? true);
+  const [timeBlock, setTimeBlock] = useState('');
+  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  const [groups, setGroups] = useState<Array<{ id: string; name: string }>>([]);
+  const [students, setStudents] = useState<Array<{ id: string; first_name: string; last_name: string }>>([]);
   const [options, setOptions] = useState<ActivityOption[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(!!board);
   const [showPresets, setShowPresets] = useState(false);
 
   useEffect(() => {
+    fetchGroupsAndStudents();
     if (board) {
       fetchOptions();
+      fetchBoardSettings();
     }
   }, [board]);
+
+  const fetchGroupsAndStudents = async () => {
+    try {
+      const { data: groupsData, error: groupsError } = await supabase
+        .from('student_groups')
+        .select('id, name')
+        .eq('school_id', schoolId)
+        .order('name');
+
+      if (groupsError) throw groupsError;
+      setGroups(groupsData || []);
+
+      const { data: studentsData, error: studentsError } = await supabase
+        .from('students')
+        .select('id, first_name, last_name')
+        .eq('school_id', schoolId)
+        .order('first_name, last_name');
+
+      if (studentsError) throw studentsError;
+      setStudents(studentsData || []);
+    } catch (error) {
+      console.error('Error fetching groups and students:', error);
+    }
+  };
+
+  const fetchBoardSettings = async () => {
+    if (!board) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('activity_boards')
+        .select('time_block, student_group_ids, student_ids')
+        .eq('id', board.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data) {
+        setTimeBlock(data.time_block || '');
+        setSelectedGroups(data.student_group_ids || []);
+        setSelectedStudents(data.student_ids || []);
+      }
+    } catch (error) {
+      console.error('Error fetching board settings:', error);
+    }
+  };
 
   const fetchOptions = async () => {
     if (!board) return;
@@ -167,6 +219,9 @@ export function ActivityBoardSettings({
             name: name.trim(),
             description: description.trim() || null,
             is_active: isActive,
+            time_block: timeBlock.trim() || null,
+            student_group_ids: selectedGroups,
+            student_ids: selectedStudents,
             updated_at: new Date().toISOString()
           })
           .eq('id', board.id);
@@ -231,6 +286,9 @@ export function ActivityBoardSettings({
             name: name.trim(),
             description: description.trim() || null,
             is_active: isActive,
+            time_block: timeBlock.trim() || null,
+            student_group_ids: selectedGroups,
+            student_ids: selectedStudents,
             created_by: user.id
           })
           .select()
@@ -315,6 +373,77 @@ export function ActivityBoardSettings({
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tijdblok (optioneel)
+              </label>
+              <Input
+                value={timeBlock}
+                onChange={(e) => setTimeBlock(e.target.value)}
+                placeholder="bijv. Blok 1 (09:00 - 10:00)"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Groepen (optioneel)
+              </label>
+              <div className="border border-gray-300 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                {groups.length === 0 ? (
+                  <p className="text-sm text-gray-500">Geen groepen beschikbaar</p>
+                ) : (
+                  groups.map((group) => (
+                    <label key={group.id} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedGroups.includes(group.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedGroups([...selectedGroups, group.id]);
+                          } else {
+                            setSelectedGroups(selectedGroups.filter(id => id !== group.id));
+                          }
+                        }}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{group.name}</span>
+                    </label>
+                  ))
+                )}
+              </div>
+              <p className="mt-1 text-xs text-gray-500">Selecteer groepen om het bord te beperken tot specifieke groepen</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Leerlingen (optioneel)
+              </label>
+              <div className="border border-gray-300 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                {students.length === 0 ? (
+                  <p className="text-sm text-gray-500">Geen leerlingen beschikbaar</p>
+                ) : (
+                  students.map((student) => (
+                    <label key={student.id} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedStudents.includes(student.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedStudents([...selectedStudents, student.id]);
+                          } else {
+                            setSelectedStudents(selectedStudents.filter(id => id !== student.id));
+                          }
+                        }}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{student.first_name} {student.last_name}</span>
+                    </label>
+                  ))
+                )}
+              </div>
+              <p className="mt-1 text-xs text-gray-500">Selecteer specifieke leerlingen om het bord te beperken</p>
+            </div>
+
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -389,8 +518,8 @@ export function ActivityBoardSettings({
                       </div>
 
                       <div className="flex-1 space-y-3">
-                        <div className="grid grid-cols-6 gap-3">
-                          <div className="col-span-2">
+                        <div className="flex gap-3 items-start">
+                          <div className="flex-1">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                               Naam *
                             </label>
@@ -401,7 +530,7 @@ export function ActivityBoardSettings({
                             />
                           </div>
 
-                          <div>
+                          <div style={{ width: '120px' }}>
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                               Max. leerlingen
                             </label>
@@ -420,7 +549,7 @@ export function ActivityBoardSettings({
                             />
                           </div>
 
-                          <div>
+                          <div style={{ width: '70px' }}>
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                               Kleur
                             </label>
@@ -430,11 +559,11 @@ export function ActivityBoardSettings({
                             />
                           </div>
 
-                          <div>
+                          <div style={{ width: '220px' }}>
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                               Icoon
                             </label>
-                            <div className="grid grid-cols-4 gap-1 border border-gray-300 rounded-lg p-1">
+                            <div className="grid grid-cols-4 gap-1 border border-gray-300 rounded-lg p-1 h-[120px]">
                               {ICON_OPTIONS.map((iconOption) => {
                                 const IconComponent = iconOption.component;
                                 return (
@@ -442,7 +571,7 @@ export function ActivityBoardSettings({
                                     key={iconOption.name}
                                     type="button"
                                     onClick={() => updateOption(index, 'icon', iconOption.name)}
-                                    className={`p-2 rounded hover:bg-gray-100 transition-colors ${
+                                    className={`p-1.5 rounded hover:bg-gray-100 transition-colors flex items-center justify-center ${
                                       option.icon === iconOption.name ? 'bg-blue-100' : ''
                                     }`}
                                   >
@@ -452,17 +581,17 @@ export function ActivityBoardSettings({
                               })}
                             </div>
                           </div>
+                        </div>
 
-                          <div className="col-span-2">
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                              Beschrijving
-                            </label>
-                            <Input
-                              value={option.description}
-                              onChange={(e) => updateOption(index, 'description', e.target.value)}
-                              placeholder="Optioneel"
-                            />
-                          </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Beschrijving
+                          </label>
+                          <Input
+                            value={option.description}
+                            onChange={(e) => updateOption(index, 'description', e.target.value)}
+                            placeholder="Optioneel"
+                          />
                         </div>
                       </div>
 

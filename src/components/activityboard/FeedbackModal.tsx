@@ -61,6 +61,18 @@ export function FeedbackModal({
     }
   };
 
+  const handleRatingClick = async (value: number) => {
+    setRating(value);
+    if (mode === 'student') {
+      setSubmitting(true);
+      try {
+        await onSubmit(session.id, value, null, null);
+      } finally {
+        setSubmitting(false);
+      }
+    }
+  };
+
   const otherOptions = options.filter(o => o.id !== session.activity_option_id);
 
   return (
@@ -92,12 +104,13 @@ export function FeedbackModal({
                 return (
                   <button
                     key={option.value}
-                    onClick={() => setRating(option.value)}
+                    onClick={() => handleRatingClick(option.value)}
+                    disabled={submitting}
                     className={`flex flex-col items-center p-3 border-2 rounded-lg transition-all ${
                       rating === option.value
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    } ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <Icon
                       className={`w-8 h-8 ${

@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { Toast } from '../ui/Toast';
 import { StudentSelector } from './StudentSelector';
 import { FeedbackModal } from './FeedbackModal';
 import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap } from 'lucide-react';
@@ -140,6 +141,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
   const [feedbackSession, setFeedbackSession] = useState<ActivitySession | null>(null);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<'teacher' | 'student'>('teacher');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   useEffect(() => {
     fetchOptions();
@@ -241,10 +243,11 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
         });
 
       if (error) throw error;
+      await fetchActiveSessions();
       setShowSelector(null);
     } catch (error) {
       console.error('Error adding student:', error);
-      alert('Fout bij toevoegen van leerling');
+      setToast({ message: 'Fout bij toevoegen van leerling', type: 'error' });
     }
   };
 
@@ -270,6 +273,8 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
 
       if (updateError) throw updateError;
 
+      setToast({ message: 'Activiteit afgesloten', type: 'success' });
+
       if (switchToActivity && feedbackSession) {
         const { error: insertError } = await supabase
           .from('activity_sessions')
@@ -287,7 +292,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
       setShowSelector(null);
     } catch (error) {
       console.error('Error submitting feedback:', error);
-      alert('Fout bij opslaan van feedback');
+      setToast({ message: 'Fout bij opslaan feedback', type: 'error' });
     }
   };
 
@@ -452,6 +457,14 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
           onClose={() => setFeedbackSession(null)}
           onSubmit={handleFeedbackSubmit}
           mode={mode}
+        />
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </div>
