@@ -238,10 +238,10 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
 
       const { data: students, error } = await supabase
         .from('students')
-        .select('id, first_name, last_name, photo_url')
+        .select('id, first_name, last_name, profile_picture_url')
         .eq('school_id', board.school_id)
         .eq('is_active', true)
-        .order('first_name', { ascending: true });
+        .order('first_name');
 
       if (error) throw error;
 

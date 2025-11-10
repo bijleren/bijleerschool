@@ -5,7 +5,7 @@ interface Student {
   id: string;
   first_name: string;
   last_name: string;
-  photo_url?: string;
+  profile_picture_url?: string;
 }
 
 interface UnassignedStudentsPanelProps {
@@ -18,14 +18,14 @@ export function UnassignedStudentsPanel({
   onSelectStudent
 }: UnassignedStudentsPanelProps) {
   return (
-    <div className="bg-white border-l border-gray-200 flex flex-col h-screen" style={{ width: '280px' }}>
+    <div className="bg-white border-l border-gray-200 flex flex-col h-screen" style={{ width: '160px' }}>
       <div className="p-2 border-b border-gray-200">
         <div className="flex items-center gap-1 mb-1">
           <Users className="w-4 h-4 text-gray-600" />
           <h3 className="font-semibold text-gray-900 text-xs">Leerlingen</h3>
         </div>
         <p className="text-xs text-gray-500">
-          {students.length} beschikbaar
+          {students.length}
         </p>
       </div>
 
@@ -36,22 +36,22 @@ export function UnassignedStudentsPanel({
             <p className="text-xs">Alle ingedeeld</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-2">
             {students.map((student) => (
               <button
                 key={student.id}
                 onClick={() => onSelectStudent(student)}
-                className="p-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group flex flex-col items-center text-center"
+                className="w-full p-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group flex flex-col items-center text-center"
               >
-                {student.photo_url ? (
+                {student.profile_picture_url ? (
                   <img
-                    src={student.photo_url}
+                    src={student.profile_picture_url}
                     alt={`${student.first_name} ${student.last_name}`}
-                    className="w-14 h-14 rounded-full object-cover mb-1"
+                    className="w-16 h-16 rounded-full object-cover mb-1"
                   />
                 ) : (
-                  <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-100 transition-colors mb-1">
-                    <span className="text-gray-600 font-medium group-hover:text-blue-600">
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-100 transition-colors mb-1">
+                    <span className="text-gray-600 font-medium text-sm group-hover:text-blue-600">
                       {student.first_name[0]}
                       {student.last_name[0]}
                     </span>
