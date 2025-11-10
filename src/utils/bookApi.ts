@@ -36,7 +36,7 @@ export async function fetchBookMetadata(isbn: string): Promise<BookMetadata | nu
 
 async function fetchFromGoogleBooks(isbn: string): Promise<BookMetadata | null> {
   const response = await fetch(
-    `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
+    `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&langRestrict=nl`
   );
 
   if (!response.ok) throw new Error('Google Books API failed');

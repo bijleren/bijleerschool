@@ -5,9 +5,10 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette, Link, QrCode, RefreshCw, ExternalLink, Download } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette, Link, QrCode, RefreshCw, ExternalLink, Download, BookOpen } from 'lucide-react';
 import { ColorPicker } from '../ui/ColorPicker';
 import { StudentWebWijzer } from '../webwijzer/StudentWebWijzer';
+import { StudentBoekerView } from '../boeker/StudentBoekerView';
 
 interface Student {
   id: string;
@@ -145,6 +146,9 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const [accessHash, setAccessHash] = useState(student.access_hash || '');
   const [regeneratingCode, setRegeneratingCode] = useState(false);
   const [showWebWijzer, setShowWebWijzer] = useState(false);
+
+  // Boeker states
+  const [showBoeker, setShowBoeker] = useState(false);
 
   useEffect(() => {
     fetchStudentGroups();
@@ -1319,6 +1323,33 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
         </div>
       </Card>
 
+      {/* Boeker Section */}
+      <Card className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <BookOpen className="w-5 h-5 mr-2" />
+            Boeker
+          </h3>
+          <Button
+            variant="secondary"
+            onClick={() => setShowBoeker(true)}
+            size="sm"
+          >
+            <ExternalLink className="w-4 h-4 mr-2" />
+            Open Boeker
+          </Button>
+        </div>
+
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+          <p className="text-sm text-blue-900 mb-2">
+            <strong>Digitale Bibliotheek</strong>
+          </p>
+          <p className="text-xs text-blue-700">
+            {student.first_name} kan hier boeken scannen, leesvoortgang bijhouden en boeken beoordelen.
+          </p>
+        </div>
+      </Card>
+
       {/* Student Groups */}
       <Card className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -1473,6 +1504,27 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                 studentId={student.id}
                 studentName={student.first_name}
                 onBackToDashboard={() => setShowWebWijzer(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showBoeker && accessHash && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Boeker - {student.first_name} {student.last_name}
+              </h2>
+              <Button variant="ghost" onClick={() => setShowBoeker(false)}>
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+            <div className="p-6">
+              <StudentBoekerView
+                studentAccessHash={accessHash}
+                onBack={() => setShowBoeker(false)}
               />
             </div>
           </div>
