@@ -236,19 +236,43 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
     try {
       const assignedStudentIds = sessions.map(s => s.student_id);
 
-      let query = supabase
-        .from('students')
-        .select('id, first_name, last_name, photo_url')
-        .eq('school_id', board.school_id);
+      const { data: accessData, error: accessError } = await supabase
+        .from('activity_board_access')
+        .select('group_id')
+        .eq('board_id', board.id)
+        .eq('access_type', 'group');
 
-      if (assignedStudentIds.length > 0) {
-        query = query.not('id', 'in', `(${assignedStudentIds.join(',')})`);
+      if (accessError) throw accessError;
+
+      let allStudents: any[] = [];
+
+      if (accessData && accessData.length > 0) {
+        const groupIds = accessData.map(a => a.group_id);
+
+        const { data: students, error: studentsError } = await supabase
+          .from('students')
+          .select('id, first_name, last_name, photo_url, group_id')
+          .in('group_id', groupIds)
+          .order('first_name', { ascending: true });
+
+        if (studentsError) throw studentsError;
+        allStudents = students || [];
+      } else {
+        const { data: students, error: studentsError } = await supabase
+          .from('students')
+          .select('id, first_name, last_name, photo_url')
+          .eq('school_id', board.school_id)
+          .order('first_name', { ascending: true });
+
+        if (studentsError) throw studentsError;
+        allStudents = students || [];
       }
 
-      const { data, error } = await query.order('first_name', { ascending: true });
+      const unassigned = allStudents.filter(
+        student => !assignedStudentIds.includes(student.id)
+      );
 
-      if (error) throw error;
-      setUnassignedStudents(data || []);
+      setUnassignedStudents(unassigned);
     } catch (error) {
       console.error('Error fetching unassigned students:', error);
     }
