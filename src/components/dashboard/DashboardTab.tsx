@@ -67,7 +67,7 @@ interface DashboardStats {
 interface BehaviorIncident {
   id: string;
   incident_date: string;
-  title: string;
+  description: string;
   status: 'pending' | 'in_progress' | 'resolved';
   severity_level: string | null;
   created_at: string;
@@ -523,7 +523,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         .select(`
           id,
           incident_date,
-          title,
+          description,
           status,
           severity_level,
           created_at,
@@ -1021,7 +1021,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                         </span>
                       </div>
 
-                      <h3 className="font-semibold text-gray-900 mb-1">{incident.title}</h3>
+                      <h3 className="font-semibold text-gray-900 mb-1">{incident.description}</h3>
 
                       <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
                         <span>{incident.behavior_items.name}</span>
