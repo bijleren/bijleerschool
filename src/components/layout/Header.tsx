@@ -220,26 +220,6 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
 
                   <div className="border-t border-gray-100 my-2"></div>
 
-                  {/* Didactiek Section */}
-                  <div className="px-3 py-2">
-                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                      <BookOpen className="w-4 h-4" />
-                      <span>Didactiek</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        onNavigateToTeaching();
-                        setShowAppsDropdown(false);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Overzicht
-                    </button>
-                  </div>
-
-                  <div className="border-t border-gray-100 my-2"></div>
-
                   {/* School Section */}
                   <div className="px-3 py-2">
                     <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
@@ -319,6 +299,14 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                 </div>
               )}
             </div>
+
+            <button
+              onClick={onNavigateToTeaching}
+              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+            >
+              <BookOpen className="w-5 h-5" />
+              <span>Didactiek</span>
+            </button>
 
             {/* Profile Dropdown */}
             <div className="relative" ref={dropdownRef}>
