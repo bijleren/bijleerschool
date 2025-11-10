@@ -33,10 +33,11 @@ interface HeaderProps {
   onNavigateToSchoolDay: () => void;
   onNavigateToWebWijzer: () => void;
   onNavigateToActivityBoards: () => void;
+  onNavigateToBoeker: () => void;
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -306,6 +307,52 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     >
                       <BarChart3 className="w-4 h-4 mr-2" />
                       Analytics
+                    </button>
+                  </div>
+
+                  <div className="border-t border-gray-100 my-2"></div>
+
+                  {/* Boeker Section */}
+                  <div className="px-3 py-2">
+                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      <BookOpen className="w-4 h-4" />
+                      <span>Boeker</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        onNavigateToBoeker();
+                        setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <List className="w-4 h-4 mr-2" />
+                      Bibliotheek
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToBoeker();
+                        setShowAppsDropdown(false);
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('navigateToBoekerStudents'));
+                        }, 100);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Leerlingen
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToBoeker();
+                        setShowAppsDropdown(false);
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('navigateToBoekerAnalytics'));
+                        }, 100);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Statistieken
                     </button>
                   </div>
                 </div>

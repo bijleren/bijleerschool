@@ -19,6 +19,19 @@ export function BoekerTab() {
     fetchUserSchool();
   }, [user]);
 
+  useEffect(() => {
+    const handleNavigateToStudents = () => setCurrentView('students');
+    const handleNavigateToAnalytics = () => setCurrentView('analytics');
+
+    window.addEventListener('navigateToBoekerStudents', handleNavigateToStudents);
+    window.addEventListener('navigateToBoekerAnalytics', handleNavigateToAnalytics);
+
+    return () => {
+      window.removeEventListener('navigateToBoekerStudents', handleNavigateToStudents);
+      window.removeEventListener('navigateToBoekerAnalytics', handleNavigateToAnalytics);
+    };
+  }, []);
+
   const fetchUserSchool = async () => {
     if (!user) return;
 

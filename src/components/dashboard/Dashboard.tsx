@@ -243,6 +243,13 @@ export function Dashboard() {
     setActiveTab('activityboards');
   };
 
+  const handleNavigateToBoeker = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('boeker');
+  };
+
   const handleNavigateToBehaviorWithSchool = (school: { id: string; name: string }) => {
     // Use focus school instead of passed school
     setSelectedSchool(focusSchool);
@@ -409,6 +416,7 @@ export function Dashboard() {
         onNavigateToSchoolDay={handleNavigateToSchoolDay}
         onNavigateToWebWijzer={handleNavigateToWebWijzer}
         onNavigateToActivityBoards={handleNavigateToActivityBoards}
+        onNavigateToBoeker={handleNavigateToBoeker}
         focusSchool={focusSchool}
       />
       <main className="p-8">
