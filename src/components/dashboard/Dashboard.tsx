@@ -11,6 +11,7 @@ import { TeachingTab } from '../teaching/TeachingTab';
 import { SchoolDayTab } from '../schoolday/SchoolDayTab';
 import { WebWijzerTab } from '../webwijzer/WebWijzerTab';
 import { ActivityBoardsTab } from '../activityboard/ActivityBoardsTab';
+import { BoekerTab } from '../boeker/BoekerTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
@@ -438,6 +439,7 @@ export function Dashboard() {
         {activeTab === 'teaching' && <TeachingTab />}
         {activeTab === 'schoolday' && <SchoolDayTab />}
         {activeTab === 'webwijzer' && <WebWijzerTab />}
+        {activeTab === 'boeker' && <BoekerTab />}
         {activeTab === 'activityboards' && <ActivityBoardsTab />}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail

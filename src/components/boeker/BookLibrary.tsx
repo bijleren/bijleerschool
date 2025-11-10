@@ -1,0 +1,501 @@
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { Input } from '../ui/Input';
+import { Toast } from '../ui/Toast';
+import { BarcodeScanner } from './BarcodeScanner';
+import { fetchBookMetadata, BookMetadata } from '../../utils/bookApi';
+import { Plus, Search, Edit, Trash2, Camera, BookOpen } from 'lucide-react';
+
+interface Book {
+  id: string;
+  isbn: string;
+  title: string;
+  author: string | null;
+  cover_image_url: string | null;
+  custom_cover_url: string | null;
+  page_count: number | null;
+  total_copies: number;
+  available_copies: number;
+  metadata_source: string;
+}
+
+interface BookLibraryProps {
+  schoolId: string;
+}
+
+export function BookLibrary({ schoolId }: BookLibraryProps) {
+  const { user } = useAuth();
+  const [books, setBooks] = useState<Book[]>([]);
+  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [showScanner, setShowScanner] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingBook, setEditingBook] = useState<Book | null>(null);
+  const [fetchingMetadata, setFetchingMetadata] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+
+  const [formData, setFormData] = useState({
+    isbn: '',
+    title: '',
+    author: '',
+    publisher: '',
+    published_date: '',
+    page_count: '',
+    description: '',
+    cover_image_url: '',
+    language: '',
+    total_copies: '1'
+  });
+
+  useEffect(() => {
+    fetchBooks();
+  }, [schoolId]);
+
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredBooks(books);
+    } else {
+      const query = searchQuery.toLowerCase();
+      setFilteredBooks(
+        books.filter(
+          (book) =>
+            book.title.toLowerCase().includes(query) ||
+            book.author?.toLowerCase().includes(query) ||
+            book.isbn.includes(query)
+        )
+      );
+    }
+  }, [searchQuery, books]);
+
+  const fetchBooks = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('books')
+        .select('*')
+        .eq('school_id', schoolId)
+        .order('title');
+
+      if (error) throw error;
+      setBooks(data || []);
+      setFilteredBooks(data || []);
+    } catch (error) {
+      console.error('Error fetching books:', error);
+      setToast({ message: 'Fout bij ophalen boeken', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleIsbnScan = async (isbn: string) => {
+    setShowScanner(false);
+    setFetchingMetadata(true);
+    setToast({ message: 'Boekgegevens ophalen...', type: 'info' });
+
+    try {
+      const metadata = await fetchBookMetadata(isbn);
+
+      if (metadata) {
+        setFormData({
+          isbn: metadata.isbn,
+          title: metadata.title,
+          author: metadata.author || '',
+          publisher: metadata.publisher || '',
+          published_date: metadata.publishedDate || '',
+          page_count: metadata.pageCount?.toString() || '',
+          description: metadata.description || '',
+          cover_image_url: metadata.coverImageUrl || '',
+          language: metadata.language || '',
+          total_copies: '1'
+        });
+        setToast({ message: 'Boekgegevens gevonden!', type: 'success' });
+        setShowAddModal(true);
+      } else {
+        setFormData({ ...formData, isbn });
+        setToast({ message: 'Geen gegevens gevonden. Voer handmatig in.', type: 'info' });
+        setShowAddModal(true);
+      }
+    } catch (error) {
+      console.error('Error fetching metadata:', error);
+      setFormData({ ...formData, isbn });
+      setToast({ message: 'Fout bij ophalen gegevens', type: 'error' });
+      setShowAddModal(true);
+    } finally {
+      setFetchingMetadata(false);
+    }
+  };
+
+  const handleSaveBook = async () => {
+    if (!formData.isbn || !formData.title) {
+      setToast({ message: 'ISBN en titel zijn verplicht', type: 'error' });
+      return;
+    }
+
+    try {
+      const bookData = {
+        school_id: schoolId,
+        isbn: formData.isbn,
+        title: formData.title,
+        author: formData.author || null,
+        publisher: formData.publisher || null,
+        published_date: formData.published_date || null,
+        page_count: formData.page_count ? parseInt(formData.page_count) : null,
+        description: formData.description || null,
+        cover_image_url: formData.cover_image_url || null,
+        language: formData.language || null,
+        total_copies: parseInt(formData.total_copies) || 1,
+        available_copies: parseInt(formData.total_copies) || 1,
+        added_by: user?.id
+      };
+
+      if (editingBook) {
+        const { error } = await supabase
+          .from('books')
+          .update(bookData)
+          .eq('id', editingBook.id);
+
+        if (error) throw error;
+        setToast({ message: 'Boek bijgewerkt', type: 'success' });
+      } else {
+        const { error } = await supabase
+          .from('books')
+          .insert(bookData);
+
+        if (error) throw error;
+        setToast({ message: 'Boek toegevoegd', type: 'success' });
+      }
+
+      setShowAddModal(false);
+      setEditingBook(null);
+      resetForm();
+      fetchBooks();
+    } catch (error: any) {
+      console.error('Error saving book:', error);
+      if (error.code === '23505') {
+        setToast({ message: 'Dit boek bestaat al in de bibliotheek', type: 'error' });
+      } else {
+        setToast({ message: 'Fout bij opslaan boek', type: 'error' });
+      }
+    }
+  };
+
+  const handleDeleteBook = async (bookId: string) => {
+    if (!confirm('Weet je zeker dat je dit boek wilt verwijderen?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('books')
+        .delete()
+        .eq('id', bookId);
+
+      if (error) throw error;
+      setToast({ message: 'Boek verwijderd', type: 'success' });
+      fetchBooks();
+    } catch (error) {
+      console.error('Error deleting book:', error);
+      setToast({ message: 'Fout bij verwijderen boek', type: 'error' });
+    }
+  };
+
+  const handleEditBook = (book: Book) => {
+    setEditingBook(book);
+    setFormData({
+      isbn: book.isbn,
+      title: book.title,
+      author: book.author || '',
+      publisher: '',
+      published_date: '',
+      page_count: book.page_count?.toString() || '',
+      description: '',
+      cover_image_url: book.cover_image_url || '',
+      language: '',
+      total_copies: book.total_copies.toString()
+    });
+    setShowAddModal(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      isbn: '',
+      title: '',
+      author: '',
+      publisher: '',
+      published_date: '',
+      page_count: '',
+      description: '',
+      cover_image_url: '',
+      language: '',
+      total_copies: '1'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Zoek op titel, auteur of ISBN..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => setShowScanner(true)}>
+                <Camera className="w-4 h-4 mr-2" />
+                Scan ISBN
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  resetForm();
+                  setEditingBook(null);
+                  setShowAddModal(true);
+                }}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Handmatig Toevoegen
+              </Button>
+            </div>
+          </div>
+
+          {filteredBooks.length === 0 ? (
+            <div className="text-center py-12">
+              <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-600">
+                {searchQuery ? 'Geen boeken gevonden' : 'Nog geen boeken in de bibliotheek'}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredBooks.map((book) => (
+                <div
+                  key={book.id}
+                  className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+                >
+                  <div className="aspect-[2/3] bg-gray-100 relative">
+                    {(book.cover_image_url || book.custom_cover_url) ? (
+                      <img
+                        src={book.cover_image_url || book.custom_cover_url || ''}
+                        alt={book.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <BookOpen className="w-16 h-16 text-gray-300" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2">
+                      {book.title}
+                    </h3>
+                    {book.author && (
+                      <p className="text-xs text-gray-600 mb-2 line-clamp-1">{book.author}</p>
+                    )}
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                      <span>ISBN: {book.isbn}</span>
+                      {book.page_count && <span>{book.page_count} pag.</span>}
+                    </div>
+                    <div className="flex items-center justify-between text-xs mb-3">
+                      <span className="text-gray-600">
+                        Beschikbaar: {book.available_copies}/{book.total_copies}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEditBook(book)}
+                        className="flex-1 px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors"
+                      >
+                        <Edit className="w-3 h-3 inline mr-1" />
+                        Bewerken
+                      </button>
+                      <button
+                        onClick={() => handleDeleteBook(book.id)}
+                        className="px-3 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3 inline" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {showScanner && (
+        <BarcodeScanner
+          onScan={handleIsbnScan}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
+
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                {editingBook ? 'Boek Bewerken' : 'Boek Toevoegen'}
+              </h2>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    ISBN *
+                  </label>
+                  <Input
+                    value={formData.isbn}
+                    onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
+                    placeholder="9781234567890"
+                    disabled={!!editingBook}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Titel *
+                  </label>
+                  <Input
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Boektitel"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Auteur
+                  </label>
+                  <Input
+                    value={formData.author}
+                    onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                    placeholder="Auteursnaam"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Uitgever
+                    </label>
+                    <Input
+                      value={formData.publisher}
+                      onChange={(e) => setFormData({ ...formData, publisher: e.target.value })}
+                      placeholder="Uitgever"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Publicatiedatum
+                    </label>
+                    <Input
+                      value={formData.published_date}
+                      onChange={(e) => setFormData({ ...formData, published_date: e.target.value })}
+                      placeholder="2024"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Aantal Pagina's
+                    </label>
+                    <Input
+                      type="number"
+                      value={formData.page_count}
+                      onChange={(e) => setFormData({ ...formData, page_count: e.target.value })}
+                      placeholder="250"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Aantal Exemplaren
+                    </label>
+                    <Input
+                      type="number"
+                      value={formData.total_copies}
+                      onChange={(e) => setFormData({ ...formData, total_copies: e.target.value })}
+                      placeholder="1"
+                      min="1"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Cover URL
+                  </label>
+                  <Input
+                    value={formData.cover_image_url}
+                    onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Beschrijving
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Korte beschrijving..."
+                    rows={3}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <Button onClick={handleSaveBook}>
+                  {editingBook ? 'Bijwerken' : 'Toevoegen'}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setEditingBook(null);
+                    resetForm();
+                  }}
+                >
+                  Annuleren
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </div>
+  );
+}
