@@ -38,10 +38,12 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [showSchoolDropdown, setShowSchoolDropdown] = useState(false);
   const [showBehaviorDropdown, setShowBehaviorDropdown] = useState(false);
   const [showWebWijzerDropdown, setShowWebWijzerDropdown] = useState(false);
   const [showVersionModal, setShowVersionModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const schoolDropdownRef = useRef<HTMLDivElement>(null);
   const behaviorDropdownRef = useRef<HTMLDivElement>(null);
   const webwijzerDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -53,6 +55,9 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowProfileDropdown(false);
+      }
+      if (schoolDropdownRef.current && !schoolDropdownRef.current.contains(event.target as Node)) {
+        setShowSchoolDropdown(false);
       }
       if (behaviorDropdownRef.current && !behaviorDropdownRef.current.contains(event.target as Node)) {
         setShowBehaviorDropdown(false);
@@ -142,7 +147,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
               <span>Dashboard</span>
             </button>
 
-            {/* Behavior Dropdown */}
+            {/* Gedrag Dropdown */}
             <div className="relative" ref={behaviorDropdownRef}>
               <button
                 onClick={() => setShowBehaviorDropdown(!showBehaviorDropdown)}
@@ -153,20 +158,17 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                 <ChevronDown className={`w-4 h-4 transition-transform ${showBehaviorDropdown ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Behavior Dropdown Menu */}
+              {/* Gedrag Dropdown Menu */}
               {showBehaviorDropdown && (
                 <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                   <button
                     onClick={() => {
                       if (focusSchool) {
-                        // Use focus school for incident reporting
                         onNavigateToBehaviorWithSchool(focusSchool);
-                        // Navigate directly to form view  
                         setTimeout(() => {
                           window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
                         }, 100);
                       } else {
-                        // Fallback to behavior selection if no focus school
                         onNavigateToBehavior();
                         setTimeout(() => {
                           window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
@@ -179,12 +181,11 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     <Plus className="w-4 h-4 mr-3" />
                     Incident melden
                   </button>
-                  
+
                   <button
                     onClick={() => {
                       handleBehaviorClick();
                       setShowBehaviorDropdown(false);
-                      // Navigate to incidents list view (default)
                       setTimeout(() => {
                         window.dispatchEvent(new CustomEvent('navigateToBehaviorIncidents'));
                       }, 100);
@@ -194,12 +195,11 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     <List className="w-4 h-4 mr-3" />
                     Incidenten
                   </button>
-                  
+
                   <button
                     onClick={() => {
                       handleBehaviorClick();
                       setShowBehaviorDropdown(false);
-                      // Navigate to analytics view
                       setTimeout(() => {
                         window.dispatchEvent(new CustomEvent('navigateToBehaviorAnalytics'));
                       }, 100);
@@ -209,12 +209,11 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     <BarChart3 className="w-4 h-4 mr-3" />
                     Analyses
                   </button>
-                  
+
                   <button
                     onClick={() => {
                       handleBehaviorClick();
                       setShowBehaviorDropdown(false);
-                      // Navigate to settings view
                       setTimeout(() => {
                         window.dispatchEvent(new CustomEvent('navigateToBehaviorSettings'));
                       }, 100);
@@ -236,13 +235,33 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
               <span>Didactiek</span>
             </button>
 
-            <button
-              onClick={onNavigateToSchoolDay}
-              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-            >
-              <Calendar className="w-5 h-5" />
-              <span>Schooldag</span>
-            </button>
+            {/* School Dropdown */}
+            <div className="relative" ref={schoolDropdownRef}>
+              <button
+                onClick={() => setShowSchoolDropdown(!showSchoolDropdown)}
+                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+              >
+                <School className="w-5 h-5" />
+                <span>School</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showSchoolDropdown ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* School Dropdown Menu */}
+              {showSchoolDropdown && (
+                <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  <button
+                    onClick={() => {
+                      onNavigateToSchoolDay();
+                      setShowSchoolDropdown(false);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Calendar className="w-4 h-4 mr-3" />
+                    Schooldag
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* WebWijzer Dropdown */}
             <div className="relative" ref={webwijzerDropdownRef}>
@@ -262,7 +281,6 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     onClick={() => {
                       onNavigateToWebWijzer();
                       setShowWebWijzerDropdown(false);
-                      // Navigate directly to form view
                       setTimeout(() => {
                         window.dispatchEvent(new CustomEvent('navigateToWebWijzerCreate'));
                       }, 100);
