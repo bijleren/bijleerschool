@@ -20,7 +20,7 @@ interface ActivityOption {
   id?: string;
   board_id?: string;
   name: string;
-  description: string;
+  description: string | null;
   max_students: number | null;
   color: string;
   icon: string;
@@ -303,7 +303,7 @@ export function ActivityBoardSettings({
           const optionData = {
             board_id: board.id,
             name: option.name.trim(),
-            description: option.description.trim() || null,
+            description: option.description?.trim() || null,
             max_students: option.max_students,
             color: option.color,
             icon: option.icon,
@@ -365,7 +365,7 @@ export function ActivityBoardSettings({
             .insert({
               board_id: boardData.id,
               name: option.name.trim(),
-              description: option.description.trim() || null,
+              description: option.description?.trim() || null,
               max_students: option.max_students,
               color: option.color,
               icon: option.icon,
@@ -692,7 +692,7 @@ export function ActivityBoardSettings({
                             Beschrijving
                           </label>
                           <Input
-                            value={option.description}
+                            value={option.description || ''}
                             onChange={(e) => updateOption(index, 'description', e.target.value)}
                             placeholder="Optioneel"
                           />
