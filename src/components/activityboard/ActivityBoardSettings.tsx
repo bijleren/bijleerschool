@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { ColorPicker } from '../ui/ColorPicker';
+import { Toast } from '../ui/Toast';
 import { ArrowLeft, Plus, Trash2, Save, GripVertical, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play } from 'lucide-react';
 
 interface ActivityBoard {
@@ -83,6 +84,8 @@ export function ActivityBoardSettings({
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(!!board);
   const [showPresets, setShowPresets] = useState(false);
+  const [showIconPicker, setShowIconPicker] = useState<number | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   useEffect(() => {
     fetchGroupsAndStudents();
@@ -95,9 +98,10 @@ export function ActivityBoardSettings({
   const fetchGroupsAndStudents = async () => {
     try {
       const { data: groupsData, error: groupsError } = await supabase
-        .from('student_groups')
+        .from('groups')
         .select('id, name')
         .eq('school_id', schoolId)
+        .eq('is_active', true)
         .order('name');
 
       if (groupsError) throw groupsError;
@@ -114,8 +118,16 @@ export function ActivityBoardSettings({
 
       const { data: timeBlocksData, error: timeBlocksError } = await supabase
         .from('day_template_blocks')
-        .select('id, title, start_time, end_time, day_of_week, template_id')
+        .select(`
+          id,
+          title,
+          start_time,
+          end_time,
+          day_of_week,
+          day_templates!inner(school_id)
+        `)
         .eq('is_active', true)
+        .eq('day_templates.school_id', schoolId)
         .order('day_of_week, start_time');
 
       if (timeBlocksError) throw timeBlocksError;
@@ -215,17 +227,17 @@ export function ActivityBoardSettings({
     if (!user) return;
 
     if (!name.trim()) {
-      alert('Voer een bordnaam in');
+      setToast({ message: 'Voer een bordnaam in', type: 'error' });
       return;
     }
 
     if (options.length === 0) {
-      alert('Voeg minimaal één activiteit toe');
+      setToast({ message: 'Voeg minimaal één activiteit toe', type: 'error' });
       return;
     }
 
     if (options.some(o => !o.name.trim())) {
-      alert('Alle activiteiten moeten een naam hebben');
+      setToast({ message: 'Alle activiteiten moeten een naam hebben', type: 'error' });
       return;
     }
 
@@ -368,7 +380,7 @@ export function ActivityBoardSettings({
       }
     } catch (error) {
       console.error('Error saving board:', error);
-      alert('Fout bij opslaan. Probeer het opnieuw.');
+      setToast({ message: 'Fout bij opslaan. Probeer het opnieuw.', type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -628,32 +640,50 @@ export function ActivityBoardSettings({
                               Kleur
                             </label>
                             <ColorPicker
-                              color={option.color}
+                              value={option.color}
                               onChange={(color) => updateOption(index, 'color', color)}
                             />
                           </div>
 
-                          <div style={{ width: '220px' }}>
+                          <div className="relative" style={{ width: '80px' }}>
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                               Icoon
                             </label>
-                            <div className="grid grid-cols-4 gap-1 border border-gray-300 rounded-lg p-1 h-[120px]">
-                              {ICON_OPTIONS.map((iconOption) => {
-                                const IconComponent = iconOption.component;
-                                return (
-                                  <button
-                                    key={iconOption.name}
-                                    type="button"
-                                    onClick={() => updateOption(index, 'icon', iconOption.name)}
-                                    className={`p-1.5 rounded hover:bg-gray-100 transition-colors flex items-center justify-center ${
-                                      option.icon === iconOption.name ? 'bg-blue-100' : ''
-                                    }`}
-                                  >
-                                    <IconComponent className="w-4 h-4 text-gray-700" />
-                                  </button>
-                                );
-                              })}
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setShowIconPicker(showIconPicker === index ? null : index)}
+                              className="w-full h-10 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center"
+                            >
+                              {(() => {
+                                const SelectedIcon = ICON_OPTIONS.find(io => io.name === option.icon)?.component || Grid;
+                                return <SelectedIcon className="w-5 h-5 text-gray-700" />;
+                              })()}
+                            </button>
+
+                            {showIconPicker === index && (
+                              <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50" style={{ width: '220px' }}>
+                                <div className="grid grid-cols-4 gap-1">
+                                  {ICON_OPTIONS.map((iconOption) => {
+                                    const IconComponent = iconOption.component;
+                                    return (
+                                      <button
+                                        key={iconOption.name}
+                                        type="button"
+                                        onClick={() => {
+                                          updateOption(index, 'icon', iconOption.name);
+                                          setShowIconPicker(null);
+                                        }}
+                                        className={`p-2 rounded hover:bg-gray-100 transition-colors flex items-center justify-center ${
+                                          option.icon === iconOption.name ? 'bg-blue-100' : ''
+                                        }`}
+                                      >
+                                        <IconComponent className="w-5 h-5 text-gray-700" />
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -693,6 +723,14 @@ export function ActivityBoardSettings({
           </Button>
         </div>
       </div>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

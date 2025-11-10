@@ -83,7 +83,7 @@ export function ActivityBoardsList({
     try {
       const { error } = await supabase
         .from('activity_boards')
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', deleteConfirm.id);
 
       if (error) throw error;

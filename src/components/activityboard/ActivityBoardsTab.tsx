@@ -82,6 +82,7 @@ export function ActivityBoardsTab() {
         .from('activity_boards')
         .select('*')
         .eq('school_id', selectedSchoolId)
+        .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
