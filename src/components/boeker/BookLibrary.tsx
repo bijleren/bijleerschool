@@ -285,11 +285,11 @@ export function BookLibrary({ schoolId }: BookLibraryProps) {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
               {filteredBooks.map((book) => (
                 <div
                   key={book.id}
-                  className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+                  className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                 >
                   <div className="aspect-[2/3] bg-gray-100 relative">
                     {(book.cover_image_url || book.custom_cover_url) ? (
@@ -297,42 +297,46 @@ export function BookLibrary({ schoolId }: BookLibraryProps) {
                         src={book.cover_image_url || book.custom_cover_url || ''}
                         alt={book.title}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.parentElement) {
+                            const fallback = e.currentTarget.parentElement.querySelector('.fallback-icon');
+                            if (fallback) {
+                              (fallback as HTMLElement).style.display = 'flex';
+                            }
+                          }
+                        }}
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <BookOpen className="w-16 h-16 text-gray-300" />
-                      </div>
-                    )}
+                    ) : null}
+                    <div className={`fallback-icon w-full h-full flex items-center justify-center ${(book.cover_image_url || book.custom_cover_url) ? 'hidden' : ''}`}>
+                      <BookOpen className="w-12 h-12 text-gray-300" />
+                    </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2">
+                  <div className="p-2">
+                    <h3 className="font-semibold text-gray-900 text-xs mb-0.5 line-clamp-2 min-h-[2rem]">
                       {book.title}
                     </h3>
                     {book.author && (
-                      <p className="text-xs text-gray-600 mb-2 line-clamp-1">{book.author}</p>
+                      <p className="text-[10px] text-gray-600 mb-1 line-clamp-1">{book.author}</p>
                     )}
-                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                      <span>ISBN: {book.isbn}</span>
-                      {book.page_count && <span>{book.page_count} pag.</span>}
+                    <div className="text-[10px] text-gray-500 mb-1">
+                      <div className="line-clamp-1">ISBN: {book.isbn}</div>
+                      <div>Beschikbaar: {book.available_copies}/{book.total_copies}</div>
                     </div>
-                    <div className="flex items-center justify-between text-xs mb-3">
-                      <span className="text-gray-600">
-                        Beschikbaar: {book.available_copies}/{book.total_copies}
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1">
                       <button
                         onClick={() => handleEditBook(book)}
-                        className="flex-1 px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors"
+                        className="flex-1 px-2 py-1 text-[10px] bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors flex items-center justify-center"
+                        title="Bewerken"
                       >
-                        <Edit className="w-3 h-3 inline mr-1" />
-                        Bewerken
+                        <Edit className="w-3 h-3" />
                       </button>
                       <button
                         onClick={() => handleDeleteBook(book.id)}
-                        className="px-3 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded transition-colors"
+                        className="px-2 py-1 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 rounded transition-colors"
+                        title="Verwijderen"
                       >
-                        <Trash2 className="w-3 h-3 inline" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   </div>
@@ -448,11 +452,30 @@ export function BookLibrary({ schoolId }: BookLibraryProps) {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Cover URL
                   </label>
-                  <Input
-                    value={formData.cover_image_url}
-                    onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                    placeholder="https://..."
-                  />
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <Input
+                        value={formData.cover_image_url}
+                        onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
+                        placeholder="https://..."
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Cover wordt automatisch opgehaald bij ISBN scan
+                      </p>
+                    </div>
+                    {formData.cover_image_url && (
+                      <div className="w-20 h-28 bg-gray-100 rounded border border-gray-200 flex items-center justify-center overflow-hidden">
+                        <img
+                          src={formData.cover_image_url}
+                          alt="Cover preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>

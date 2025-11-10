@@ -53,6 +53,11 @@ async function fetchFromGoogleBooks(isbn: string): Promise<BookMetadata | null> 
   const isbn13 = industryIdentifiers.find((id: any) => id.type === 'ISBN_13')?.identifier;
   const isbn10 = industryIdentifiers.find((id: any) => id.type === 'ISBN_10')?.identifier;
 
+  const coverUrl = book.imageLinks?.thumbnail || book.imageLinks?.smallThumbnail;
+  const highResCover = coverUrl
+    ? coverUrl.replace('http:', 'https:').replace('&zoom=1', '&zoom=2').replace('&edge=curl', '')
+    : undefined;
+
   return {
     isbn: isbn,
     isbn_13: isbn13,
@@ -63,7 +68,7 @@ async function fetchFromGoogleBooks(isbn: string): Promise<BookMetadata | null> 
     publishedDate: book.publishedDate,
     pageCount: book.pageCount,
     description: book.description,
-    coverImageUrl: book.imageLinks?.thumbnail?.replace('http:', 'https:'),
+    coverImageUrl: highResCover,
     language: book.language,
     categories: book.categories,
     source: 'google_books'
