@@ -5,7 +5,10 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { StudentSelector } from './StudentSelector';
 import { FeedbackModal } from './FeedbackModal';
-import { ArrowLeft, Settings, Plus, X, Clock, Users } from 'lucide-react';
+import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play } from 'lucide-react';
+import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
+import { SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface ActivityBoard {
   id: string;
@@ -40,6 +43,7 @@ interface ActivitySession {
     last_name: string;
     profile_picture_url: string | null;
     color: string | null;
+    symbol_url: string | null;
   };
 }
 
@@ -49,11 +53,90 @@ interface ActivityBoardViewProps {
   onEdit: () => void;
 }
 
+const ICON_MAP: Record<string, any> = {
+  Grid, Book, Palette, Music, Pencil, Calculator,
+  Gamepad2, Puzzle, Building, Trees, Scissors, Play
+};
+
+function StudentSpot({
+  session,
+  activityColor,
+  onClick,
+  onRemove
+}: {
+  session: ActivitySession | null;
+  activityColor: string;
+  onClick: () => void;
+  onRemove?: (session: ActivitySession) => void;
+}) {
+  const getActivityDuration = (startTime: string) => {
+    const start = new Date(startTime);
+    const now = new Date();
+    const minutes = Math.floor((now.getTime() - start.getTime()) / 60000);
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}u ${mins}m`;
+  };
+
+  if (!session) {
+    return (
+      <button
+        onClick={onClick}
+        className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center group"
+      >
+        <Plus className="w-5 h-5 text-gray-400 group-hover:text-blue-500" />
+      </button>
+    );
+  }
+
+  return (
+    <div className="relative group">
+      <button
+        onClick={onClick}
+        className="w-16 h-16 rounded-lg border-2 border-gray-300 flex items-center justify-center overflow-hidden"
+        style={{ backgroundColor: session.students.color || '#6B7280' }}
+      >
+        {session.students.profile_picture_url ? (
+          <img
+            src={session.students.profile_picture_url}
+            alt={`${session.students.first_name}`}
+            className="w-full h-full object-cover"
+          />
+        ) : session.students.symbol_url ? (
+          <img
+            src={session.students.symbol_url}
+            alt={`${session.students.first_name}`}
+            className="w-10 h-10 object-contain"
+          />
+        ) : (
+          <span className="text-white text-sm font-bold">
+            {session.students.first_name[0]}
+            {session.students.last_name[0]}
+          </span>
+        )}
+      </button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove?.(session);
+        }}
+        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow"
+      >
+        <X className="w-3 h-3" />
+      </button>
+      <div className="absolute -bottom-1 left-0 right-0 bg-black bg-opacity-70 text-white text-[9px] text-center py-0.5 rounded-b opacity-0 group-hover:opacity-100 transition-opacity">
+        {getActivityDuration(session.start_time)}
+      </div>
+    </div>
+  );
+}
+
 export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewProps) {
   const { user } = useAuth();
   const [options, setOptions] = useState<ActivityOption[]>([]);
   const [sessions, setSessions] = useState<ActivitySession[]>([]);
-  const [showSelector, setShowSelector] = useState<ActivityOption | null>(null);
+  const [showSelector, setShowSelector] = useState<{ option: ActivityOption; spotIndex?: number } | null>(null);
   const [feedbackSession, setFeedbackSession] = useState<ActivitySession | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -111,7 +194,8 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
             first_name,
             last_name,
             profile_picture_url,
-            color
+            color,
+            symbol_url
           )
         `)
         .eq('board_id', board.id)
@@ -131,6 +215,11 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
     try {
       const existingSession = sessions.find(s => s.student_id === studentId);
       if (existingSession) {
+        if (existingSession.activity_option_id === activityOptionId) {
+          alert('Deze leerling zit al in deze activiteit');
+          setShowSelector(null);
+          return;
+        }
         setFeedbackSession(existingSession);
         return;
       }
@@ -188,6 +277,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
       }
 
       setFeedbackSession(null);
+      setShowSelector(null);
     } catch (error) {
       console.error('Error submitting feedback:', error);
       alert('Fout bij opslaan van feedback');
@@ -196,17 +286,6 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
 
   const getSessionsForActivity = (activityId: string) => {
     return sessions.filter(s => s.activity_option_id === activityId);
-  };
-
-  const getActivityDuration = (startTime: string) => {
-    const start = new Date(startTime);
-    const now = new Date();
-    const minutes = Math.floor((now.getTime() - start.getTime()) / 60000);
-
-    if (minutes < 60) return `${minutes}m`;
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}u ${mins}m`;
   };
 
   if (loading) {
@@ -251,131 +330,73 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
           </Button>
         </Card>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {options.map((option) => {
             const activitySessions = getSessionsForActivity(option.id);
             const isUnlimited = option.max_students === null;
-            const availableSpots = isUnlimited
-              ? null
-              : option.max_students - activitySessions.length;
+            const IconComponent = ICON_MAP[option.icon] || Grid;
 
             return (
-              <Card key={option.id} className="flex flex-col">
+              <Card key={option.id} className="overflow-hidden">
                 <div
-                  className="h-3 rounded-t-lg"
+                  className="h-2"
                   style={{ backgroundColor: option.color }}
                 />
-                <div className="p-4 flex-1 flex flex-col">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="font-semibold text-gray-900 text-lg">
-                        {option.name}
-                      </h3>
-                      {option.description && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          {option.description}
-                        </p>
-                      )}
+                <div className="p-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2 flex-1 min-w-0">
+                      <div
+                        className="w-8 h-8 rounded flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: option.color }}
+                      >
+                        <IconComponent className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-gray-900 text-sm truncate">
+                          {option.name}
+                        </h3>
+                        {!isUnlimited && (
+                          <p className="text-xs text-gray-500">
+                            {activitySessions.length}/{option.max_students}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    {!isUnlimited && (
-                      <div className="ml-2 px-2 py-1 bg-gray-100 rounded text-xs font-medium text-gray-700 whitespace-nowrap">
-                        {activitySessions.length}/{option.max_students}
-                      </div>
-                    )}
                   </div>
 
-                  <div className="flex-1 space-y-2 mb-4">
+                  <div className="flex flex-wrap gap-2">
                     {isUnlimited ? (
-                      <div className="space-y-2">
+                      <>
                         {activitySessions.map((session) => (
-                          <div
+                          <StudentSpot
                             key={session.id}
-                            className="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-200"
-                          >
-                            <div className="flex items-center space-x-2">
-                              <div
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"
-                                style={{
-                                  backgroundColor: session.students.color || '#6B7280'
-                                }}
-                              >
-                                {session.students.first_name[0]}
-                                {session.students.last_name[0]}
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium text-gray-900">
-                                  {session.students.first_name} {session.students.last_name}
-                                </p>
-                                <p className="text-xs text-gray-500 flex items-center">
-                                  <Clock className="w-3 h-3 mr-1" />
-                                  {getActivityDuration(session.start_time)}
-                                </p>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => handleRemoveStudent(session)}
-                              className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
+                            session={session}
+                            activityColor={option.color}
+                            onClick={() => setShowSelector({ option })}
+                            onRemove={handleRemoveStudent}
+                          />
                         ))}
-                      </div>
+                        <StudentSpot
+                          session={null}
+                          activityColor={option.color}
+                          onClick={() => setShowSelector({ option })}
+                        />
+                      </>
                     ) : (
-                      <div className="grid grid-cols-3 gap-2">
-                        {Array.from({ length: option.max_students }).map((_, index) => {
-                          const session = activitySessions[index];
-                          return (
-                            <div
-                              key={index}
-                              className={`aspect-square rounded-lg border-2 flex items-center justify-center ${
-                                session
-                                  ? 'border-gray-300 bg-gray-50'
-                                  : 'border-dashed border-gray-300'
-                              }`}
-                            >
-                              {session ? (
-                                <div className="relative group w-full h-full p-2">
-                                  <div
-                                    className="w-full h-full rounded flex items-center justify-center text-white text-xs font-medium"
-                                    style={{
-                                      backgroundColor: session.students.color || '#6B7280'
-                                    }}
-                                  >
-                                    {session.students.first_name[0]}
-                                    {session.students.last_name[0]}
-                                  </div>
-                                  <button
-                                    onClick={() => handleRemoveStudent(session)}
-                                    className="absolute top-0 right-0 p-1 bg-white rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity"
-                                  >
-                                    <X className="w-3 h-3 text-gray-600" />
-                                  </button>
-                                  <div className="absolute bottom-0 left-0 right-0 p-1 bg-black bg-opacity-50 text-white text-[10px] text-center rounded-b opacity-0 group-hover:opacity-100 transition-opacity">
-                                    {session.students.first_name}
-                                    <div className="text-[8px]">
-                                      {getActivityDuration(session.start_time)}
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : null}
-                            </div>
-                          );
-                        })}
-                      </div>
+                      Array.from({ length: option.max_students }).map((_, index) => {
+                        const session = activitySessions[index];
+                        return (
+                          <StudentSpot
+                            key={index}
+                            session={session}
+                            activityColor={option.color}
+                            onClick={() => setShowSelector({ option, spotIndex: index })}
+                            onRemove={session ? handleRemoveStudent : undefined}
+                          />
+                        );
+                      })
                     )}
                   </div>
-
-                  {(isUnlimited || (availableSpots !== null && availableSpots > 0)) && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => setShowSelector(option)}
-                      className="w-full"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Leerling toevoegen
-                    </Button>
-                  )}
                 </div>
               </Card>
             );
@@ -386,7 +407,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
       {showSelector && (
         <StudentSelector
           boardId={board.id}
-          activityOption={showSelector}
+          activityOption={showSelector.option}
           onClose={() => setShowSelector(null)}
           onSelectStudent={handleAddStudent}
         />

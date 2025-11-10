@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { ColorPicker } from '../ui/ColorPicker';
-import { ArrowLeft, Plus, Trash2, Save, GripVertical } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, GripVertical, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play } from 'lucide-react';
 
 interface ActivityBoard {
   id: string;
@@ -36,8 +36,30 @@ interface ActivityBoardSettingsProps {
 }
 
 const ICON_OPTIONS = [
-  'Grid', 'Book', 'Palette', 'Music', 'Pencil', 'Calculator',
-  'Gamepad2', 'Puzzle', 'Building', 'Trees', 'Scissors', 'Play'
+  { name: 'Grid', component: Grid },
+  { name: 'Book', component: Book },
+  { name: 'Palette', component: Palette },
+  { name: 'Music', component: Music },
+  { name: 'Pencil', component: Pencil },
+  { name: 'Calculator', component: Calculator },
+  { name: 'Gamepad2', component: Gamepad2 },
+  { name: 'Puzzle', component: Puzzle },
+  { name: 'Building', component: Building },
+  { name: 'Trees', component: Trees },
+  { name: 'Scissors', component: Scissors },
+  { name: 'Play', component: Play }
+];
+
+const PRESET_ACTIVITIES = [
+  { name: 'Zelfstandig Werken', icon: 'Pencil', color: '#3B82F6', max_students: null },
+  { name: 'Lezen', icon: 'Book', color: '#10B981', max_students: null },
+  { name: 'Rekenhoek', icon: 'Calculator', color: '#F59E0B', max_students: 4 },
+  { name: 'Bouwen', icon: 'Building', color: '#8B5CF6', max_students: 6 },
+  { name: 'Knutselen', icon: 'Scissors', color: '#EC4899', max_students: 4 },
+  { name: 'Tekenen', icon: 'Palette', color: '#EF4444', max_students: null },
+  { name: 'Puzzelen', icon: 'Puzzle', color: '#06B6D4', max_students: 2 },
+  { name: 'Muziekhoek', icon: 'Music', color: '#F97316', max_students: 4 },
+  { name: 'Spelen', icon: 'Gamepad2', color: '#84CC16', max_students: null }
 ];
 
 export function ActivityBoardSettings({
@@ -54,6 +76,7 @@ export function ActivityBoardSettings({
   const [options, setOptions] = useState<ActivityOption[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(!!board);
+  const [showPresets, setShowPresets] = useState(false);
 
   useEffect(() => {
     if (board) {
@@ -91,6 +114,20 @@ export function ActivityBoardSettings({
       is_active: true
     };
     setOptions([...options, newOption]);
+  };
+
+  const addPresetActivity = (preset: typeof PRESET_ACTIVITIES[0]) => {
+    const newOption: ActivityOption = {
+      name: preset.name,
+      description: '',
+      max_students: preset.max_students,
+      color: preset.color,
+      icon: preset.icon,
+      sort_order: options.length,
+      is_active: true
+    };
+    setOptions([...options, newOption]);
+    setShowPresets(false);
   };
 
   const updateOption = (index: number, field: keyof ActivityOption, value: any) => {
@@ -137,13 +174,22 @@ export function ActivityBoardSettings({
         if (boardError) throw boardError;
 
         const existingOptionIds = options.filter(o => o.id).map(o => o.id);
-        const { error: deleteError } = await supabase
-          .from('activity_options')
-          .delete()
-          .eq('board_id', board.id)
-          .not('id', 'in', `(${existingOptionIds.join(',')})`);
+        if (existingOptionIds.length > 0) {
+          const { error: deleteError } = await supabase
+            .from('activity_options')
+            .delete()
+            .eq('board_id', board.id)
+            .not('id', 'in', `(${existingOptionIds.join(',')})`);
 
-        if (deleteError && existingOptionIds.length > 0) throw deleteError;
+          if (deleteError) throw deleteError;
+        } else {
+          const { error: deleteAllError } = await supabase
+            .from('activity_options')
+            .delete()
+            .eq('board_id', board.id);
+
+          if (deleteAllError) throw deleteAllError;
+        }
 
         for (let i = 0; i < options.length; i++) {
           const option = options[i];
@@ -286,11 +332,43 @@ export function ActivityBoardSettings({
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Activiteiten</h2>
-              <Button variant="secondary" onClick={addOption}>
-                <Plus className="w-4 h-4 mr-2" />
-                Activiteit toevoegen
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="secondary" onClick={() => setShowPresets(!showPresets)}>
+                  <Grid className="w-4 h-4 mr-2" />
+                  Voorinstellingen
+                </Button>
+                <Button variant="secondary" onClick={addOption}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nieuwe activiteit
+                </Button>
+              </div>
             </div>
+
+            {showPresets && (
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-3">Klik op een activiteit om toe te voegen:</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {PRESET_ACTIVITIES.map((preset, idx) => {
+                    const IconComponent = ICON_OPTIONS.find(i => i.name === preset.icon)?.component || Grid;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => addPresetActivity(preset)}
+                        className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+                      >
+                        <div
+                          className="w-8 h-8 rounded flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: preset.color }}
+                        >
+                          <IconComponent className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-900 truncate">{preset.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {options.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
@@ -309,18 +387,29 @@ export function ActivityBoardSettings({
                       </div>
 
                       <div className="flex-1 space-y-3">
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                              Naam *
-                            </label>
-                            <Input
-                              value={option.name}
-                              onChange={(e) => updateOption(index, 'name', e.target.value)}
-                              placeholder="Activiteitnaam"
-                            />
-                          </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Naam *
+                          </label>
+                          <Input
+                            value={option.name}
+                            onChange={(e) => updateOption(index, 'name', e.target.value)}
+                            placeholder="Activiteitnaam"
+                          />
+                        </div>
 
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            Beschrijving
+                          </label>
+                          <Input
+                            value={option.description}
+                            onChange={(e) => updateOption(index, 'description', e.target.value)}
+                            placeholder="Optionele beschrijving"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3">
                           <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                               Max. leerlingen
@@ -339,20 +428,7 @@ export function ActivityBoardSettings({
                               min="1"
                             />
                           </div>
-                        </div>
 
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Beschrijving
-                          </label>
-                          <Input
-                            value={option.description}
-                            onChange={(e) => updateOption(index, 'description', e.target.value)}
-                            placeholder="Optionele beschrijving"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
                           <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                               Kleur
@@ -367,17 +443,25 @@ export function ActivityBoardSettings({
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                               Icoon
                             </label>
-                            <select
-                              value={option.icon}
-                              onChange={(e) => updateOption(index, 'icon', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            >
-                              {ICON_OPTIONS.map((icon) => (
-                                <option key={icon} value={icon}>
-                                  {icon}
-                                </option>
-                              ))}
-                            </select>
+                            <div className="relative">
+                              <select
+                                value={option.icon}
+                                onChange={(e) => updateOption(index, 'icon', e.target.value)}
+                                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                              >
+                                {ICON_OPTIONS.map((icon) => (
+                                  <option key={icon.name} value={icon.name}>
+                                    {icon.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                                {(() => {
+                                  const IconComponent = ICON_OPTIONS.find(i => i.name === option.icon)?.component || Grid;
+                                  return <IconComponent className="w-5 h-5 text-gray-600" />;
+                                })()}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
