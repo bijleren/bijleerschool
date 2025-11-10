@@ -29,13 +29,15 @@ interface FeedbackModalProps {
     notes: string | null,
     switchToActivity: string | null
   ) => void;
+  mode?: 'teacher' | 'student';
 }
 
 export function FeedbackModal({
   session,
   options,
   onClose,
-  onSubmit
+  onSubmit,
+  mode = 'teacher'
 }: FeedbackModalProps) {
   const [rating, setRating] = useState<number | null>(null);
   const [notes, setNotes] = useState('');
@@ -111,20 +113,22 @@ export function FeedbackModal({
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Notities (optioneel)
-            </label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Voeg notities toe over de activiteit..."
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+          {mode === 'teacher' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Notities (optioneel)
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Voeg notities toe over de activiteit..."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          )}
 
-          {otherOptions.length > 0 && (
+          {mode === 'teacher' && otherOptions.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Overschakelen naar andere activiteit?

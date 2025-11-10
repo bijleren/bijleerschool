@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { StudentSelector } from './StudentSelector';
 import { FeedbackModal } from './FeedbackModal';
-import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play } from 'lucide-react';
+import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap } from 'lucide-react';
 import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -139,6 +139,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
   const [showSelector, setShowSelector] = useState<{ option: ActivityOption; spotIndex?: number } | null>(null);
   const [feedbackSession, setFeedbackSession] = useState<ActivitySession | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mode, setMode] = useState<'teacher' | 'student'>('teacher');
 
   useEffect(() => {
     fetchOptions();
@@ -317,10 +318,32 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
             )}
           </div>
         </div>
-        <Button variant="secondary" onClick={onEdit}>
-          <Settings className="w-4 h-4 mr-2" />
-          Instellingen
-        </Button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setMode(mode === 'teacher' ? 'student' : 'teacher')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg border-2 transition-all ${
+              mode === 'teacher'
+                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                : 'border-green-500 bg-green-50 text-green-700'
+            }`}
+          >
+            {mode === 'teacher' ? (
+              <>
+                <GraduationCap className="w-5 h-5" />
+                <span className="font-medium">Leraar modus</span>
+              </>
+            ) : (
+              <>
+                <User className="w-5 h-5" />
+                <span className="font-medium">Leerling modus</span>
+              </>
+            )}
+          </button>
+          <Button variant="secondary" onClick={onEdit}>
+            <Settings className="w-4 h-4 mr-2" />
+            Instellingen
+          </Button>
+        </div>
       </div>
 
       {options.length === 0 ? (
@@ -428,6 +451,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
           options={options}
           onClose={() => setFeedbackSession(null)}
           onSubmit={handleFeedbackSubmit}
+          mode={mode}
         />
       )}
     </div>
