@@ -41,10 +41,14 @@ export function BoekerTab() {
         .select('school_id')
         .eq('user_id', user.id)
         .eq('is_active', true)
-        .single();
+        .eq('status', 'approved')
+        .limit(1);
 
       if (error) throw error;
-      setSchoolId(data.school_id);
+
+      if (data && data.length > 0) {
+        setSchoolId(data[0].school_id);
+      }
     } catch (error) {
       console.error('Error fetching school:', error);
     } finally {
