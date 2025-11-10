@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { BookLibrary } from './BookLibrary';
 import { StudentBookManagement } from './StudentBookManagement';
+import { BoekerAnalytics } from './BoekerAnalytics';
 import { Book, Users, BarChart3 } from 'lucide-react';
 
 type View = 'library' | 'students' | 'analytics';
@@ -13,6 +14,7 @@ export function BoekerTab() {
   const { user } = useAuth();
   const [currentView, setCurrentView] = useState<View>('library');
   const [schoolId, setSchoolId] = useState<string | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -116,15 +118,23 @@ export function BoekerTab() {
         </button>
       </div>
 
-      {currentView === 'library' && <BookLibrary schoolId={schoolId} />}
-      {currentView === 'students' && <StudentBookManagement schoolId={schoolId} />}
-      {currentView === 'analytics' && (
-        <Card>
-          <div className="p-8 text-center">
-            <p className="text-gray-600">Statistieken komen binnenkort</p>
-          </div>
-        </Card>
+      {currentView === 'library' && (
+        <BookLibrary
+          schoolId={schoolId}
+          onViewStudent={(studentId) => {
+            setSelectedStudentId(studentId);
+            setCurrentView('students');
+          }}
+        />
       )}
+      {currentView === 'students' && (
+        <StudentBookManagement
+          schoolId={schoolId}
+          initialStudentId={selectedStudentId}
+          onClearStudent={() => setSelectedStudentId(null)}
+        />
+      )}
+      {currentView === 'analytics' && <BoekerAnalytics schoolId={schoolId} />}
     </div>
   );
 }

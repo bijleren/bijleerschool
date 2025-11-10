@@ -36,9 +36,10 @@ interface StudentBookInfo {
 
 interface BookLibraryProps {
   schoolId: string;
+  onViewStudent?: (studentId: string) => void;
 }
 
-export function BookLibrary({ schoolId }: BookLibraryProps) {
+export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   const { user } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
@@ -655,7 +656,16 @@ export function BookLibrary({ schoolId }: BookLibraryProps) {
                         >
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <h4 className="font-semibold text-gray-900">
+                              <h4
+                                className="font-semibold text-gray-900 hover:text-blue-600 cursor-pointer"
+                                onClick={() => {
+                                  if (onViewStudent) {
+                                    setViewingBook(null);
+                                    setCurrentBorrowers([]);
+                                    onViewStudent(borrower.students.id);
+                                  }
+                                }}
+                              >
                                 {borrower.students.first_name} {borrower.students.last_name}
                               </h4>
                               <p className="text-xs text-gray-500">
