@@ -7,7 +7,7 @@ import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
 import { BarcodeScanner } from './BarcodeScanner';
 import { fetchBookMetadata, BookMetadata } from '../../utils/bookApi';
-import { Plus, Search, Edit, Trash2, Camera, BookOpen } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Camera, BookOpen, Users, X } from 'lucide-react';
 
 interface Book {
   id: string;
@@ -20,6 +20,18 @@ interface Book {
   total_copies: number;
   available_copies: number;
   metadata_source: string;
+}
+
+interface StudentBookInfo {
+  id: string;
+  borrowed_at: string;
+  students: {
+    id: string;
+    first_name: string;
+    last_name: string;
+  };
+  current_page: number | null;
+  total_pages_read: number;
 }
 
 interface BookLibraryProps {
@@ -35,6 +47,8 @@ export function BookLibrary({ schoolId }: BookLibraryProps) {
   const [showScanner, setShowScanner] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
+  const [viewingBook, setViewingBook] = useState<Book | null>(null);
+  const [currentBorrowers, setCurrentBorrowers] = useState<StudentBookInfo[]>([]);
   const [fetchingMetadata, setFetchingMetadata] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
@@ -233,6 +247,55 @@ export function BookLibrary({ schoolId }: BookLibraryProps) {
     });
   };
 
+  const handleViewBook = async (book: Book) => {
+    setViewingBook(book);
+
+    try {
+      const { data: studentBooks, error } = await supabase
+        .from('student_books')
+        .select(`
+          id,
+          borrowed_at,
+          students (
+            id,
+            first_name,
+            last_name
+          )
+        `)
+        .eq('book_id', book.id)
+        .eq('status', 'current')
+        .order('borrowed_at', { ascending: false });
+
+      if (error) throw error;
+
+      const borrowersWithProgress = await Promise.all(
+        (studentBooks || []).map(async (sb: any) => {
+          const { data: sessions } = await supabase
+            .from('reading_sessions')
+            .select('end_page, pages_read')
+            .eq('student_book_id', sb.id)
+            .order('start_time', { ascending: false });
+
+          const latestSession = sessions?.[0];
+          const totalPagesRead = sessions?.reduce((sum, s) => sum + (s.pages_read || 0), 0) || 0;
+
+          return {
+            id: sb.id,
+            borrowed_at: sb.borrowed_at,
+            students: sb.students,
+            current_page: latestSession?.end_page || null,
+            total_pages_read: totalPagesRead
+          };
+        })
+      );
+
+      setCurrentBorrowers(borrowersWithProgress);
+    } catch (error) {
+      console.error('Error fetching borrowers:', error);
+      setToast({ message: 'Fout bij ophalen leners', type: 'error' });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -291,7 +354,10 @@ export function BookLibrary({ schoolId }: BookLibraryProps) {
                   key={book.id}
                   className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                 >
-                  <div className="aspect-[2/3] bg-gray-100 relative">
+                  <div
+                    className="aspect-[2/3] bg-gray-100 relative cursor-pointer"
+                    onClick={() => handleViewBook(book)}
+                  >
                     {(book.cover_image_url || book.custom_cover_url) ? (
                       <img
                         src={book.cover_image_url || book.custom_cover_url || ''}
@@ -313,7 +379,10 @@ export function BookLibrary({ schoolId }: BookLibraryProps) {
                     </div>
                   </div>
                   <div className="p-2">
-                    <h3 className="font-semibold text-gray-900 text-xs mb-0.5 line-clamp-2 min-h-[2rem]">
+                    <h3
+                      className="font-semibold text-gray-900 text-xs mb-0.5 line-clamp-2 min-h-[2rem] cursor-pointer hover:text-blue-600"
+                      onClick={() => handleViewBook(book)}
+                    >
                       {book.title}
                     </h3>
                     {book.author && (
@@ -506,6 +575,131 @@ export function BookLibrary({ schoolId }: BookLibraryProps) {
                 >
                   Annuleren
                 </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewingBook && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex gap-4">
+                  <div className="w-24 h-36 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                    {(viewingBook.cover_image_url || viewingBook.custom_cover_url) ? (
+                      <img
+                        src={viewingBook.cover_image_url || viewingBook.custom_cover_url || ''}
+                        alt={viewingBook.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <BookOpen className="w-12 h-12 text-gray-300" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold text-gray-900 mb-1">
+                      {viewingBook.title}
+                    </h2>
+                    {viewingBook.author && (
+                      <p className="text-gray-600 mb-2">{viewingBook.author}</p>
+                    )}
+                    <div className="text-sm text-gray-500 space-y-1">
+                      <p>ISBN: {viewingBook.isbn}</p>
+                      {viewingBook.page_count && (
+                        <p>{viewingBook.page_count} pagina's</p>
+                      )}
+                      <p>
+                        Beschikbaar: {viewingBook.available_copies}/{viewingBook.total_copies}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setViewingBook(null);
+                    setCurrentBorrowers([]);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="border-t pt-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Users className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Huidige Leners ({currentBorrowers.length})
+                  </h3>
+                </div>
+
+                {currentBorrowers.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">
+                    Dit boek wordt momenteel niet gelezen
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {currentBorrowers.map((borrower) => {
+                      const progressPercentage = viewingBook.page_count && borrower.current_page
+                        ? Math.round((borrower.current_page / viewingBook.page_count) * 100)
+                        : null;
+
+                      return (
+                        <div
+                          key={borrower.id}
+                          className="bg-gray-50 rounded-lg p-4"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h4 className="font-semibold text-gray-900">
+                                {borrower.students.first_name} {borrower.students.last_name}
+                              </h4>
+                              <p className="text-xs text-gray-500">
+                                Begonnen op {new Date(borrower.borrowed_at).toLocaleDateString('nl-NL', {
+                                  day: 'numeric',
+                                  month: 'long'
+                                })}
+                              </p>
+                            </div>
+                            {borrower.current_page && (
+                              <div className="text-right">
+                                <p className="text-sm font-semibold text-blue-600">
+                                  Pagina {borrower.current_page}
+                                  {viewingBook.page_count && ` / ${viewingBook.page_count}`}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          {progressPercentage !== null && (
+                            <div>
+                              <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                                <span>Voortgang</span>
+                                <span className="font-semibold">{progressPercentage}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-blue-600 h-2 rounded-full transition-all"
+                                  style={{ width: `${progressPercentage}%` }}
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          {borrower.total_pages_read > 0 && (
+                            <p className="text-xs text-gray-600 mt-2">
+                              Totaal gelezen: {borrower.total_pages_read} pagina's
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>
