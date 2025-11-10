@@ -30,6 +30,7 @@ interface FeedbackModalProps {
     switchToActivity: string | null
   ) => void;
   mode?: 'teacher' | 'student';
+  prefilledSwitchTo?: string | null;
 }
 
 export function FeedbackModal({
@@ -37,11 +38,12 @@ export function FeedbackModal({
   options,
   onClose,
   onSubmit,
-  mode = 'teacher'
+  mode = 'teacher',
+  prefilledSwitchTo = null
 }: FeedbackModalProps) {
   const [rating, setRating] = useState<number | null>(null);
   const [notes, setNotes] = useState('');
-  const [switchTo, setSwitchTo] = useState<string | null>(null);
+  const [switchTo, setSwitchTo] = useState<string | null>(prefilledSwitchTo);
   const [submitting, setSubmitting] = useState(false);
 
   const ratingOptions = [

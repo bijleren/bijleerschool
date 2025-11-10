@@ -73,7 +73,8 @@ export function ActivityBoardSettings({
   const [name, setName] = useState(board?.name || '');
   const [description, setDescription] = useState(board?.description || '');
   const [isActive, setIsActive] = useState(board?.is_active ?? true);
-  const [timeBlock, setTimeBlock] = useState('');
+  const [selectedTimeBlocks, setSelectedTimeBlocks] = useState<string[]>([]);
+  const [timeBlocks, setTimeBlocks] = useState<Array<{ id: string; title: string; start_time: string; end_time: string; day_of_week: number }>>([]);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [groups, setGroups] = useState<Array<{ id: string; name: string }>>([]);
@@ -110,6 +111,15 @@ export function ActivityBoardSettings({
 
       if (studentsError) throw studentsError;
       setStudents(studentsData || []);
+
+      const { data: timeBlocksData, error: timeBlocksError } = await supabase
+        .from('day_template_blocks')
+        .select('id, title, start_time, end_time, day_of_week, template_id')
+        .eq('is_active', true)
+        .order('day_of_week, start_time');
+
+      if (timeBlocksError) throw timeBlocksError;
+      setTimeBlocks(timeBlocksData || []);
     } catch (error) {
       console.error('Error fetching groups and students:', error);
     }
@@ -121,15 +131,24 @@ export function ActivityBoardSettings({
     try {
       const { data, error } = await supabase
         .from('activity_boards')
-        .select('time_block, student_group_ids, student_ids')
+        .select('student_group_ids, student_ids')
         .eq('id', board.id)
         .maybeSingle();
 
       if (error) throw error;
       if (data) {
-        setTimeBlock(data.time_block || '');
         setSelectedGroups(data.student_group_ids || []);
         setSelectedStudents(data.student_ids || []);
+      }
+
+      const { data: timeBlocksData, error: timeBlocksError } = await supabase
+        .from('activity_board_timeblocks')
+        .select('template_block_id')
+        .eq('board_id', board.id);
+
+      if (timeBlocksError) throw timeBlocksError;
+      if (timeBlocksData) {
+        setSelectedTimeBlocks(timeBlocksData.map(tb => tb.template_block_id));
       }
     } catch (error) {
       console.error('Error fetching board settings:', error);
@@ -219,7 +238,6 @@ export function ActivityBoardSettings({
             name: name.trim(),
             description: description.trim() || null,
             is_active: isActive,
-            time_block: timeBlock.trim() || null,
             student_group_ids: selectedGroups,
             student_ids: selectedStudents,
             updated_at: new Date().toISOString()
@@ -227,6 +245,26 @@ export function ActivityBoardSettings({
           .eq('id', board.id);
 
         if (boardError) throw boardError;
+
+        const { error: deleteTimeblocksError } = await supabase
+          .from('activity_board_timeblocks')
+          .delete()
+          .eq('board_id', board.id);
+
+        if (deleteTimeblocksError) throw deleteTimeblocksError;
+
+        if (selectedTimeBlocks.length > 0) {
+          const timeblocksToInsert = selectedTimeBlocks.map(blockId => ({
+            board_id: board.id,
+            template_block_id: blockId
+          }));
+
+          const { error: timeblocksError } = await supabase
+            .from('activity_board_timeblocks')
+            .insert(timeblocksToInsert);
+
+          if (timeblocksError) throw timeblocksError;
+        }
 
         const existingOptionIds = options.filter(o => o.id).map(o => o.id);
 
@@ -286,7 +324,6 @@ export function ActivityBoardSettings({
             name: name.trim(),
             description: description.trim() || null,
             is_active: isActive,
-            time_block: timeBlock.trim() || null,
             student_group_ids: selectedGroups,
             student_ids: selectedStudents,
             created_by: user.id
@@ -295,6 +332,19 @@ export function ActivityBoardSettings({
           .single();
 
         if (boardError) throw boardError;
+
+        if (selectedTimeBlocks.length > 0) {
+          const timeblocksToInsert = selectedTimeBlocks.map(blockId => ({
+            board_id: boardData.id,
+            template_block_id: blockId
+          }));
+
+          const { error: timeblocksError } = await supabase
+            .from('activity_board_timeblocks')
+            .insert(timeblocksToInsert);
+
+          if (timeblocksError) throw timeblocksError;
+        }
 
         for (let i = 0; i < options.length; i++) {
           const option = options[i];
@@ -375,13 +425,37 @@ export function ActivityBoardSettings({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tijdblok (optioneel)
+                Tijdblokken (optioneel)
               </label>
-              <Input
-                value={timeBlock}
-                onChange={(e) => setTimeBlock(e.target.value)}
-                placeholder="bijv. Blok 1 (09:00 - 10:00)"
-              />
+              <div className="border border-gray-300 rounded-lg p-3 max-h-60 overflow-y-auto space-y-2">
+                {timeBlocks.length === 0 ? (
+                  <p className="text-sm text-gray-500">Geen tijdblokken beschikbaar. Maak eerst een lesrooster aan.</p>
+                ) : (
+                  timeBlocks.map((block) => {
+                    const dayNames = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
+                    return (
+                      <label key={block.id} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={selectedTimeBlocks.includes(block.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedTimeBlocks([...selectedTimeBlocks, block.id]);
+                            } else {
+                              setSelectedTimeBlocks(selectedTimeBlocks.filter(id => id !== block.id));
+                            }
+                          }}
+                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">
+                          {dayNames[block.day_of_week]} - {block.title} ({block.start_time.slice(0, 5)} - {block.end_time.slice(0, 5)})
+                        </span>
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+              <p className="mt-1 text-xs text-gray-500">Selecteer tijdblokken waarin dit bord actief is</p>
             </div>
 
             <div>
@@ -393,7 +467,7 @@ export function ActivityBoardSettings({
                   <p className="text-sm text-gray-500">Geen groepen beschikbaar</p>
                 ) : (
                   groups.map((group) => (
-                    <label key={group.id} className="flex items-center">
+                    <label key={group.id} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
                       <input
                         type="checkbox"
                         checked={selectedGroups.includes(group.id)}
@@ -404,7 +478,7 @@ export function ActivityBoardSettings({
                             setSelectedGroups(selectedGroups.filter(id => id !== group.id));
                           }
                         }}
-                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
                       />
                       <span className="ml-2 text-sm text-gray-700">{group.name}</span>
                     </label>
@@ -423,7 +497,7 @@ export function ActivityBoardSettings({
                   <p className="text-sm text-gray-500">Geen leerlingen beschikbaar</p>
                 ) : (
                   students.map((student) => (
-                    <label key={student.id} className="flex items-center">
+                    <label key={student.id} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
                       <input
                         type="checkbox"
                         checked={selectedStudents.includes(student.id)}
@@ -434,7 +508,7 @@ export function ActivityBoardSettings({
                             setSelectedStudents(selectedStudents.filter(id => id !== student.id));
                           }
                         }}
-                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
                       />
                       <span className="ml-2 text-sm text-gray-700">{student.first_name} {student.last_name}</span>
                     </label>

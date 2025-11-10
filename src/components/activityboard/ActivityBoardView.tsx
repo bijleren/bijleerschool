@@ -139,6 +139,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
   const [sessions, setSessions] = useState<ActivitySession[]>([]);
   const [showSelector, setShowSelector] = useState<{ option: ActivityOption; spotIndex?: number } | null>(null);
   const [feedbackSession, setFeedbackSession] = useState<ActivitySession | null>(null);
+  const [switchToActivityId, setSwitchToActivityId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<'teacher' | 'student'>('teacher');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -225,11 +226,13 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
       const existingSession = sessions.find(s => s.student_id === studentId);
       if (existingSession) {
         if (existingSession.activity_option_id === activityOptionId) {
-          alert('Deze leerling zit al in deze activiteit');
+          setToast({ message: 'Deze leerling zit al in deze activiteit', type: 'info' });
           setShowSelector(null);
           return;
         }
+        setSwitchToActivityId(activityOptionId);
         setFeedbackSession(existingSession);
+        setShowSelector(null);
         return;
       }
 
@@ -290,6 +293,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
 
       setFeedbackSession(null);
       setShowSelector(null);
+      setSwitchToActivityId(null);
     } catch (error) {
       console.error('Error submitting feedback:', error);
       setToast({ message: 'Fout bij opslaan feedback', type: 'error' });
@@ -454,9 +458,13 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
         <FeedbackModal
           session={feedbackSession}
           options={options}
-          onClose={() => setFeedbackSession(null)}
+          onClose={() => {
+            setFeedbackSession(null);
+            setSwitchToActivityId(null);
+          }}
           onSubmit={handleFeedbackSubmit}
           mode={mode}
+          prefilledSwitchTo={switchToActivityId}
         />
       )}
 
