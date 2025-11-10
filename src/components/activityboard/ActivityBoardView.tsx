@@ -236,39 +236,16 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
     try {
       const assignedStudentIds = sessions.map(s => s.student_id);
 
-      const { data: accessData, error: accessError } = await supabase
-        .from('activity_board_access')
-        .select('group_id')
-        .eq('board_id', board.id)
-        .eq('access_type', 'group');
+      const { data: students, error } = await supabase
+        .from('students')
+        .select('id, first_name, last_name, photo_url')
+        .eq('school_id', board.school_id)
+        .eq('is_active', true)
+        .order('first_name', { ascending: true });
 
-      if (accessError) throw accessError;
+      if (error) throw error;
 
-      let allStudents: any[] = [];
-
-      if (accessData && accessData.length > 0) {
-        const groupIds = accessData.map(a => a.group_id);
-
-        const { data: students, error: studentsError } = await supabase
-          .from('students')
-          .select('id, first_name, last_name, photo_url, group_id')
-          .in('group_id', groupIds)
-          .order('first_name', { ascending: true });
-
-        if (studentsError) throw studentsError;
-        allStudents = students || [];
-      } else {
-        const { data: students, error: studentsError } = await supabase
-          .from('students')
-          .select('id, first_name, last_name, photo_url')
-          .eq('school_id', board.school_id)
-          .order('first_name', { ascending: true });
-
-        if (studentsError) throw studentsError;
-        allStudents = students || [];
-      }
-
-      const unassigned = allStudents.filter(
+      const unassigned = (students || []).filter(
         student => !assignedStudentIds.includes(student.id)
       );
 
