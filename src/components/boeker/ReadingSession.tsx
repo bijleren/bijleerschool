@@ -41,6 +41,7 @@ interface SessionData {
   start_page: number | null;
   end_page: number | null;
   duration_minutes: number | null;
+  pages_read: number | null;
 }
 
 export function ReadingSession({ studentBook, student, onClose }: ReadingSessionProps) {
@@ -62,6 +63,15 @@ export function ReadingSession({ studentBook, student, onClose }: ReadingSession
   useEffect(() => {
     fetchPastSessions();
   }, []);
+
+  useEffect(() => {
+    if (pastSessions.length > 0) {
+      const lastSession = pastSessions[0];
+      if (lastSession.end_page && !startPage) {
+        setStartPage(lastSession.end_page.toString());
+      }
+    }
+  }, [pastSessions]);
 
   useEffect(() => {
     if (isRunning) {
@@ -234,6 +244,11 @@ export function ReadingSession({ studentBook, student, onClose }: ReadingSession
   const totalMinutesRead = pastSessions.reduce((sum, session) => sum + (session.duration_minutes || 0), 0);
   const totalPagesRead = pastSessions.reduce((sum, session) => sum + (session.pages_read || 0), 0);
 
+  const currentPage = pastSessions.length > 0 && pastSessions[0].end_page ? pastSessions[0].end_page : 0;
+  const progressPercentage = studentBook.books.page_count && currentPage
+    ? Math.round((currentPage / studentBook.books.page_count) * 100)
+    : null;
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 p-4">
       <div className="flex items-center space-x-4">
@@ -286,6 +301,24 @@ export function ReadingSession({ studentBook, student, onClose }: ReadingSession
                   <p className="text-2xl font-bold text-green-900">{totalPagesRead}</p>
                 </div>
               </div>
+
+              {progressPercentage !== null && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between text-sm text-gray-700 mb-2">
+                    <span>Voortgang</span>
+                    <span className="font-semibold">{progressPercentage}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div
+                      className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                      style={{ width: `${progressPercentage}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Pagina {currentPage} van {studentBook.books.page_count}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -334,13 +367,18 @@ export function ReadingSession({ studentBook, student, onClose }: ReadingSession
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bij welke pagina begin je? (optioneel)
+                  Bij welke pagina begin je?
+                  {currentPage > 0 && (
+                    <span className="text-gray-500 text-xs ml-2">
+                      (Vorige keer gestopt op pagina {currentPage})
+                    </span>
+                  )}
                 </label>
                 <Input
                   type="number"
                   value={startPage}
                   onChange={(e) => setStartPage(e.target.value)}
-                  placeholder="Bijv. 42"
+                  placeholder={currentPage > 0 ? currentPage.toString() : "Bijv. 1"}
                   className="max-w-xs"
                 />
               </div>

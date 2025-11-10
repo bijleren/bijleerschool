@@ -5,7 +5,7 @@ import { Card } from '../ui/Card';
 import { Toast } from '../ui/Toast';
 import { BarcodeScanner } from './BarcodeScanner';
 import { ReadingSession } from './ReadingSession';
-import { BookOpen, Camera, Clock, Star, ArrowLeft } from 'lucide-react';
+import { BookOpen, Camera, Clock, Star, ArrowLeft, ArrowLeftToLine } from 'lucide-react';
 
 interface Student {
   id: string;
@@ -255,10 +255,12 @@ export function StudentBoekerView({ studentAccessHash, onBack }: StudentBoekerVi
               {currentBooks.map((studentBook) => (
                 <div
                   key={studentBook.id}
-                  className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => setSelectedBook(studentBook)}
+                  className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
                 >
-                  <div className="aspect-[2/3] bg-gray-100 relative">
+                  <div
+                    className="aspect-[2/3] bg-gray-100 relative cursor-pointer"
+                    onClick={() => setSelectedBook(studentBook)}
+                  >
                     {(studentBook.books.cover_image_url || studentBook.books.custom_cover_url) ? (
                       <img
                         src={studentBook.books.cover_image_url || studentBook.books.custom_cover_url || ''}
@@ -285,10 +287,28 @@ export function StudentBoekerView({ studentAccessHash, onBack }: StudentBoekerVi
                         {studentBook.books.page_count} pagina's
                       </p>
                     )}
-                    <Button variant="primary" size="sm" className="w-full">
-                      <Clock className="w-3 h-3 mr-2" />
-                      Start Lezen
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => setSelectedBook(studentBook)}
+                      >
+                        <Clock className="w-3 h-3 mr-2" />
+                        Start Lezen
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleReturnBook(studentBook);
+                        }}
+                        title="Inleveren"
+                      >
+                        <ArrowLeftToLine className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
