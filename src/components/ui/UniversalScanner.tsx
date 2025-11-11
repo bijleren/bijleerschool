@@ -147,6 +147,12 @@ export function UniversalScanner({
       return;
     }
 
+    if (blinkCode && scanningFor === 'student' && onStudentScan) {
+      console.log('Calling onStudentScan with BlinkCode:', blinkCode);
+      onStudentScan(blinkCode);
+      return;
+    }
+
     if (blinkCode && onMaterialScan && (scanningFor === 'material' || scanningFor === 'all')) {
       console.log('Calling onMaterialScan with code:', blinkCode);
       onMaterialScan(blinkCode);

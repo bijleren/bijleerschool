@@ -815,8 +815,8 @@ function MaterialLoanView({
         </div>
         <Card>
           <UniversalScanner
-            scanningFor="material"
-            onMaterialScan={handleMaterialScan}
+            scanningFor="student"
+            onStudentScan={handleScan}
             onError={(error) => setToast({ message: error, type: 'error' })}
           />
         </Card>
