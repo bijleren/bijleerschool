@@ -490,9 +490,9 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
 
     console.log('Drag ended:', { active: activeData, over: overData });
 
-    if (activeData?.type === 'unassigned-student') {
+    if (activeData?.type === 'unassigned-student' && activeData.student) {
       if (overData?.type === 'empty-spot' || overData?.type === 'student-spot') {
-        await handleAddStudent(activeData.student, overData.activityId);
+        await handleAddStudent(activeData.student.id, overData.activityId);
       }
     } else if (activeData?.type === 'student-spot' && activeData.session) {
       if (overData?.type === 'empty-spot') {
