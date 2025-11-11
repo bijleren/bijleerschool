@@ -92,12 +92,79 @@ function StudentSpot({
   onClick: () => void;
   onRemove?: (session: ActivitySession) => void;
   activityId: string;
-  spotIndex?: number;
+  spotIndex: number;
 }) {
-  const dragId = session
-    ? `session-${session.id}`
-    : `empty-spot-${activityId}-${spotIndex}`;
+  if (!session) {
+    return (
+      <EmptySpot
+        activityColor={activityColor}
+        onClick={onClick}
+        activityId={activityId}
+        spotIndex={spotIndex}
+      />
+    );
+  }
 
+  return (
+    <DraggableStudentSpot
+      session={session}
+      activityColor={activityColor}
+      onClick={onClick}
+      onRemove={onRemove}
+      activityId={activityId}
+    />
+  );
+}
+
+function EmptySpot({
+  activityColor,
+  onClick,
+  activityId,
+  spotIndex
+}: {
+  activityColor: string;
+  onClick: () => void;
+  activityId: string;
+  spotIndex: number;
+}) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `empty-spot-${activityId}-${spotIndex}`,
+    data: {
+      type: 'empty-spot',
+      activityId,
+      spotIndex
+    }
+  });
+
+  return (
+    <div ref={setNodeRef}>
+      <button
+        onClick={onClick}
+        className={`w-16 h-16 rounded-lg border-2 border-dashed transition-all flex items-center justify-center group ${
+          isOver
+            ? 'border-blue-500 bg-blue-100 scale-105'
+            : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
+        }`}
+      >
+        <Plus className={`w-5 h-5 ${isOver ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-500'}`} />
+      </button>
+    </div>
+  );
+}
+
+function DraggableStudentSpot({
+  session,
+  activityColor,
+  onClick,
+  onRemove,
+  activityId
+}: {
+  session: ActivitySession;
+  activityColor: string;
+  onClick: () => void;
+  onRemove?: (session: ActivitySession) => void;
+  activityId: string;
+}) {
   const {
     attributes,
     listeners,
@@ -106,15 +173,14 @@ function StudentSpot({
     transition,
     isDragging
   } = useSortable({
-    id: dragId,
+    id: `session-${session.id}`,
     data: {
-      type: session ? 'student-spot' : 'empty-spot',
+      type: 'student-spot',
       session,
-      activityId,
-      spotIndex
-    },
-    disabled: !session
+      activityId
+    }
   });
+
   const getActivityDuration = (startTime: string) => {
     const start = new Date(startTime);
     const now = new Date();
@@ -130,22 +196,6 @@ function StudentSpot({
     transition,
     opacity: isDragging ? 0.5 : 1
   };
-
-  if (!session) {
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-      >
-        <button
-          onClick={onClick}
-          className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center group"
-        >
-          <Plus className="w-5 h-5 text-gray-400 group-hover:text-blue-500" />
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div
@@ -529,13 +579,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
 
   const allDragIds = [
     ...unassignedStudents.map(s => `unassigned-${s.id}`),
-    ...sessions.map(s => `session-${s.id}`),
-    ...options.flatMap(opt => {
-      const activitySessions = getSessionsForActivity(opt.id);
-      const isUnlimited = opt.max_students === null;
-      const numSpots = isUnlimited ? activitySessions.length + 1 : opt.max_students;
-      return Array.from({ length: numSpots }, (_, i) => `empty-spot-${opt.id}-${i}`);
-    })
+    ...sessions.map(s => `session-${s.id}`)
   ];
 
   if (loading) {
