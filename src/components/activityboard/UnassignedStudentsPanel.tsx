@@ -1,7 +1,6 @@
 import React from 'react';
 import { Users, UserPlus } from 'lucide-react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { useDraggable } from '@dnd-kit/core';
 
 interface Student {
   id: string;
@@ -21,9 +20,8 @@ function DraggableStudent({ student, onSelectStudent }: { student: Student; onSe
     listeners,
     setNodeRef,
     transform,
-    transition,
     isDragging
-  } = useSortable({
+  } = useDraggable({
     id: `unassigned-${student.id}`,
     data: {
       type: 'unassigned-student',
@@ -31,11 +29,10 @@ function DraggableStudent({ student, onSelectStudent }: { student: Student; onSe
     }
   });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
     opacity: isDragging ? 0.5 : 1
-  };
+  } : undefined;
 
   return (
     <div

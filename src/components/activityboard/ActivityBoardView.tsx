@@ -11,8 +11,7 @@ import { ActivitySelectionModal } from './ActivitySelectionModal';
 import { UnassignedStudentsPanel } from './UnassignedStudentsPanel';
 import { QRScanner } from './QRScanner';
 import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap } from 'lucide-react';
-import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor, useDroppable } from '@dnd-kit/core';
-import { SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor, useDroppable, useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
 interface ActivityBoard {
@@ -170,9 +169,8 @@ function DraggableStudentSpot({
     listeners,
     setNodeRef,
     transform,
-    transition,
     isDragging
-  } = useSortable({
+  } = useDraggable({
     id: `session-${session.id}`,
     data: {
       type: 'student-spot',
@@ -191,11 +189,10 @@ function DraggableStudentSpot({
     return `${hours}u ${mins}m`;
   };
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
     opacity: isDragging ? 0.5 : 1
-  };
+  } : undefined;
 
   return (
     <div
@@ -577,11 +574,6 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
     return sessions.filter(s => s.activity_option_id === activityId);
   };
 
-  const allDragIds = [
-    ...unassignedStudents.map(s => `unassigned-${s.id}`),
-    ...sessions.map(s => `session-${s.id}`)
-  ];
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -596,9 +588,8 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={allDragIds} strategy={rectSortingStrategy}>
-        <div className="flex h-full">
-          <div className="flex-1 max-w-7xl mx-auto">
+      <div className="flex h-full">
+        <div className="flex-1 max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
           <Button variant="secondary" onClick={onBack}>
@@ -794,8 +785,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
           />
         </DroppableUnassignedPanel>
       )}
-        </div>
-      </SortableContext>
+      </div>
     </DndContext>
   );
 }
