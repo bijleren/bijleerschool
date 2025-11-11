@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
-import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, Eye } from 'lucide-react';
+import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, Trash2 } from 'lucide-react';
 import { UniversalScanner } from '../ui/UniversalScanner';
 
 interface Material {
@@ -16,7 +16,20 @@ interface Material {
   description: string | null;
   photo_url: string | null;
   is_available: boolean;
+  total_copies: number;
+  available_copies: number;
+  item_number: string | null;
   created_at: string;
+}
+
+interface GroupedMaterial {
+  blink_code: string;
+  title: string;
+  description: string | null;
+  photo_url: string | null;
+  total_items: number;
+  available_items: number;
+  items: Material[];
 }
 
 interface MaterialLoan {
@@ -43,19 +56,20 @@ interface MaterialenTabProps {
 export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   const { user } = useAuth();
   const [materials, setMaterials] = useState<Material[]>([]);
-  const [filteredMaterials, setFilteredMaterials] = useState<Material[]>([]);
+  const [groupedMaterials, setGroupedMaterials] = useState<GroupedMaterial[]>([]);
+  const [filteredGroupedMaterials, setFilteredGroupedMaterials] = useState<GroupedMaterial[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
   const [showMaterialForm, setShowMaterialForm] = useState(false);
-  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
+  const [selectedBlinkCode, setSelectedBlinkCode] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'detail' | 'loan'>('list');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
-  // Form states
   const [formBlinkCode, setFormBlinkCode] = useState('');
   const [formTitle, setFormTitle] = useState('');
   const [formDescription, setFormDescription] = useState('');
+  const [formItemNumber, setFormItemNumber] = useState('');
   const [formPhoto, setFormPhoto] = useState<File | null>(null);
   const [formPhotoPreview, setFormPhotoPreview] = useState<string | null>(null);
 
@@ -64,17 +78,41 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   }, [schoolId]);
 
   useEffect(() => {
+    const grouped = materials.reduce((acc, material) => {
+      const existing = acc.find(g => g.blink_code === material.blink_code);
+      if (existing) {
+        existing.items.push(material);
+        existing.total_items++;
+        existing.available_items += material.available_copies;
+      } else {
+        acc.push({
+          blink_code: material.blink_code,
+          title: material.title,
+          description: material.description,
+          photo_url: material.photo_url,
+          total_items: 1,
+          available_items: material.available_copies,
+          items: [material]
+        });
+      }
+      return acc;
+    }, [] as GroupedMaterial[]);
+
+    setGroupedMaterials(grouped);
+  }, [materials]);
+
+  useEffect(() => {
     if (searchTerm) {
-      setFilteredMaterials(
-        materials.filter(m =>
+      setFilteredGroupedMaterials(
+        groupedMaterials.filter(m =>
           m.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           m.blink_code.toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
     } else {
-      setFilteredMaterials(materials);
+      setFilteredGroupedMaterials(groupedMaterials);
     }
-  }, [searchTerm, materials]);
+  }, [searchTerm, groupedMaterials]);
 
   const fetchMaterials = async () => {
     try {
@@ -96,15 +134,13 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   };
 
   const handleMaterialScan = async (blinkCode: string) => {
-    // Check if material already exists
-    const existing = materials.find(m => m.blink_code === blinkCode);
+    const existing = groupedMaterials.find(m => m.blink_code === blinkCode);
     if (existing) {
-      setSelectedMaterial(existing);
+      setSelectedBlinkCode(blinkCode);
       setViewMode('detail');
       setShowScanner(false);
       setToast({ message: 'Materiaal gevonden!', type: 'success' });
     } else {
-      // Create new material with this code
       setFormBlinkCode(blinkCode);
       setShowMaterialForm(true);
       setShowScanner(false);
@@ -155,7 +191,6 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
         photoUrl = await uploadPhoto(formPhoto);
       }
 
-      // Remove dashes from blink code before saving
       const cleanCode = formBlinkCode.replace(/-/g, '').toUpperCase();
 
       const materialData = {
@@ -163,29 +198,23 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
         blink_code: cleanCode,
         title: formTitle.trim(),
         description: formDescription.trim() || null,
+        item_number: formItemNumber.trim() || null,
         photo_url: photoUrl,
+        total_copies: 1,
+        available_copies: 1,
         created_by: user.id
       };
 
-      if (selectedMaterial) {
-        const { error } = await supabase
-          .from('school_materials')
-          .update(materialData)
-          .eq('id', selectedMaterial.id);
+      const { error } = await supabase
+        .from('school_materials')
+        .insert(materialData);
 
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('school_materials')
-          .insert(materialData);
-
-        if (error) throw error;
-      }
+      if (error) throw error;
 
       resetForm();
       setShowMaterialForm(false);
       await fetchMaterials();
-      setToast({ message: selectedMaterial ? 'Materiaal bijgewerkt' : 'Materiaal aangemaakt', type: 'success' });
+      setToast({ message: 'Materiaal toegevoegd', type: 'success' });
     } catch (error) {
       console.error('Error saving material:', error);
       setToast({ message: 'Fout bij opslaan materiaal', type: 'error' });
@@ -196,22 +225,13 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
     setFormBlinkCode('');
     setFormTitle('');
     setFormDescription('');
+    setFormItemNumber('');
     setFormPhoto(null);
     setFormPhotoPreview(null);
-    setSelectedMaterial(null);
   };
 
-  const editMaterial = (material: Material) => {
-    setSelectedMaterial(material);
-    setFormBlinkCode(material.blink_code);
-    setFormTitle(material.title);
-    setFormDescription(material.description || '');
-    setFormPhotoPreview(material.photo_url);
-    setShowMaterialForm(true);
-  };
-
-  const deleteMaterial = async (materialId: string) => {
-    if (!confirm('Weet je zeker dat je dit materiaal wilt verwijderen?')) return;
+  const deleteItem = async (materialId: string) => {
+    if (!confirm('Weet je zeker dat je dit item wilt verwijderen?')) return;
 
     try {
       const { error } = await supabase
@@ -221,18 +241,12 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
 
       if (error) throw error;
 
-      setToast({ message: 'Materiaal verwijderd', type: 'success' });
+      setToast({ message: 'Item verwijderd', type: 'success' });
       fetchMaterials();
-      setViewMode('list');
     } catch (error) {
-      console.error('Error deleting material:', error);
-      setToast({ message: 'Fout bij verwijderen materiaal', type: 'error' });
+      console.error('Error deleting item:', error);
+      setToast({ message: 'Fout bij verwijderen item', type: 'error' });
     }
-  };
-
-  const openLoanView = (material: Material) => {
-    setSelectedMaterial(material);
-    setViewMode('loan');
   };
 
   if (showScanner) {
@@ -260,9 +274,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {selectedMaterial ? 'Materiaal Bewerken' : 'Nieuw Materiaal'}
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900">Nieuw Materiaal</h2>
           <Button
             variant="secondary"
             onClick={() => {
@@ -281,15 +293,21 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
               label="BlinkQR Code"
               value={formBlinkCode}
               onChange={(e) => setFormBlinkCode(e.target.value.toUpperCase())}
-              placeholder="XXXXXXXXXX (dashes worden genegeerd)"
-              disabled={!!selectedMaterial}
+              placeholder="XXXXXXXXXX"
             />
 
             <Input
               label="Titel"
               value={formTitle}
               onChange={(e) => setFormTitle(e.target.value)}
-              placeholder="Bijv. iPad 3"
+              placeholder="Bijv. iPad"
+            />
+
+            <Input
+              label="Item Nummer (optioneel)"
+              value={formItemNumber}
+              onChange={(e) => setFormItemNumber(e.target.value)}
+              placeholder="Bijv. 3 voor iPad 3"
             />
 
             <div>
@@ -334,7 +352,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
 
             <div className="flex gap-2">
               <Button onClick={saveMaterial} className="flex-1">
-                {selectedMaterial ? 'Bijwerken' : 'Aanmaken'}
+                Aanmaken
               </Button>
               <Button
                 variant="secondary"
@@ -360,34 +378,23 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
     );
   }
 
-  if (viewMode === 'detail' && selectedMaterial) {
-    return (
-      <MaterialDetail
-        material={selectedMaterial}
-        onBack={() => {
-          setViewMode('list');
-          setSelectedMaterial(null);
-        }}
-        onEdit={editMaterial}
-        onDelete={deleteMaterial}
-        onLoan={openLoanView}
-        onRefresh={fetchMaterials}
-      />
-    );
-  }
+  if (viewMode === 'detail' && selectedBlinkCode) {
+    const group = groupedMaterials.find(g => g.blink_code === selectedBlinkCode);
+    if (!group) {
+      setViewMode('list');
+      return null;
+    }
 
-  if (viewMode === 'loan' && selectedMaterial) {
     return (
-      <MaterialLoanView
-        material={selectedMaterial}
+      <GroupedMaterialDetail
+        group={group}
         schoolId={schoolId}
         onBack={() => {
-          setViewMode('detail');
+          setViewMode('list');
+          setSelectedBlinkCode(null);
         }}
-        onLoanComplete={() => {
-          fetchMaterials();
-          setViewMode('detail');
-        }}
+        onRefresh={fetchMaterials}
+        onDeleteItem={deleteItem}
       />
     );
   }
@@ -427,7 +434,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
 
         {loading ? (
           <div className="text-center py-12 text-gray-500">Laden...</div>
-        ) : filteredMaterials.length === 0 ? (
+        ) : filteredGroupedMaterials.length === 0 ? (
           <div className="text-center py-12">
             <Package className="w-16 h-16 mx-auto text-gray-300 mb-4" />
             <p className="text-gray-500">
@@ -439,19 +446,19 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredMaterials.map((material) => (
+            {filteredGroupedMaterials.map((group) => (
               <div
-                key={material.id}
+                key={group.blink_code}
                 onClick={() => {
-                  setSelectedMaterial(material);
+                  setSelectedBlinkCode(group.blink_code);
                   setViewMode('detail');
                 }}
                 className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
               >
-                {material.photo_url ? (
+                {group.photo_url ? (
                   <img
-                    src={material.photo_url}
-                    alt={material.title}
+                    src={group.photo_url}
+                    alt={group.title}
                     className="w-full h-40 object-cover rounded-lg mb-3"
                   />
                 ) : (
@@ -459,17 +466,17 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
                     <Package className="w-12 h-12 text-gray-400" />
                   </div>
                 )}
-                <h3 className="font-semibold text-gray-900">{material.title}</h3>
-                <p className="text-sm text-gray-500 mt-1">{material.blink_code}</p>
-                <div className="mt-2">
+                <h3 className="font-semibold text-gray-900">{group.title}</h3>
+                <p className="text-sm text-gray-500 mt-1">{group.blink_code}</p>
+                <div className="mt-2 flex items-center gap-2">
                   <span
                     className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      material.is_available
+                      group.available_items > 0
                         ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'
                     }`}
                   >
-                    {material.is_available ? 'Beschikbaar' : 'Uitgeleend'}
+                    {group.available_items}/{group.total_items} beschikbaar
                   </span>
                 </div>
               </div>
@@ -489,31 +496,142 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   );
 }
 
-function MaterialDetail({
-  material,
+function GroupedMaterialDetail({
+  group,
+  schoolId,
   onBack,
-  onEdit,
-  onDelete,
+  onRefresh,
+  onDeleteItem
+}: {
+  group: GroupedMaterial;
+  schoolId: string;
+  onBack: () => void;
+  onRefresh: () => void;
+  onDeleteItem: (id: string) => void;
+}) {
+  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'loan'>('list');
+
+  if (viewMode === 'loan' && selectedMaterialId) {
+    const material = group.items.find(m => m.id === selectedMaterialId);
+    if (!material) return null;
+
+    return (
+      <MaterialLoanView
+        material={material}
+        schoolId={schoolId}
+        onBack={() => {
+          setViewMode('list');
+          setSelectedMaterialId(null);
+        }}
+        onLoanComplete={() => {
+          onRefresh();
+          setViewMode('list');
+          setSelectedMaterialId(null);
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <Button variant="secondary" onClick={onBack}>
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Terug
+        </Button>
+      </div>
+
+      <Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            {group.photo_url ? (
+              <img
+                src={group.photo_url}
+                alt={group.title}
+                className="w-full h-64 object-cover rounded-lg"
+              />
+            ) : (
+              <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                <Package className="w-24 h-24 text-gray-400" />
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{group.title}</h2>
+              <p className="text-sm text-gray-500 mt-1">Code: {group.blink_code}</p>
+            </div>
+
+            {group.description && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-700 mb-1">Beschrijving</h3>
+                <p className="text-gray-600">{group.description}</p>
+              </div>
+            )}
+
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Status</h3>
+              <div className={`border rounded-lg p-3 ${
+                group.available_items > 0
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-red-50 border-red-200'
+              }`}>
+                <p className={`text-sm font-medium ${
+                  group.available_items > 0 ? 'text-green-900' : 'text-red-900'
+                }`}>
+                  {group.available_items} van {group.total_items} beschikbaar
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <Card>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Items ({group.total_items})
+          </h3>
+        </div>
+
+        <div className="space-y-3">
+          {group.items.map((item) => (
+            <MaterialItemCard
+              key={item.id}
+              material={item}
+              onLoan={() => {
+                setSelectedMaterialId(item.id);
+                setViewMode('loan');
+              }}
+              onDelete={onDeleteItem}
+            />
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function MaterialItemCard({
+  material,
   onLoan,
-  onRefresh
+  onDelete
 }: {
   material: Material;
-  onBack: () => void;
-  onEdit: (material: Material) => void;
+  onLoan: () => void;
   onDelete: (id: string) => void;
-  onLoan: (material: Material) => void;
-  onRefresh: () => void;
 }) {
-  const [loans, setLoans] = useState<MaterialLoan[]>([]);
+  const [loan, setLoan] = useState<MaterialLoan | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchLoans();
+    fetchCurrentLoan();
   }, [material.id]);
 
-  const fetchLoans = async () => {
+  const fetchCurrentLoan = async () => {
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('school_material_loans')
         .select(`
@@ -526,142 +644,62 @@ function MaterialDetail({
           )
         `)
         .eq('material_id', material.id)
-        .order('loaned_at', { ascending: false });
+        .is('returned_at', null)
+        .maybeSingle();
 
       if (error) throw error;
-      setLoans(data || []);
+      setLoan(data);
     } catch (error) {
-      console.error('Error fetching loans:', error);
+      console.error('Error fetching loan:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const currentLoan = loans.find(l => !l.returned_at);
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <Button variant="secondary" onClick={onBack}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Terug
-        </Button>
+    <div className="border border-gray-200 rounded-lg p-4">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h4 className="font-medium text-gray-900">
+              {material.title}
+              {material.item_number && ` #${material.item_number}`}
+            </h4>
+            <span
+              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                material.available_copies > 0
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-red-100 text-red-800'
+              }`}
+            >
+              {material.available_copies > 0 ? 'Beschikbaar' : 'Uitgeleend'}
+            </span>
+          </div>
+
+          {loan && (
+            <p className="text-sm text-gray-600 mt-1">
+              Uitgeleend aan {loan.students.first_name} {loan.students.last_name}
+            </p>
+          )}
+        </div>
+
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => onEdit(material)}>
-            Bewerken
+          <Button
+            size="sm"
+            onClick={onLoan}
+            disabled={material.available_copies === 0 && !loan}
+          >
+            {loan ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
           </Button>
-          <Button variant="secondary" onClick={() => onDelete(material.id)}>
-            <X className="w-4 h-4" />
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => onDelete(material.id)}
+          >
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </div>
-
-      <Card>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            {material.photo_url ? (
-              <img
-                src={material.photo_url}
-                alt={material.title}
-                className="w-full h-64 object-cover rounded-lg"
-              />
-            ) : (
-              <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Package className="w-24 h-24 text-gray-400" />
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{material.title}</h2>
-              <p className="text-sm text-gray-500 mt-1">Code: {material.blink_code}</p>
-            </div>
-
-            {material.description && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-1">Beschrijving</h3>
-                <p className="text-gray-600">{material.description}</p>
-              </div>
-            )}
-
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Status</h3>
-              {currentLoan ? (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm font-medium text-red-900">
-                    Uitgeleend aan {currentLoan.students.first_name} {currentLoan.students.last_name}
-                  </p>
-                  <p className="text-xs text-red-600 mt-1">
-                    Sinds {new Date(currentLoan.loaned_at).toLocaleDateString('nl-NL')}
-                  </p>
-                </div>
-              ) : (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <p className="text-sm font-medium text-green-900">Beschikbaar</p>
-                </div>
-              )}
-            </div>
-
-            <Button
-              onClick={() => onLoan(material)}
-              className="w-full"
-              disabled={!material.is_available && !!currentLoan}
-            >
-              {currentLoan ? (
-                <>
-                  <UserX className="w-4 h-4 mr-2" />
-                  Retourneer
-                </>
-              ) : (
-                <>
-                  <UserCheck className="w-4 h-4 mr-2" />
-                  Uitleen
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      <Card>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Uitleengeschiedenis</h3>
-        {loading ? (
-          <div className="text-center py-8 text-gray-500">Laden...</div>
-        ) : loans.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">Nog niet uitgeleend</div>
-        ) : (
-          <div className="space-y-3">
-            {loans.map((loan) => (
-              <div
-                key={loan.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-              >
-                <div>
-                  <p className="font-medium text-gray-900">
-                    {loan.students.first_name} {loan.students.last_name}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(loan.loaned_at).toLocaleDateString('nl-NL')}
-                    {loan.returned_at && (
-                      <> - {new Date(loan.returned_at).toLocaleDateString('nl-NL')}</>
-                    )}
-                  </p>
-                </div>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    loan.returned_at
-                      ? 'bg-gray-200 text-gray-700'
-                      : 'bg-green-100 text-green-800'
-                  }`}
-                >
-                  {loan.returned_at ? 'Geretourneerd' : 'Uitgeleend'}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
     </div>
   );
 }
@@ -748,6 +786,11 @@ function MaterialLoanView({
     }
 
     try {
+      if (material.available_copies <= 0) {
+        setToast({ message: 'Geen exemplaren beschikbaar', type: 'error' });
+        return;
+      }
+
       const { error } = await supabase
         .from('school_material_loans')
         .insert({
@@ -759,9 +802,13 @@ function MaterialLoanView({
 
       if (error) throw error;
 
+      const newAvailable = material.available_copies - 1;
       await supabase
         .from('school_materials')
-        .update({ is_available: false })
+        .update({
+          available_copies: newAvailable,
+          is_available: newAvailable > 0
+        })
         .eq('id', material.id);
 
       setToast({ message: 'Materiaal uitgeleend', type: 'success' });
@@ -786,9 +833,13 @@ function MaterialLoanView({
 
       if (error) throw error;
 
+      const newAvailable = material.available_copies + 1;
       await supabase
         .from('school_materials')
-        .update({ is_available: true })
+        .update({
+          available_copies: newAvailable,
+          is_available: newAvailable > 0
+        })
         .eq('id', material.id);
 
       setToast({ message: 'Materiaal geretourneerd', type: 'success' });
@@ -839,7 +890,10 @@ function MaterialLoanView({
         </h2>
 
         <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-          <p className="font-medium text-gray-900">{material.title}</p>
+          <p className="font-medium text-gray-900">
+            {material.title}
+            {material.item_number && ` #${material.item_number}`}
+          </p>
           <p className="text-sm text-gray-500">{material.blink_code}</p>
         </div>
 
