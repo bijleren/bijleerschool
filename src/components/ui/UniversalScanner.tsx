@@ -1,14 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 
-interface UnifiedScannerProps {
+interface UniversalScannerProps {
   onStudentScan?: (accessHash: string) => void;
   onBookScan?: (isbn: string) => void;
-  onError: (error: string) => void;
-  scanningFor: 'student' | 'book' | 'both';
+  onMaterialScan?: (blinkCode: string) => void;
+  onError?: (error: string) => void;
+  scanningFor: 'student' | 'book' | 'material' | 'student-book' | 'all';
 }
 
-export function UnifiedScanner({ onStudentScan, onBookScan, onError, scanningFor }: UnifiedScannerProps) {
+export function UniversalScanner({
+  onStudentScan,
+  onBookScan,
+  onMaterialScan,
+  onError,
+  scanningFor
+}: UniversalScannerProps) {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const lastScanRef = useRef<string>('');
@@ -39,12 +46,12 @@ export function UnifiedScanner({ onStudentScan, onBookScan, onError, scanningFor
     if (scannerRef.current) return;
 
     try {
-      const scannerId = 'unified-scanner';
+      const scannerId = 'universal-scanner';
       scannerRef.current = new Html5Qrcode(scannerId);
       await startScanning();
     } catch (err) {
       console.error('Error initializing scanner:', err);
-      onError('Fout bij initialiseren scanner');
+      if (onError) onError('Fout bij initialiseren scanner');
       initializingRef.current = false;
     }
   };
@@ -78,7 +85,7 @@ export function UnifiedScanner({ onStudentScan, onBookScan, onError, scanningFor
       console.error('Error starting scanner:', err);
       setIsScanning(false);
       initializingRef.current = false;
-      onError('Fout bij starten scanner');
+      if (onError) onError('Fout bij starten scanner');
     }
   };
 
@@ -101,40 +108,87 @@ export function UnifiedScanner({ onStudentScan, onBookScan, onError, scanningFor
     return null;
   };
 
+  const extractBlinkCode = (scannedData: string): string | null => {
+    try {
+      const blinkQRPattern = /blinkqr\.app\/qr\/([A-Z0-9]+)/i;
+      const match = scannedData.match(blinkQRPattern);
+      if (match) {
+        return match[1].toUpperCase();
+      }
+    } catch (err) {
+      console.error('Error extracting BlinkQR code:', err);
+    }
+    return null;
+  };
+
   const handleScan = (scannedData: string) => {
-    console.log('Unified scanner received:', scannedData);
+    console.log('Universal scanner received:', scannedData);
+
     const isISBN = /^(978|979)\d{10}$/.test(scannedData) || /^\d{9}[\dX]$/.test(scannedData);
     const accessHash = extractAccessHash(scannedData);
+    const blinkCode = extractBlinkCode(scannedData);
 
-    console.log('Detection results:', { isISBN, hasAccessHash: !!accessHash, scanningFor });
+    console.log('Detection results:', {
+      isISBN,
+      hasAccessHash: !!accessHash,
+      hasBlinkCode: !!blinkCode,
+      scanningFor
+    });
 
-    if (isISBN && onBookScan) {
+    if (isISBN && onBookScan && (scanningFor === 'book' || scanningFor === 'student-book' || scanningFor === 'all')) {
       console.log('Calling onBookScan with ISBN:', scannedData);
       onBookScan(scannedData);
       return;
     }
 
-    if (accessHash && onStudentScan) {
+    if (accessHash && onStudentScan && (scanningFor === 'student' || scanningFor === 'student-book' || scanningFor === 'all')) {
       console.log('Calling onStudentScan with hash:', accessHash);
       onStudentScan(accessHash);
       return;
     }
 
-    if (scanningFor === 'student') {
-      onError('Geen geldige leerling QR-code');
-    } else if (scanningFor === 'book') {
-      onError('Geen geldige ISBN barcode');
+    if (blinkCode && onMaterialScan && (scanningFor === 'material' || scanningFor === 'all')) {
+      console.log('Calling onMaterialScan with code:', blinkCode);
+      onMaterialScan(blinkCode);
+      return;
+    }
+
+    if (onError) {
+      if (scanningFor === 'student') {
+        onError('Geen geldige leerling QR-code');
+      } else if (scanningFor === 'book') {
+        onError('Geen geldige ISBN barcode');
+      } else if (scanningFor === 'material') {
+        onError('Geen geldige BlinkQR code');
+      } else {
+        onError('Geen geldige code herkend');
+      }
+    }
+  };
+
+  const getScanMessage = () => {
+    switch (scanningFor) {
+      case 'student':
+        return 'Scan leerling QR-code';
+      case 'book':
+        return 'Scan boek barcode (ISBN)';
+      case 'material':
+        return 'Scan BlinkQR code van materiaal';
+      case 'student-book':
+        return 'Scan leerling QR-code of boek barcode';
+      case 'all':
+        return 'Scan QR-code (leerling, boek, of materiaal)';
+      default:
+        return 'Scan QR-code';
     }
   };
 
   return (
     <div className="space-y-2">
-      <div id="unified-scanner" className="rounded-lg overflow-hidden max-w-md mx-auto" style={{ maxHeight: '300px' }} />
+      <div id="universal-scanner" className="rounded-lg overflow-hidden max-w-md mx-auto" style={{ maxHeight: '300px' }} />
       <div className="text-center">
         <p className="text-sm text-gray-600">
-          {scanningFor === 'student' && 'Scan leerling QR-code'}
-          {scanningFor === 'book' && 'Scan boek barcode (ISBN)'}
-          {scanningFor === 'both' && 'Scan leerling QR-code of boek barcode'}
+          {getScanMessage()}
         </p>
       </div>
     </div>

@@ -6,7 +6,7 @@ import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
 import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, Eye } from 'lucide-react';
-import { MaterialScanner } from './MaterialScanner';
+import { UniversalScanner } from '../ui/UniversalScanner';
 
 interface Material {
   id: string;
@@ -95,21 +95,9 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
     }
   };
 
-  const handleScan = async (scannedCode: string) => {
-    // Check if it's a BlinkQR code (URLs never contain dashes)
-    const blinkQRPattern = /blinkqr\.app\/qr\/([A-Z0-9]+)/i;
-    const match = scannedCode.match(blinkQRPattern);
-
-    if (!match) {
-      setToast({ message: 'Geen geldige BlinkQR code gevonden', type: 'error' });
-      return;
-    }
-
-    // Convert to uppercase (no dashes in URL)
-    const code = match[1].toUpperCase();
-
+  const handleMaterialScan = async (blinkCode: string) => {
     // Check if material already exists
-    const existing = materials.find(m => m.blink_code === code);
+    const existing = materials.find(m => m.blink_code === blinkCode);
     if (existing) {
       setSelectedMaterial(existing);
       setViewMode('detail');
@@ -117,7 +105,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
       setToast({ message: 'Materiaal gevonden!', type: 'success' });
     } else {
       // Create new material with this code
-      setFormBlinkCode(code);
+      setFormBlinkCode(blinkCode);
       setShowMaterialForm(true);
       setShowScanner(false);
       setToast({ message: 'Nieuw materiaal - vul details in', type: 'info' });
@@ -259,8 +247,9 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
           </Button>
         </div>
         <Card>
-          <MaterialScanner
-            onScan={handleScan}
+          <UniversalScanner
+            scanningFor="material"
+            onMaterialScan={handleMaterialScan}
             onError={(error) => setToast({ message: error, type: 'error' })}
           />
         </Card>
@@ -826,8 +815,9 @@ function MaterialLoanView({
           </Button>
         </div>
         <Card>
-          <MaterialScanner
-            onScan={handleScan}
+          <UniversalScanner
+            scanningFor="material"
+            onMaterialScan={handleMaterialScan}
             onError={(error) => setToast({ message: error, type: 'error' })}
           />
         </Card>

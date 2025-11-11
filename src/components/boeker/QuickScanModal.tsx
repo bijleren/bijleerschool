@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
-import { UnifiedScanner } from './UnifiedScanner';
+import { UniversalScanner } from '../ui/UniversalScanner';
 import { X, Search, Camera, BookOpen, User, Check, ArrowLeft, AlertCircle } from 'lucide-react';
 
 interface Student {
@@ -493,11 +493,11 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                  <UnifiedScanner
+                  <UniversalScanner
                     onStudentScan={handleStudentScan}
                     onBookScan={handleBookScan}
                     onError={(error) => setToast({ message: error, type: 'error' })}
-                    scanningFor="both"
+                    scanningFor="student-book"
                   />
                 </div>
               )}
@@ -571,11 +571,11 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                       {processing ? 'Boek verwerken...' : 'Scan boek barcode (ISBN)'}
                     </p>
                   </div>
-                  <UnifiedScanner
+                  <UniversalScanner
                     onStudentScan={handleStudentScan}
                     onBookScan={handleBookScan}
                     onError={(error) => setToast({ message: error, type: 'error' })}
-                    scanningFor="both"
+                    scanningFor="student-book"
                   />
                 </div>
               )}
