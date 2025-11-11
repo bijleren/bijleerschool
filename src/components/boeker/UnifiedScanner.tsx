@@ -102,16 +102,21 @@ export function UnifiedScanner({ onStudentScan, onBookScan, onError, scanningFor
   };
 
   const handleScan = (scannedData: string) => {
+    console.log('Unified scanner received:', scannedData);
     const isISBN = /^(978|979)\d{10}$/.test(scannedData) || /^\d{9}[\dX]$/.test(scannedData);
     const accessHash = extractAccessHash(scannedData);
 
-    if (accessHash && onStudentScan) {
-      onStudentScan(accessHash);
+    console.log('Detection results:', { isISBN, hasAccessHash: !!accessHash, scanningFor });
+
+    if (isISBN && onBookScan) {
+      console.log('Calling onBookScan with ISBN:', scannedData);
+      onBookScan(scannedData);
       return;
     }
 
-    if (isISBN && onBookScan) {
-      onBookScan(scannedData);
+    if (accessHash && onStudentScan) {
+      console.log('Calling onStudentScan with hash:', accessHash);
+      onStudentScan(accessHash);
       return;
     }
 

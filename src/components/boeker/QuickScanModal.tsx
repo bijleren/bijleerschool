@@ -61,7 +61,7 @@ interface PendingStudentSwitch {
 
 export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScanModalProps) {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [action, setAction] = useState<Action | null>(null);
+  const [actionState, setActionState] = useState<Action | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,6 +71,12 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [pendingBook, setPendingBook] = useState<PendingBook | null>(null);
   const [pendingStudentSwitch, setPendingStudentSwitch] = useState<PendingStudentSwitch | null>(null);
+
+  const action = actionState;
+  const setAction = (newAction: Action | null) => {
+    console.log('ACTION CHANGED:', { from: actionState, to: newAction, stack: new Error().stack });
+    setActionState(newAction);
+  };
 
   useEffect(() => {
     fetchStudents();
@@ -111,16 +117,21 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
   };
 
   const handleStudentScan = async (accessHash: string) => {
+    console.log('Student scan attempt:', accessHash);
     const student = students.find(s => s.access_hash === accessHash);
     if (student) {
+      console.log('Student found:', student.first_name, student.last_name);
       if (selectedStudent) {
+        console.log('Student already selected, showing switch confirmation');
         setPendingStudentSwitch({ student });
       } else {
+        console.log('No student selected, selecting this one and setting action to lend');
         setSelectedStudent(student);
         setAction('lend');
         setShowScanner(true);
       }
     } else {
+      console.log('Student not found for hash:', accessHash);
       setToast({ message: 'Leerling niet gevonden', type: 'error' });
     }
   };
