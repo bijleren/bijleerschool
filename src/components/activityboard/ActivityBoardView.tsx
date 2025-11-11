@@ -262,7 +262,7 @@ export function ActivityBoardView({ board, onBack, onEdit, onFullscreenChange }:
   const [activeDragData, setActiveDragData] = useState<any>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showTimerSettings, setShowTimerSettings] = useState(false);
-  const [timerMinutes, setTimerMinutes] = useState(45);
+  const [timerEndTimeInput, setTimerEndTimeInput] = useState('');
   const [timerEndTime, setTimerEndTime] = useState<Date | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [showClearConfirmation, setShowClearConfirmation] = useState(false);
@@ -494,13 +494,32 @@ export function ActivityBoardView({ board, onBack, onEdit, onFullscreenChange }:
     setFeedbackSession(session);
   };
 
-  const handleStartTimer = (minutes: number) => {
+  const handleStartTimer = () => {
+    if (!timerEndTimeInput) {
+      setToast({ message: 'Voer een eindtijd in', type: 'error' });
+      return;
+    }
+
+    const [hours, minutes] = timerEndTimeInput.split(':').map(Number);
     const endTime = new Date();
-    endTime.setMinutes(endTime.getMinutes() + minutes);
+    endTime.setHours(hours, minutes, 0, 0);
+
+    // If the time is before now, assume it's for tomorrow
+    if (endTime < new Date()) {
+      endTime.setDate(endTime.getDate() + 1);
+    }
+
+    const remaining = Math.floor((endTime.getTime() - new Date().getTime()) / 1000);
+
+    if (remaining <= 0) {
+      setToast({ message: 'Eindtijd moet in de toekomst liggen', type: 'error' });
+      return;
+    }
+
     setTimerEndTime(endTime);
-    setTimeRemaining(minutes * 60);
+    setTimeRemaining(remaining);
     setShowTimerSettings(false);
-    setToast({ message: `Timer gestart: ${minutes} minuten`, type: 'success' });
+    setToast({ message: `Timer gestart tot ${timerEndTimeInput}`, type: 'success' });
   };
 
   const handleStopTimer = () => {
@@ -975,34 +994,42 @@ export function ActivityBoardView({ board, onBack, onEdit, onFullscreenChange }:
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Timer instellen</h3>
             <p className="text-gray-600 mb-4">
-              Stel de timer in voor het einde van de les. Wanneer de timer afloopt, wordt de tijdregistratie gestopt.
+              Stel de eindtijd in voor de les. Wanneer de timer afloopt, wordt de tijdregistratie gestopt.
             </p>
             <div className="space-y-3 mb-6">
               <label className="block">
-                <span className="text-sm font-medium text-gray-700">Minuten</span>
+                <span className="text-sm font-medium text-gray-700">Eindtijd</span>
                 <input
-                  type="number"
-                  min="1"
-                  max="180"
-                  value={timerMinutes}
-                  onChange={(e) => setTimerMinutes(parseInt(e.target.value) || 1)}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  type="time"
+                  value={timerEndTimeInput}
+                  onChange={(e) => setTimerEndTimeInput(e.target.value)}
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="HH:MM"
                 />
               </label>
               <div className="grid grid-cols-3 gap-2">
-                {[15, 30, 45, 60, 90, 120].map((minutes) => (
-                  <button
-                    key={minutes}
-                    onClick={() => setTimerMinutes(minutes)}
-                    className={`px-3 py-2 rounded-lg border-2 transition-all ${
-                      timerMinutes === minutes
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    {minutes} min
-                  </button>
-                ))}
+                {(() => {
+                  const now = new Date();
+                  const presets = [15, 30, 45, 60, 90, 120];
+                  return presets.map((minutes) => {
+                    const presetTime = new Date(now.getTime() + minutes * 60000);
+                    const timeString = `${String(presetTime.getHours()).padStart(2, '0')}:${String(presetTime.getMinutes()).padStart(2, '0')}`;
+                    return (
+                      <button
+                        key={minutes}
+                        onClick={() => setTimerEndTimeInput(timeString)}
+                        className={`px-3 py-2 rounded-lg border-2 transition-all ${
+                          timerEndTimeInput === timeString
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                      >
+                        <div className="text-xs text-gray-600">+{minutes}m</div>
+                        <div className="font-semibold">{timeString}</div>
+                      </button>
+                    );
+                  });
+                })()}
               </div>
             </div>
             <div className="flex space-x-3">
@@ -1015,7 +1042,7 @@ export function ActivityBoardView({ board, onBack, onEdit, onFullscreenChange }:
               </Button>
               <Button
                 variant="primary"
-                onClick={() => handleStartTimer(timerMinutes)}
+                onClick={handleStartTimer}
                 className="flex-1"
               >
                 Start timer
