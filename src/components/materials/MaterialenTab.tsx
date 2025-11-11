@@ -5,8 +5,9 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
-import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, Eye } from 'lucide-react';
+import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, Eye, Zap } from 'lucide-react';
 import { UniversalScanner } from '../ui/UniversalScanner';
+import { QuickScanMaterialModal } from './QuickScanMaterialModal';
 
 interface Material {
   id: string;
@@ -48,6 +49,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
   const [showMaterialForm, setShowMaterialForm] = useState(false);
+  const [showQuickScan, setShowQuickScan] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'detail' | 'loan'>('list');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -416,7 +418,11 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
           <p className="text-sm text-gray-600 mt-1">Beheer schoolmateriaal met BlinkQR codes</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => setShowScanner(true)}>
+          <Button onClick={() => setShowQuickScan(true)}>
+            <Zap className="w-4 h-4 mr-2" />
+            Snel Scannen
+          </Button>
+          <Button variant="secondary" onClick={() => setShowScanner(true)}>
             <QrCode className="w-4 h-4 mr-2" />
             Scan Code
           </Button>
@@ -499,6 +505,15 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}
+        />
+      )}
+
+      {showQuickScan && user && (
+        <QuickScanMaterialModal
+          schoolId={schoolId}
+          userId={user.id}
+          onClose={() => setShowQuickScan(false)}
+          onMaterialProcessed={fetchMaterials}
         />
       )}
     </div>
