@@ -153,6 +153,35 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     }
 
     try {
+      const totalCopies = parseInt(formData.total_copies) || 1;
+
+      if (editingBook && totalCopies < editingBook.total_copies) {
+        const copiesOut = editingBook.total_copies - editingBook.available_copies;
+
+        if (totalCopies < copiesOut) {
+          const { data: activeLoans, error: loansError } = await supabase
+            .from('book_loans')
+            .select(`
+              id,
+              student:students(first_name, last_name)
+            `)
+            .eq('book_id', editingBook.id)
+            .is('returned_at', null);
+
+          if (loansError) throw loansError;
+
+          const borrowerNames = activeLoans?.map((loan: any) =>
+            `${loan.student.first_name} ${loan.student.last_name}`
+          ).join(', ') || '';
+
+          setToast({
+            message: `Kan aantal niet verlagen. ${copiesOut} ${copiesOut === 1 ? 'exemplaar is' : 'exemplaren zijn'} uitgeleend aan: ${borrowerNames}. Vraag deze eerst terug.`,
+            type: 'error'
+          });
+          return;
+        }
+      }
+
       const bookData = {
         school_id: schoolId,
         isbn: formData.isbn,
@@ -164,8 +193,10 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
         description: formData.description || null,
         cover_image_url: formData.cover_image_url || null,
         language: formData.language || null,
-        total_copies: parseInt(formData.total_copies) || 1,
-        available_copies: parseInt(formData.total_copies) || 1,
+        total_copies: totalCopies,
+        available_copies: editingBook
+          ? Math.max(0, editingBook.available_copies + (totalCopies - editingBook.total_copies))
+          : totalCopies,
         added_by: user?.id
       };
 
