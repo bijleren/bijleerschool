@@ -34,11 +34,10 @@ interface HeaderProps {
   onNavigateToWebWijzer: () => void;
   onNavigateToActivityBoards: () => void;
   onNavigateToBoeker: () => void;
-  onNavigateToMaterialen: () => void;
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToMaterialen, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -365,8 +364,11 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     </div>
                     <button
                       onClick={() => {
-                        onNavigateToMaterialen();
+                        onNavigateToBoeker();
                         setShowAppsDropdown(false);
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('navigateToBoekerMaterials'));
+                        }, 100);
                       }}
                       className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
                     >
