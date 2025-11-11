@@ -353,8 +353,8 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
             <div className="bg-gray-50 rounded-lg p-4 mb-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-medium text-gray-700">
-                  {step === 'student-selection' && 'Scan leerling QR code'}
-                  {step === 'book-scanning' && (processing ? 'Boek verwerken...' : 'Scan boek barcode')}
+                  {step === 'student-selection' && 'Scan leerling QR-code'}
+                  {step === 'book-scanning' && (processing ? 'Boek verwerken...' : 'Scan boek barcode (ISBN)')}
                 </p>
                 <button
                   onClick={() => setShowScanner(false)}
@@ -367,7 +367,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                 onStudentScan={handleStudentScan}
                 onBookScan={handleBookScan}
                 onError={(error) => setToast({ message: error, type: 'error' })}
-                scanningFor={scanningFor}
+                scanningFor="both"
               />
             </div>
           )}

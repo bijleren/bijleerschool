@@ -58,7 +58,7 @@ export function UnifiedScanner({ onStudentScan, onBookScan, onError, scanningFor
         { facingMode: 'environment' },
         {
           fps: 10,
-          qrbox: { width: 250, height: 250 },
+          qrbox: { width: 300, height: 300 },
           aspectRatio: 1.0,
         },
         (decodedText) => {
@@ -103,42 +103,32 @@ export function UnifiedScanner({ onStudentScan, onBookScan, onError, scanningFor
 
   const handleScan = (scannedData: string) => {
     const isISBN = /^(978|979)\d{10}$/.test(scannedData) || /^\d{9}[\dX]$/.test(scannedData);
+    const accessHash = extractAccessHash(scannedData);
 
-    if (scanningFor === 'student' || scanningFor === 'both') {
-      const accessHash = extractAccessHash(scannedData);
-      if (accessHash) {
-        if (onStudentScan) {
-          onStudentScan(accessHash);
-        }
-        return;
-      }
+    if (accessHash && onStudentScan) {
+      onStudentScan(accessHash);
+      return;
     }
 
-    if (scanningFor === 'book' || scanningFor === 'both') {
-      if (isISBN) {
-        if (onBookScan) {
-          onBookScan(scannedData);
-        }
-        return;
-      }
+    if (isISBN && onBookScan) {
+      onBookScan(scannedData);
+      return;
     }
 
-    if (scanningFor === 'both') {
-      onError('Code niet herkend als leerling of boek');
-    } else if (scanningFor === 'student') {
+    if (scanningFor === 'student') {
       onError('Geen geldige leerling QR-code');
-    } else {
+    } else if (scanningFor === 'book') {
       onError('Geen geldige ISBN barcode');
     }
   };
 
   return (
-    <div className="space-y-4">
-      <div id="unified-scanner" className="rounded-lg overflow-hidden" />
+    <div className="space-y-2">
+      <div id="unified-scanner" className="rounded-lg overflow-hidden max-w-md mx-auto" style={{ maxHeight: '300px' }} />
       <div className="text-center">
         <p className="text-sm text-gray-600">
           {scanningFor === 'student' && 'Scan leerling QR-code'}
-          {scanningFor === 'book' && 'Scan boek barcode'}
+          {scanningFor === 'book' && 'Scan boek barcode (ISBN)'}
           {scanningFor === 'both' && 'Scan leerling QR-code of boek barcode'}
         </p>
       </div>
