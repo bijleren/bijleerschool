@@ -10,7 +10,7 @@ import { BoardOptionsModal } from './BoardOptionsModal';
 import { ActivitySelectionModal } from './ActivitySelectionModal';
 import { UnassignedStudentsPanel } from './UnassignedStudentsPanel';
 import { QRScanner } from './QRScanner';
-import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap, Maximize, Minimize, Timer } from 'lucide-react';
 import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor, useDroppable, useDraggable, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -259,6 +259,12 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
   const [unassignedStudents, setUnassignedStudents] = useState<any[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeDragData, setActiveDragData] = useState<any>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showTimerSettings, setShowTimerSettings] = useState(false);
+  const [timerMinutes, setTimerMinutes] = useState(45);
+  const [timerEndTime, setTimerEndTime] = useState<Date | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [showClearConfirmation, setShowClearConfirmation] = useState(false);
 
   useEffect(() => {
     fetchOptions();
@@ -294,6 +300,25 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
   useEffect(() => {
     fetchUnassignedStudents();
   }, [sessions]);
+
+  useEffect(() => {
+    if (!timerEndTime) return;
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const remaining = Math.floor((timerEndTime.getTime() - now.getTime()) / 1000);
+
+      if (remaining <= 0) {
+        setTimeRemaining(0);
+        clearInterval(interval);
+        setShowClearConfirmation(true);
+      } else {
+        setTimeRemaining(remaining);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timerEndTime]);
 
   const fetchOptions = async () => {
     try {
@@ -464,6 +489,43 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
     setFeedbackSession(session);
   };
 
+  const handleStartTimer = (minutes: number) => {
+    const endTime = new Date();
+    endTime.setMinutes(endTime.getMinutes() + minutes);
+    setTimerEndTime(endTime);
+    setTimeRemaining(minutes * 60);
+    setShowTimerSettings(false);
+    setToast({ message: `Timer gestart: ${minutes} minuten`, type: 'success' });
+  };
+
+  const handleStopTimer = () => {
+    setTimerEndTime(null);
+    setTimeRemaining(null);
+    setToast({ message: 'Timer gestopt', type: 'info' });
+  };
+
+  const handleClearBoard = async () => {
+    try {
+      const activeSessions = sessions.filter(s => !s.end_time);
+
+      for (const session of activeSessions) {
+        await supabase
+          .from('activity_sessions')
+          .update({ end_time: new Date().toISOString() })
+          .eq('id', session.id);
+      }
+
+      setShowClearConfirmation(false);
+      setTimerEndTime(null);
+      setTimeRemaining(null);
+      await fetchActiveSessions();
+      setToast({ message: 'Bord gewist', type: 'success' });
+    } catch (error) {
+      console.error('Error clearing board:', error);
+      setToast({ message: 'Fout bij wissen van bord', type: 'error' });
+    }
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -601,32 +663,82 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
     >
       <div className="flex h-full">
         <div className="flex-1 max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="secondary" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Terug
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{board.name}</h1>
-            {board.description && (
-              <p className="text-gray-600">{board.description}</p>
-            )}
+        {!isFullscreen && (
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center space-x-4">
+              <Button variant="secondary" onClick={onBack}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Terug
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{board.name}</h1>
+                {board.description && (
+                  <p className="text-gray-600">{board.description}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              {timeRemaining !== null && (
+                <div className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-blue-50 border-2 border-blue-200">
+                  <Clock className="w-5 h-5 text-blue-600" />
+                  <span className="font-bold text-blue-900 tabular-nums">
+                    {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
+                  </span>
+                  <button
+                    onClick={handleStopTimer}
+                    className="ml-2 text-blue-600 hover:text-blue-800"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              <button
+                onClick={() => setShowTimerSettings(true)}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all bg-white text-gray-700"
+                title="Timer instellen"
+              >
+                <Timer className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setIsFullscreen(true)}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all bg-white text-gray-700"
+                title="Volledig scherm"
+              >
+                <Maximize className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setShowOptionsModal(true)}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all bg-white text-gray-700"
+              >
+                <Settings className="w-5 h-5" />
+                <span className="font-medium">Instellingen</span>
+              </button>
+              <Button variant="secondary" onClick={onEdit}>
+                Bord bewerken
+              </Button>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setShowOptionsModal(true)}
-            className="flex items-center space-x-2 px-4 py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all bg-white text-gray-700"
-          >
-            <Settings className="w-5 h-5" />
-            <span className="font-medium">Instellingen</span>
-          </button>
-          <Button variant="secondary" onClick={onEdit}>
-            Bord bewerken
-          </Button>
-        </div>
-      </div>
+        )}
+
+        {isFullscreen && (
+          <div className="fixed top-4 right-4 z-50 flex items-center space-x-3">
+            {timeRemaining !== null && (
+              <div className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-blue-50 border-2 border-blue-200 shadow-lg">
+                <Clock className="w-5 h-5 text-blue-600" />
+                <span className="font-bold text-blue-900 tabular-nums text-lg">
+                  {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={() => setIsFullscreen(false)}
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all bg-white text-gray-700 shadow-lg"
+              title="Volledig scherm sluiten"
+            >
+              <Minimize className="w-5 h-5" />
+            </button>
+          </div>
+        )}
 
       {options.length === 0 ? (
         <Card className="text-center py-12">
@@ -852,6 +964,96 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
           </div>
         ) : null}
       </DragOverlay>
+
+      {showTimerSettings && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Timer instellen</h3>
+            <p className="text-gray-600 mb-4">
+              Stel de timer in voor het einde van de les. Wanneer de timer afloopt, wordt de tijdregistratie gestopt.
+            </p>
+            <div className="space-y-3 mb-6">
+              <label className="block">
+                <span className="text-sm font-medium text-gray-700">Minuten</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="180"
+                  value={timerMinutes}
+                  onChange={(e) => setTimerMinutes(parseInt(e.target.value) || 1)}
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[15, 30, 45, 60, 90, 120].map((minutes) => (
+                  <button
+                    key={minutes}
+                    onClick={() => setTimerMinutes(minutes)}
+                    className={`px-3 py-2 rounded-lg border-2 transition-all ${
+                      timerMinutes === minutes
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    {minutes} min
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex space-x-3">
+              <Button
+                variant="secondary"
+                onClick={() => setShowTimerSettings(false)}
+                className="flex-1"
+              >
+                Annuleren
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => handleStartTimer(timerMinutes)}
+                className="flex-1"
+              >
+                Start timer
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showClearConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                <Clock className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Timer afgelopen</h3>
+                <p className="text-sm text-gray-600">De les is afgelopen</p>
+              </div>
+            </div>
+            <p className="text-gray-700 mb-6">
+              De timer is afgelopen. Wil je het bord wissen en alle actieve sessies afsluiten?
+            </p>
+            <div className="flex space-x-3">
+              <Button
+                variant="secondary"
+                onClick={() => setShowClearConfirmation(false)}
+                className="flex-1"
+              >
+                Annuleren
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleClearBoard}
+                className="flex-1"
+              >
+                Bord wissen
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </DndContext>
   );
 }
