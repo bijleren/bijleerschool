@@ -51,17 +51,15 @@ const ICON_OPTIONS = [
   { name: 'Play', component: Play }
 ];
 
-const PRESET_ACTIVITIES = [
-  { name: 'Zelfstandig Werken', icon: 'Pencil', color: '#3B82F6', max_students: null },
-  { name: 'Lezen', icon: 'Book', color: '#10B981', max_students: null },
-  { name: 'Rekenhoek', icon: 'Calculator', color: '#F59E0B', max_students: 4 },
-  { name: 'Bouwen', icon: 'Building', color: '#8B5CF6', max_students: 6 },
-  { name: 'Knutselen', icon: 'Scissors', color: '#EC4899', max_students: 4 },
-  { name: 'Tekenen', icon: 'Palette', color: '#EF4444', max_students: null },
-  { name: 'Puzzelen', icon: 'Puzzle', color: '#06B6D4', max_students: 2 },
-  { name: 'Muziekhoek', icon: 'Music', color: '#F97316', max_students: 4 },
-  { name: 'Spelen', icon: 'Gamepad2', color: '#84CC16', max_students: null }
-];
+interface ActivityPreset {
+  id: string;
+  name: string;
+  description: string | null;
+  icon: string;
+  color: string;
+  max_students: number | null;
+  is_default: boolean;
+}
 
 export function ActivityBoardSettings({
   schoolId,
@@ -86,12 +84,19 @@ export function ActivityBoardSettings({
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(!!board);
   const [showPresets, setShowPresets] = useState(false);
+  const [showNewPreset, setShowNewPreset] = useState(false);
+  const [presets, setPresets] = useState<ActivityPreset[]>([]);
+  const [newPresetName, setNewPresetName] = useState('');
+  const [newPresetIcon, setNewPresetIcon] = useState('Grid');
+  const [newPresetColor, setNewPresetColor] = useState('#3B82F6');
+  const [newPresetMaxStudents, setNewPresetMaxStudents] = useState<number | ''>('');
   const [showIconPicker, setShowIconPicker] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   useEffect(() => {
     fetchGroupsAndStudents();
     fetchColleagues();
+    fetchPresets();
     if (board) {
       fetchOptions();
       fetchBoardSettings();
@@ -172,6 +177,55 @@ export function ActivityBoardSettings({
     }
   };
 
+  const fetchPresets = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('activity_presets')
+        .select('*')
+        .or(`is_default.eq.true,school_id.eq.${schoolId}`)
+        .order('is_default', { ascending: false })
+        .order('name');
+
+      if (error) throw error;
+      setPresets(data || []);
+    } catch (error) {
+      console.error('Error fetching presets:', error);
+    }
+  };
+
+  const createPreset = async () => {
+    if (!user || !newPresetName.trim()) {
+      setToast({ message: 'Voer een naam in voor de voorinstelling', type: 'error' });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('activity_presets')
+        .insert({
+          school_id: schoolId,
+          name: newPresetName.trim(),
+          icon: newPresetIcon,
+          color: newPresetColor,
+          max_students: newPresetMaxStudents || null,
+          created_by: user.id
+        });
+
+      if (error) throw error;
+
+      setToast({ message: 'Voorinstelling succesvol aangemaakt', type: 'success' });
+      setShowNewPreset(false);
+      setNewPresetName('');
+      setNewPresetIcon('Grid');
+      setNewPresetColor('#3B82F6');
+      setNewPresetMaxStudents('');
+      fetchPresets();
+    } catch (error) {
+      console.error('Error creating preset:', error);
+      setToast({ message: 'Fout bij aanmaken voorinstelling', type: 'error' });
+    }
+  };
+
   const fetchBoardSettings = async () => {
     if (!board) return;
 
@@ -246,10 +300,10 @@ export function ActivityBoardSettings({
     setOptions([...options, newOption]);
   };
 
-  const addPresetActivity = (preset: typeof PRESET_ACTIVITIES[0]) => {
+  const addPresetActivity = (preset: ActivityPreset) => {
     const newOption: ActivityOption = {
       name: preset.name,
-      description: '',
+      description: preset.description || '',
       max_students: preset.max_students,
       color: preset.color,
       icon: preset.icon,
@@ -522,41 +576,6 @@ export function ActivityBoardSettings({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tijdblokken (optioneel)
-              </label>
-              <div className="border border-gray-300 rounded-lg p-3 max-h-60 overflow-y-auto space-y-2">
-                {timeBlocks.length === 0 ? (
-                  <p className="text-sm text-gray-500">Geen tijdblokken beschikbaar. Maak eerst een lesrooster aan.</p>
-                ) : (
-                  timeBlocks.map((block) => {
-                    const dayNames = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
-                    return (
-                      <label key={block.id} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
-                        <input
-                          type="checkbox"
-                          checked={selectedTimeBlocks.includes(block.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedTimeBlocks([...selectedTimeBlocks, block.id]);
-                            } else {
-                              setSelectedTimeBlocks(selectedTimeBlocks.filter(id => id !== block.id));
-                            }
-                          }}
-                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">
-                          {dayNames[block.day_of_week]} - {block.title} ({block.start_time.slice(0, 5)} - {block.end_time.slice(0, 5)})
-                        </span>
-                      </label>
-                    );
-                  })
-                )}
-              </div>
-              <p className="mt-1 text-xs text-gray-500">Selecteer tijdblokken waarin dit bord actief is</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Delen met collega's (optioneel)
               </label>
               <div className="border border-gray-300 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
@@ -680,13 +699,86 @@ export function ActivityBoardSettings({
 
             {showPresets && (
               <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mb-3">Klik op een activiteit om toe te voegen:</p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm text-gray-600">Klik op een activiteit om toe te voegen:</p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowNewPreset(!showNewPreset)}
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Nieuwe Voorinstelling
+                  </Button>
+                </div>
+
+                {showNewPreset && (
+                  <div className="mb-4 p-3 bg-white border border-gray-300 rounded-lg space-y-3">
+                    <Input
+                      label="Naam"
+                      value={newPresetName}
+                      onChange={(e) => setNewPresetName(e.target.value)}
+                      placeholder="Bijv. Computerhoek"
+                    />
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Icoon</label>
+                        <select
+                          value={newPresetIcon}
+                          onChange={(e) => setNewPresetIcon(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        >
+                          {ICON_OPTIONS.map((icon) => (
+                            <option key={icon.name} value={icon.name}>{icon.name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Max. Leerlingen</label>
+                        <input
+                          type="number"
+                          value={newPresetMaxStudents}
+                          onChange={(e) => setNewPresetMaxStudents(e.target.value ? parseInt(e.target.value) : '')}
+                          placeholder="Optioneel"
+                          min="1"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    <ColorPicker
+                      color={newPresetColor}
+                      onChange={setNewPresetColor}
+                      label="Kleur"
+                    />
+
+                    <div className="flex gap-2">
+                      <Button onClick={createPreset} className="flex-1">
+                        Voorinstelling Aanmaken
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setShowNewPreset(false);
+                          setNewPresetName('');
+                          setNewPresetIcon('Grid');
+                          setNewPresetColor('#3B82F6');
+                          setNewPresetMaxStudents('');
+                        }}
+                      >
+                        Annuleren
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-3 gap-2">
-                  {PRESET_ACTIVITIES.map((preset, idx) => {
+                  {presets.map((preset) => {
                     const IconComponent = ICON_OPTIONS.find(i => i.name === preset.icon)?.component || Grid;
                     return (
                       <button
-                        key={idx}
+                        key={preset.id}
                         onClick={() => addPresetActivity(preset)}
                         className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
                       >
