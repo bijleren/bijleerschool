@@ -3,8 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
-import { QRScanner } from '../activityboard/QRScanner';
-import { BarcodeScanner } from './BarcodeScanner';
+import { UnifiedScanner } from './UnifiedScanner';
 import { X, Search, Camera, BookOpen, User, Check, ArrowLeft, Scan } from 'lucide-react';
 
 interface Student {
@@ -12,7 +11,7 @@ interface Student {
   first_name: string;
   last_name: string;
   student_number: string | null;
-  webwijzer_id: string | null;
+  access_hash: string | null;
 }
 
 interface Book {
@@ -50,8 +49,8 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showStudentQR, setShowStudentQR] = useState(false);
-  const [showBookScanner, setShowBookScanner] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const [scanningFor, setScanningFor] = useState<'student' | 'book'>('student');
   const [scannedBooks, setScannedBooks] = useState<ScannedBook[]>([]);
   const [processing, setProcessing] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -80,7 +79,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
     try {
       const { data, error } = await supabase
         .from('students')
-        .select('id, first_name, last_name, student_number, webwijzer_id')
+        .select('id, first_name, last_name, student_number, access_hash')
         .eq('school_id', schoolId)
         .order('last_name')
         .order('first_name');
@@ -94,11 +93,11 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
     }
   };
 
-  const handleStudentQRScan = async (webwijzerId: string) => {
-    const student = students.find(s => s.webwijzer_id === webwijzerId);
+  const handleStudentScan = async (accessHash: string) => {
+    const student = students.find(s => s.access_hash === accessHash);
     if (student) {
       setSelectedStudent(student);
-      setShowStudentQR(false);
+      setShowScanner(false);
       setStep('action-selection');
     } else {
       setToast({ message: 'Leerling niet gevonden', type: 'error' });
@@ -113,6 +112,8 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
   const handleActionSelect = (selectedAction: Action) => {
     setAction(selectedAction);
     setStep('book-scanning');
+    setScanningFor('book');
+    setShowScanner(true);
   };
 
   const handleBookScan = async (isbn: string) => {
@@ -278,7 +279,6 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
       setToast({ message: 'Fout bij verwerken boek', type: 'error' });
     } finally {
       setProcessing(false);
-      setShowBookScanner(false);
     }
   };
 
@@ -288,16 +288,20 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
     setAction(null);
     setScannedBooks([]);
     setSearchQuery('');
+    setScanningFor('student');
+    setShowScanner(false);
   };
 
   const handleBack = () => {
     if (step === 'action-selection') {
       setStep('student-selection');
       setSelectedStudent(null);
+      setScanningFor('student');
     } else if (step === 'book-scanning') {
       setStep('action-selection');
       setAction(null);
       setScannedBooks([]);
+      setShowScanner(false);
     }
   };
 
@@ -353,29 +357,33 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
 
               <div className="flex gap-2">
                 <Button
-                  onClick={() => setShowStudentQR(true)}
-                  variant="secondary"
+                  onClick={() => {
+                    setShowScanner(!showScanner);
+                    setScanningFor('student');
+                  }}
+                  variant={showScanner ? 'primary' : 'secondary'}
                   className="flex-1"
                 >
                   <Camera className="w-4 h-4 mr-2" />
-                  Scan WebWijzer
+                  {showScanner ? 'Scanner actief' : 'Start Scanner'}
                 </Button>
               </div>
 
-              {showStudentQR && (
+              {showScanner && (
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-medium text-gray-700">Scan leerling QR code</p>
                     <button
-                      onClick={() => setShowStudentQR(false)}
+                      onClick={() => setShowScanner(false)}
                       className="text-gray-400 hover:text-gray-600"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                  <QRScanner
-                    onScan={handleStudentQRScan}
+                  <UnifiedScanner
+                    onStudentScan={handleStudentScan}
                     onError={(error) => setToast({ message: error, type: 'error' })}
+                    scanningFor="student"
                   />
                 </div>
               )}
@@ -463,30 +471,17 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                 Scan boeken om te {action === 'lend' ? 'lenen' : 'inleveren'}
               </h3>
 
-              <Button
-                onClick={() => setShowBookScanner(true)}
-                variant="primary"
-                className="w-full"
-                disabled={processing}
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                {showBookScanner ? 'Scanner actief...' : 'Start barcode scanner'}
-              </Button>
-
-              {showBookScanner && (
+              {showScanner && (
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-700">Scan boek barcode</p>
-                    <button
-                      onClick={() => setShowBookScanner(false)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <p className="text-sm font-medium text-gray-700">
+                      {processing ? 'Boek verwerken...' : 'Scan boek barcode'}
+                    </p>
                   </div>
-                  <BarcodeScanner
-                    onScan={handleBookScan}
+                  <UnifiedScanner
+                    onBookScan={handleBookScan}
                     onError={(error) => setToast({ message: error, type: 'error' })}
+                    scanningFor="book"
                   />
                 </div>
               )}
