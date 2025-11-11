@@ -13,8 +13,12 @@ export function UnifiedScanner({ onStudentScan, onBookScan, onError, scanningFor
   const [isScanning, setIsScanning] = useState(false);
   const lastScanRef = useRef<string>('');
   const lastScanTimeRef = useRef<number>(0);
+  const initializingRef = useRef(false);
 
   useEffect(() => {
+    if (initializingRef.current) return;
+
+    initializingRef.current = true;
     initScanner();
 
     return () => {
@@ -23,13 +27,17 @@ export function UnifiedScanner({ onStudentScan, onBookScan, onError, scanningFor
           .stop()
           .then(() => {
             scannerRef.current?.clear();
+            scannerRef.current = null;
           })
           .catch((err) => console.error('Error stopping scanner:', err));
       }
+      initializingRef.current = false;
     };
   }, []);
 
   const initScanner = async () => {
+    if (scannerRef.current) return;
+
     try {
       const scannerId = 'unified-scanner';
       scannerRef.current = new Html5Qrcode(scannerId);
@@ -37,6 +45,7 @@ export function UnifiedScanner({ onStudentScan, onBookScan, onError, scanningFor
     } catch (err) {
       console.error('Error initializing scanner:', err);
       onError('Fout bij initialiseren scanner');
+      initializingRef.current = false;
     }
   };
 
@@ -68,19 +77,38 @@ export function UnifiedScanner({ onStudentScan, onBookScan, onError, scanningFor
     } catch (err) {
       console.error('Error starting scanner:', err);
       setIsScanning(false);
+      initializingRef.current = false;
       onError('Fout bij starten scanner');
     }
+  };
+
+  const extractAccessHash = (scannedData: string): string | null => {
+    try {
+      if (scannedData.includes('bijleer.school/webwijzer?h=')) {
+        const url = new URL(scannedData);
+        const hash = url.searchParams.get('h');
+        if (hash) {
+          return decodeURIComponent(hash);
+        }
+      }
+
+      if (scannedData.length >= 32 && /^[a-zA-Z0-9+/=]+$/.test(scannedData)) {
+        return scannedData;
+      }
+    } catch (err) {
+      console.error('Error extracting access hash:', err);
+    }
+    return null;
   };
 
   const handleScan = (scannedData: string) => {
     const isISBN = /^(978|979)\d{10}$/.test(scannedData) || /^\d{9}[\dX]$/.test(scannedData);
 
-    const isAccessHash = scannedData.length >= 32 && /^[a-f0-9]+$/.test(scannedData);
-
     if (scanningFor === 'student' || scanningFor === 'both') {
-      if (isAccessHash) {
+      const accessHash = extractAccessHash(scannedData);
+      if (accessHash) {
         if (onStudentScan) {
-          onStudentScan(scannedData);
+          onStudentScan(accessHash);
         }
         return;
       }
