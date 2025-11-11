@@ -117,6 +117,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
         setPendingStudentSwitch({ student });
       } else {
         setSelectedStudent(student);
+        setAction('lend');
         setShowScanner(true);
       }
     } else {
@@ -128,7 +129,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
     if (pendingStudentSwitch) {
       setSelectedStudent(pendingStudentSwitch.student);
       setPendingStudentSwitch(null);
-      setAction(null);
+      setAction('lend');
       setScannedBooks([]);
     }
   };
@@ -139,11 +140,13 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
 
   const handleStudentSelect = (student: Student) => {
     setSelectedStudent(student);
+    setAction('lend');
     setShowScanner(true);
   };
 
   const handleActionSelect = (selectedAction: Action) => {
     setAction(selectedAction);
+    setShowScanner(true);
   };
 
   const handleBookScan = async (isbn: string) => {
@@ -312,6 +315,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
       onBookProcessed();
       setPendingBook(null);
       setProcessing(false);
+      setShowScanner(true);
     } catch (error) {
       console.error('Error processing book:', error);
       setToast({ message: 'Fout bij verwerken boek', type: 'error' });
@@ -449,7 +453,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                 </Button>
               </div>
 
-              {action && showScanner && (
+              {action && (
                 <div className="bg-gray-50 rounded-lg p-4 mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-medium text-gray-700">
@@ -462,12 +466,6 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                     onError={(error) => setToast({ message: error, type: 'error' })}
                     scanningFor="both"
                   />
-                </div>
-              )}
-
-              {!action && (
-                <div className="text-center py-8 text-gray-500">
-                  Selecteer een actie om te beginnen
                 </div>
               )}
 
