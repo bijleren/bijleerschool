@@ -10,7 +10,7 @@ interface Vorming {
   id: string;
   title: string;
   description: string;
-  vimeo_url: string;
+  embed_code: string;
   category: string;
   display_order: number;
   is_published: boolean;
@@ -34,7 +34,7 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    vimeo_url: '',
+    embed_code: '',
     category: 'algemeen',
     display_order: 0,
     is_published: false
@@ -68,26 +68,6 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
     }
   };
 
-  const extractVimeoId = (url: string): string | null => {
-    const patterns = [
-      /vimeo\.com\/(\d+)/,
-      /player\.vimeo\.com\/video\/(\d+)/
-    ];
-
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match) return match[1];
-    }
-    return null;
-  };
-
-  const getVimeoEmbedUrl = (url: string): string => {
-    const videoId = extractVimeoId(url);
-    if (videoId) {
-      return `https://player.vimeo.com/video/${videoId}`;
-    }
-    return url;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,7 +103,7 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
       setFormData({
         title: '',
         description: '',
-        vimeo_url: '',
+        embed_code: '',
         category: 'algemeen',
         display_order: 0,
         is_published: false
@@ -142,7 +122,7 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
     setFormData({
       title: vorming.title,
       description: vorming.description,
-      vimeo_url: vorming.vimeo_url,
+      embed_code: vorming.embed_code,
       category: vorming.category,
       display_order: vorming.display_order,
       is_published: vorming.is_published
@@ -175,7 +155,7 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
     setFormData({
       title: '',
       description: '',
-      vimeo_url: '',
+      embed_code: '',
       category: 'algemeen',
       display_order: 0,
       is_published: false
@@ -234,15 +214,10 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
               )}
             </div>
 
-            <div className="aspect-video bg-black rounded-lg overflow-hidden mb-6">
-              <iframe
-                src={getVimeoEmbedUrl(selectedVorming.vimeo_url)}
-                className="w-full h-full"
-                frameBorder="0"
-                allow="autoplay; fullscreen; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </div>
+            <div
+              className="mb-6"
+              dangerouslySetInnerHTML={{ __html: selectedVorming.embed_code }}
+            />
 
             <div
               className="prose prose-sm max-w-none text-gray-700"
@@ -303,16 +278,18 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Vimeo URL
+                Vimeo Embed Code
               </label>
-              <Input
-                value={formData.vimeo_url}
-                onChange={(e) => setFormData({ ...formData, vimeo_url: e.target.value })}
-                placeholder="https://vimeo.com/123456789"
+              <textarea
+                value={formData.embed_code}
+                onChange={(e) => setFormData({ ...formData, embed_code: e.target.value })}
+                placeholder='<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/..." ...></iframe></div>'
                 required
+                rows={6}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Voer een Vimeo video URL in (bijv. vimeo.com/123456789)
+                Plak de volledige embed code van Vimeo (klik op 'Share' → 'Embed' in Vimeo)
               </p>
             </div>
 
@@ -415,12 +392,11 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
               className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => setSelectedVorming(vorming)}
             >
-              <div className="aspect-video bg-gray-900 relative group">
-                <iframe
-                  src={getVimeoEmbedUrl(vorming.vimeo_url)}
-                  className="w-full h-full pointer-events-none"
-                  frameBorder="0"
-                ></iframe>
+              <div className="relative group">
+                <div
+                  className="pointer-events-none"
+                  dangerouslySetInnerHTML={{ __html: vorming.embed_code }}
+                />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
                   <Play className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
