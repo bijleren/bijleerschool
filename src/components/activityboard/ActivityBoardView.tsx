@@ -528,9 +528,73 @@ export function ActivityBoardView({ board, onBack, onEdit, onFullscreenChange }:
     setToast({ message: 'Timer gestopt', type: 'info' });
   };
 
+  const logCollaborations = async (activeSessions: ActivitySession[]) => {
+    // Group sessions by activity option to find students working together
+    const sessionsByActivity = activeSessions.reduce((acc, session) => {
+      if (!acc[session.activity_option_id]) {
+        acc[session.activity_option_id] = [];
+      }
+      acc[session.activity_option_id].push(session);
+      return acc;
+    }, {} as Record<string, ActivitySession[]>);
+
+    const collaborationLogs = [];
+
+    // For each activity with multiple students, create collaboration logs
+    for (const [activityOptionId, activitySessions] of Object.entries(sessionsByActivity)) {
+      if (activitySessions.length < 2) continue;
+
+      // Create logs for each pair of students
+      for (let i = 0; i < activitySessions.length; i++) {
+        for (let j = i + 1; j < activitySessions.length; j++) {
+          const session1 = activitySessions[i];
+          const session2 = activitySessions[j];
+
+          // Calculate overlap time
+          const start1 = new Date(session1.start_time);
+          const start2 = new Date(session2.start_time);
+          const overlapStart = start1 > start2 ? start1 : start2;
+          const overlapEnd = new Date();
+
+          const durationMinutes = Math.floor((overlapEnd.getTime() - overlapStart.getTime()) / 60000);
+
+          if (durationMinutes > 0) {
+            // Ensure session_id_1 < session_id_2 for the CHECK constraint
+            const [sessionId1, sessionId2] = session1.id < session2.id
+              ? [session1.id, session2.id]
+              : [session2.id, session1.id];
+
+            collaborationLogs.push({
+              session_id_1: sessionId1,
+              session_id_2: sessionId2,
+              activity_option_id: activityOptionId,
+              start_time: overlapStart.toISOString(),
+              end_time: overlapEnd.toISOString(),
+              duration_minutes: durationMinutes
+            });
+          }
+        }
+      }
+    }
+
+    // Insert collaboration logs
+    if (collaborationLogs.length > 0) {
+      const { error } = await supabase
+        .from('activity_collaboration_logs')
+        .insert(collaborationLogs);
+
+      if (error) {
+        console.error('Error logging collaborations:', error);
+      }
+    }
+  };
+
   const handleClearBoard = async () => {
     try {
       const activeSessions = sessions.filter(s => !s.end_time);
+
+      // Log collaborations before ending sessions
+      await logCollaborations(activeSessions);
 
       for (const session of activeSessions) {
         await supabase
@@ -631,6 +695,23 @@ export function ActivityBoardView({ board, onBack, onEdit, onFullscreenChange }:
     switchToActivity: string | null
   ) => {
     try {
+      // Find the session being ended
+      const endingSession = sessions.find(s => s.id === sessionId);
+
+      // Log collaborations for this session before ending it
+      if (endingSession && !endingSession.end_time) {
+        // Find other active sessions in the same activity
+        const collaboratingSessions = sessions.filter(
+          s => s.activity_option_id === endingSession.activity_option_id &&
+               s.id !== sessionId &&
+               !s.end_time
+        );
+
+        if (collaboratingSessions.length > 0) {
+          await logCollaborations([endingSession, ...collaboratingSessions]);
+        }
+      }
+
       const { error: updateError } = await supabase
         .from('activity_sessions')
         .update({
