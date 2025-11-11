@@ -25,7 +25,11 @@ interface UserSchool {
   name: string;
 }
 
-export function ActivityBoardsTab() {
+interface ActivityBoardsTabProps {
+  onFullscreenChange?: (isFullscreen: boolean) => void;
+}
+
+export function ActivityBoardsTab({ onFullscreenChange }: ActivityBoardsTabProps) {
   const { user } = useAuth();
   const [activeView, setActiveView] = useState<'list' | 'board' | 'settings' | 'analytics'>('list');
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
@@ -188,6 +192,7 @@ export function ActivityBoardsTab() {
         board={selectedBoard}
         onBack={() => setActiveView('list')}
         onEdit={() => handleEditBoard(selectedBoard)}
+        onFullscreenChange={onFullscreenChange}
       />
     );
   }

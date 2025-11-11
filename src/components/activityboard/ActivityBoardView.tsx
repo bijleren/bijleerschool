@@ -55,6 +55,7 @@ interface ActivityBoardViewProps {
   board: ActivityBoard;
   onBack: () => void;
   onEdit: () => void;
+  onFullscreenChange?: (isFullscreen: boolean) => void;
 }
 
 const ICON_MAP: Record<string, any> = {
@@ -242,7 +243,7 @@ function DraggableStudentSpot({
   );
 }
 
-export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewProps) {
+export function ActivityBoardView({ board, onBack, onEdit, onFullscreenChange }: ActivityBoardViewProps) {
   const { user } = useAuth();
   const [options, setOptions] = useState<ActivityOption[]>([]);
   const [sessions, setSessions] = useState<ActivitySession[]>([]);
@@ -319,6 +320,10 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
 
     return () => clearInterval(interval);
   }, [timerEndTime]);
+
+  useEffect(() => {
+    onFullscreenChange?.(isFullscreen);
+  }, [isFullscreen, onFullscreenChange]);
 
   const fetchOptions = async () => {
     try {

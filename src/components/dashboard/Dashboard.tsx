@@ -59,6 +59,7 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [behaviorFilter, setBehaviorFilter] = useState<'all' | 'today' | 'open' | 'followup'>('all');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -406,7 +407,8 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header
+      {!isFullscreen && (
+        <Header
         onNavigateToDashboard={handleNavigateToDashboard}
         onNavigateToProfile={handleNavigateToProfile}
         onNavigateToSchools={handleNavigateToSchools}
@@ -419,7 +421,8 @@ export function Dashboard() {
         onNavigateToBoeker={handleNavigateToBoeker}
         focusSchool={focusSchool}
       />
-      <main className="p-8">
+      )}
+      <main className={isFullscreen ? '' : 'p-8'}>
         {activeTab === 'dashboard' && (
           <DashboardTab 
             onNavigateToStudent={handleNavigateToStudent}
@@ -448,7 +451,7 @@ export function Dashboard() {
         {activeTab === 'schoolday' && <SchoolDayTab />}
         {activeTab === 'webwijzer' && <WebWijzerTab />}
         {activeTab === 'boeker' && <BoekerTab />}
-        {activeTab === 'activityboards' && <ActivityBoardsTab />}
+        {activeTab === 'activityboards' && <ActivityBoardsTab onFullscreenChange={setIsFullscreen} />}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail
             school={selectedSchool}
