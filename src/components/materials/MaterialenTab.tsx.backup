@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
-import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, Edit, Trash2 } from 'lucide-react';
+import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, Trash2 } from 'lucide-react';
 import { UniversalScanner } from '../ui/UniversalScanner';
 
 interface Material {
@@ -18,7 +18,18 @@ interface Material {
   is_available: boolean;
   total_copies: number;
   available_copies: number;
+  item_number: string | null;
   created_at: string;
+}
+
+interface GroupedMaterial {
+  blink_code: string;
+  title: string;
+  description: string | null;
+  photo_url: string | null;
+  total_items: number;
+  available_items: number;
+  items: Material[];
 }
 
 interface MaterialLoan {
@@ -45,20 +56,20 @@ interface MaterialenTabProps {
 export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   const { user } = useAuth();
   const [materials, setMaterials] = useState<Material[]>([]);
-  const [filteredMaterials, setFilteredMaterials] = useState<Material[]>([]);
+  const [groupedMaterials, setGroupedMaterials] = useState<GroupedMaterial[]>([]);
+  const [filteredGroupedMaterials, setFilteredGroupedMaterials] = useState<GroupedMaterial[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
   const [showMaterialForm, setShowMaterialForm] = useState(false);
-  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
-  const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
+  const [selectedBlinkCode, setSelectedBlinkCode] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'detail' | 'loan'>('list');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   const [formBlinkCode, setFormBlinkCode] = useState('');
   const [formTitle, setFormTitle] = useState('');
   const [formDescription, setFormDescription] = useState('');
-  const [formTotalCopies, setFormTotalCopies] = useState('1');
+  const [formItemNumber, setFormItemNumber] = useState('');
   const [formPhoto, setFormPhoto] = useState<File | null>(null);
   const [formPhotoPreview, setFormPhotoPreview] = useState<string | null>(null);
 
@@ -67,17 +78,41 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   }, [schoolId]);
 
   useEffect(() => {
+    const grouped = materials.reduce((acc, material) => {
+      const existing = acc.find(g => g.blink_code === material.blink_code);
+      if (existing) {
+        existing.items.push(material);
+        existing.total_items++;
+        existing.available_items += material.available_copies;
+      } else {
+        acc.push({
+          blink_code: material.blink_code,
+          title: material.title,
+          description: material.description,
+          photo_url: material.photo_url,
+          total_items: 1,
+          available_items: material.available_copies,
+          items: [material]
+        });
+      }
+      return acc;
+    }, [] as GroupedMaterial[]);
+
+    setGroupedMaterials(grouped);
+  }, [materials]);
+
+  useEffect(() => {
     if (searchTerm) {
-      setFilteredMaterials(
-        materials.filter(m =>
+      setFilteredGroupedMaterials(
+        groupedMaterials.filter(m =>
           m.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           m.blink_code.toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
     } else {
-      setFilteredMaterials(materials);
+      setFilteredGroupedMaterials(groupedMaterials);
     }
-  }, [searchTerm, materials]);
+  }, [searchTerm, groupedMaterials]);
 
   const fetchMaterials = async () => {
     try {
@@ -99,9 +134,9 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   };
 
   const handleMaterialScan = async (blinkCode: string) => {
-    const existing = materials.find(m => m.blink_code === blinkCode);
+    const existing = groupedMaterials.find(m => m.blink_code === blinkCode);
     if (existing) {
-      setSelectedMaterial(existing);
+      setSelectedBlinkCode(blinkCode);
       setViewMode('detail');
       setShowScanner(false);
       setToast({ message: 'Materiaal gevonden!', type: 'success' });
@@ -150,14 +185,8 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
       return;
     }
 
-    const totalCopies = parseInt(formTotalCopies) || 1;
-    if (totalCopies < 1) {
-      setToast({ message: 'Aantal moet minimaal 1 zijn', type: 'error' });
-      return;
-    }
-
     try {
-      let photoUrl = formPhotoPreview;
+      let photoUrl = null;
       if (formPhoto) {
         photoUrl = await uploadPhoto(formPhoto);
       }
@@ -169,31 +198,23 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
         blink_code: cleanCode,
         title: formTitle.trim(),
         description: formDescription.trim() || null,
+        item_number: formItemNumber.trim() || null,
         photo_url: photoUrl,
-        total_copies: totalCopies,
-        available_copies: editingMaterial ? editingMaterial.available_copies : totalCopies,
+        total_copies: 1,
+        available_copies: 1,
         created_by: user.id
       };
 
-      if (editingMaterial) {
-        const { error } = await supabase
-          .from('school_materials')
-          .update(materialData)
-          .eq('id', editingMaterial.id);
+      const { error } = await supabase
+        .from('school_materials')
+        .insert(materialData);
 
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('school_materials')
-          .insert(materialData);
-
-        if (error) throw error;
-      }
+      if (error) throw error;
 
       resetForm();
       setShowMaterialForm(false);
       await fetchMaterials();
-      setToast({ message: editingMaterial ? 'Materiaal bijgewerkt' : 'Materiaal toegevoegd', type: 'success' });
+      setToast({ message: 'Materiaal toegevoegd', type: 'success' });
     } catch (error) {
       console.error('Error saving material:', error);
       setToast({ message: 'Fout bij opslaan materiaal', type: 'error' });
@@ -204,24 +225,13 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
     setFormBlinkCode('');
     setFormTitle('');
     setFormDescription('');
-    setFormTotalCopies('1');
+    setFormItemNumber('');
     setFormPhoto(null);
     setFormPhotoPreview(null);
-    setEditingMaterial(null);
   };
 
-  const handleEditMaterial = (material: Material) => {
-    setEditingMaterial(material);
-    setFormBlinkCode(material.blink_code);
-    setFormTitle(material.title);
-    setFormDescription(material.description || '');
-    setFormTotalCopies(material.total_copies.toString());
-    setFormPhotoPreview(material.photo_url);
-    setShowMaterialForm(true);
-  };
-
-  const handleDeleteMaterial = async (materialId: string) => {
-    if (!confirm('Weet je zeker dat je dit materiaal wilt verwijderen?')) return;
+  const deleteItem = async (materialId: string) => {
+    if (!confirm('Weet je zeker dat je dit item wilt verwijderen?')) return;
 
     try {
       const { error } = await supabase
@@ -231,20 +241,12 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
 
       if (error) throw error;
 
-      setToast({ message: 'Materiaal verwijderd', type: 'success' });
+      setToast({ message: 'Item verwijderd', type: 'success' });
       fetchMaterials();
-      if (selectedMaterial?.id === materialId) {
-        setViewMode('list');
-      }
     } catch (error) {
-      console.error('Error deleting material:', error);
-      setToast({ message: 'Fout bij verwijderen materiaal', type: 'error' });
+      console.error('Error deleting item:', error);
+      setToast({ message: 'Fout bij verwijderen item', type: 'error' });
     }
-  };
-
-  const openLoanView = (material: Material) => {
-    setSelectedMaterial(material);
-    setViewMode('loan');
   };
 
   if (showScanner) {
@@ -272,9 +274,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {editingMaterial ? 'Materiaal Bewerken' : 'Nieuw Materiaal'}
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900">Nieuw Materiaal</h2>
           <Button
             variant="secondary"
             onClick={() => {
@@ -294,7 +294,6 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
               value={formBlinkCode}
               onChange={(e) => setFormBlinkCode(e.target.value.toUpperCase())}
               placeholder="XXXXXXXXXX"
-              disabled={!!editingMaterial}
             />
 
             <Input
@@ -305,12 +304,10 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
             />
 
             <Input
-              label="Aantal beschikbaar"
-              type="number"
-              value={formTotalCopies}
-              onChange={(e) => setFormTotalCopies(e.target.value)}
-              placeholder="1"
-              min="1"
+              label="Item Nummer (optioneel)"
+              value={formItemNumber}
+              onChange={(e) => setFormItemNumber(e.target.value)}
+              placeholder="Bijv. 3 voor iPad 3"
             />
 
             <div>
@@ -355,7 +352,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
 
             <div className="flex gap-2">
               <Button onClick={saveMaterial} className="flex-1">
-                {editingMaterial ? 'Bijwerken' : 'Aanmaken'}
+                Aanmaken
               </Button>
               <Button
                 variant="secondary"
@@ -381,34 +378,23 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
     );
   }
 
-  if (viewMode === 'detail' && selectedMaterial) {
-    return (
-      <MaterialDetail
-        material={selectedMaterial}
-        onBack={() => {
-          setViewMode('list');
-          setSelectedMaterial(null);
-        }}
-        onEdit={handleEditMaterial}
-        onDelete={handleDeleteMaterial}
-        onLoan={openLoanView}
-        onRefresh={fetchMaterials}
-      />
-    );
-  }
+  if (viewMode === 'detail' && selectedBlinkCode) {
+    const group = groupedMaterials.find(g => g.blink_code === selectedBlinkCode);
+    if (!group) {
+      setViewMode('list');
+      return null;
+    }
 
-  if (viewMode === 'loan' && selectedMaterial) {
     return (
-      <MaterialLoanView
-        material={selectedMaterial}
+      <GroupedMaterialDetail
+        group={group}
         schoolId={schoolId}
         onBack={() => {
-          setViewMode('detail');
+          setViewMode('list');
+          setSelectedBlinkCode(null);
         }}
-        onLoanComplete={() => {
-          fetchMaterials();
-          setViewMode('detail');
-        }}
+        onRefresh={fetchMaterials}
+        onDeleteItem={deleteItem}
       />
     );
   }
@@ -425,10 +411,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
             <QrCode className="w-4 h-4 mr-2" />
             Scan Code
           </Button>
-          <Button variant="secondary" onClick={() => {
-            resetForm();
-            setShowMaterialForm(true);
-          }}>
+          <Button variant="secondary" onClick={() => setShowMaterialForm(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Handmatig Toevoegen
           </Button>
@@ -451,7 +434,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
 
         {loading ? (
           <div className="text-center py-12 text-gray-500">Laden...</div>
-        ) : filteredMaterials.length === 0 ? (
+        ) : filteredGroupedMaterials.length === 0 ? (
           <div className="text-center py-12">
             <Package className="w-16 h-16 mx-auto text-gray-300 mb-4" />
             <p className="text-gray-500">
@@ -462,75 +445,39 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-            {filteredMaterials.map((material) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredGroupedMaterials.map((group) => (
               <div
-                key={material.id}
-                className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                key={group.blink_code}
+                onClick={() => {
+                  setSelectedBlinkCode(group.blink_code);
+                  setViewMode('detail');
+                }}
+                className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
               >
-                <div
-                  className="aspect-[2/3] bg-gray-100 relative cursor-pointer"
-                  onClick={() => {
-                    setSelectedMaterial(material);
-                    setViewMode('detail');
-                  }}
-                >
-                  {material.photo_url ? (
-                    <img
-                      src={material.photo_url}
-                      alt={material.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        if (e.currentTarget.parentElement) {
-                          const fallback = e.currentTarget.parentElement.querySelector('.fallback-icon');
-                          if (fallback) {
-                            (fallback as HTMLElement).style.display = 'flex';
-                          }
-                        }
-                      }}
-                    />
-                  ) : null}
-                  <div className={`fallback-icon w-full h-full flex items-center justify-center ${material.photo_url ? 'hidden' : ''}`}>
-                    <Package className="w-12 h-12 text-gray-300" />
+                {group.photo_url ? (
+                  <img
+                    src={group.photo_url}
+                    alt={group.title}
+                    className="w-full h-40 object-cover rounded-lg mb-3"
+                  />
+                ) : (
+                  <div className="w-full h-40 bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
+                    <Package className="w-12 h-12 text-gray-400" />
                   </div>
-                </div>
-                <div className="p-2">
-                  <h3
-                    className="font-semibold text-gray-900 text-xs mb-0.5 line-clamp-2 min-h-[2rem] cursor-pointer hover:text-blue-600"
-                    onClick={() => {
-                      setSelectedMaterial(material);
-                      setViewMode('detail');
-                    }}
+                )}
+                <h3 className="font-semibold text-gray-900">{group.title}</h3>
+                <p className="text-sm text-gray-500 mt-1">{group.blink_code}</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <span
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      group.available_items > 0
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}
                   >
-                    {material.title}
-                  </h3>
-                  <div className="text-[10px] text-gray-500 mb-1">
-                    <div className="line-clamp-1">Code: {material.blink_code}</div>
-                    <div>Beschikbaar: {material.available_copies}/{material.total_copies}</div>
-                  </div>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditMaterial(material);
-                      }}
-                      className="flex-1 px-2 py-1 text-[10px] bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors flex items-center justify-center"
-                      title="Bewerken"
-                    >
-                      <Edit className="w-3 h-3" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteMaterial(material.id);
-                      }}
-                      className="px-2 py-1 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 rounded transition-colors"
-                      title="Verwijderen"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
+                    {group.available_items}/{group.total_items} beschikbaar
+                  </span>
                 </div>
               </div>
             ))}
@@ -549,31 +496,142 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   );
 }
 
-function MaterialDetail({
-  material,
+function GroupedMaterialDetail({
+  group,
+  schoolId,
   onBack,
-  onEdit,
-  onDelete,
+  onRefresh,
+  onDeleteItem
+}: {
+  group: GroupedMaterial;
+  schoolId: string;
+  onBack: () => void;
+  onRefresh: () => void;
+  onDeleteItem: (id: string) => void;
+}) {
+  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'loan'>('list');
+
+  if (viewMode === 'loan' && selectedMaterialId) {
+    const material = group.items.find(m => m.id === selectedMaterialId);
+    if (!material) return null;
+
+    return (
+      <MaterialLoanView
+        material={material}
+        schoolId={schoolId}
+        onBack={() => {
+          setViewMode('list');
+          setSelectedMaterialId(null);
+        }}
+        onLoanComplete={() => {
+          onRefresh();
+          setViewMode('list');
+          setSelectedMaterialId(null);
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <Button variant="secondary" onClick={onBack}>
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Terug
+        </Button>
+      </div>
+
+      <Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            {group.photo_url ? (
+              <img
+                src={group.photo_url}
+                alt={group.title}
+                className="w-full h-64 object-cover rounded-lg"
+              />
+            ) : (
+              <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                <Package className="w-24 h-24 text-gray-400" />
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{group.title}</h2>
+              <p className="text-sm text-gray-500 mt-1">Code: {group.blink_code}</p>
+            </div>
+
+            {group.description && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-700 mb-1">Beschrijving</h3>
+                <p className="text-gray-600">{group.description}</p>
+              </div>
+            )}
+
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Status</h3>
+              <div className={`border rounded-lg p-3 ${
+                group.available_items > 0
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-red-50 border-red-200'
+              }`}>
+                <p className={`text-sm font-medium ${
+                  group.available_items > 0 ? 'text-green-900' : 'text-red-900'
+                }`}>
+                  {group.available_items} van {group.total_items} beschikbaar
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <Card>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Items ({group.total_items})
+          </h3>
+        </div>
+
+        <div className="space-y-3">
+          {group.items.map((item) => (
+            <MaterialItemCard
+              key={item.id}
+              material={item}
+              onLoan={() => {
+                setSelectedMaterialId(item.id);
+                setViewMode('loan');
+              }}
+              onDelete={onDeleteItem}
+            />
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function MaterialItemCard({
+  material,
   onLoan,
-  onRefresh
+  onDelete
 }: {
   material: Material;
-  onBack: () => void;
-  onEdit: (material: Material) => void;
+  onLoan: () => void;
   onDelete: (id: string) => void;
-  onLoan: (material: Material) => void;
-  onRefresh: () => void;
 }) {
-  const [loans, setLoans] = useState<MaterialLoan[]>([]);
+  const [loan, setLoan] = useState<MaterialLoan | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchLoans();
+    fetchCurrentLoan();
   }, [material.id]);
 
-  const fetchLoans = async () => {
+  const fetchCurrentLoan = async () => {
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('school_material_loans')
         .select(`
@@ -586,132 +644,62 @@ function MaterialDetail({
           )
         `)
         .eq('material_id', material.id)
-        .order('loaned_at', { ascending: false });
+        .is('returned_at', null)
+        .maybeSingle();
 
       if (error) throw error;
-      setLoans(data || []);
+      setLoan(data);
     } catch (error) {
-      console.error('Error fetching loans:', error);
+      console.error('Error fetching loan:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const activeLoans = loans.filter(l => !l.returned_at);
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <Button variant="secondary" onClick={onBack}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Terug
-        </Button>
+    <div className="border border-gray-200 rounded-lg p-4">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <h4 className="font-medium text-gray-900">
+              {material.title}
+              {material.item_number && ` #${material.item_number}`}
+            </h4>
+            <span
+              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                material.available_copies > 0
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-red-100 text-red-800'
+              }`}
+            >
+              {material.available_copies > 0 ? 'Beschikbaar' : 'Uitgeleend'}
+            </span>
+          </div>
+
+          {loan && (
+            <p className="text-sm text-gray-600 mt-1">
+              Uitgeleend aan {loan.students.first_name} {loan.students.last_name}
+            </p>
+          )}
+        </div>
+
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => onEdit(material)}>
-            <Edit className="w-4 h-4 mr-2" />
-            Bewerken
+          <Button
+            size="sm"
+            onClick={onLoan}
+            disabled={material.available_copies === 0 && !loan}
+          >
+            {loan ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
           </Button>
-          <Button variant="secondary" onClick={() => onDelete(material.id)}>
-            <Trash2 className="w-4 h-4 mr-2" />
-            Verwijderen
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => onDelete(material.id)}
+          >
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </div>
-
-      <Card>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            {material.photo_url ? (
-              <img
-                src={material.photo_url}
-                alt={material.title}
-                className="w-full h-64 object-cover rounded-lg"
-              />
-            ) : (
-              <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                <Package className="w-24 h-24 text-gray-400" />
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{material.title}</h2>
-              <p className="text-sm text-gray-500 mt-1">Code: {material.blink_code}</p>
-            </div>
-
-            {material.description && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-1">Beschrijving</h3>
-                <p className="text-gray-600">{material.description}</p>
-              </div>
-            )}
-
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Status</h3>
-              <div className={`border rounded-lg p-3 ${
-                material.available_copies > 0
-                  ? 'bg-green-50 border-green-200'
-                  : 'bg-red-50 border-red-200'
-              }`}>
-                <p className={`text-sm font-medium ${
-                  material.available_copies > 0 ? 'text-green-900' : 'text-red-900'
-                }`}>
-                  {material.available_copies} van {material.total_copies} beschikbaar
-                </p>
-              </div>
-            </div>
-
-            <Button
-              onClick={() => onLoan(material)}
-              className="w-full"
-              disabled={material.available_copies === 0}
-            >
-              <UserCheck className="w-4 h-4 mr-2" />
-              Leen uit ({activeLoans.length} actief)
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      <Card>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Uitleengeschiedenis</h3>
-        {loading ? (
-          <div className="text-center py-8 text-gray-500">Laden...</div>
-        ) : loans.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">Nog niet uitgeleend</div>
-        ) : (
-          <div className="space-y-3">
-            {loans.map((loan) => (
-              <div
-                key={loan.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-              >
-                <div>
-                  <p className="font-medium text-gray-900">
-                    {loan.students.first_name} {loan.students.last_name}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(loan.loaned_at).toLocaleDateString('nl-NL')}
-                    {loan.returned_at && (
-                      <> - {new Date(loan.returned_at).toLocaleDateString('nl-NL')}</>
-                    )}
-                  </p>
-                </div>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    loan.returned_at
-                      ? 'bg-gray-200 text-gray-700'
-                      : 'bg-green-100 text-green-800'
-                  }`}
-                >
-                  {loan.returned_at ? 'Geretourneerd' : 'Uitgeleend'}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
     </div>
   );
 }
@@ -734,11 +722,11 @@ function MaterialLoanView({
   const [notes, setNotes] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
-  const [activeLoans, setActiveLoans] = useState<MaterialLoan[]>([]);
+  const [currentLoan, setCurrentLoan] = useState<MaterialLoan | null>(null);
 
   useEffect(() => {
     fetchStudents();
-    fetchActiveLoans();
+    checkCurrentLoan();
   }, [schoolId, material.id]);
 
   const fetchStudents = async () => {
@@ -756,7 +744,7 @@ function MaterialLoanView({
     }
   };
 
-  const fetchActiveLoans = async () => {
+  const checkCurrentLoan = async () => {
     try {
       const { data, error } = await supabase
         .from('school_material_loans')
@@ -771,12 +759,12 @@ function MaterialLoanView({
         `)
         .eq('material_id', material.id)
         .is('returned_at', null)
-        .order('loaned_at', { ascending: false });
+        .maybeSingle();
 
       if (error) throw error;
-      setActiveLoans(data || []);
+      setCurrentLoan(data);
     } catch (error) {
-      console.error('Error fetching active loans:', error);
+      console.error('Error checking current loan:', error);
     }
   };
 
@@ -831,8 +819,8 @@ function MaterialLoanView({
     }
   };
 
-  const returnMaterial = async (loanId: string) => {
-    if (!user) return;
+  const returnMaterial = async () => {
+    if (!user || !currentLoan) return;
 
     try {
       const { error } = await supabase
@@ -841,7 +829,7 @@ function MaterialLoanView({
           returned_at: new Date().toISOString(),
           returned_by: user.id
         })
-        .eq('id', loanId);
+        .eq('id', currentLoan.id);
 
       if (error) throw error;
 
@@ -897,103 +885,92 @@ function MaterialLoanView({
       </div>
 
       <Card>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Materiaal Beheren</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          {currentLoan ? 'Retourneer Materiaal' : 'Leen Materiaal Uit'}
+        </h2>
 
         <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-          <p className="font-medium text-gray-900">{material.title}</p>
-          <p className="text-sm text-gray-500">{material.blink_code}</p>
-          <p className="text-sm text-gray-600 mt-1">
-            {material.available_copies}/{material.total_copies} beschikbaar
+          <p className="font-medium text-gray-900">
+            {material.title}
+            {material.item_number && ` #${material.item_number}`}
           </p>
+          <p className="text-sm text-gray-500">{material.blink_code}</p>
         </div>
 
-        {activeLoans.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Momenteel uitgeleend</h3>
-            <div className="space-y-2">
-              {activeLoans.map((loan) => (
-                <div key={loan.id} className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div>
-                    <p className="font-medium text-blue-900">
-                      {loan.students.first_name} {loan.students.last_name}
-                    </p>
-                    <p className="text-xs text-blue-600">
-                      Sinds {new Date(loan.loaned_at).toLocaleDateString('nl-NL')}
-                    </p>
-                  </div>
-                  <Button size="sm" onClick={() => returnMaterial(loan.id)}>
-                    <UserX className="w-4 h-4 mr-1" />
-                    Retourneer
-                  </Button>
-                </div>
+        {currentLoan ? (
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="font-medium text-blue-900">
+                Uitgeleend aan {currentLoan.students.first_name} {currentLoan.students.last_name}
+              </p>
+              <p className="text-sm text-blue-600 mt-1">
+                Sinds {new Date(currentLoan.loaned_at).toLocaleDateString('nl-NL')}
+              </p>
+            </div>
+            <Button onClick={returnMaterial} className="w-full">
+              <UserX className="w-4 h-4 mr-2" />
+              Retourneer Materiaal
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Input
+                  label="Zoek Leerling"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Zoek op naam..."
+                />
+              </div>
+              <div className="pt-6">
+                <Button variant="secondary" onClick={() => setShowScanner(true)}>
+                  <QrCode className="w-4 h-4 mr-2" />
+                  Scan
+                </Button>
+              </div>
+            </div>
+
+            <div className="border border-gray-300 rounded-lg max-h-60 overflow-y-auto">
+              {filteredStudents.map((student) => (
+                <label
+                  key={student.id}
+                  className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-200 last:border-b-0"
+                >
+                  <input
+                    type="radio"
+                    name="student"
+                    value={student.id}
+                    checked={selectedStudent === student.id}
+                    onChange={(e) => setSelectedStudent(e.target.value)}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span className="ml-3 text-gray-900">
+                    {student.first_name} {student.last_name}
+                  </span>
+                </label>
               ))}
             </div>
-          </div>
-        )}
 
-        <div className="space-y-4 pt-4 border-t border-gray-200">
-          <h3 className="text-sm font-medium text-gray-700">Nieuw uitleen</h3>
-
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <Input
-                label="Zoek Leerling"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Zoek op naam..."
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Notities (optioneel)
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Bijv. Voor project natuurkunde"
               />
             </div>
-            <div className="pt-6">
-              <Button variant="secondary" onClick={() => setShowScanner(true)}>
-                <QrCode className="w-4 h-4 mr-2" />
-                Scan
-              </Button>
-            </div>
-          </div>
 
-          <div className="border border-gray-300 rounded-lg max-h-60 overflow-y-auto">
-            {filteredStudents.map((student) => (
-              <label
-                key={student.id}
-                className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-200 last:border-b-0"
-              >
-                <input
-                  type="radio"
-                  name="student"
-                  value={student.id}
-                  checked={selectedStudent === student.id}
-                  onChange={(e) => setSelectedStudent(e.target.value)}
-                  className="w-4 h-4 text-blue-600"
-                />
-                <span className="ml-3 text-gray-900">
-                  {student.first_name} {student.last_name}
-                </span>
-              </label>
-            ))}
+            <Button onClick={loanMaterial} className="w-full" disabled={!selectedStudent}>
+              <UserCheck className="w-4 h-4 mr-2" />
+              Leen Uit
+            </Button>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notities (optioneel)
-            </label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Bijv. Voor project natuurkunde"
-            />
-          </div>
-
-          <Button
-            onClick={loanMaterial}
-            className="w-full"
-            disabled={!selectedStudent || material.available_copies === 0}
-          >
-            <UserCheck className="w-4 h-4 mr-2" />
-            Leen Uit
-          </Button>
-        </div>
+        )}
       </Card>
 
       {toast && (
