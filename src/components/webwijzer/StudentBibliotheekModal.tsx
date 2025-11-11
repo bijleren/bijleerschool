@@ -288,8 +288,9 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                     Scan een ISBN (boek) of BlinkQR code (materiaal)
                   </p>
                   <UniversalScanner
-                    onScan={handleScan}
-                    expectedFormat="Any"
+                    onBookScan={handleScan}
+                    onMaterialScan={handleScan}
+                    scanningFor="all"
                   />
                 </div>
                 {confirming && (
