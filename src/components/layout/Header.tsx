@@ -206,49 +206,6 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                       <BarChart3 className="w-4 h-4 mr-2" />
                       Analyses
                     </button>
-                    <button
-                      onClick={() => {
-                        handleBehaviorClick();
-                        setShowAppsDropdown(false);
-                        setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('navigateToBehaviorSettings'));
-                        }, 100);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Instellingen
-                    </button>
-                  </div>
-
-                  <div className="border-t border-gray-100 my-2"></div>
-
-                  {/* School Section */}
-                  <div className="px-3 py-2">
-                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                      <School className="w-4 h-4" />
-                      <span>School</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        onNavigateToSchoolDay();
-                        setShowAppsDropdown(false);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Schooldag
-                    </button>
-                    <button
-                      onClick={() => {
-                        onNavigateToActivityBoards();
-                        setShowAppsDropdown(false);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <Grid className="w-4 h-4 mr-2" />
-                      Activi-Tijd
-                    </button>
                   </div>
 
                   <div className="border-t border-gray-100 my-2"></div>
@@ -295,69 +252,34 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                       <User className="w-4 h-4 mr-2" />
                       Leerling WebWijzer
                     </button>
-                    <button
-                      onClick={() => {
-                        onNavigateToWebWijzer();
-                        setShowAppsDropdown(false);
-                        setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('navigateToWebWijzerAnalytics'));
-                        }, 100);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <BarChart3 className="w-4 h-4 mr-2" />
-                      Analytics
-                    </button>
-                  </div>
-
-                  <div className="border-t border-gray-100 my-2"></div>
-
-                  {/* Boeker Section */}
-                  <div className="px-3 py-2">
-                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                      <BookOpen className="w-4 h-4" />
-                      <span>Boeker</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        onNavigateToBoeker();
-                        setShowAppsDropdown(false);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <List className="w-4 h-4 mr-2" />
-                      Bibliotheek
-                    </button>
-                    <button
-                      onClick={() => {
-                        onNavigateToBoeker();
-                        setShowAppsDropdown(false);
-                        setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('navigateToBoekerStudents'));
-                        }, 100);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      Leerlingen
-                    </button>
-                    <button
-                      onClick={() => {
-                        onNavigateToBoeker();
-                        setShowAppsDropdown(false);
-                        setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('navigateToBoekerAnalytics'));
-                        }, 100);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <BarChart3 className="w-4 h-4 mr-2" />
-                      Statistieken
-                    </button>
                   </div>
                 </div>
               )}
             </div>
+
+            <button
+              onClick={onNavigateToSchoolDay}
+              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+            >
+              <Calendar className="w-5 h-5" />
+              <span>Schooldag</span>
+            </button>
+
+            <button
+              onClick={onNavigateToActivityBoards}
+              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+            >
+              <Grid className="w-5 h-5" />
+              <span>Activi-Tijd</span>
+            </button>
+
+            <button
+              onClick={onNavigateToBoeker}
+              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+            >
+              <BookOpen className="w-5 h-5" />
+              <span>Boeker</span>
+            </button>
 
             <button
               onClick={onNavigateToTeaching}
