@@ -3,8 +3,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Star, Zap, X, Archive, LogOut } from 'lucide-react';
+import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid } from 'lucide-react';
 import { WebWijzerContentViewer } from './WebWijzerContentViewer';
+import { StudentBibliotheekModal } from './StudentBibliotheekModal';
+import { StudentActiviTijdModal } from './StudentActiviTijdModal';
 
 interface ContentAssignment {
   id: string;
@@ -47,12 +49,65 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
   const [showArchive, setShowArchive] = useState(false);
   const [sessionTimer, setSessionTimer] = useState(30 * 60);
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
+  const [showBibliotheek, setShowBibliotheek] = useState(false);
+  const [showActiviTijd, setShowActiviTijd] = useState(false);
+  const [activeBoard, setActiveBoard] = useState<string | null>(null);
+  const [schoolId, setSchoolId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAssignments();
-    const interval = setInterval(fetchAssignments, 15000);
+    fetchStudentSchool();
+    checkActiveBoard();
+    const interval = setInterval(() => {
+      fetchAssignments();
+      checkActiveBoard();
+    }, 15000);
     return () => clearInterval(interval);
   }, [studentId]);
+
+  const fetchStudentSchool = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .select('school_id')
+        .eq('id', studentId)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data) setSchoolId(data.school_id);
+    } catch (error) {
+      console.error('Error fetching student school:', error);
+    }
+  };
+
+  const checkActiveBoard = async () => {
+    try {
+      const { data: session, error } = await supabase
+        .from('activity_sessions')
+        .select('board_id, activity_boards!inner(is_active)')
+        .eq('student_id', studentId)
+        .is('end_time', null)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (session && session.activity_boards?.is_active) {
+        setActiveBoard(session.board_id);
+      } else {
+        const { data: boards, error: boardsError } = await supabase
+          .from('activity_boards')
+          .select('id')
+          .eq('is_active', true)
+          .limit(1);
+
+        if (boardsError) throw boardsError;
+        setActiveBoard(boards && boards.length > 0 ? boards[0].id : null);
+      }
+    } catch (error) {
+      console.error('Error checking active board:', error);
+      setActiveBoard(null);
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -399,7 +454,29 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
       )}
 
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex gap-2">
+            {schoolId && (
+              <Button
+                onClick={() => setShowBibliotheek(true)}
+                variant="secondary"
+                className="flex items-center gap-2"
+              >
+                <BookOpen className="w-4 h-4" />
+                Bibliotheek
+              </Button>
+            )}
+            {activeBoard && (
+              <Button
+                onClick={() => setShowActiviTijd(true)}
+                variant="secondary"
+                className="flex items-center gap-2"
+              >
+                <Grid className="w-4 h-4" />
+                Activi-tijd
+              </Button>
+            )}
+          </div>
           <Button
             onClick={handleLogout}
             variant="secondary"
@@ -545,6 +622,22 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: 
           </div>
         )}
       </div>
+
+      {showBibliotheek && schoolId && (
+        <StudentBibliotheekModal
+          studentId={studentId}
+          schoolId={schoolId}
+          onClose={() => setShowBibliotheek(false)}
+        />
+      )}
+
+      {showActiviTijd && activeBoard && (
+        <StudentActiviTijdModal
+          studentId={studentId}
+          boardId={activeBoard}
+          onClose={() => setShowActiviTijd(false)}
+        />
+      )}
     </div>
   );
 }
