@@ -97,7 +97,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
 
   const handleScan = async (scannedCode: string) => {
     // Check if it's a BlinkQR code
-    const blinkQRPattern = /blinkqr\.app\/([A-Z0-9]{5}-[A-Z0-9]{5})/i;
+    const blinkQRPattern = /blinkqr\.app\/qr\/([A-Z0-9-]+)/i;
     const match = scannedCode.match(blinkQRPattern);
 
     if (!match) {
@@ -105,7 +105,8 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
       return;
     }
 
-    const code = match[1].toUpperCase();
+    // Remove dashes and convert to uppercase
+    const code = match[1].replace(/-/g, '').toUpperCase();
 
     // Check if material already exists
     const existing = materials.find(m => m.blink_code === code);
@@ -166,9 +167,12 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
         photoUrl = await uploadPhoto(formPhoto);
       }
 
+      // Remove dashes from blink code before saving
+      const cleanCode = formBlinkCode.replace(/-/g, '').toUpperCase();
+
       const materialData = {
         school_id: schoolId,
-        blink_code: formBlinkCode,
+        blink_code: cleanCode,
         title: formTitle.trim(),
         description: formDescription.trim() || null,
         photo_url: photoUrl,
@@ -286,7 +290,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
               label="BlinkQR Code"
               value={formBlinkCode}
               onChange={(e) => setFormBlinkCode(e.target.value.toUpperCase())}
-              placeholder="XXXXX-XXXXX"
+              placeholder="XXXXXXXXXX (dashes worden genegeerd)"
               disabled={!!selectedMaterial}
             />
 
