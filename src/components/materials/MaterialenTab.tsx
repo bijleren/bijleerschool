@@ -6,7 +6,7 @@ import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
 import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, Eye } from 'lucide-react';
-import { UnifiedScanner } from '../boeker/UnifiedScanner';
+import { MaterialScanner } from './MaterialScanner';
 
 interface Material {
   id: string;
@@ -259,7 +259,10 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
           </Button>
         </div>
         <Card>
-          <UnifiedScanner onScan={handleScan} />
+          <MaterialScanner
+            onScan={handleScan}
+            onError={(error) => setToast({ message: error, type: 'error' })}
+          />
         </Card>
       </div>
     );
@@ -823,7 +826,10 @@ function MaterialLoanView({
           </Button>
         </div>
         <Card>
-          <UnifiedScanner onScan={handleScan} />
+          <MaterialScanner
+            onScan={handleScan}
+            onError={(error) => setToast({ message: error, type: 'error' })}
+          />
         </Card>
       </div>
     );
