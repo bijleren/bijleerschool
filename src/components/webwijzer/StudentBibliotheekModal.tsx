@@ -32,8 +32,9 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
   const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
-  const [scanType, setScanType] = useState<'book' | 'material'>('book');
   const [error, setError] = useState<string | null>(null);
+  const [scannedItem, setScannedItem] = useState<{code: string; type: 'book' | 'material'; title: string} | null>(null);
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     fetchBibliotheek();
@@ -113,11 +114,36 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
   const handleScan = async (code: string) => {
     try {
       setError(null);
+      setConfirming(true);
 
-      if (scanType === 'book') {
+      const isBlinkQR = code.includes('-');
+
+      if (isBlinkQR) {
+        const { data: materialData, error: materialError } = await supabase
+          .from('school_materials')
+          .select('id, title, is_available')
+          .eq('school_id', schoolId)
+          .eq('blink_code', code)
+          .maybeSingle();
+
+        if (materialError) throw materialError;
+        if (!materialData) {
+          setError('Materiaal niet gevonden');
+          setConfirming(false);
+          return;
+        }
+
+        if (!materialData.is_available) {
+          setError('Materiaal is niet beschikbaar');
+          setConfirming(false);
+          return;
+        }
+
+        setScannedItem({ code, type: 'material', title: materialData.title });
+      } else {
         const { data: bookData, error: bookError } = await supabase
           .from('books')
-          .select('id, available_copies')
+          .select('id, title, available_copies')
           .eq('school_id', schoolId)
           .eq('isbn', code)
           .maybeSingle();
@@ -125,11 +151,45 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
         if (bookError) throw bookError;
         if (!bookData) {
           setError('Boek niet gevonden');
+          setConfirming(false);
           return;
         }
 
         if (bookData.available_copies <= 0) {
           setError('Boek is niet beschikbaar');
+          setConfirming(false);
+          return;
+        }
+
+        setScannedItem({ code, type: 'book', title: bookData.title });
+      }
+
+      setConfirming(false);
+    } catch (error) {
+      console.error('Error processing scan:', error);
+      setError('Fout bij scannen');
+      setConfirming(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    if (!scannedItem) return;
+
+    try {
+      setConfirming(true);
+      setError(null);
+
+      if (scannedItem.type === 'book') {
+        const { data: bookData, error: bookError } = await supabase
+          .from('books')
+          .select('id, available_copies')
+          .eq('school_id', schoolId)
+          .eq('isbn', scannedItem.code)
+          .maybeSingle();
+
+        if (bookError) throw bookError;
+        if (!bookData) {
+          setError('Boek niet gevonden');
           return;
         }
 
@@ -147,23 +207,17 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
           .from('books')
           .update({ available_copies: bookData.available_copies - 1 })
           .eq('id', bookData.id);
-
       } else {
         const { data: materialData, error: materialError } = await supabase
           .from('school_materials')
-          .select('id, is_available')
+          .select('id')
           .eq('school_id', schoolId)
-          .eq('blink_code', code)
+          .eq('blink_code', scannedItem.code)
           .maybeSingle();
 
         if (materialError) throw materialError;
         if (!materialData) {
           setError('Materiaal niet gevonden');
-          return;
-        }
-
-        if (!materialData.is_available) {
-          setError('Materiaal is niet beschikbaar');
           return;
         }
 
@@ -184,11 +238,19 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
       }
 
       setShowScanner(false);
+      setScannedItem(null);
       fetchBibliotheek();
     } catch (error) {
-      console.error('Error processing scan:', error);
-      setError('Fout bij scannen');
+      console.error('Error confirming item:', error);
+      setError('Fout bij toevoegen');
+    } finally {
+      setConfirming(false);
     }
+  };
+
+  const handleCancelScan = () => {
+    setScannedItem(null);
+    setError(null);
   };
 
   return (
@@ -206,40 +268,74 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
 
         {showScanner ? (
           <div className="p-6">
-            <div className="mb-4">
-              <button
-                onClick={() => setShowScanner(false)}
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
-                ← Terug
-              </button>
-            </div>
-            <div className="mb-4">
-              <div className="flex gap-2 mb-4">
-                <Button
-                  variant={scanType === 'book' ? 'primary' : 'secondary'}
-                  onClick={() => setScanType('book')}
-                >
-                  <BookOpen className="w-4 h-4 mr-2" />
-                  Boek scannen
-                </Button>
-                <Button
-                  variant={scanType === 'material' ? 'primary' : 'secondary'}
-                  onClick={() => setScanType('material')}
-                >
-                  <Package className="w-4 h-4 mr-2" />
-                  Materiaal scannen
-                </Button>
-              </div>
-              <UniversalScanner
-                onScan={handleScan}
-                expectedFormat={scanType === 'book' ? 'ISBN' : 'BlinkQR'}
-              />
-            </div>
-            {error && (
-              <div className="flex items-center gap-2 p-4 bg-red-50 text-red-700 rounded-lg">
-                <AlertCircle className="w-5 h-5" />
-                <span>{error}</span>
+            {!scannedItem ? (
+              <>
+                <div className="mb-4">
+                  <button
+                    onClick={() => setShowScanner(false)}
+                    className="text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    ← Terug
+                  </button>
+                </div>
+                <div className="mb-4">
+                  <p className="text-gray-700 mb-4 text-center">
+                    Scan een ISBN (boek) of BlinkQR code (materiaal)
+                  </p>
+                  <UniversalScanner
+                    onScan={handleScan}
+                    expectedFormat="Any"
+                  />
+                </div>
+                {confirming && (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="text-gray-600 mt-2">Item zoeken...</p>
+                  </div>
+                )}
+                {error && (
+                  <div className="flex items-center gap-2 p-4 bg-red-50 text-red-700 rounded-lg">
+                    <AlertCircle className="w-5 h-5" />
+                    <span>{error}</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center">
+                <div className="mb-6">
+                  {scannedItem.type === 'book' ? (
+                    <BookOpen className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+                  ) : (
+                    <Package className="w-16 h-16 text-green-600 mx-auto mb-4" />
+                  )}
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    {scannedItem.title}
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    {scannedItem.type === 'book' ? 'Boek' : 'Materiaal'} toevoegen aan je bibliotheek?
+                  </p>
+                </div>
+                <div className="flex gap-4 justify-center">
+                  <Button
+                    variant="secondary"
+                    onClick={handleCancelScan}
+                    disabled={confirming}
+                  >
+                    Annuleren
+                  </Button>
+                  <Button
+                    onClick={handleConfirm}
+                    disabled={confirming}
+                  >
+                    {confirming ? 'Bezig...' : 'Bevestigen'}
+                  </Button>
+                </div>
+                {error && (
+                  <div className="flex items-center gap-2 p-4 bg-red-50 text-red-700 rounded-lg mt-4">
+                    <AlertCircle className="w-5 h-5" />
+                    <span>{error}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>

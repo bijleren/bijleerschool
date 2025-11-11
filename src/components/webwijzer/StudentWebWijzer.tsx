@@ -36,7 +36,7 @@ interface StudentWebWijzerProps {
   onStop?: () => void;
 }
 
-export function StudentWebWijzer({ studentId, studentName, onBackToDashboard }: StudentWebWijzerProps) {
+export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, onStop }: StudentWebWijzerProps) {
   const { user } = useAuth();
   const [assignments, setAssignments] = useState<ContentAssignment[]>([]);
   const [archivedAssignments, setArchivedAssignments] = useState<ContentAssignment[]>([]);
