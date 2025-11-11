@@ -116,14 +116,19 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
       setError(null);
       setConfirming(true);
 
-      const isBlinkQR = code.includes('-');
+      let cleanCode = code;
+      if (code.includes('blinkqr.app/qr/')) {
+        cleanCode = code.split('blinkqr.app/qr/')[1];
+      }
+
+      const isBlinkQR = cleanCode.includes('-');
 
       if (isBlinkQR) {
         const { data: materialData, error: materialError } = await supabase
           .from('school_materials')
           .select('id, title, is_available')
           .eq('school_id', schoolId)
-          .eq('blink_code', code)
+          .eq('blink_code', cleanCode)
           .maybeSingle();
 
         if (materialError) throw materialError;
@@ -139,13 +144,13 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
           return;
         }
 
-        setScannedItem({ code, type: 'material', title: materialData.title });
+        setScannedItem({ code: cleanCode, type: 'material', title: materialData.title });
       } else {
         const { data: bookData, error: bookError } = await supabase
           .from('books')
           .select('id, title, available_copies')
           .eq('school_id', schoolId)
-          .eq('isbn', code)
+          .eq('isbn', cleanCode)
           .maybeSingle();
 
         if (bookError) throw bookError;
@@ -161,7 +166,7 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
           return;
         }
 
-        setScannedItem({ code, type: 'book', title: bookData.title });
+        setScannedItem({ code: cleanCode, type: 'book', title: bookData.title });
       }
 
       setConfirming(false);
