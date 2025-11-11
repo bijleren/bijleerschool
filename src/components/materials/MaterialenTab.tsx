@@ -96,8 +96,8 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   };
 
   const handleScan = async (scannedCode: string) => {
-    // Check if it's a BlinkQR code
-    const blinkQRPattern = /blinkqr\.app\/qr\/([A-Z0-9-]+)/i;
+    // Check if it's a BlinkQR code (URLs never contain dashes)
+    const blinkQRPattern = /blinkqr\.app\/qr\/([A-Z0-9]+)/i;
     const match = scannedCode.match(blinkQRPattern);
 
     if (!match) {
@@ -105,8 +105,8 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
       return;
     }
 
-    // Remove dashes and convert to uppercase
-    const code = match[1].replace(/-/g, '').toUpperCase();
+    // Convert to uppercase (no dashes in URL)
+    const code = match[1].toUpperCase();
 
     // Check if material already exists
     const existing = materials.find(m => m.blink_code === code);
