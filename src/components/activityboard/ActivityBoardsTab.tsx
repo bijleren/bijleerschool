@@ -79,18 +79,29 @@ export function ActivityBoardsTab({ onFullscreenChange }: ActivityBoardsTabProps
   };
 
   const fetchBoards = async () => {
-    if (!selectedSchoolId) return;
+    if (!selectedSchoolId || !user) return;
 
     try {
+      // Fetch boards created by user OR shared with user
       const { data, error } = await supabase
         .from('activity_boards')
-        .select('*')
+        .select(`
+          *,
+          shared_with:activity_board_access!left(user_id)
+        `)
         .eq('school_id', selectedSchoolId)
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setBoards(data || []);
+
+      // Filter to include only boards created by user or shared with user
+      const filteredBoards = data?.filter(board =>
+        board.created_by === user.id ||
+        board.shared_with?.some((access: any) => access.user_id === user.id)
+      ) || [];
+
+      setBoards(filteredBoards);
     } catch (error) {
       console.error('Error fetching boards:', error);
     }

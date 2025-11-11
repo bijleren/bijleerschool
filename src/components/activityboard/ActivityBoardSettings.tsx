@@ -80,6 +80,8 @@ export function ActivityBoardSettings({
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [groups, setGroups] = useState<Array<{ id: string; name: string }>>([]);
   const [students, setStudents] = useState<Array<{ id: string; first_name: string; last_name: string }>>([]);
+  const [selectedColleagues, setSelectedColleagues] = useState<string[]>([]);
+  const [colleagues, setColleagues] = useState<Array<{ id: string; email: string; full_name: string | null }>>([]);
   const [options, setOptions] = useState<ActivityOption[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(!!board);
@@ -89,6 +91,7 @@ export function ActivityBoardSettings({
 
   useEffect(() => {
     fetchGroupsAndStudents();
+    fetchColleagues();
     if (board) {
       fetchOptions();
       fetchBoardSettings();
@@ -137,6 +140,38 @@ export function ActivityBoardSettings({
     }
   };
 
+  const fetchColleagues = async () => {
+    try {
+      // Get all users from the same school (excluding current user)
+      const { data: colleaguesData, error: colleaguesError } = await supabase
+        .from('user_schools')
+        .select(`
+          user_id,
+          profiles!inner(
+            id,
+            email,
+            full_name
+          )
+        `)
+        .eq('school_id', schoolId)
+        .eq('status', 'approved')
+        .eq('is_active', true)
+        .neq('user_id', user?.id);
+
+      if (colleaguesError) throw colleaguesError;
+
+      const formattedColleagues = colleaguesData?.map((item: any) => ({
+        id: item.profiles.id,
+        email: item.profiles.email,
+        full_name: item.profiles.full_name
+      })) || [];
+
+      setColleagues(formattedColleagues);
+    } catch (error) {
+      console.error('Error fetching colleagues:', error);
+    }
+  };
+
   const fetchBoardSettings = async () => {
     if (!board) return;
 
@@ -161,6 +196,18 @@ export function ActivityBoardSettings({
       if (timeBlocksError) throw timeBlocksError;
       if (timeBlocksData) {
         setSelectedTimeBlocks(timeBlocksData.map(tb => tb.template_block_id));
+      }
+
+      // Fetch shared colleagues
+      const { data: accessData, error: accessError } = await supabase
+        .from('activity_board_access')
+        .select('user_id')
+        .eq('board_id', board.id)
+        .eq('access_type', 'teacher');
+
+      if (accessError) throw accessError;
+      if (accessData) {
+        setSelectedColleagues(accessData.map(a => a.user_id).filter(Boolean) as string[]);
       }
     } catch (error) {
       console.error('Error fetching board settings:', error);
@@ -327,6 +374,29 @@ export function ActivityBoardSettings({
           }
         }
 
+        // Update shared colleagues
+        const { error: deleteAccessError } = await supabase
+          .from('activity_board_access')
+          .delete()
+          .eq('board_id', board.id)
+          .eq('access_type', 'teacher');
+
+        if (deleteAccessError) throw deleteAccessError;
+
+        if (selectedColleagues.length > 0) {
+          const accessToInsert = selectedColleagues.map(userId => ({
+            board_id: board.id,
+            user_id: userId,
+            access_type: 'teacher'
+          }));
+
+          const { error: accessError } = await supabase
+            .from('activity_board_access')
+            .insert(accessToInsert);
+
+          if (accessError) throw accessError;
+        }
+
         onBoardUpdated();
       } else {
         const { data: boardData, error: boardError } = await supabase
@@ -374,6 +444,21 @@ export function ActivityBoardSettings({
             });
 
           if (optionError) throw optionError;
+        }
+
+        // Add shared colleagues
+        if (selectedColleagues.length > 0) {
+          const accessToInsert = selectedColleagues.map(userId => ({
+            board_id: boardData.id,
+            user_id: userId,
+            access_type: 'teacher'
+          }));
+
+          const { error: accessError } = await supabase
+            .from('activity_board_access')
+            .insert(accessToInsert);
+
+          if (accessError) throw accessError;
         }
 
         onBoardCreated();
@@ -468,6 +553,38 @@ export function ActivityBoardSettings({
                 )}
               </div>
               <p className="mt-1 text-xs text-gray-500">Selecteer tijdblokken waarin dit bord actief is</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Delen met collega's (optioneel)
+              </label>
+              <div className="border border-gray-300 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                {colleagues.length === 0 ? (
+                  <p className="text-sm text-gray-500">Geen collega's beschikbaar</p>
+                ) : (
+                  colleagues.map((colleague) => (
+                    <label key={colleague.id} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+                      <input
+                        type="checkbox"
+                        checked={selectedColleagues.includes(colleague.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedColleagues([...selectedColleagues, colleague.id]);
+                          } else {
+                            setSelectedColleagues(selectedColleagues.filter(id => id !== colleague.id));
+                          }
+                        }}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">
+                        {colleague.full_name || colleague.email}
+                      </span>
+                    </label>
+                  ))
+                )}
+              </div>
+              <p className="mt-1 text-xs text-gray-500">Geselecteerde collega's kunnen dit bord bekijken en gebruiken</p>
             </div>
 
             <div>
