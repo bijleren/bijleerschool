@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
-import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, Eye, Zap } from 'lucide-react';
+import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, Eye } from 'lucide-react';
 import { UniversalScanner } from '../ui/UniversalScanner';
-import { QuickScanMaterialModal } from './QuickScanMaterialModal';
 
 interface Material {
   id: string;
@@ -49,11 +48,9 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
   const [showMaterialForm, setShowMaterialForm] = useState(false);
-  const [showQuickScan, setShowQuickScan] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'detail' | 'loan'>('list');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
-  const processingScanRef = useRef(false);
 
   // Form states
   const [formBlinkCode, setFormBlinkCode] = useState('');
@@ -99,34 +96,19 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   };
 
   const handleMaterialScan = async (blinkCode: string) => {
-    if (processingScanRef.current) {
-      console.log('Already processing a scan, ignoring...');
-      return;
-    }
-
-    processingScanRef.current = true;
-    console.log('Processing material scan:', blinkCode);
-
-    try {
-      // Check if material already exists
-      const existing = materials.find(m => m.blink_code === blinkCode);
-      if (existing) {
-        setSelectedMaterial(existing);
-        setViewMode('detail');
-        setShowScanner(false);
-        setToast({ message: 'Materiaal gevonden!', type: 'success' });
-      } else {
-        // Create new material with this code
-        setFormBlinkCode(blinkCode);
-        setShowMaterialForm(true);
-        setShowScanner(false);
-        setToast({ message: 'Nieuw materiaal - vul details in', type: 'info' });
-      }
-    } finally {
-      // Reset after a delay to allow component to unmount
-      setTimeout(() => {
-        processingScanRef.current = false;
-      }, 1000);
+    // Check if material already exists
+    const existing = materials.find(m => m.blink_code === blinkCode);
+    if (existing) {
+      setSelectedMaterial(existing);
+      setViewMode('detail');
+      setShowScanner(false);
+      setToast({ message: 'Materiaal gevonden!', type: 'success' });
+    } else {
+      // Create new material with this code
+      setFormBlinkCode(blinkCode);
+      setShowMaterialForm(true);
+      setShowScanner(false);
+      setToast({ message: 'Nieuw materiaal - vul details in', type: 'info' });
     }
   };
 
@@ -418,11 +400,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
           <p className="text-sm text-gray-600 mt-1">Beheer schoolmateriaal met BlinkQR codes</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => setShowQuickScan(true)}>
-            <Zap className="w-4 h-4 mr-2" />
-            Snel Scannen
-          </Button>
-          <Button variant="secondary" onClick={() => setShowScanner(true)}>
+          <Button onClick={() => setShowScanner(true)}>
             <QrCode className="w-4 h-4 mr-2" />
             Scan Code
           </Button>
@@ -505,15 +483,6 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}
-        />
-      )}
-
-      {showQuickScan && user && (
-        <QuickScanMaterialModal
-          schoolId={schoolId}
-          userId={user.id}
-          onClose={() => setShowQuickScan(false)}
-          onMaterialProcessed={fetchMaterials}
         />
       )}
     </div>
@@ -716,7 +685,6 @@ function MaterialLoanView({
   const [searchTerm, setSearchTerm] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [currentLoan, setCurrentLoan] = useState<MaterialLoan | null>(null);
-  const processingScanRef = useRef(false);
 
   useEffect(() => {
     fetchStudents();
@@ -763,28 +731,13 @@ function MaterialLoanView({
   };
 
   const handleScan = async (scannedCode: string) => {
-    if (processingScanRef.current) {
-      console.log('Already processing a student scan, ignoring...');
-      return;
-    }
-
-    processingScanRef.current = true;
-    console.log('Processing student scan:', scannedCode);
-
-    try {
-      const student = students.find(s => s.student_code === scannedCode);
-      if (student) {
-        setSelectedStudent(student.id);
-        setShowScanner(false);
-        setToast({ message: `${student.first_name} ${student.last_name} geselecteerd`, type: 'success' });
-      } else {
-        setToast({ message: 'Leerling niet gevonden', type: 'error' });
-      }
-    } finally {
-      // Reset after a delay to allow component to unmount
-      setTimeout(() => {
-        processingScanRef.current = false;
-      }, 1000);
+    const student = students.find(s => s.student_code === scannedCode);
+    if (student) {
+      setSelectedStudent(student.id);
+      setShowScanner(false);
+      setToast({ message: `${student.first_name} ${student.last_name} geselecteerd`, type: 'success' });
+    } else {
+      setToast({ message: 'Leerling niet gevonden', type: 'error' });
     }
   };
 
