@@ -174,19 +174,18 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
           .eq('id', selectedMaterial.id);
 
         if (error) throw error;
-        setToast({ message: 'Materiaal bijgewerkt', type: 'success' });
       } else {
         const { error } = await supabase
           .from('school_materials')
           .insert(materialData);
 
         if (error) throw error;
-        setToast({ message: 'Materiaal aangemaakt', type: 'success' });
       }
 
       resetForm();
-      fetchMaterials();
       setShowMaterialForm(false);
+      await fetchMaterials();
+      setToast({ message: selectedMaterial ? 'Materiaal bijgewerkt' : 'Materiaal aangemaakt', type: 'success' });
     } catch (error) {
       console.error('Error saving material:', error);
       setToast({ message: 'Fout bij opslaan materiaal', type: 'error' });
