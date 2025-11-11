@@ -6,8 +6,9 @@ import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
 import { BarcodeScanner } from './BarcodeScanner';
+import { QuickScanModal } from './QuickScanModal';
 import { fetchBookMetadata, BookMetadata } from '../../utils/bookApi';
-import { Plus, Search, Edit, Trash2, Camera, BookOpen, Users, X } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Camera, BookOpen, Users, X, Scan } from 'lucide-react';
 
 interface Book {
   id: string;
@@ -47,6 +48,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showQuickScan, setShowQuickScan] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [viewingBook, setViewingBook] = useState<Book | null>(null);
   const [currentBorrowers, setCurrentBorrowers] = useState<StudentBookInfo[]>([]);
@@ -323,6 +325,10 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
               </div>
             </div>
             <div className="flex gap-2">
+              <Button onClick={() => setShowQuickScan(true)} className="bg-green-600 hover:bg-green-700">
+                <Scan className="w-4 h-4 mr-2" />
+                Quick Scan
+              </Button>
               <Button onClick={() => setShowScanner(true)}>
                 <Camera className="w-4 h-4 mr-2" />
                 Scan ISBN
@@ -714,6 +720,16 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {showQuickScan && (
+        <QuickScanModal
+          schoolId={schoolId}
+          onClose={() => setShowQuickScan(false)}
+          onBookProcessed={() => {
+            fetchBooks();
+          }}
+        />
       )}
 
       {toast && (
