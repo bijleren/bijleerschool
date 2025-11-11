@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
+import { RichTextEditor } from '../ui/RichTextEditor';
 import { Plus, Edit2, Trash2, ChevronDown, ChevronUp, Save, X, HelpCircle } from 'lucide-react';
 
 interface FAQ {
@@ -209,13 +210,11 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Antwoord
               </label>
-              <textarea
+              <RichTextEditor
                 value={formData.answer}
-                onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, answer: value })}
                 placeholder="Het antwoord op de vraag..."
-                required
-                rows={6}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                minHeight="150px"
               />
             </div>
 
@@ -370,7 +369,10 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
 
               {expandedFaqId === faq.id && (
                 <div className="px-6 pb-4 pt-2 border-t border-gray-100">
-                  <p className="text-gray-700 whitespace-pre-wrap">{faq.answer}</p>
+                  <div
+                    className="prose prose-sm max-w-none text-gray-700"
+                    dangerouslySetInnerHTML={{ __html: faq.answer }}
+                  />
                 </div>
               )}
             </div>

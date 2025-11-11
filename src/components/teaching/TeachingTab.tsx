@@ -10,6 +10,7 @@ import { TeachingManagement } from './TeachingManagement';
 import { TeachingAnalytics } from './TeachingAnalytics';
 import { TeachingUsageLog } from './TeachingUsageLog';
 import { DidactiekFAQ } from './DidactiekFAQ';
+import { DidactiekVormingen } from './DidactiekVormingen';
 import { 
   BookOpen, 
   Plus, 
@@ -24,7 +25,8 @@ import {
   BarChart3,
   Clock,
   Edit,
-  HelpCircle
+  HelpCircle,
+  Video
 } from 'lucide-react';
 
 interface AgeGroup {
@@ -91,14 +93,14 @@ interface UserSchool {
 }
 
 interface TeachingTabProps {
-  initialPage?: 'technieken' | 'faq';
+  initialPage?: 'technieken' | 'faq' | 'vormingen';
 }
 
 export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {}) {
   const { user } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activePage, setActivePage] = useState<'technieken' | 'faq'>(initialPage);
+  const [activePage, setActivePage] = useState<'technieken' | 'faq' | 'vormingen'>(initialPage);
   const [activeView, setActiveView] = useState<'list' | 'form' | 'detail' | 'management' | 'analytics'>('list');
   const [techniques, setTechniques] = useState<TeachingTechnique[]>([]);
   const [ageGroups, setAgeGroups] = useState<AgeGroup[]>([]);
@@ -349,8 +351,42 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
           >
             FAQ
           </button>
+          <button
+            onClick={() => setActivePage('vormingen')}
+            className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
+          >
+            Vormingen
+          </button>
         </div>
         <DidactiekFAQ isAdmin={isAdmin} />
+      </div>
+    );
+  }
+
+  if (activePage === 'vormingen') {
+    return (
+      <div className="space-y-6">
+        <div className="flex gap-4 border-b border-gray-200 pb-4">
+          <button
+            onClick={() => setActivePage('technieken')}
+            className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
+          >
+            Technieken
+          </button>
+          <button
+            onClick={() => setActivePage('faq')}
+            className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
+          >
+            FAQ
+          </button>
+          <button
+            onClick={() => setActivePage('vormingen')}
+            className="px-4 py-2 text-blue-600 border-b-2 border-blue-600 font-medium"
+          >
+            Vormingen
+          </button>
+        </div>
+        <DidactiekVormingen isAdmin={isAdmin} />
       </div>
     );
   }
@@ -386,6 +422,16 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
           }`}
         >
           FAQ
+        </button>
+        <button
+          onClick={() => setActivePage('vormingen')}
+          className={`px-4 py-2 transition-colors ${
+            activePage === 'vormingen'
+              ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+              : 'text-gray-700 hover:text-blue-600'
+          }`}
+        >
+          Vormingen
         </button>
       </div>
 
