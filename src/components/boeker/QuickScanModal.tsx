@@ -436,11 +436,11 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
         const loanData: any = {
           [idField]: item.id,
           student_id: selectedStudent.id,
-          school_id: schoolId,
           loaned_at: new Date().toISOString(),
         };
 
         if (isBook) {
+          loanData.school_id = schoolId;
           loanData.borrowed_at = loanData.loaned_at;
           delete loanData.loaned_at;
         }
