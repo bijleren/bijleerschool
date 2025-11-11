@@ -150,8 +150,12 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
   };
 
   const handleBookScan = async (isbn: string) => {
-    if (!selectedStudent || !action || processing) return;
+    if (!selectedStudent || !action || processing) {
+      console.log('Scan blocked:', { selectedStudent: !!selectedStudent, action, processing });
+      return;
+    }
 
+    console.log('Book scan started. Current action:', action);
     setProcessing(true);
     try {
       const { data: book, error: bookError } = await supabase
@@ -168,6 +172,8 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
         setProcessing(false);
         return;
       }
+
+      console.log('Book found. Setting pending book. Current action:', action);
 
       if (action === 'lend' && book.available_copies <= 0) {
         const { data: currentLoans } = await supabase
@@ -315,7 +321,6 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
       onBookProcessed();
       setPendingBook(null);
       setProcessing(false);
-      setShowScanner(true);
     } catch (error) {
       console.error('Error processing book:', error);
       setToast({ message: 'Fout bij verwerken boek', type: 'error' });
