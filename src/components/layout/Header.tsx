@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid, Package } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateToDashboard: () => void;
@@ -353,27 +353,6 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     >
                       <BarChart3 className="w-4 h-4 mr-2" />
                       Statistieken
-                    </button>
-                  </div>
-
-                  {/* Materialen Section */}
-                  <div className="px-3 py-2 border-t border-gray-200">
-                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                      <Package className="w-4 h-4" />
-                      <span>Materialen</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        onNavigateToBoeker();
-                        setShowAppsDropdown(false);
-                        setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('navigateToBoekerMaterials'));
-                        }, 100);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <List className="w-4 h-4 mr-2" />
-                      Materialen
                     </button>
                   </div>
                 </div>
