@@ -7,7 +7,8 @@ import { BookLibrary } from './BookLibrary';
 import { StudentBookManagement } from './StudentBookManagement';
 import { BoekerAnalytics } from './BoekerAnalytics';
 import { MaterialenTab } from '../materials/MaterialenTab';
-import { Book, Users, BarChart3, Package } from 'lucide-react';
+import { QuickScanModal } from './QuickScanModal';
+import { Book, Users, BarChart3, Package, Scan } from 'lucide-react';
 
 type View = 'library' | 'students' | 'analytics' | 'materials';
 
@@ -17,6 +18,8 @@ export function BoekerTab() {
   const [schoolId, setSchoolId] = useState<string | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showQuickScan, setShowQuickScan] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     fetchUserSchool();
@@ -84,6 +87,10 @@ export function BoekerTab() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Boeker - Digitale Bibliotheek</h1>
+        <Button onClick={() => setShowQuickScan(true)} variant="primary">
+          <Scan className="w-4 h-4 mr-2" />
+          Snel Scannen
+        </Button>
       </div>
 
       <div className="flex gap-2 border-b border-gray-200">
@@ -97,6 +104,17 @@ export function BoekerTab() {
         >
           <Book className="w-4 h-4 inline mr-2" />
           Bibliotheek
+        </button>
+        <button
+          onClick={() => setCurrentView('materials')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            currentView === 'materials'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <Package className="w-4 h-4 inline mr-2" />
+          Materialen
         </button>
         <button
           onClick={() => setCurrentView('students')}
@@ -120,17 +138,6 @@ export function BoekerTab() {
           <BarChart3 className="w-4 h-4 inline mr-2" />
           Statistieken
         </button>
-        <button
-          onClick={() => setCurrentView('materials')}
-          className={`px-4 py-2 font-medium transition-colors ${
-            currentView === 'materials'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          <Package className="w-4 h-4 inline mr-2" />
-          Materialen
-        </button>
       </div>
 
       {currentView === 'library' && (
@@ -140,17 +147,27 @@ export function BoekerTab() {
             setSelectedStudentId(studentId);
             setCurrentView('students');
           }}
+          key={refreshTrigger}
         />
       )}
+      {currentView === 'materials' && <MaterialenTab schoolId={schoolId} />}
       {currentView === 'students' && (
         <StudentBookManagement
           schoolId={schoolId}
           initialStudentId={selectedStudentId}
           onClearStudent={() => setSelectedStudentId(null)}
+          key={refreshTrigger}
         />
       )}
-      {currentView === 'analytics' && <BoekerAnalytics schoolId={schoolId} />}
-      {currentView === 'materials' && <MaterialenTab schoolId={schoolId} />}
+      {currentView === 'analytics' && <BoekerAnalytics schoolId={schoolId} key={refreshTrigger} />}
+
+      {showQuickScan && (
+        <QuickScanModal
+          schoolId={schoolId}
+          onClose={() => setShowQuickScan(false)}
+          onBookProcessed={() => setRefreshTrigger(prev => prev + 1)}
+        />
+      )}
     </div>
   );
 }
