@@ -54,6 +54,9 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   const [currentBorrowers, setCurrentBorrowers] = useState<StudentBookInfo[]>([]);
   const [fetchingMetadata, setFetchingMetadata] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [customCoverFile, setCustomCoverFile] = useState<File | null>(null);
+  const [customCoverPreview, setCustomCoverPreview] = useState<string | null>(null);
+  const [useCustomCover, setUseCustomCover] = useState(false);
 
   const [formData, setFormData] = useState({
     isbn: '',
@@ -64,6 +67,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     page_count: '',
     description: '',
     cover_image_url: '',
+    custom_cover_url: '',
     language: '',
     total_copies: '1'
   });
@@ -105,6 +109,38 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
       setToast({ message: 'Fout bij ophalen boeken', type: 'error' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCustomCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setCustomCoverFile(file);
+      setCustomCoverPreview(URL.createObjectURL(file));
+      setUseCustomCover(true);
+    }
+  };
+
+  const uploadCustomCover = async (file: File): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${schoolId}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('book-covers')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('book-covers')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading cover:', error);
+      return null;
     }
   };
 
@@ -153,6 +189,15 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     }
 
     try {
+      let customCoverUrl = formData.custom_cover_url || null;
+
+      if (useCustomCover && customCoverFile) {
+        const uploadedUrl = await uploadCustomCover(customCoverFile);
+        if (uploadedUrl) {
+          customCoverUrl = uploadedUrl;
+        }
+      }
+
       const totalCopies = parseInt(formData.total_copies) || 1;
 
       if (editingBook && totalCopies < editingBook.total_copies) {
@@ -192,6 +237,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
         page_count: formData.page_count ? parseInt(formData.page_count) : null,
         description: formData.description || null,
         cover_image_url: formData.cover_image_url || null,
+        custom_cover_url: customCoverUrl,
         language: formData.language || null,
         total_copies: totalCopies,
         available_copies: editingBook
@@ -260,9 +306,13 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
       page_count: book.page_count?.toString() || '',
       description: '',
       cover_image_url: book.cover_image_url || '',
+      custom_cover_url: book.custom_cover_url || '',
       language: '',
       total_copies: book.total_copies.toString()
     });
+    setCustomCoverFile(null);
+    setCustomCoverPreview(book.custom_cover_url || null);
+    setUseCustomCover(!!book.custom_cover_url);
     setShowAddModal(true);
   };
 
@@ -276,9 +326,14 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
       page_count: '',
       description: '',
       cover_image_url: '',
+      custom_cover_url: '',
       language: '',
       total_copies: '1'
     });
+    setEditingBook(null);
+    setCustomCoverFile(null);
+    setCustomCoverPreview(null);
+    setUseCustomCover(false);
   };
 
   const handleViewBook = async (book: Book) => {
@@ -396,9 +451,9 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                     className="aspect-[2/3] bg-gray-100 relative cursor-pointer"
                     onClick={() => handleViewBook(book)}
                   >
-                    {(book.cover_image_url || book.custom_cover_url) ? (
+                    {(book.custom_cover_url || book.cover_image_url) ? (
                       <img
-                        src={book.cover_image_url || book.custom_cover_url || ''}
+                        src={book.custom_cover_url || book.cover_image_url || ''}
                         alt={book.title}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -412,7 +467,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                         }}
                       />
                     ) : null}
-                    <div className={`fallback-icon w-full h-full flex items-center justify-center ${(book.cover_image_url || book.custom_cover_url) ? 'hidden' : ''}`}>
+                    <div className={`fallback-icon w-full h-full flex items-center justify-center ${(book.custom_cover_url || book.cover_image_url) ? 'hidden' : ''}`}>
                       <BookOpen className="w-12 h-12 text-gray-300" />
                     </div>
                   </div>
@@ -556,32 +611,87 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Cover URL
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Boek Cover
                   </label>
-                  <div className="flex gap-3">
-                    <div className="flex-1">
-                      <Input
-                        value={formData.cover_image_url}
-                        onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                        placeholder="https://..."
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        Cover wordt automatisch opgehaald bij ISBN scan
-                      </p>
-                    </div>
+
+                  <div className="space-y-3">
                     {formData.cover_image_url && (
-                      <div className="w-20 h-28 bg-gray-100 rounded border border-gray-200 flex items-center justify-center overflow-hidden">
-                        <img
-                          src={formData.cover_image_url}
-                          alt="Cover preview"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
+                      <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="w-16 h-24 bg-white rounded border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                          <img
+                            src={formData.cover_image_url}
+                            alt="API cover"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-700">Cover van API</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Opgehaald bij ISBN scan
+                          </p>
+                          {!useCustomCover && (
+                            <p className="text-xs text-green-600 mt-1 font-medium">
+                              ✓ Wordt gebruikt
+                            </p>
+                          )}
+                        </div>
                       </div>
                     )}
+
+                    <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                      {(customCoverPreview || (useCustomCover && formData.custom_cover_url)) && (
+                        <div className="w-16 h-24 bg-white rounded border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                          <img
+                            src={customCoverPreview || formData.custom_cover_url}
+                            alt="Custom cover"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-700 mb-2">Eigen Cover Uploaden</p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleCustomCoverChange}
+                          className="hidden"
+                          id="custom-cover-upload"
+                        />
+                        <label htmlFor="custom-cover-upload">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="text-sm"
+                            onClick={() => document.getElementById('custom-cover-upload')?.click()}
+                          >
+                            <Camera className="w-4 h-4 mr-2" />
+                            {customCoverPreview ? 'Andere foto kiezen' : 'Upload foto'}
+                          </Button>
+                        </label>
+                        {useCustomCover && (
+                          <div className="mt-2">
+                            <p className="text-xs text-green-600 font-medium">
+                              ✓ Wordt gebruikt
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setUseCustomCover(false);
+                                setCustomCoverFile(null);
+                                setCustomCoverPreview(null);
+                              }}
+                              className="text-xs text-blue-600 hover:text-blue-700 mt-1"
+                            >
+                              Gebruik API cover
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -626,9 +736,9 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
               <div className="flex items-start justify-between mb-6">
                 <div className="flex gap-4">
                   <div className="w-24 h-36 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    {(viewingBook.cover_image_url || viewingBook.custom_cover_url) ? (
+                    {(viewingBook.custom_cover_url || viewingBook.cover_image_url) ? (
                       <img
-                        src={viewingBook.cover_image_url || viewingBook.custom_cover_url || ''}
+                        src={viewingBook.custom_cover_url || viewingBook.cover_image_url || ''}
                         alt={viewingBook.title}
                         className="w-full h-full object-cover"
                       />
