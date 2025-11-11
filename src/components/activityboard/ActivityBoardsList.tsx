@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { Plus, Grid, Edit, Trash2, BarChart3, Eye, Users } from 'lucide-react';
+import { Plus, Grid, Edit, Trash2, BarChart3, Eye, Users, Archive, ArchiveRestore } from 'lucide-react';
 
 interface ActivityBoard {
   id: string;
@@ -31,7 +31,7 @@ interface ActivityBoardsListProps {
   onViewBoard: (board: ActivityBoard) => void;
   onEditBoard: (board: ActivityBoard) => void;
   onViewAnalytics: () => void;
-  onBoardsChanged: () => void;
+  onBoardsChanged: (includeArchived?: boolean) => void;
 }
 
 export function ActivityBoardsList({
@@ -46,8 +46,11 @@ export function ActivityBoardsList({
   onViewAnalytics,
   onBoardsChanged
 }: ActivityBoardsListProps) {
+  const [archiveConfirm, setArchiveConfirm] = useState<ActivityBoard | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<ActivityBoard | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [activeCounts, setActiveCounts] = useState<Record<string, number>>({});
 
   React.useEffect(() => {
@@ -76,14 +79,53 @@ export function ActivityBoardsList({
     setActiveCounts(counts);
   };
 
+  const handleArchiveBoard = async () => {
+    if (!archiveConfirm) return;
+
+    setArchiving(true);
+    try {
+      const { error } = await supabase
+        .from('activity_boards')
+        .update({ archived_at: new Date().toISOString() })
+        .eq('id', archiveConfirm.id);
+
+      if (error) throw error;
+
+      onBoardsChanged();
+      setArchiveConfirm(null);
+    } catch (error) {
+      console.error('Error archiving board:', error);
+      alert('Fout bij archiveren van bord. Probeer het opnieuw.');
+    } finally {
+      setArchiving(false);
+    }
+  };
+
+  const handleUnarchiveBoard = async (boardId: string) => {
+    try {
+      const { error } = await supabase
+        .from('activity_boards')
+        .update({ archived_at: null })
+        .eq('id', boardId);
+
+      if (error) throw error;
+
+      onBoardsChanged();
+    } catch (error) {
+      console.error('Error unarchiving board:', error);
+      alert('Fout bij herstellen van bord. Probeer het opnieuw.');
+    }
+  };
+
   const handleDeleteBoard = async () => {
     if (!deleteConfirm) return;
 
     setDeleting(true);
     try {
+      // Permanently delete the board (CASCADE will handle related data)
       const { error } = await supabase
         .from('activity_boards')
-        .update({ deleted_at: new Date().toISOString() })
+        .delete()
         .eq('id', deleteConfirm.id);
 
       if (error) throw error;
@@ -98,8 +140,11 @@ export function ActivityBoardsList({
     }
   };
 
-  const activeBoards = boards.filter(b => b.is_active);
-  const inactiveBoards = boards.filter(b => !b.is_active);
+  const archivedBoards = boards.filter(b => b.archived_at);
+  const activeBoards = boards.filter(b => b.is_active && !b.archived_at);
+  const inactiveBoards = boards.filter(b => !b.is_active && !b.archived_at);
+
+  const displayBoards = showArchived ? archivedBoards : [...activeBoards, ...inactiveBoards];
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -124,6 +169,17 @@ export function ActivityBoardsList({
           )}
         </div>
         <div className="flex space-x-3">
+          <Button
+            variant={showArchived ? "primary" : "secondary"}
+            onClick={() => {
+              const newShowArchived = !showArchived;
+              setShowArchived(newShowArchived);
+              onBoardsChanged(newShowArchived);
+            }}
+          >
+            {showArchived ? <ArchiveRestore className="w-4 h-4 mr-2" /> : <Archive className="w-4 h-4 mr-2" />}
+            {showArchived ? 'Toon Actieve' : 'Toon Archief'}
+          </Button>
           <Button variant="secondary" onClick={onViewAnalytics}>
             <BarChart3 className="w-4 h-4 mr-2" />
             Analyses
@@ -135,7 +191,7 @@ export function ActivityBoardsList({
         </div>
       </div>
 
-      {activeBoards.length === 0 && inactiveBoards.length === 0 ? (
+      {!showArchived && activeBoards.length === 0 && inactiveBoards.length === 0 ? (
         <Card className="text-center py-12">
           <Grid className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Nog geen activiteitenborden</h3>
@@ -147,6 +203,68 @@ export function ActivityBoardsList({
             Nieuw Bord Maken
           </Button>
         </Card>
+      ) : showArchived && archivedBoards.length === 0 ? (
+        <Card className="text-center py-12">
+          <Archive className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Geen gearchiveerde borden</h3>
+          <p className="text-gray-600">
+            Gearchiveerde borden verschijnen hier.
+          </p>
+        </Card>
+      ) : showArchived ? (
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Gearchiveerde Borden</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {archivedBoards.map((board) => (
+              <Card key={board.id} className="opacity-75 hover:opacity-100 transition-opacity">
+                <div className="flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <Archive className="w-5 h-5 text-gray-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{board.name}</h3>
+                        <span className="text-xs text-gray-500">Gearchiveerd</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {board.description && (
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      {board.description}
+                    </p>
+                  )}
+
+                  <div className="mt-auto flex items-center space-x-2">
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleUnarchiveBoard(board.id)}
+                      className="flex-1"
+                    >
+                      <ArchiveRestore className="w-4 h-4 mr-1" />
+                      Herstellen
+                    </Button>
+                    <button
+                      onClick={() => onViewBoard(board)}
+                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors"
+                      title="Bekijken"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirm(board)}
+                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+                      title="Permanent verwijderen"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
       ) : (
         <>
           {activeBoards.length > 0 && (
@@ -195,8 +313,16 @@ export function ActivityBoardsList({
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
+                          onClick={() => setArchiveConfirm(board)}
+                          className="p-2 text-gray-600 hover:text-orange-600 hover:bg-gray-50 rounded-lg transition-colors"
+                          title="Archiveren"
+                        >
+                          <Archive className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => setDeleteConfirm(board)}
                           className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+                          title="Permanent verwijderen"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -258,14 +384,27 @@ export function ActivityBoardsList({
         </>
       )}
 
+      {archiveConfirm && (
+        <ConfirmationModal
+          isOpen={true}
+          onClose={() => setArchiveConfirm(null)}
+          onConfirm={handleArchiveBoard}
+          title="Bord archiveren"
+          message={`Weet je zeker dat je "${archiveConfirm.name}" wilt archiveren? Het bord verdwijnt uit de lijst maar alle gegevens blijven bewaard. Je kunt het later herstellen.`}
+          confirmText="Archiveren"
+          cancelText="Annuleren"
+          isLoading={archiving}
+        />
+      )}
+
       {deleteConfirm && (
         <ConfirmationModal
           isOpen={true}
           onClose={() => setDeleteConfirm(null)}
           onConfirm={handleDeleteBoard}
-          title="Bord verwijderen"
-          message={`Weet je zeker dat je "${deleteConfirm.name}" wilt verwijderen? Alle activiteiten en sessiegegevens worden permanent verwijderd.`}
-          confirmText="Verwijderen"
+          title="Bord permanent verwijderen"
+          message={`Weet je zeker dat je "${deleteConfirm.name}" permanent wilt verwijderen? Alle activiteiten en sessiegegevens worden definitief verwijderd en kunnen niet worden hersteld.`}
+          confirmText="Permanent Verwijderen"
           cancelText="Annuleren"
           isLoading={deleting}
         />

@@ -78,20 +78,26 @@ export function ActivityBoardsTab({ onFullscreenChange }: ActivityBoardsTabProps
     }
   };
 
-  const fetchBoards = async () => {
+  const fetchBoards = async (includeArchived = false) => {
     if (!selectedSchoolId || !user) return;
 
     try {
       // Fetch boards created by user OR shared with user
-      const { data, error } = await supabase
+      const query = supabase
         .from('activity_boards')
         .select(`
           *,
           shared_with:activity_board_access!left(user_id)
         `)
         .eq('school_id', selectedSchoolId)
-        .is('deleted_at', null)
-        .order('created_at', { ascending: false });
+        .is('deleted_at', null);
+
+      // Filter archived boards unless explicitly requested
+      if (!includeArchived) {
+        query.is('archived_at', null);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
 
