@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
-import { Search, BookOpen, Clock, X, ArrowLeft } from 'lucide-react';
+import { Search, BookOpen, Clock, X, ArrowLeft, Package } from 'lucide-react';
 
 interface Student {
   id: string;
@@ -18,6 +18,8 @@ interface StudentWithStats {
   total_books: number;
   total_minutes: number;
   total_pages: number;
+  current_materials: number;
+  total_materials: number;
   current_books_details: Array<{
     id: string;
     book_title: string;
@@ -26,6 +28,12 @@ interface StudentWithStats {
     current_page: number | null;
     total_pages: number | null;
     progress_percentage: number | null;
+  }>;
+  current_materials_details: Array<{
+    id: string;
+    material_title: string;
+    material_code: string;
+    loaned_at: string;
   }>;
 }
 
@@ -98,6 +106,32 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
           const totalMinutes = sessions?.reduce((sum, s) => sum + (s.duration_minutes || 0), 0) || 0;
           const totalPages = sessions?.reduce((sum, s) => sum + (s.pages_read || 0), 0) || 0;
 
+          const { data: currentMaterials } = await supabase
+            .from('school_material_loans')
+            .select(`
+              id,
+              loaned_at,
+              school_materials (
+                id,
+                title,
+                blink_code
+              )
+            `)
+            .eq('student_id', student.id)
+            .is('returned_at', null);
+
+          const { data: allMaterials } = await supabase
+            .from('school_material_loans')
+            .select('id')
+            .eq('student_id', student.id);
+
+          const currentMaterialsDetails = (currentMaterials || []).map((ml: any) => ({
+            id: ml.id,
+            material_title: ml.school_materials.title,
+            material_code: ml.school_materials.blink_code,
+            loaned_at: ml.loaned_at
+          }));
+
           const currentBooksDetails = await Promise.all(
             (currentBooks || []).map(async (sb: any) => {
               const { data: lastSession } = await supabase
@@ -131,7 +165,10 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
             total_books: allBooks?.length || 0,
             total_minutes: totalMinutes,
             total_pages: totalPages,
-            current_books_details: currentBooksDetails
+            current_materials: currentMaterials?.length || 0,
+            total_materials: allMaterials?.length || 0,
+            current_books_details: currentBooksDetails,
+            current_materials_details: currentMaterialsDetails
           };
         })
       );
@@ -192,7 +229,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Card>
             <div className="p-4">
               <p className="text-sm text-gray-600 mb-1">Huidige boeken</p>
@@ -217,12 +254,28 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
               <p className="text-3xl font-bold text-purple-600">{selectedStudent.total_pages}</p>
             </div>
           </Card>
+          <Card>
+            <div className="p-4">
+              <p className="text-sm text-gray-600 mb-1">Huidig materiaal</p>
+              <p className="text-3xl font-bold text-orange-600">{selectedStudent.current_materials}</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="p-4">
+              <p className="text-sm text-gray-600 mb-1">Totaal materiaal</p>
+              <p className="text-3xl font-bold text-gray-700">{selectedStudent.total_materials}</p>
+            </div>
+          </Card>
         </div>
 
-        {selectedStudent.current_books_details.length > 0 && (
-          <Card>
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Huidige boeken</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {selectedStudent.current_books_details.length > 0 && (
+            <Card>
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-blue-600" />
+                  Huidige boeken
+                </h3>
               <div className="space-y-4">
                 {selectedStudent.current_books_details.map((book) => (
                   <div key={book.id} className="bg-gray-50 rounded-lg p-4">
@@ -266,10 +319,41 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
                     )}
                   </div>
                 ))}
+                </div>
               </div>
-            </div>
-          </Card>
-        )}
+            </Card>
+          )}
+
+          {selectedStudent.current_materials_details.length > 0 && (
+            <Card>
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-orange-600" />
+                  Huidig materiaal
+                </h3>
+                <div className="space-y-3">
+                  {selectedStudent.current_materials_details.map((material) => (
+                    <div key={material.id} className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900">{material.material_title}</h4>
+                          <p className="text-sm text-gray-600">Code: {material.material_code}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Geleend op {new Date(material.loaned_at).toLocaleDateString('nl-NL', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          )}
+        </div>
 
         {toast && (
           <Toast
@@ -338,6 +422,12 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Pagina's
                     </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Huidig materiaal
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Totaal materiaal
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -374,6 +464,14 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
                           <BookOpen className="w-4 h-4 mr-1 text-gray-400" />
                           {item.total_pages}
                         </div>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-semibold text-orange-600 bg-orange-50 rounded-full">
+                          {item.current_materials}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className="text-sm text-gray-900">{item.total_materials}</span>
                       </td>
                     </tr>
                   ))}

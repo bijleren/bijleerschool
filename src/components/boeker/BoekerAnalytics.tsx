@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
 import { Toast } from '../ui/Toast';
-import { BookOpen, Users, Clock, TrendingUp, Award, Calendar } from 'lucide-react';
+import { BookOpen, Users, Clock, TrendingUp, Award, Calendar, Package } from 'lucide-react';
 
 interface AnalyticsData {
   totalBooks: number;
@@ -11,11 +11,20 @@ interface AnalyticsData {
   totalReadingMinutes: number;
   totalPagesRead: number;
   averageReadingTime: number;
+  totalMaterials: number;
+  activeMaterialLoans: number;
+  totalMaterialLoans: number;
   mostPopularBooks: Array<{
     id: string;
     title: string;
     author: string | null;
     borrow_count: number;
+  }>;
+  mostPopularMaterials: Array<{
+    id: string;
+    title: string;
+    blink_code: string;
+    loan_count: number;
   }>;
   topReaders: Array<{
     id: string;
@@ -171,6 +180,52 @@ export function BoekerAnalytics({ schoolId }: BoekerAnalyticsProps) {
         date: borrow.borrowed_at
       }));
 
+      const { data: materials } = await supabase
+        .from('school_materials')
+        .select('id, title, blink_code')
+        .eq('school_id', schoolId);
+
+      const { data: materialLoans } = await supabase
+        .from('school_material_loans')
+        .select(`
+          id,
+          material_id,
+          returned_at,
+          school_materials (
+            id,
+            title,
+            blink_code
+          )
+        `)
+        .in('material_id', (materials || []).map(m => m.id));
+
+      const activeMaterialLoans = materialLoans?.filter(loan => !loan.returned_at).length || 0;
+
+      const materialCounts = new Map<string, { title: string; blink_code: string; count: number; id: string }>();
+      materialLoans?.forEach((loan: any) => {
+        const materialId = loan.material_id;
+        if (materialCounts.has(materialId)) {
+          materialCounts.get(materialId)!.count++;
+        } else {
+          materialCounts.set(materialId, {
+            id: materialId,
+            title: loan.school_materials?.title || 'Unknown',
+            blink_code: loan.school_materials?.blink_code || '',
+            count: 1
+          });
+        }
+      });
+
+      const popularMaterials = Array.from(materialCounts.values())
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5)
+        .map(material => ({
+          id: material.id,
+          title: material.title,
+          blink_code: material.blink_code,
+          loan_count: material.count
+        }));
+
       setAnalytics({
         totalBooks: books?.length || 0,
         totalStudents: students?.length || 0,
@@ -178,7 +233,11 @@ export function BoekerAnalytics({ schoolId }: BoekerAnalyticsProps) {
         totalReadingMinutes: totalMinutes,
         totalPagesRead: totalPages,
         averageReadingTime: averageTime,
+        totalMaterials: materials?.length || 0,
+        activeMaterialLoans,
+        totalMaterialLoans: materialLoans?.length || 0,
         mostPopularBooks: popularBooks,
+        mostPopularMaterials: popularMaterials,
         topReaders,
         recentActivity
       });
@@ -286,9 +345,45 @@ export function BoekerAnalytics({ schoolId }: BoekerAnalyticsProps) {
             </div>
           </div>
         </Card>
+
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Totaal materialen</p>
+                <p className="text-3xl font-bold text-gray-900">{analytics.totalMaterials}</p>
+              </div>
+              <Package className="w-12 h-12 text-orange-600 opacity-20" />
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Actieve leningen</p>
+                <p className="text-3xl font-bold text-gray-900">{analytics.activeMaterialLoans}</p>
+              </div>
+              <Package className="w-12 h-12 text-red-600 opacity-20" />
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Totale leningen</p>
+                <p className="text-3xl font-bold text-gray-900">{analytics.totalMaterialLoans}</p>
+              </div>
+              <Package className="w-12 h-12 text-gray-600 opacity-20" />
+            </div>
+          </div>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card>
           <div className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -317,6 +412,40 @@ export function BoekerAnalytics({ schoolId }: BoekerAnalyticsProps) {
                     </div>
                     <span className="text-sm font-semibold text-blue-600">
                       {book.borrow_count}×
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </Card>
+
+        <Card>
+          <div className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <Package className="w-5 h-5 mr-2 text-orange-600" />
+              Populairste Materialen
+            </h3>
+            {analytics.mostPopularMaterials.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">Nog geen data beschikbaar</p>
+            ) : (
+              <div className="space-y-3">
+                {analytics.mostPopularMaterials.map((material, index) => (
+                  <div
+                    key={material.id}
+                    className="flex items-center justify-between p-3 bg-orange-50 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-bold text-orange-600">#{index + 1}</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm">{material.title}</p>
+                        <p className="text-xs text-gray-600">{material.blink_code}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-semibold text-orange-600">
+                      {material.loan_count}×
                     </span>
                   </div>
                 ))}
