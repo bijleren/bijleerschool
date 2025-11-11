@@ -11,7 +11,7 @@ import { ActivitySelectionModal } from './ActivitySelectionModal';
 import { UnassignedStudentsPanel } from './UnassignedStudentsPanel';
 import { QRScanner } from './QRScanner';
 import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap } from 'lucide-react';
-import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
+import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor, useDroppable } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -63,17 +63,58 @@ const ICON_MAP: Record<string, any> = {
   Gamepad2, Puzzle, Building, Trees, Scissors, Play
 };
 
+function DroppableUnassignedPanel({ children }: { children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: 'unassigned-panel',
+    data: { type: 'unassigned-panel' }
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`transition-all ${isOver ? 'ring-2 ring-blue-500' : ''}`}
+    >
+      {children}
+    </div>
+  );
+}
+
 function StudentSpot({
   session,
   activityColor,
   onClick,
-  onRemove
+  onRemove,
+  activityId,
+  spotIndex
 }: {
   session: ActivitySession | null;
   activityColor: string;
   onClick: () => void;
   onRemove?: (session: ActivitySession) => void;
+  activityId: string;
+  spotIndex?: number;
 }) {
+  const dragId = session
+    ? `session-${session.id}`
+    : `empty-spot-${activityId}-${spotIndex}`;
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({
+    id: dragId,
+    data: {
+      type: session ? 'student-spot' : 'empty-spot',
+      session,
+      activityId,
+      spotIndex
+    },
+    disabled: !session
+  });
   const getActivityDuration = (startTime: string) => {
     const start = new Date(startTime);
     const now = new Date();
@@ -84,19 +125,36 @@ function StudentSpot({
     return `${hours}u ${mins}m`;
   };
 
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1
+  };
+
   if (!session) {
     return (
-      <button
-        onClick={onClick}
-        className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center group"
+      <div
+        ref={setNodeRef}
+        style={style}
       >
-        <Plus className="w-5 h-5 text-gray-400 group-hover:text-blue-500" />
-      </button>
+        <button
+          onClick={onClick}
+          className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center group"
+        >
+          <Plus className="w-5 h-5 text-gray-400 group-hover:text-blue-500" />
+        </button>
+      </div>
     );
   }
 
   return (
-    <div className="relative group">
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="relative group cursor-grab active:cursor-grabbing"
+    >
       <button
         onClick={onClick}
         className="w-16 h-16 rounded-lg border-2 border-gray-300 flex items-center justify-center overflow-hidden"
@@ -148,7 +206,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
   const [mode, setMode] = useState<'teacher' | 'student'>('teacher');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [showOptionsModal, setShowOptionsModal] = useState(false);
-  const [showUnassignedPanel, setShowUnassignedPanel] = useState(false);
+  const [showUnassignedPanel, setShowUnassignedPanel] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
   const [scannedStudent, setScannedStudent] = useState<any | null>(null);
   const [unassignedStudents, setUnassignedStudents] = useState<any[]>([]);
@@ -357,6 +415,72 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
     setFeedbackSession(session);
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over) return;
+
+    const activeData = active.data.current;
+    const overData = over.data.current;
+
+    console.log('Drag ended:', { active: activeData, over: overData });
+
+    if (activeData?.type === 'unassigned-student') {
+      if (overData?.type === 'empty-spot' || overData?.type === 'student-spot') {
+        await handleAddStudent(activeData.student, overData.activityId);
+      }
+    } else if (activeData?.type === 'student-spot' && activeData.session) {
+      if (overData?.type === 'empty-spot') {
+        if (overData.activityId === activeData.activityId) {
+          return;
+        }
+        await handleSwitchActivity(activeData.session, overData.activityId);
+      } else if (overData?.type === 'student-spot' && overData.session) {
+        if (overData.activityId !== activeData.activityId) {
+          await handleSwitchActivity(activeData.session, overData.activityId);
+        }
+      } else if (over.id === 'unassigned-panel') {
+        await handleRemoveStudent(activeData.session);
+      }
+    }
+  };
+
+  const handleSwitchActivity = async (session: ActivitySession, newActivityId: string) => {
+    try {
+      const { error: endError } = await supabase
+        .from('activity_sessions')
+        .update({ end_time: new Date().toISOString() })
+        .eq('id', session.id);
+
+      if (endError) throw endError;
+
+      const { error: insertError } = await supabase
+        .from('activity_sessions')
+        .insert({
+          board_id: board.id,
+          activity_option_id: newActivityId,
+          student_id: session.student_id,
+          start_time: new Date().toISOString()
+        });
+
+      if (insertError) throw insertError;
+
+      setToast({ message: 'Leerling verplaatst', type: 'success' });
+      fetchActiveSessions();
+    } catch (error) {
+      console.error('Error switching activity:', error);
+      setToast({ message: 'Fout bij verplaatsen', type: 'error' });
+    }
+  };
+
   const handleFeedbackSubmit = async (
     sessionId: string,
     rating: number | null,
@@ -403,6 +527,17 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
     return sessions.filter(s => s.activity_option_id === activityId);
   };
 
+  const allDragIds = [
+    ...unassignedStudents.map(s => `unassigned-${s.id}`),
+    ...sessions.map(s => `session-${s.id}`),
+    ...options.flatMap(opt => {
+      const activitySessions = getSessionsForActivity(opt.id);
+      const isUnlimited = opt.max_students === null;
+      const numSpots = isUnlimited ? activitySessions.length + 1 : opt.max_students;
+      return Array.from({ length: numSpots }, (_, i) => `empty-spot-${opt.id}-${i}`);
+    })
+  ];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -412,8 +547,14 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
   }
 
   return (
-    <div className="flex h-full">
-      <div className="flex-1 max-w-7xl mx-auto">
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext items={allDragIds} strategy={rectSortingStrategy}>
+        <div className="flex h-full">
+          <div className="flex-1 max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
           <Button variant="secondary" onClick={onBack}>
@@ -494,19 +635,23 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
                   <div className="flex flex-wrap gap-2">
                     {isUnlimited ? (
                       <>
-                        {activitySessions.map((session) => (
+                        {activitySessions.map((session, index) => (
                           <StudentSpot
                             key={session.id}
                             session={session}
                             activityColor={option.color}
                             onClick={() => setShowSelector({ option })}
                             onRemove={handleRemoveStudent}
+                            activityId={option.id}
+                            spotIndex={index}
                           />
                         ))}
                         <StudentSpot
                           session={null}
                           activityColor={option.color}
                           onClick={() => setShowSelector({ option })}
+                          activityId={option.id}
+                          spotIndex={activitySessions.length}
                         />
                       </>
                     ) : (
@@ -519,6 +664,8 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
                             activityColor={option.color}
                             onClick={() => setShowSelector({ option, spotIndex: index })}
                             onRemove={session ? handleRemoveStudent : undefined}
+                            activityId={option.id}
+                            spotIndex={index}
                           />
                         );
                       })
@@ -596,11 +743,15 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
       </div>
 
       {showUnassignedPanel && (
-        <UnassignedStudentsPanel
-          students={unassignedStudents}
-          onSelectStudent={(student) => setScannedStudent(student)}
-        />
+        <DroppableUnassignedPanel>
+          <UnassignedStudentsPanel
+            students={unassignedStudents}
+            onSelectStudent={(student) => setScannedStudent(student)}
+          />
+        </DroppableUnassignedPanel>
       )}
-    </div>
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 }

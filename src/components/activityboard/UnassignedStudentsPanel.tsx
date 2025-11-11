@@ -1,5 +1,7 @@
 import React from 'react';
 import { Users, UserPlus } from 'lucide-react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Student {
   id: string;
@@ -11,6 +13,68 @@ interface Student {
 interface UnassignedStudentsPanelProps {
   students: Student[];
   onSelectStudent: (student: Student) => void;
+}
+
+function DraggableStudent({ student, onSelectStudent }: { student: Student; onSelectStudent: (student: Student) => void }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({
+    id: `unassigned-${student.id}`,
+    data: {
+      type: 'unassigned-student',
+      student
+    }
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="cursor-grab active:cursor-grabbing"
+    >
+      <button
+        onClick={() => onSelectStudent(student)}
+        className="w-full p-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group flex flex-col items-center text-center"
+      >
+                {student.profile_picture_url ? (
+                  <img
+                    src={student.profile_picture_url}
+                    alt={`${student.first_name} ${student.last_name}`}
+                    className="w-16 h-16 rounded-full object-cover mb-1"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-100 transition-colors mb-1">
+                    <span className="text-gray-600 font-medium text-sm group-hover:text-blue-600">
+                      {student.first_name[0]}
+                      {student.last_name[0]}
+                    </span>
+                  </div>
+                )}
+                <div className="w-full">
+                  <p className="font-medium text-gray-900 text-xs truncate">
+                    {student.first_name}
+                  </p>
+                  <p className="font-medium text-gray-700 text-xs truncate">
+                    {student.last_name}
+                  </p>
+                </div>
+        <UserPlus className="w-3 h-3 text-gray-400 group-hover:text-blue-600 transition-colors mt-1" />
+      </button>
+    </div>
+  );
 }
 
 export function UnassignedStudentsPanel({
@@ -38,35 +102,11 @@ export function UnassignedStudentsPanel({
         ) : (
           <div className="space-y-2">
             {students.map((student) => (
-              <button
+              <DraggableStudent
                 key={student.id}
-                onClick={() => onSelectStudent(student)}
-                className="w-full p-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group flex flex-col items-center text-center"
-              >
-                {student.profile_picture_url ? (
-                  <img
-                    src={student.profile_picture_url}
-                    alt={`${student.first_name} ${student.last_name}`}
-                    className="w-16 h-16 rounded-full object-cover mb-1"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-100 transition-colors mb-1">
-                    <span className="text-gray-600 font-medium text-sm group-hover:text-blue-600">
-                      {student.first_name[0]}
-                      {student.last_name[0]}
-                    </span>
-                  </div>
-                )}
-                <div className="w-full">
-                  <p className="font-medium text-gray-900 text-xs truncate">
-                    {student.first_name}
-                  </p>
-                  <p className="font-medium text-gray-700 text-xs truncate">
-                    {student.last_name}
-                  </p>
-                </div>
-                <UserPlus className="w-3 h-3 text-gray-400 group-hover:text-blue-600 transition-colors mt-1" />
-              </button>
+                student={student}
+                onSelectStudent={onSelectStudent}
+              />
             ))}
           </div>
         )}
