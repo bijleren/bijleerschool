@@ -21,6 +21,7 @@ export function UniversalScanner({
   const lastScanRef = useRef<string>('');
   const lastScanTimeRef = useRef<number>(0);
   const initializingRef = useRef(false);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
     if (initializingRef.current) return;
@@ -29,14 +30,30 @@ export function UniversalScanner({
     initScanner();
 
     return () => {
-      if (scannerRef.current && isScanning) {
+      console.log('UniversalScanner cleanup - stopping scanner');
+      isMountedRef.current = false;
+      if (scannerRef.current) {
         scannerRef.current
           .stop()
           .then(() => {
-            scannerRef.current?.clear();
-            scannerRef.current = null;
+            console.log('Scanner stopped successfully');
+            if (scannerRef.current) {
+              scannerRef.current.clear();
+              scannerRef.current = null;
+            }
           })
-          .catch((err) => console.error('Error stopping scanner:', err));
+          .catch((err) => {
+            console.error('Error stopping scanner:', err);
+            // Try to clear anyway
+            if (scannerRef.current) {
+              try {
+                scannerRef.current.clear();
+                scannerRef.current = null;
+              } catch (e) {
+                console.error('Error clearing scanner:', e);
+              }
+            }
+          });
       }
       initializingRef.current = false;
     };
@@ -122,6 +139,11 @@ export function UniversalScanner({
   };
 
   const handleScan = (scannedData: string) => {
+    if (!isMountedRef.current) {
+      console.log('Scanner unmounted, ignoring scan:', scannedData);
+      return;
+    }
+
     console.log('Universal scanner received:', scannedData);
 
     const isISBN = /^(978|979)\d{10}$/.test(scannedData) || /^\d{9}[\dX]$/.test(scannedData);
@@ -136,30 +158,34 @@ export function UniversalScanner({
     });
 
     if (isISBN && onBookScan && (scanningFor === 'book' || scanningFor === 'student-book' || scanningFor === 'all')) {
+      if (!isMountedRef.current) return;
       console.log('Calling onBookScan with ISBN:', scannedData);
       onBookScan(scannedData);
       return;
     }
 
     if (accessHash && onStudentScan && (scanningFor === 'student' || scanningFor === 'student-book' || scanningFor === 'all')) {
+      if (!isMountedRef.current) return;
       console.log('Calling onStudentScan with hash:', accessHash);
       onStudentScan(accessHash);
       return;
     }
 
     if (blinkCode && scanningFor === 'student' && onStudentScan) {
+      if (!isMountedRef.current) return;
       console.log('Calling onStudentScan with BlinkCode:', blinkCode);
       onStudentScan(blinkCode);
       return;
     }
 
     if (blinkCode && onMaterialScan && (scanningFor === 'material' || scanningFor === 'all')) {
+      if (!isMountedRef.current) return;
       console.log('Calling onMaterialScan with code:', blinkCode);
       onMaterialScan(blinkCode);
       return;
     }
 
-    if (onError) {
+    if (onError && isMountedRef.current) {
       if (scanningFor === 'student') {
         onError('Geen geldige leerling QR-code');
       } else if (scanningFor === 'book') {
