@@ -253,33 +253,45 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                       Leerling WebWijzer
                     </button>
                   </div>
+
+                  <div className="border-t border-gray-100 my-2"></div>
+
+                  {/* Direct App Links */}
+                  <div className="px-3 py-2">
+                    <button
+                      onClick={() => {
+                        onNavigateToSchoolDay();
+                        setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Schooldag
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToActivityBoards();
+                        setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Grid className="w-4 h-4 mr-2" />
+                      Activi-Tijd
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToBoeker();
+                        setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      Boeker
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
-
-            <button
-              onClick={onNavigateToSchoolDay}
-              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-            >
-              <Calendar className="w-5 h-5" />
-              <span>Schooldag</span>
-            </button>
-
-            <button
-              onClick={onNavigateToActivityBoards}
-              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-            >
-              <Grid className="w-5 h-5" />
-              <span>Activi-Tijd</span>
-            </button>
-
-            <button
-              onClick={onNavigateToBoeker}
-              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-            >
-              <BookOpen className="w-5 h-5" />
-              <span>Boeker</span>
-            </button>
 
             <button
               onClick={onNavigateToTeaching}
