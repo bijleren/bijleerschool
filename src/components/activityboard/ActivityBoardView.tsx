@@ -11,7 +11,7 @@ import { ActivitySelectionModal } from './ActivitySelectionModal';
 import { UnassignedStudentsPanel } from './UnassignedStudentsPanel';
 import { QRScanner } from './QRScanner';
 import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap } from 'lucide-react';
-import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor, useDroppable, useDraggable } from '@dnd-kit/core';
+import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor, useDroppable, useDraggable, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
 interface ActivityBoard {
@@ -257,6 +257,8 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
   const [showScanner, setShowScanner] = useState(false);
   const [scannedStudent, setScannedStudent] = useState<any | null>(null);
   const [unassignedStudents, setUnassignedStudents] = useState<any[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeDragData, setActiveDragData] = useState<any>(null);
 
   useEffect(() => {
     fetchOptions();
@@ -470,7 +472,15 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
     })
   );
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    setActiveId(active.id as string);
+    setActiveDragData(active.data.current);
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
+    setActiveId(null);
+    setActiveDragData(null);
     const { active, over } = event;
 
     if (!over) return;
@@ -586,6 +596,7 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
       <div className="flex h-full">
@@ -786,6 +797,61 @@ export function ActivityBoardView({ board, onBack, onEdit }: ActivityBoardViewPr
         </DroppableUnassignedPanel>
       )}
       </div>
+
+      <DragOverlay>
+        {activeId && activeDragData ? (
+          <div className="cursor-grabbing">
+            {activeDragData.type === 'unassigned-student' && activeDragData.student ? (
+              <div className="w-full p-2 rounded-lg border border-blue-500 bg-blue-50 shadow-lg flex flex-col items-center text-center" style={{ width: '136px' }}>
+                {activeDragData.student.profile_picture_url ? (
+                  <img
+                    src={activeDragData.student.profile_picture_url}
+                    alt={`${activeDragData.student.first_name} ${activeDragData.student.last_name}`}
+                    className="w-16 h-16 rounded-full object-cover mb-1"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-blue-200 flex items-center justify-center mb-1">
+                    <span className="text-blue-700 font-medium text-sm">
+                      {activeDragData.student.first_name[0]}
+                      {activeDragData.student.last_name[0]}
+                    </span>
+                  </div>
+                )}
+                <div className="w-full">
+                  <p className="font-medium text-gray-900 text-xs truncate">
+                    {activeDragData.student.first_name}
+                  </p>
+                  <p className="font-medium text-gray-700 text-xs truncate">
+                    {activeDragData.student.last_name}
+                  </p>
+                </div>
+              </div>
+            ) : activeDragData.type === 'student-spot' && activeDragData.session ? (
+              <div className="w-16 h-16 rounded-lg border-2 border-blue-500 flex items-center justify-center overflow-hidden shadow-lg"
+                   style={{ backgroundColor: activeDragData.session.students.color || '#6B7280' }}>
+                {activeDragData.session.students.profile_picture_url ? (
+                  <img
+                    src={activeDragData.session.students.profile_picture_url}
+                    alt={`${activeDragData.session.students.first_name}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : activeDragData.session.students.symbol_url ? (
+                  <img
+                    src={activeDragData.session.students.symbol_url}
+                    alt={`${activeDragData.session.students.first_name}`}
+                    className="w-10 h-10 object-contain"
+                  />
+                ) : (
+                  <span className="text-white font-bold text-lg">
+                    {activeDragData.session.students.first_name[0]}
+                    {activeDragData.session.students.last_name[0]}
+                  </span>
+                )}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }
