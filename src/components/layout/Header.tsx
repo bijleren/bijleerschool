@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid, HelpCircle } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateToDashboard: () => void;
@@ -11,6 +11,7 @@ interface HeaderProps {
   onNavigateToSchools: () => void;
   onNavigateToBehavior: () => void;
   onNavigateToTeaching: () => void;
+  onNavigateToTeachingFAQ: () => void;
   onNavigateToSchoolDay: () => void;
   onNavigateToWebWijzer: () => void;
 }
@@ -30,6 +31,7 @@ interface HeaderProps {
   onNavigateToBehavior: () => void;
   onNavigateToBehaviorWithSchool: (school: { id: string; name: string }) => void;
   onNavigateToTeaching: () => void;
+  onNavigateToTeachingFAQ: () => void;
   onNavigateToSchoolDay: () => void;
   onNavigateToWebWijzer: () => void;
   onNavigateToActivityBoards: () => void;
@@ -37,14 +39,17 @@ interface HeaderProps {
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
+  const [showDidactiekDropdown, setShowDidactiekDropdown] = useState(false);
   const [showVersionModal, setShowVersionModal] = useState(false);
+  const [hasPremiumSchool, setHasPremiumSchool] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const appsDropdownRef = useRef<HTMLDivElement>(null);
+  const didactiekDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchUserSchools();
@@ -57,6 +62,9 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
       }
       if (appsDropdownRef.current && !appsDropdownRef.current.contains(event.target as Node)) {
         setShowAppsDropdown(false);
+      }
+      if (didactiekDropdownRef.current && !didactiekDropdownRef.current.contains(event.target as Node)) {
+        setShowDidactiekDropdown(false);
       }
     }
 
@@ -76,7 +84,8 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
           id,
           schools (
             id,
-            name
+            name,
+            premium_school
           )
         `)
         .eq('user_id', user.id)
@@ -85,6 +94,9 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
 
       if (error) throw error;
       setUserSchools(data || []);
+
+      const hasPremium = data?.some((us: any) => us.schools?.premium_school === 1) || false;
+      setHasPremiumSchool(hasPremium);
     } catch (error) {
       console.error('Error fetching schools:', error);
     }
@@ -293,13 +305,43 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
               )}
             </div>
 
-            <button
-              onClick={onNavigateToTeaching}
-              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-            >
-              <BookOpen className="w-5 h-5" />
-              <span>Didactiek</span>
-            </button>
+            {hasPremiumSchool && (
+              <div className="relative" ref={didactiekDropdownRef}>
+                <button
+                  onClick={() => setShowDidactiekDropdown(!showDidactiekDropdown)}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  <span>Didactiek</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showDidactiekDropdown ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showDidactiekDropdown && (
+                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <button
+                      onClick={() => {
+                        onNavigateToTeaching();
+                        setShowDidactiekDropdown(false);
+                      }}
+                      className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <BookOpen className="w-4 h-4 mr-3" />
+                      Technieken
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToTeachingFAQ();
+                        setShowDidactiekDropdown(false);
+                      }}
+                      className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <HelpCircle className="w-4 h-4 mr-3" />
+                      FAQ
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Profile Dropdown */}
             <div className="relative" ref={dropdownRef}>

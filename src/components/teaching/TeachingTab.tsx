@@ -9,6 +9,7 @@ import { TeachingTechniqueDetail } from './TeachingTechniqueDetail';
 import { TeachingManagement } from './TeachingManagement';
 import { TeachingAnalytics } from './TeachingAnalytics';
 import { TeachingUsageLog } from './TeachingUsageLog';
+import { DidactiekFAQ } from './DidactiekFAQ';
 import { 
   BookOpen, 
   Plus, 
@@ -22,7 +23,8 @@ import {
   Wrench,
   BarChart3,
   Clock,
-  Edit
+  Edit,
+  HelpCircle
 } from 'lucide-react';
 
 interface AgeGroup {
@@ -88,10 +90,15 @@ interface UserSchool {
   name: string;
 }
 
-export function TeachingTab() {
+interface TeachingTabProps {
+  initialPage?: 'technieken' | 'faq';
+}
+
+export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {}) {
   const { user } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [activePage, setActivePage] = useState<'technieken' | 'faq'>(initialPage);
   const [activeView, setActiveView] = useState<'list' | 'form' | 'detail' | 'management' | 'analytics'>('list');
   const [techniques, setTechniques] = useState<TeachingTechnique[]>([]);
   const [ageGroups, setAgeGroups] = useState<AgeGroup[]>([]);
@@ -326,6 +333,28 @@ export function TeachingTab() {
     );
   }
 
+  if (activePage === 'faq') {
+    return (
+      <div className="space-y-6">
+        <div className="flex gap-4 border-b border-gray-200 pb-4">
+          <button
+            onClick={() => setActivePage('technieken')}
+            className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
+          >
+            Technieken
+          </button>
+          <button
+            onClick={() => setActivePage('faq')}
+            className="px-4 py-2 text-blue-600 border-b-2 border-blue-600 font-medium"
+          >
+            FAQ
+          </button>
+        </div>
+        <DidactiekFAQ isAdmin={isAdmin} />
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -336,6 +365,30 @@ export function TeachingTab() {
 
   return (
     <div className="max-w-6xl mx-auto">
+      {/* Page Navigation Tabs */}
+      <div className="flex gap-4 border-b border-gray-200 mb-6">
+        <button
+          onClick={() => setActivePage('technieken')}
+          className={`px-4 py-2 transition-colors ${
+            activePage === 'technieken'
+              ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+              : 'text-gray-700 hover:text-blue-600'
+          }`}
+        >
+          Technieken
+        </button>
+        <button
+          onClick={() => setActivePage('faq')}
+          className={`px-4 py-2 transition-colors ${
+            activePage === 'faq'
+              ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+              : 'text-gray-700 hover:text-blue-600'
+          }`}
+        >
+          FAQ
+        </button>
+      </div>
+
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>

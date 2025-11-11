@@ -51,6 +51,7 @@ interface Group {
 export function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker'>('dashboard');
+  const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
@@ -221,6 +222,15 @@ export function Dashboard() {
     setSelectedStudent(null);
     setSelectedGroup(null);
     setActiveTab('teaching');
+    setTeachingPageOverride('technieken');
+  };
+
+  const handleNavigateToTeachingFAQ = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('teaching');
+    setTeachingPageOverride('faq');
   };
 
   const handleNavigateToSchoolDay = () => {
@@ -415,6 +425,7 @@ export function Dashboard() {
         onNavigateToBehavior={handleNavigateToBehavior}
         onNavigateToBehaviorWithSchool={handleNavigateToBehaviorWithSchool}
         onNavigateToTeaching={handleNavigateToTeaching}
+        onNavigateToTeachingFAQ={handleNavigateToTeachingFAQ}
         onNavigateToSchoolDay={handleNavigateToSchoolDay}
         onNavigateToWebWijzer={handleNavigateToWebWijzer}
         onNavigateToActivityBoards={handleNavigateToActivityBoards}
@@ -447,7 +458,7 @@ export function Dashboard() {
             onFilterChange={setBehaviorFilter}
           />
         )}
-        {activeTab === 'teaching' && <TeachingTab />}
+        {activeTab === 'teaching' && <TeachingTab initialPage={teachingPageOverride} />}
         {activeTab === 'schoolday' && <SchoolDayTab />}
         {activeTab === 'webwijzer' && <WebWijzerTab />}
         {activeTab === 'boeker' && <BoekerTab />}
