@@ -52,7 +52,8 @@ interface ScannedBook {
 
 interface PendingBook {
   book: Book;
-  currentHolder?: { first_name: string; last_name: string };
+  currentHolder?: { id: string; first_name: string; last_name: string; access_hash?: string };
+  autoReturn?: boolean;
 }
 
 interface PendingStudentSwitch {
@@ -161,12 +162,12 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
   };
 
   const handleBookScan = async (isbn: string) => {
-    if (!selectedStudent || !action || processing) {
-      console.log('Scan blocked:', { selectedStudent: !!selectedStudent, action, processing });
+    if (processing) {
+      console.log('Scan blocked: processing');
       return;
     }
 
-    console.log('Book scan started. Current action:', action);
+    console.log('Book scan started. Current action:', action, 'Student:', !!selectedStudent);
     setProcessing(true);
     try {
       const { data: book, error: bookError } = await supabase
@@ -186,18 +187,34 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
 
       console.log('Book found. Setting pending book. Current action:', action);
 
-      if (action === 'lend' && book.available_copies <= 0) {
-        const { data: currentLoans } = await supabase
-          .from('book_loans')
-          .select('student_id, student:students(first_name, last_name)')
-          .eq('book_id', book.id)
-          .is('returned_at', null)
-          .limit(1)
-          .single();
+      const { data: currentLoan } = await supabase
+        .from('book_loans')
+        .select('student_id, student:students(id, first_name, last_name, access_hash)')
+        .eq('book_id', book.id)
+        .is('returned_at', null)
+        .maybeSingle();
 
+      if (!selectedStudent && currentLoan) {
+        const studentWithLoan = currentLoan.student as any;
         setPendingBook({
           book,
-          currentHolder: currentLoans?.student as any
+          currentHolder: studentWithLoan,
+          autoReturn: true
+        });
+        setProcessing(false);
+        return;
+      }
+
+      if (!selectedStudent && !currentLoan) {
+        setToast({ message: 'Selecteer eerst een leerling om een boek uit te lenen', type: 'error' });
+        setProcessing(false);
+        return;
+      }
+
+      if (action === 'lend' && book.available_copies <= 0) {
+        setPendingBook({
+          book,
+          currentHolder: currentLoan?.student as any
         });
         setProcessing(false);
         return;
@@ -212,8 +229,77 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
     }
   };
 
+  const handleAutoReturn = async () => {
+    if (!pendingBook || !pendingBook.currentHolder) return;
+
+    setProcessing(true);
+    try {
+      const book = pendingBook.book;
+      const holder = pendingBook.currentHolder;
+
+      const { data: loan, error: loanFetchError } = await supabase
+        .from('book_loans')
+        .select('id')
+        .eq('book_id', book.id)
+        .eq('student_id', holder.id)
+        .is('returned_at', null)
+        .maybeSingle();
+
+      if (loanFetchError) throw loanFetchError;
+
+      if (!loan) {
+        setToast({ message: 'Geen actieve lening gevonden', type: 'error' });
+        setPendingBook(null);
+        setProcessing(false);
+        return;
+      }
+
+      const { error: returnError } = await supabase
+        .from('book_loans')
+        .update({ returned_at: new Date().toISOString() })
+        .eq('id', loan.id);
+
+      if (returnError) throw returnError;
+
+      const { error: updateError } = await supabase
+        .from('books')
+        .update({ available_copies: book.available_copies + 1 })
+        .eq('id', book.id);
+
+      if (updateError) throw updateError;
+
+      const scannedBook: ScannedBook = {
+        id: book.id,
+        title: book.title,
+        author: book.author,
+        isbn: book.isbn,
+        timestamp: new Date(),
+        success: true,
+        message: `Ingeleverd door ${holder.first_name} ${holder.last_name}`
+      };
+      setScannedBooks(prev => [scannedBook, ...prev]);
+      setToast({ message: `${book.title} ingeleverd door ${holder.first_name} ${holder.last_name}`, type: 'success' });
+
+      onBookProcessed();
+      setPendingBook(null);
+      setProcessing(false);
+    } catch (error) {
+      console.error('Error processing auto-return:', error);
+      setToast({ message: 'Fout bij verwerken boek', type: 'error' });
+      setPendingBook(null);
+      setProcessing(false);
+    }
+  };
+
   const confirmBookAction = async () => {
-    if (!pendingBook || !selectedStudent || !action) return;
+    if (!pendingBook) return;
+
+    if (pendingBook.autoReturn && pendingBook.currentHolder) {
+      await handleAutoReturn();
+      return;
+    }
+
+    if (!selectedStudent || !action) return;
 
     setProcessing(true);
     try {
@@ -547,10 +633,35 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {action === 'lend' ? 'Boek uitlenen' : 'Boek inleveren'}
+              {pendingBook.autoReturn ? 'Boek inleveren' : (action === 'lend' ? 'Boek uitlenen' : 'Boek inleveren')}
             </h3>
 
-            {pendingBook.currentHolder ? (
+            {pendingBook.autoReturn && pendingBook.currentHolder ? (
+              <div className="mb-4">
+                <p className="text-gray-700 mb-2">
+                  <strong>{pendingBook.book.title}</strong>
+                </p>
+                {pendingBook.book.author && (
+                  <p className="text-sm text-gray-600 mb-3">
+                    door {pendingBook.book.author}
+                  </p>
+                )}
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+                  <div className="flex items-start">
+                    <BookOpen className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-900">Momenteel uitgeleend aan</p>
+                      <p className="text-sm text-blue-700 mt-1">
+                        <strong>{pendingBook.currentHolder.first_name} {pendingBook.currentHolder.last_name}</strong>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Wil je dit boek inleveren?
+                </p>
+              </div>
+            ) : pendingBook.currentHolder && !pendingBook.autoReturn ? (
               <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <div className="flex items-start">
                   <AlertCircle className="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" />
@@ -582,7 +693,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
             )}
 
             <div className="flex gap-2">
-              {!pendingBook.currentHolder && (
+              {(!pendingBook.currentHolder || pendingBook.autoReturn) && (
                 <Button
                   onClick={confirmBookAction}
                   disabled={processing}
@@ -596,7 +707,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                 variant="secondary"
                 className="flex-1"
               >
-                {pendingBook.currentHolder ? 'Sluiten' : 'Nee, annuleren'}
+                {(pendingBook.currentHolder && !pendingBook.autoReturn) ? 'Sluiten' : 'Nee, annuleren'}
               </Button>
             </div>
           </div>
