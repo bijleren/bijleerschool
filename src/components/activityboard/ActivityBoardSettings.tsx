@@ -6,7 +6,7 @@ import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { ColorPicker } from '../ui/ColorPicker';
 import { Toast } from '../ui/Toast';
-import { ArrowLeft, Plus, Trash2, Save, GripVertical, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, GripVertical, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, Shapes, Users, Globe, Beaker, Microscope, FlaskConical, Atom, TestTube, Dna, Brain, Lightbulb, Sparkles, Star, Heart, Smile, Trophy, Award, Target, Flag, MapPin, Compass, Mountain, Flower2, Leaf, Bug, Bird, Fish, Brush, PaintBucket, Printer, Laptop, Tablet, Smartphone, Headphones, Camera, Film, Clapperboard, Theater, Drama, Mic, Radio, Tv, Video } from 'lucide-react';
 
 interface ActivityBoard {
   id: string;
@@ -37,18 +37,82 @@ interface ActivityBoardSettingsProps {
 }
 
 const ICON_OPTIONS = [
+  // Basic & General
   { name: 'Grid', component: Grid },
   { name: 'Book', component: Book },
-  { name: 'Palette', component: Palette },
-  { name: 'Music', component: Music },
   { name: 'Pencil', component: Pencil },
+  { name: 'Users', component: Users },
+  { name: 'Star', component: Star },
+  { name: 'Heart', component: Heart },
+  { name: 'Smile', component: Smile },
+  { name: 'Sparkles', component: Sparkles },
+
+  // Math & Numbers
   { name: 'Calculator', component: Calculator },
+  { name: 'Shapes', component: Shapes },
+
+  // Science & Nature
+  { name: 'Beaker', component: Beaker },
+  { name: 'Microscope', component: Microscope },
+  { name: 'FlaskConical', component: FlaskConical },
+  { name: 'Atom', component: Atom },
+  { name: 'TestTube', component: TestTube },
+  { name: 'Dna', component: Dna },
+  { name: 'Brain', component: Brain },
+  { name: 'Lightbulb', component: Lightbulb },
+  { name: 'Globe', component: Globe },
+  { name: 'Trees', component: Trees },
+  { name: 'Flower2', component: Flower2 },
+  { name: 'Leaf', component: Leaf },
+  { name: 'Bug', component: Bug },
+  { name: 'Bird', component: Bird },
+  { name: 'Fish', component: Fish },
+  { name: 'Mountain', component: Mountain },
+
+  // Geography & Exploration
+  { name: 'MapPin', component: MapPin },
+  { name: 'Compass', component: Compass },
+  { name: 'Flag', component: Flag },
+
+  // Arts & Creativity
+  { name: 'Palette', component: Palette },
+  { name: 'Brush', component: Brush },
+  { name: 'PaintBucket', component: PaintBucket },
+  { name: 'Scissors', component: Scissors },
+
+  // Music & Performance
+  { name: 'Music', component: Music },
+  { name: 'Mic', component: Mic },
+  { name: 'Headphones', component: Headphones },
+  { name: 'Radio', component: Radio },
+  { name: 'Theater', component: Theater },
+  { name: 'Drama', component: Drama },
+
+  // Technology
+  { name: 'Laptop', component: Laptop },
+  { name: 'Tablet', component: Tablet },
+  { name: 'Smartphone', component: Smartphone },
+  { name: 'Printer', component: Printer },
+  { name: 'Camera', component: Camera },
+
+  // Media & Video
+  { name: 'Film', component: Film },
+  { name: 'Video', component: Video },
+  { name: 'Clapperboard', component: Clapperboard },
+  { name: 'Tv', component: Tv },
+
+  // Games & Play
   { name: 'Gamepad2', component: Gamepad2 },
   { name: 'Puzzle', component: Puzzle },
+  { name: 'Play', component: Play },
+
+  // Building & Construction
   { name: 'Building', component: Building },
-  { name: 'Trees', component: Trees },
-  { name: 'Scissors', component: Scissors },
-  { name: 'Play', component: Play }
+
+  // Achievement & Goals
+  { name: 'Trophy', component: Trophy },
+  { name: 'Award', component: Award },
+  { name: 'Target', component: Target }
 ];
 
 interface ActivityPreset {
