@@ -392,7 +392,18 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
         onEdit={handleEditMaterial}
         onDelete={handleDeleteMaterial}
         onLoan={openLoanView}
-        onRefresh={fetchMaterials}
+        onRefresh={async () => {
+          await fetchMaterials();
+          // Refetch the updated material
+          const { data } = await supabase
+            .from('school_materials')
+            .select('*')
+            .eq('id', selectedMaterial.id)
+            .single();
+          if (data) {
+            setSelectedMaterial(data);
+          }
+        }}
       />
     );
   }
@@ -405,8 +416,17 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
         onBack={() => {
           setViewMode('detail');
         }}
-        onLoanComplete={() => {
-          fetchMaterials();
+        onLoanComplete={async () => {
+          await fetchMaterials();
+          // Refetch the updated material
+          const { data } = await supabase
+            .from('school_materials')
+            .select('*')
+            .eq('id', selectedMaterial.id)
+            .single();
+          if (data) {
+            setSelectedMaterial(data);
+          }
           setViewMode('detail');
         }}
       />
@@ -624,7 +644,7 @@ function MaterialDetail({
 
       setToast({ message: 'Materiaal geretourneerd', type: 'success' });
       await fetchLoans();
-      onRefresh();
+      await onRefresh();
     } catch (error) {
       console.error('Error returning material:', error);
       setToast({ message: 'Fout bij retourneren', type: 'error' });

@@ -847,8 +847,18 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                                       .eq('id', viewingBook.id);
 
                                     setToast({ message: 'Boek geretourneerd', type: 'success' });
-                                    handleViewBook(viewingBook);
-                                    fetchBooks();
+
+                                    // Refetch the updated book
+                                    const { data: updatedBook } = await supabase
+                                      .from('books')
+                                      .select('*')
+                                      .eq('id', viewingBook.id)
+                                      .single();
+
+                                    if (updatedBook) {
+                                      await handleViewBook(updatedBook);
+                                    }
+                                    await fetchBooks();
                                   } catch (error) {
                                     console.error('Error returning book:', error);
                                     setToast({ message: 'Fout bij retourneren', type: 'error' });
