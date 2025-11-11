@@ -461,7 +461,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
         <div className="p-6">
           {!selectedStudent ? (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Selecteer leerling</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Selecteer leerling of scan boek om in te leveren</h3>
 
               <div className="flex gap-2">
                 <Button
@@ -475,9 +475,17 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
               </div>
 
               {showScanner && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-800">
+                    <strong>💡 Tip:</strong> Scan een boek om deze direct in te leveren, of scan een leerling om boeken uit te lenen.
+                  </p>
+                </div>
+              )}
+
+              {showScanner && (
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-700">Scan leerling QR-code</p>
+                    <p className="text-sm font-medium text-gray-700">Scan leerling QR-code of boek barcode</p>
                     <button
                       onClick={() => setShowScanner(false)}
                       className="text-gray-400 hover:text-gray-600"
@@ -487,6 +495,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                   </div>
                   <UnifiedScanner
                     onStudentScan={handleStudentScan}
+                    onBookScan={handleBookScan}
                     onError={(error) => setToast({ message: error, type: 'error' })}
                     scanningFor="both"
                   />
