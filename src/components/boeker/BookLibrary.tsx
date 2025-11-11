@@ -802,7 +802,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                           className="bg-gray-50 rounded-lg p-4"
                         >
                           <div className="flex items-start justify-between mb-2">
-                            <div>
+                            <div className="flex-1">
                               <h4
                                 className="font-semibold text-gray-900 hover:text-blue-600 cursor-pointer"
                                 onClick={() => {
@@ -822,14 +822,44 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                                 })}
                               </p>
                             </div>
-                            {borrower.current_page && (
-                              <div className="text-right">
-                                <p className="text-sm font-semibold text-blue-600">
-                                  Pagina {borrower.current_page}
-                                  {viewingBook.page_count && ` / ${viewingBook.page_count}`}
-                                </p>
-                              </div>
-                            )}
+                            <div className="flex items-center gap-2">
+                              {borrower.current_page && (
+                                <div className="text-right">
+                                  <p className="text-sm font-semibold text-blue-600">
+                                    Pagina {borrower.current_page}
+                                    {viewingBook.page_count && ` / ${viewingBook.page_count}`}
+                                  </p>
+                                </div>
+                              )}
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    const { error } = await supabase
+                                      .from('student_books')
+                                      .update({ status: 'returned' })
+                                      .eq('id', borrower.id);
+
+                                    if (error) throw error;
+
+                                    await supabase
+                                      .from('books')
+                                      .update({ available_copies: viewingBook.available_copies + 1 })
+                                      .eq('id', viewingBook.id);
+
+                                    setToast({ message: 'Boek geretourneerd', type: 'success' });
+                                    handleViewBook(viewingBook);
+                                    fetchBooks();
+                                  } catch (error) {
+                                    console.error('Error returning book:', error);
+                                    setToast({ message: 'Fout bij retourneren', type: 'error' });
+                                  }
+                                }}
+                                className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-1"
+                              >
+                                <X className="w-3 h-3" />
+                                Retourneer
+                              </button>
+                            </div>
                           </div>
 
                           {progressPercentage !== null && (

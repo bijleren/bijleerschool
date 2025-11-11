@@ -564,8 +564,10 @@ function MaterialDetail({
   onLoan: (material: Material) => void;
   onRefresh: () => void;
 }) {
+  const { user } = useAuth();
   const [loans, setLoans] = useState<MaterialLoan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   useEffect(() => {
     fetchLoans();
@@ -594,6 +596,38 @@ function MaterialDetail({
       console.error('Error fetching loans:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReturn = async (loanId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('school_material_loans')
+        .update({
+          returned_at: new Date().toISOString(),
+          returned_by: user.id
+        })
+        .eq('id', loanId);
+
+      if (error) throw error;
+
+      const newAvailable = material.available_copies + 1;
+      await supabase
+        .from('school_materials')
+        .update({
+          available_copies: newAvailable,
+          is_available: newAvailable > 0
+        })
+        .eq('id', material.id);
+
+      setToast({ message: 'Materiaal geretourneerd', type: 'success' });
+      await fetchLoans();
+      onRefresh();
+    } catch (error) {
+      console.error('Error returning material:', error);
+      setToast({ message: 'Fout bij retourneren', type: 'error' });
     }
   };
 
@@ -687,7 +721,7 @@ function MaterialDetail({
                 key={loan.id}
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
               >
-                <div>
+                <div className="flex-1">
                   <p className="font-medium text-gray-900">
                     {loan.students.first_name} {loan.students.last_name}
                   </p>
@@ -698,20 +732,35 @@ function MaterialDetail({
                     )}
                   </p>
                 </div>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    loan.returned_at
-                      ? 'bg-gray-200 text-gray-700'
-                      : 'bg-green-100 text-green-800'
-                  }`}
-                >
-                  {loan.returned_at ? 'Geretourneerd' : 'Uitgeleend'}
-                </span>
+                <div className="flex items-center gap-2">
+                  {!loan.returned_at ? (
+                    <Button
+                      size="sm"
+                      onClick={() => handleReturn(loan.id)}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <UserX className="w-3 h-3 mr-1" />
+                      Retourneer
+                    </Button>
+                  ) : (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
+                      Geretourneerd
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
         )}
       </Card>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
