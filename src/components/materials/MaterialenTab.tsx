@@ -32,7 +32,7 @@ interface MaterialLoan {
     id: string;
     first_name: string;
     last_name: string;
-    qr_code: string | null;
+    student_code: string | null;
   };
 }
 
@@ -522,7 +522,7 @@ function MaterialDetail({
             id,
             first_name,
             last_name,
-            qr_code
+            student_code
           )
         `)
         .eq('material_id', material.id)
@@ -679,7 +679,7 @@ function MaterialLoanView({
 }) {
   const { user } = useAuth();
   const [showScanner, setShowScanner] = useState(false);
-  const [students, setStudents] = useState<Array<{ id: string; first_name: string; last_name: string; qr_code: string | null }>>([]);
+  const [students, setStudents] = useState<Array<{ id: string; first_name: string; last_name: string; student_code: string | null }>>([]);
   const [selectedStudent, setSelectedStudent] = useState<string>('');
   const [notes, setNotes] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -695,7 +695,7 @@ function MaterialLoanView({
     try {
       const { data, error } = await supabase
         .from('students')
-        .select('id, first_name, last_name, qr_code')
+        .select('id, first_name, last_name, student_code')
         .eq('school_id', schoolId)
         .order('first_name');
 
@@ -716,7 +716,7 @@ function MaterialLoanView({
             id,
             first_name,
             last_name,
-            qr_code
+            student_code
           )
         `)
         .eq('material_id', material.id)
@@ -731,7 +731,7 @@ function MaterialLoanView({
   };
 
   const handleScan = async (scannedCode: string) => {
-    const student = students.find(s => s.qr_code === scannedCode);
+    const student = students.find(s => s.student_code === scannedCode);
     if (student) {
       setSelectedStudent(student.id);
       setShowScanner(false);
