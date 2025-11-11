@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
@@ -51,6 +51,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'detail' | 'loan'>('list');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const processingScanRef = useRef(false);
 
   // Form states
   const [formBlinkCode, setFormBlinkCode] = useState('');
@@ -96,19 +97,34 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   };
 
   const handleMaterialScan = async (blinkCode: string) => {
-    // Check if material already exists
-    const existing = materials.find(m => m.blink_code === blinkCode);
-    if (existing) {
-      setSelectedMaterial(existing);
-      setViewMode('detail');
-      setShowScanner(false);
-      setToast({ message: 'Materiaal gevonden!', type: 'success' });
-    } else {
-      // Create new material with this code
-      setFormBlinkCode(blinkCode);
-      setShowMaterialForm(true);
-      setShowScanner(false);
-      setToast({ message: 'Nieuw materiaal - vul details in', type: 'info' });
+    if (processingScanRef.current) {
+      console.log('Already processing a scan, ignoring...');
+      return;
+    }
+
+    processingScanRef.current = true;
+    console.log('Processing material scan:', blinkCode);
+
+    try {
+      // Check if material already exists
+      const existing = materials.find(m => m.blink_code === blinkCode);
+      if (existing) {
+        setSelectedMaterial(existing);
+        setViewMode('detail');
+        setShowScanner(false);
+        setToast({ message: 'Materiaal gevonden!', type: 'success' });
+      } else {
+        // Create new material with this code
+        setFormBlinkCode(blinkCode);
+        setShowMaterialForm(true);
+        setShowScanner(false);
+        setToast({ message: 'Nieuw materiaal - vul details in', type: 'info' });
+      }
+    } finally {
+      // Reset after a delay to allow component to unmount
+      setTimeout(() => {
+        processingScanRef.current = false;
+      }, 1000);
     }
   };
 
@@ -685,6 +701,7 @@ function MaterialLoanView({
   const [searchTerm, setSearchTerm] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [currentLoan, setCurrentLoan] = useState<MaterialLoan | null>(null);
+  const processingScanRef = useRef(false);
 
   useEffect(() => {
     fetchStudents();
@@ -731,13 +748,28 @@ function MaterialLoanView({
   };
 
   const handleScan = async (scannedCode: string) => {
-    const student = students.find(s => s.student_code === scannedCode);
-    if (student) {
-      setSelectedStudent(student.id);
-      setShowScanner(false);
-      setToast({ message: `${student.first_name} ${student.last_name} geselecteerd`, type: 'success' });
-    } else {
-      setToast({ message: 'Leerling niet gevonden', type: 'error' });
+    if (processingScanRef.current) {
+      console.log('Already processing a student scan, ignoring...');
+      return;
+    }
+
+    processingScanRef.current = true;
+    console.log('Processing student scan:', scannedCode);
+
+    try {
+      const student = students.find(s => s.student_code === scannedCode);
+      if (student) {
+        setSelectedStudent(student.id);
+        setShowScanner(false);
+        setToast({ message: `${student.first_name} ${student.last_name} geselecteerd`, type: 'success' });
+      } else {
+        setToast({ message: 'Leerling niet gevonden', type: 'error' });
+      }
+    } finally {
+      // Reset after a delay to allow component to unmount
+      setTimeout(() => {
+        processingScanRef.current = false;
+      }, 1000);
     }
   };
 
