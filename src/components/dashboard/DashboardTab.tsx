@@ -69,7 +69,6 @@ interface BehaviorIncident {
   incident_date: string;
   description: string;
   status: 'pending' | 'in_progress' | 'resolved';
-  severity_level: string | null;
   created_at: string;
   profiles: {
     first_name: string;
@@ -525,7 +524,6 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
           incident_date,
           description,
           status,
-          severity_level,
           created_at,
           profiles!behavior_incidents_reported_by_fkey(first_name, last_name),
           behavior_items(
