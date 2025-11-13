@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Users, Clock, BarChart3, TrendingUp, User } from 'lucide-react';
+import { ArrowLeft, Users, Clock, BarChart3, TrendingUp, User, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface ActivityBoard {
   id: string;
@@ -454,6 +455,45 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
     }).format(date);
   };
 
+  const exportToExcel = () => {
+    const workbook = XLSX.utils.book_new();
+
+    const activityData = activityStats.map(stat => ({
+      'Activiteit': stat.activityName,
+      'Sessies': stat.totalSessions,
+      'Totale tijd': `${stat.totalMinutes}m`,
+      'Gem. tijd': `${stat.averageMinutes}m`
+    }));
+    const activitySheet = XLSX.utils.json_to_sheet(activityData);
+    XLSX.utils.book_append_sheet(workbook, activitySheet, 'Activiteitstijd');
+
+    if (selectedStudent !== 'all' && collaborationPartners.length > 0) {
+      const collaborationData = collaborationPartners.map(partner => ({
+        'Leerling': partner.studentName,
+        'Aantal keer samengewerkt': `${partner.sessions}x`,
+        'Totale tijd samengewerkt': `${partner.totalMinutes}m`
+      }));
+      const collaborationSheet = XLSX.utils.json_to_sheet(collaborationData);
+      XLSX.utils.book_append_sheet(workbook, collaborationSheet, 'Samenwerking');
+    }
+
+    const logData = activityLog.map(entry => ({
+      'Activiteit': entry.activityName,
+      'Datum': formatDateTime(entry.startTime),
+      'Duur': `${entry.durationMinutes}m`,
+      'Beoordeling': entry.feedbackRating ? '⭐'.repeat(entry.feedbackRating) : '',
+      'Notities': entry.teacherNotes || ''
+    }));
+    const logSheet = XLSX.utils.json_to_sheet(logData);
+    XLSX.utils.book_append_sheet(workbook, logSheet, 'Gedetailleerd logboek');
+
+    const boardName = selectedBoard === 'all' ? 'alle_borden' : boards.find(b => b.id === selectedBoard)?.name || 'board';
+    const studentName = selectedStudent === 'all' ? 'alle_leerlingen' : students.find(s => s.id === selectedStudent)?.first_name + '_' + students.find(s => s.id === selectedStudent)?.last_name || 'student';
+    const fileName = `activitijd_analyses_${boardName}_${studentName}_${dateRange}_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+    XLSX.writeFile(workbook, fileName);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -476,6 +516,10 @@ export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalytic
         </div>
 
         <div className="flex items-center gap-3">
+          <Button variant="primary" onClick={exportToExcel}>
+            <Download className="w-4 h-4 mr-2" />
+            Exporteren naar Excel
+          </Button>
           <select
             value={selectedBoard}
             onChange={(e) => setSelectedBoard(e.target.value)}
