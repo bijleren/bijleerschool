@@ -20,6 +20,7 @@ interface ActivityAnalyticsProps {
   schoolId: string;
   boards: ActivityBoard[];
   onBack: () => void;
+  initialBoardId?: string;
 }
 
 interface ActivityStats {
@@ -55,8 +56,8 @@ interface ActivityLogEntry {
   teacherNotes: string | null;
 }
 
-export function ActivityAnalytics({ schoolId, boards, onBack }: ActivityAnalyticsProps) {
-  const [selectedBoard, setSelectedBoard] = useState<string>('all');
+export function ActivityAnalytics({ schoolId, boards, onBack, initialBoardId }: ActivityAnalyticsProps) {
+  const [selectedBoard, setSelectedBoard] = useState<string>(initialBoardId || 'all');
   const [selectedStudent, setSelectedStudent] = useState<string>('all');
   const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'all'>('week');
   const [activityStats, setActivityStats] = useState<ActivityStats[]>([]);

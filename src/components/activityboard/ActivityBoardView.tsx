@@ -10,7 +10,7 @@ import { BoardOptionsModal } from './BoardOptionsModal';
 import { ActivitySelectionModal } from './ActivitySelectionModal';
 import { UnassignedStudentsPanel } from './UnassignedStudentsPanel';
 import { QRScanner } from './QRScanner';
-import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap, Maximize, Minimize, Timer } from 'lucide-react';
+import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap, Maximize, Minimize, Timer, BarChart3 } from 'lucide-react';
 import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor, useDroppable, useDraggable, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -55,6 +55,7 @@ interface ActivityBoardViewProps {
   board: ActivityBoard;
   onBack: () => void;
   onEdit: () => void;
+  onAnalyze?: () => void;
   onFullscreenChange?: (isFullscreen: boolean) => void;
 }
 
@@ -243,7 +244,7 @@ function DraggableStudentSpot({
   );
 }
 
-export function ActivityBoardView({ board, onBack, onEdit, onFullscreenChange }: ActivityBoardViewProps) {
+export function ActivityBoardView({ board, onBack, onEdit, onAnalyze, onFullscreenChange }: ActivityBoardViewProps) {
   const { user } = useAuth();
   const [options, setOptions] = useState<ActivityOption[]>([]);
   const [sessions, setSessions] = useState<ActivitySession[]>([]);
@@ -811,6 +812,15 @@ export function ActivityBoardView({ board, onBack, onEdit, onFullscreenChange }:
               >
                 <Maximize className="w-5 h-5" />
               </button>
+              {onAnalyze && (
+                <button
+                  onClick={onAnalyze}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all bg-white text-gray-700"
+                >
+                  <BarChart3 className="w-5 h-5" />
+                  <span className="font-medium">Analyses</span>
+                </button>
+              )}
               <button
                 onClick={() => setShowOptionsModal(true)}
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all bg-white text-gray-700"

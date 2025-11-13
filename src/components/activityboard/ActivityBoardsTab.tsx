@@ -36,6 +36,7 @@ export function ActivityBoardsTab({ onFullscreenChange }: ActivityBoardsTabProps
   const [selectedSchoolId, setSelectedSchoolId] = useState<string>('');
   const [boards, setBoards] = useState<ActivityBoard[]>([]);
   const [selectedBoard, setSelectedBoard] = useState<ActivityBoard | null>(null);
+  const [analyticsInitialBoardId, setAnalyticsInitialBoardId] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -209,6 +210,10 @@ export function ActivityBoardsTab({ onFullscreenChange }: ActivityBoardsTabProps
         board={selectedBoard}
         onBack={() => setActiveView('list')}
         onEdit={() => handleEditBoard(selectedBoard)}
+        onAnalyze={() => {
+          setAnalyticsInitialBoardId(selectedBoard.id);
+          setActiveView('analytics');
+        }}
         onFullscreenChange={onFullscreenChange}
       />
     );
@@ -219,7 +224,11 @@ export function ActivityBoardsTab({ onFullscreenChange }: ActivityBoardsTabProps
       <ActivityAnalytics
         schoolId={selectedSchoolId}
         boards={boards}
-        onBack={() => setActiveView('list')}
+        onBack={() => {
+          setAnalyticsInitialBoardId(undefined);
+          setActiveView('list');
+        }}
+        initialBoardId={analyticsInitialBoardId}
       />
     );
   }
