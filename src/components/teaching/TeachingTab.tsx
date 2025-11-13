@@ -299,6 +299,11 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
         technique={selectedTechnique}
         onBack={() => setActiveView('list')}
         onEdit={() => handleEditTechnique(selectedTechnique)}
+        onDelete={() => {
+          setSelectedTechnique(null);
+          setActiveView('list');
+          fetchTechniques();
+        }}
         userSchools={userSchools}
       />
     );

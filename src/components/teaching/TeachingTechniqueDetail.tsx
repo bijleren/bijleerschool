@@ -5,13 +5,14 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
-import { 
-  ArrowLeft, 
-  Edit, 
-  Play, 
-  ExternalLink, 
-  Users, 
-  BookMarked, 
+import { ConfirmationModal } from '../ui/ConfirmationModal';
+import {
+  ArrowLeft,
+  Edit,
+  Play,
+  ExternalLink,
+  Users,
+  BookMarked,
   Wrench,
   Calendar,
   User,
@@ -20,7 +21,8 @@ import {
   BarChart3,
   Plus,
   Star,
-  Send
+  Send,
+  Trash2
 } from 'lucide-react';
 
 interface AgeGroup {
@@ -83,6 +85,7 @@ interface TeachingTechniqueDetailProps {
   technique: TeachingTechnique;
   onBack: () => void;
   onEdit: () => void;
+  onDelete?: () => void;
   userSchools?: { id: string; name: string }[];
 }
 
@@ -114,7 +117,7 @@ interface Comment {
   };
 }
 
-export function TeachingTechniqueDetail({ technique, onBack, onEdit, userSchools = [] }: TeachingTechniqueDetailProps) {
+export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, userSchools = [] }: TeachingTechniqueDetailProps) {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [usageStats, setUsageStats] = useState<UsageStats>({
@@ -136,6 +139,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, userSchools
   const [selectedSchoolId, setSelectedSchoolId] = useState(userSchools[0]?.id || '');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (userSchools.length > 0) {
@@ -359,6 +363,29 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, userSchools
       console.error('Error logging usage:', error);
     }
   };
+
+  const handleDelete = async () => {
+    if (!onDelete) return;
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('teaching_techniques')
+        .delete()
+        .eq('id', technique.id);
+
+      if (error) throw error;
+
+      setShowDeleteConfirm(false);
+      onDelete();
+    } catch (error) {
+      console.error('Error deleting technique:', error);
+      setMessage('Fout bij verwijderen van techniek');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getVimeoEmbedUrl = (url: string) => {
     const vimeoId = url.match(/vimeo\.com\/(\d+)/)?.[1];
     return vimeoId ? `https://player.vimeo.com/video/${vimeoId}` : null;
@@ -401,10 +428,22 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, userSchools
             Gebruik registreren
           </Button>
           {isAdmin && (
-            <Button variant="secondary" onClick={onEdit}>
-              <Edit className="w-4 h-4 mr-2" />
-              Bewerken
-            </Button>
+            <>
+              <Button variant="secondary" onClick={onEdit}>
+                <Edit className="w-4 h-4 mr-2" />
+                Bewerken
+              </Button>
+              {onDelete && (
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="text-red-600 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Verwijderen
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -809,6 +848,19 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, userSchools
           </Card>
         )}
       </div>
+
+      {showDeleteConfirm && (
+        <ConfirmationModal
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={handleDelete}
+          title="Techniek verwijderen"
+          message={`Weet je zeker dat je "${technique.title}" wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.`}
+          confirmText="Verwijderen"
+          cancelText="Annuleren"
+          confirmButtonVariant="danger"
+        />
+      )}
     </div>
   );
 }
