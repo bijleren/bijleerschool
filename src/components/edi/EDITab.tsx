@@ -207,14 +207,6 @@ export function EDITab() {
         </div>
       </div>
 
-      {showNamePicker && selectedStudent && (
-        <div className="p-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-center animate-in fade-in duration-500">
-          <p className="text-5xl font-bold text-white">
-            {selectedStudent.first_name} {selectedStudent.last_name}
-          </p>
-        </div>
-      )}
-
       {showStudentSelector && (
         <Card className="p-4 border-2 border-blue-500">
           <div className="space-y-4">
@@ -322,198 +314,218 @@ export function EDITab() {
 
       <Card className="p-6">
         <div className="grid grid-cols-5 gap-3">
-          <div className="flex flex-col">
-            <button
-              onClick={() => setShowLesTimerInput(!showLesTimerInput)}
-              className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
-            >
-              <Clock className="w-5 h-5 inline mr-2" />
-              Les
-            </button>
-            {showLesTimerInput && (
-              <div className="mt-2 p-3 bg-white border-2 border-blue-500 rounded-lg space-y-2">
-                <input
-                  type="number"
-                  value={Math.floor(lesTargetTime / 60)}
-                  onChange={(e) => setLesTargetTime(parseInt(e.target.value || '0') * 60)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded"
-                  placeholder="Minuten"
-                />
-                <div className="flex gap-2">
-                  <Button
-                    variant="primary"
-                    onClick={() => {
-                      setLesTimer(0);
-                      setIsLesTimerRunning(true);
-                      setShowLesTimerInput(false);
-                    }}
-                  >
-                    Start
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setIsLesTimerRunning(false);
-                      setLesTimer(0);
-                    }}
-                  >
-                    Reset
-                  </Button>
-                </div>
-              </div>
-            )}
-            {isLesTimerRunning && (
-              <div className="mt-2">
-                <div className="text-2xl font-bold text-blue-600">{formatTime(lesTimer)}</div>
-                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-blue-600 transition-all duration-1000"
-                    style={{ width: `${(lesTimer / lesTargetTime) * 100}%` }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => setShowLesTimerInput(!showLesTimerInput)}
+            className="w-full h-16 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+          >
+            <Clock className="w-5 h-5 inline mr-2" />
+            Les
+          </button>
 
-          <div className="flex flex-col">
-            <button
-              onClick={() => setVraagCountdown(10)}
-              className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
-            >
-              <MessageCircle className="w-5 h-5 inline mr-2" />
-              Vraag
-            </button>
-            {vraagCountdown > 0 && (
-              <div className="mt-2 text-3xl font-bold text-blue-600 text-center">
-                {vraagCountdown}s
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => setVraagCountdown(10)}
+            className="w-full h-16 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+          >
+            <MessageCircle className="w-5 h-5 inline mr-2" />
+            Vraag
+          </button>
 
-          <div className="flex flex-col">
-            <button
-              onClick={() => setDuoDeelCountdown(5)}
-              className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
-            >
-              <UserPlus className="w-5 h-5 inline mr-2" />
-              Duo-deel
-            </button>
-            {duoDeelCountdown > 0 && (
-              <div className="mt-2 text-3xl font-bold text-blue-600 text-center">
-                {duoDeelCountdown}s
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => setDuoDeelCountdown(5)}
+            className="w-full h-16 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+          >
+            <UserPlus className="w-5 h-5 inline mr-2" />
+            Duo-deel
+          </button>
 
           <button
             onClick={pickRandomStudent}
-            className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+            className="w-full h-16 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
           >
             <UserCheck className="w-5 h-5 inline mr-2" />
             Zit klaar
           </button>
 
-          <div className="flex flex-col">
-            <button
-              onClick={() => setShowControLEER(!showControLEER)}
-              className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
-            >
-              <CheckCircle className="w-5 h-5 inline mr-2" />
-              ControLEER
-            </button>
-            {showControLEER && (
-              <div className="mt-2 p-4 bg-white border-2 border-blue-500 rounded-lg space-y-3">
-                <div className="grid grid-cols-4 gap-2">
-                  <button
-                    onClick={() => setControleScore({ ...controleScore, pp: controleScore.pp + 1 })}
-                    className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded font-bold"
-                  >
-                    ++
-                  </button>
-                  <button
-                    onClick={() => setControleScore({ ...controleScore, p: controleScore.p + 1 })}
-                    className="px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded font-bold"
-                  >
-                    +
-                  </button>
-                  <button
-                    onClick={() => setControleScore({ ...controleScore, m: controleScore.m + 1 })}
-                    className="px-4 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded font-bold"
-                  >
-                    -
-                  </button>
-                  <button
-                    onClick={() => setControleScore({ ...controleScore, mm: controleScore.mm + 1 })}
-                    className="px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded font-bold"
-                  >
-                    --
-                  </button>
-                </div>
+          <button
+            onClick={() => setShowControLEER(true)}
+            className="w-full h-16 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+          >
+            <CheckCircle className="w-5 h-5 inline mr-2" />
+            ControLEER
+          </button>
+        </div>
 
-                {totalControleCount > 0 && (
-                  <div className="flex gap-4">
-                    <div className="flex-1">
-                      <svg viewBox="0 0 100 100" className="w-32 h-32 mx-auto">
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="20" />
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke="#16a34a"
-                          strokeWidth="20"
-                          strokeDasharray={`${((controleScore.pp + controleScore.p) / totalControleCount) * 251.2} 251.2`}
-                          strokeDashoffset="0"
-                          transform="rotate(-90 50 50)"
-                        />
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke="#dc2626"
-                          strokeWidth="20"
-                          strokeDasharray={`${((controleScore.m + controleScore.mm) / totalControleCount) * 251.2} 251.2`}
-                          strokeDashoffset={`-${((controleScore.pp + controleScore.p) / totalControleCount) * 251.2}`}
-                          transform="rotate(-90 50 50)"
-                        />
-                      </svg>
-                    </div>
-                    <div className="flex-1 text-left space-y-2">
-                      <div>
-                        <div className="text-lg font-bold text-green-600">
-                          {Math.round(((controleScore.pp + controleScore.p) / totalControleCount) * 100)}%
-                        </div>
-                        <div className="text-sm text-gray-600">++ en + totaal</div>
-                      </div>
-                      <div>
-                        <div className="text-lg font-bold text-red-600">
-                          {Math.round(((controleScore.m + controleScore.mm) / totalControleCount) * 100)}%
-                        </div>
-                        <div className="text-sm text-gray-600">- en -- totaal</div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-gray-700">Totaal: {totalControleCount}</div>
-                  <div className="text-sm text-gray-600 mt-1">
-                    ++ {controleScore.pp} | + {controleScore.p} | - {controleScore.m} | -- {controleScore.mm}
-                  </div>
-                  <Button
-                    variant="secondary"
-                    onClick={() => setControleScore({ pp: 0, p: 0, m: 0, mm: 0 })}
-                    className="mt-2"
-                  >
-                    Reset
-                  </Button>
-                </div>
+        <div className="mt-4 space-y-3">
+          {showLesTimerInput && (
+            <div className="p-3 bg-white border-2 border-blue-500 rounded-lg space-y-2">
+              <input
+                type="number"
+                value={Math.floor(lesTargetTime / 60)}
+                onChange={(e) => setLesTargetTime(parseInt(e.target.value || '0') * 60)}
+                className="w-full px-3 py-2 border border-gray-300 rounded"
+                placeholder="Minuten"
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setLesTimer(0);
+                    setIsLesTimerRunning(true);
+                    setShowLesTimerInput(false);
+                  }}
+                >
+                  Start
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setIsLesTimerRunning(false);
+                    setLesTimer(0);
+                  }}
+                >
+                  Reset
+                </Button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {isLesTimerRunning && (
+            <div className="p-3 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">{formatTime(lesTimer)}</div>
+              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mt-2">
+                <div
+                  className="h-full bg-blue-600 transition-all duration-1000"
+                  style={{ width: `${(lesTimer / lesTargetTime) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {vraagCountdown > 0 && (
+            <div className="p-4 bg-blue-50 rounded-lg text-center">
+              <div className="text-3xl font-bold text-blue-600">{vraagCountdown}s</div>
+            </div>
+          )}
+
+          {duoDeelCountdown > 0 && (
+            <div className="p-4 bg-blue-50 rounded-lg text-center">
+              <div className="text-3xl font-bold text-blue-600">{duoDeelCountdown}s</div>
+            </div>
+          )}
+
+          {showNamePicker && selectedStudent && (
+            <div className="p-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-center animate-in fade-in duration-500">
+              <p className="text-5xl font-bold text-white">
+                {selectedStudent.first_name} {selectedStudent.last_name}
+              </p>
+            </div>
+          )}
         </div>
       </Card>
+
+      {showControLEER && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">ControLEER</h2>
+              <button
+                onClick={() => setShowControLEER(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-4 gap-3">
+                <button
+                  onClick={() => setControleScore({ ...controleScore, pp: controleScore.pp + 1 })}
+                  className="px-6 py-8 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-2xl transition-all"
+                >
+                  ++
+                </button>
+                <button
+                  onClick={() => setControleScore({ ...controleScore, p: controleScore.p + 1 })}
+                  className="px-6 py-8 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-2xl transition-all"
+                >
+                  +
+                </button>
+                <button
+                  onClick={() => setControleScore({ ...controleScore, m: controleScore.m + 1 })}
+                  className="px-6 py-8 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold text-2xl transition-all"
+                >
+                  -
+                </button>
+                <button
+                  onClick={() => setControleScore({ ...controleScore, mm: controleScore.mm + 1 })}
+                  className="px-6 py-8 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-2xl transition-all"
+                >
+                  --
+                </button>
+              </div>
+
+              {totalControleCount > 0 && (
+                <div className="flex gap-6 mt-6">
+                  <div className="flex-1 flex justify-center">
+                    <svg viewBox="0 0 100 100" className="w-48 h-48">
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="20" />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        fill="none"
+                        stroke="#16a34a"
+                        strokeWidth="20"
+                        strokeDasharray={`${((controleScore.pp + controleScore.p) / totalControleCount) * 251.2} 251.2`}
+                        strokeDashoffset="0"
+                        transform="rotate(-90 50 50)"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        fill="none"
+                        stroke="#dc2626"
+                        strokeWidth="20"
+                        strokeDasharray={`${((controleScore.m + controleScore.mm) / totalControleCount) * 251.2} 251.2`}
+                        strokeDashoffset={`-${((controleScore.pp + controleScore.p) / totalControleCount) * 251.2}`}
+                        transform="rotate(-90 50 50)"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1 space-y-4">
+                    <div className="p-4 bg-green-50 rounded-lg">
+                      <div className="text-3xl font-bold text-green-600">
+                        {Math.round(((controleScore.pp + controleScore.p) / totalControleCount) * 100)}%
+                      </div>
+                      <div className="text-sm text-gray-700 mt-1">++ en + totaal</div>
+                    </div>
+                    <div className="p-4 bg-red-50 rounded-lg">
+                      <div className="text-3xl font-bold text-red-600">
+                        {Math.round(((controleScore.m + controleScore.mm) / totalControleCount) * 100)}%
+                      </div>
+                      <div className="text-sm text-gray-700 mt-1">- en -- totaal</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="text-center mt-6 pt-6 border-t border-gray-200">
+                <div className="text-2xl font-semibold text-gray-700 mb-3">Totaal: {totalControleCount}</div>
+                <div className="text-lg text-gray-600 mb-4">
+                  ++ {controleScore.pp} | + {controleScore.p} | - {controleScore.m} | -- {controleScore.mm}
+                </div>
+                <Button
+                  variant="secondary"
+                  onClick={() => setControleScore({ pp: 0, p: 0, m: 0, mm: 0 })}
+                >
+                  Reset
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
