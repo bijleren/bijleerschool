@@ -312,11 +312,11 @@ export function EDITab() {
         </div>
       </Card>
 
-      <Card className="p-6">
-        <div className="grid grid-cols-5 gap-3">
+      <Card className="p-4">
+        <div className="grid grid-cols-5 gap-2">
           <button
             onClick={() => setShowLesTimerInput(!showLesTimerInput)}
-            className="w-full h-16 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+            className="w-full h-14 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
           >
             <Clock className="w-5 h-5 inline mr-2" />
             Les
@@ -324,7 +324,7 @@ export function EDITab() {
 
           <button
             onClick={() => setVraagCountdown(10)}
-            className="w-full h-16 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+            className="w-full h-14 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
           >
             <MessageCircle className="w-5 h-5 inline mr-2" />
             Vraag
@@ -332,7 +332,7 @@ export function EDITab() {
 
           <button
             onClick={() => setDuoDeelCountdown(5)}
-            className="w-full h-16 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+            className="w-full h-14 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
           >
             <UserPlus className="w-5 h-5 inline mr-2" />
             Duo-deel
@@ -340,7 +340,7 @@ export function EDITab() {
 
           <button
             onClick={pickRandomStudent}
-            className="w-full h-16 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+            className="w-full h-14 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
           >
             <UserCheck className="w-5 h-5 inline mr-2" />
             Zit klaar
@@ -348,7 +348,7 @@ export function EDITab() {
 
           <button
             onClick={() => setShowControLEER(true)}
-            className="w-full h-16 px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+            className="w-full h-14 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
           >
             <CheckCircle className="w-5 h-5 inline mr-2" />
             ControLEER
