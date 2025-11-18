@@ -82,6 +82,29 @@ export function EDITab() {
   }, [user]);
 
   useEffect(() => {
+    if (selectedGroup !== 'all') {
+      fetchStudentsByGroup(selectedGroup);
+    } else {
+      setSelectedStudents(students.map(s => s.id));
+    }
+  }, [selectedGroup]);
+
+  const fetchStudentsByGroup = async (groupId: string) => {
+    try {
+      const { data: groupStudents } = await supabase
+        .from('group_students')
+        .select('student_id')
+        .eq('group_id', groupId);
+
+      if (groupStudents) {
+        setSelectedStudents(groupStudents.map(gs => gs.student_id));
+      }
+    } catch (error) {
+      console.error('Error fetching group students:', error);
+    }
+  };
+
+  useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isLesTimerRunning && lesTimer < lesTargetTime) {
       interval = setInterval(() => {
@@ -119,7 +142,10 @@ export function EDITab() {
         .from('user_schools')
         .select('school_id')
         .eq('user_id', user?.id)
-        .single();
+        .eq('is_active', true)
+        .eq('status', 'approved')
+        .limit(1)
+        .maybeSingle();
 
       if (schoolsData) {
         const { data: studentsData } = await supabase
