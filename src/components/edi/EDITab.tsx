@@ -19,7 +19,12 @@ import {
   FileText,
   MessageSquare,
   AlertTriangle,
-  Mic
+  Mic,
+  Brain,
+  Presentation,
+  Play,
+  Home,
+  Book
 } from 'lucide-react';
 
 interface Student {
@@ -63,11 +68,11 @@ export function EDITab() {
   const [showInstructieTechnieken, setShowInstructieTechnieken] = useState(true);
 
   const didacticSteps = [
-    { id: 'wat-weet', label: 'Wat weet je al?' },
-    { id: 'uitleg', label: 'Uitleg' },
-    { id: 'oefenen', label: 'Oefenen' },
-    { id: 'waarom', label: 'Waarom nodig?' },
-    { id: 'pas-toe', label: 'Pas toe' }
+    { id: 'wat-weet', label: 'Wat weet je al?', icon: Brain },
+    { id: 'uitleg', label: 'Uitleg', icon: Presentation },
+    { id: 'oefenen', label: 'Oefenen', icon: Play },
+    { id: 'waarom', label: 'Waarom nodig?', icon: Home },
+    { id: 'pas-toe', label: 'Pas toe', icon: Book }
   ];
 
   const teachingTechniques = [
@@ -283,53 +288,55 @@ export function EDITab() {
       </Card>
 
       <Card className="p-4">
-        <button
-          onClick={() => setShowLeerdoel(!showLeerdoel)}
-          className="w-full flex items-center justify-between mb-3"
-        >
-          <h2 className="text-lg font-bold text-gray-900">Leerdoel</h2>
-          <span className="text-gray-500 text-lg">{showLeerdoel ? '−' : '+'}</span>
-        </button>
-        {showLeerdoel && (
-          <div className="space-y-4">
-            {isEditingLeerdoel ? (
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  value={leerdoel}
-                  onChange={(e) => setLeerdoel(e.target.value)}
-                  onBlur={() => setIsEditingLeerdoel(false)}
-                  onKeyDown={(e) => e.key === 'Enter' && setIsEditingLeerdoel(false)}
-                  className="flex-1 px-4 py-3 text-xl font-semibold border-2 border-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  autoFocus
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">{leerdoel}</h2>
-                <Button variant="secondary" onClick={() => setIsEditingLeerdoel(true)}>
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
+        <div className="space-y-4">
+          {isEditingLeerdoel ? (
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                value={leerdoel}
+                onChange={(e) => setLeerdoel(e.target.value)}
+                onBlur={() => setIsEditingLeerdoel(false)}
+                onKeyDown={(e) => e.key === 'Enter' && setIsEditingLeerdoel(false)}
+                className="flex-1 px-4 py-3 text-xl font-semibold border-2 border-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                autoFocus
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">{leerdoel}</h2>
+              <Button variant="secondary" onClick={() => setIsEditingLeerdoel(true)}>
+                <Edit2 className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
 
+          <button
+            onClick={() => setShowLeerdoel(!showLeerdoel)}
+            className="w-full flex items-center justify-between text-sm text-gray-600 hover:text-gray-900"
+          >
+            <span className="font-medium">Didactische stappen</span>
+            <span className="text-lg">{showLeerdoel ? '−' : '+'}</span>
+          </button>
+
+          {showLeerdoel && (
             <div className="grid grid-cols-5 gap-3">
               {didacticSteps.map((step) => (
                 <button
                   key={step.id}
                   onClick={() => setActiveStep(activeStep === step.id ? null : step.id)}
-                  className={`w-full px-4 py-3 rounded-lg font-semibold transition-all ${
+                  className={`w-full px-4 py-3 rounded-lg font-semibold transition-all flex flex-col items-center gap-2 ${
                     activeStep === step.id
                       ? 'bg-blue-600 text-white shadow-lg scale-105'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  {step.label}
+                  <step.icon className="w-5 h-5" />
+                  <span className="text-sm">{step.label}</span>
                 </button>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </Card>
 
       <div className="grid grid-cols-5 gap-2 mb-4">
