@@ -17,7 +17,9 @@ import {
   UserCheck,
   Hand,
   FileText,
-  MessageSquare
+  MessageSquare,
+  AlertTriangle,
+  Mic
 } from 'lucide-react';
 
 interface Student {
@@ -55,6 +57,7 @@ export function EDITab() {
 
   const [showControLEER, setShowControLEER] = useState(false);
   const [controleScore, setControleScore] = useState({ pp: 0, p: 0, m: 0, mm: 0 });
+  const [selectedTechnique, setSelectedTechnique] = useState<string | null>(null);
 
   const didacticSteps = [
     { id: 'wat-weet', label: 'Wat weet je al?', color: 'bg-blue-500' },
@@ -65,14 +68,14 @@ export function EDITab() {
   ];
 
   const teachingTechniques = [
-    { id: 'spreek-mee', label: 'Spreek mee uit', icon: Volume2 },
+    { id: 'spreek-mee', label: 'Zeg mee', icon: Mic },
     { id: 'volg-mee', label: 'Volg mee', icon: Eye },
     { id: 'lees-mee', label: 'Lees mee', icon: BookOpen },
-    { id: 'beweging', label: 'Met beweging', icon: Move },
+    { id: 'beweging', label: 'Beweeg mee', icon: Hand },
     { id: 'duo-delen', label: 'Duo-delen', icon: UserPlus },
-    { id: 'aandacht', label: 'Aandacht vragen', icon: Hand },
-    { id: 'bordjes', label: 'Schrijf op bordjes', icon: FileText },
-    { id: 'zin', label: 'Zeg het in een zin', icon: MessageSquare }
+    { id: 'aandacht', label: 'Aandacht vragen', icon: AlertTriangle },
+    { id: 'bordjes', label: 'Schrijf op', icon: FileText },
+    { id: 'zin', label: 'Zeg een zin', icon: MessageSquare }
   ];
 
   useEffect(() => {
@@ -449,14 +452,23 @@ export function EDITab() {
 
       <Card className="p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-4">Instructietechnieken</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="flex gap-3 overflow-x-auto pb-2">
           {teachingTechniques.map(technique => (
             <button
               key={technique.id}
-              className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg transition-all border-2 border-blue-200 hover:border-blue-400"
+              onClick={() => setSelectedTechnique(selectedTechnique === technique.id ? null : technique.id)}
+              className={`flex flex-col items-center justify-center p-4 rounded-lg transition-all border-2 min-w-[120px] ${
+                selectedTechnique === technique.id
+                  ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-700'
+                  : 'bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-blue-200 hover:border-blue-400'
+              }`}
             >
-              <technique.icon className="w-8 h-8 text-blue-600 mb-2" />
-              <span className="text-sm font-medium text-gray-900 text-center">{technique.label}</span>
+              <technique.icon className={`w-8 h-8 mb-2 ${
+                selectedTechnique === technique.id ? 'text-white' : 'text-blue-600'
+              }`} />
+              <span className={`text-sm font-medium text-center ${
+                selectedTechnique === technique.id ? 'text-white' : 'text-gray-900'
+              }`}>{technique.label}</span>
             </button>
           ))}
         </div>
