@@ -255,6 +255,30 @@ export function EDITab() {
         </Card>
       )}
 
+      <Card className="p-4">
+        <h3 className="text-lg font-bold text-gray-900 mb-3">Instructietechnieken</h3>
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {teachingTechniques.map(technique => (
+            <button
+              key={technique.id}
+              onClick={() => setSelectedTechnique(selectedTechnique === technique.id ? null : technique.id)}
+              className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all border-2 min-w-[100px] ${
+                selectedTechnique === technique.id
+                  ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-700'
+                  : 'bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-blue-200 hover:border-blue-400'
+              }`}
+            >
+              <technique.icon className={`w-6 h-6 mb-1 ${
+                selectedTechnique === technique.id ? 'text-white' : 'text-blue-600'
+              }`} />
+              <span className={`text-xs font-medium text-center ${
+                selectedTechnique === technique.id ? 'text-white' : 'text-gray-900'
+              }`}>{technique.label}</span>
+            </button>
+          ))}
+        </div>
+      </Card>
+
       <Card className="p-6">
         <div className="space-y-6">
           {isEditingLeerdoel ? (
@@ -450,29 +474,6 @@ export function EDITab() {
         </div>
       </Card>
 
-      <Card className="p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Instructietechnieken</h3>
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {teachingTechniques.map(technique => (
-            <button
-              key={technique.id}
-              onClick={() => setSelectedTechnique(selectedTechnique === technique.id ? null : technique.id)}
-              className={`flex flex-col items-center justify-center p-4 rounded-lg transition-all border-2 min-w-[120px] ${
-                selectedTechnique === technique.id
-                  ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-700'
-                  : 'bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-blue-200 hover:border-blue-400'
-              }`}
-            >
-              <technique.icon className={`w-8 h-8 mb-2 ${
-                selectedTechnique === technique.id ? 'text-white' : 'text-blue-600'
-              }`} />
-              <span className={`text-sm font-medium text-center ${
-                selectedTechnique === technique.id ? 'text-white' : 'text-gray-900'
-              }`}>{technique.label}</span>
-            </button>
-          ))}
-        </div>
-      </Card>
     </div>
   );
 }
