@@ -439,14 +439,24 @@ export function EDITab() {
             </div>
           )}
 
-        {showNamePicker && selectedStudent && (
-          <div className="p-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-center animate-in fade-in duration-500">
-            <p className="text-5xl font-bold text-white">
+      </div>
+
+      {showNamePicker && selectedStudent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-2xl p-16 text-center relative min-w-[400px]">
+            <button
+              onClick={() => setShowNamePicker(false)}
+              className="absolute top-4 right-4 text-white hover:text-gray-200 text-3xl font-bold w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition-all"
+            >
+              ×
+            </button>
+            <p className="text-6xl font-bold text-white mb-2">
               {selectedStudent.first_name} {selectedStudent.last_name}
             </p>
+            <p className="text-white/80 text-lg mt-4">Geselecteerde leerling</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {showControLEER && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
