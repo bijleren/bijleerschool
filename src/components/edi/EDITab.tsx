@@ -450,10 +450,9 @@ export function EDITab() {
             >
               ×
             </button>
-            <p className="text-6xl font-bold text-white mb-2">
+            <p className="text-6xl font-bold text-white">
               {selectedStudent.first_name} {selectedStudent.last_name}
             </p>
-            <p className="text-white/80 text-lg mt-4">Geselecteerde leerling</p>
           </div>
         </div>
       )}
