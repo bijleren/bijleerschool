@@ -59,6 +59,9 @@ export function EDITab() {
   const [controleScore, setControleScore] = useState({ pp: 0, p: 0, m: 0, mm: 0 });
   const [selectedTechnique, setSelectedTechnique] = useState<string | null>(null);
 
+  const [showLeerdoel, setShowLeerdoel] = useState(true);
+  const [showInstructieTechnieken, setShowInstructieTechnieken] = useState(true);
+
   const didacticSteps = [
     { id: 'wat-weet', label: 'Wat weet je al?' },
     { id: 'uitleg', label: 'Uitleg' },
@@ -248,115 +251,131 @@ export function EDITab() {
       )}
 
       <Card className="p-4">
-        <h3 className="text-lg font-bold text-gray-900 mb-3">Instructietechnieken</h3>
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {teachingTechniques.map(technique => (
-            <button
-              key={technique.id}
-              onClick={() => setSelectedTechnique(selectedTechnique === technique.id ? null : technique.id)}
-              className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all border-2 min-w-[100px] ${
-                selectedTechnique === technique.id
-                  ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-700'
-                  : 'bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-blue-200 hover:border-blue-400'
-              }`}
-            >
-              <technique.icon className={`w-6 h-6 mb-1 ${
-                selectedTechnique === technique.id ? 'text-white' : 'text-blue-600'
-              }`} />
-              <span className={`text-xs font-medium text-center ${
-                selectedTechnique === technique.id ? 'text-white' : 'text-gray-900'
-              }`}>{technique.label}</span>
-            </button>
-          ))}
-        </div>
-      </Card>
-
-      <Card className="p-6">
-        <div className="space-y-6">
-          {isEditingLeerdoel ? (
-            <div className="flex items-center gap-3">
-              <input
-                type="text"
-                value={leerdoel}
-                onChange={(e) => setLeerdoel(e.target.value)}
-                onBlur={() => setIsEditingLeerdoel(false)}
-                onKeyDown={(e) => e.key === 'Enter' && setIsEditingLeerdoel(false)}
-                className="flex-1 px-4 py-3 text-xl font-semibold border-2 border-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                autoFocus
-              />
-            </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">{leerdoel}</h2>
-              <Button variant="secondary" onClick={() => setIsEditingLeerdoel(true)}>
-                <Edit2 className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-
-          <div className="grid grid-cols-5 gap-3">
-            {didacticSteps.map((step) => (
+        <button
+          onClick={() => setShowInstructieTechnieken(!showInstructieTechnieken)}
+          className="w-full flex items-center justify-between text-lg font-bold text-gray-900 mb-3"
+        >
+          <span>Instructietechnieken</span>
+          <span className="text-gray-500">{showInstructieTechnieken ? '−' : '+'}</span>
+        </button>
+        {showInstructieTechnieken && (
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {teachingTechniques.map(technique => (
               <button
-                key={step.id}
-                onClick={() => setActiveStep(activeStep === step.id ? null : step.id)}
-                className={`w-full px-4 py-3 rounded-lg font-semibold transition-all ${
-                  activeStep === step.id
-                    ? 'bg-blue-600 text-white shadow-lg scale-105'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                key={technique.id}
+                onClick={() => setSelectedTechnique(selectedTechnique === technique.id ? null : technique.id)}
+                className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all border-2 min-w-[100px] ${
+                  selectedTechnique === technique.id
+                    ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-700'
+                    : 'bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-blue-200 hover:border-blue-400'
                 }`}
               >
-                {step.label}
+                <technique.icon className={`w-6 h-6 mb-1 ${
+                  selectedTechnique === technique.id ? 'text-white' : 'text-blue-600'
+                }`} />
+                <span className={`text-xs font-medium text-center ${
+                  selectedTechnique === technique.id ? 'text-white' : 'text-gray-900'
+                }`}>{technique.label}</span>
               </button>
             ))}
           </div>
-        </div>
+        )}
       </Card>
 
       <Card className="p-4">
-        <div className="grid grid-cols-5 gap-2">
-          <button
-            onClick={() => setShowLesTimerInput(!showLesTimerInput)}
-            className="w-full h-14 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
-          >
-            <Clock className="w-5 h-5 inline mr-2" />
-            Les
-          </button>
+        <button
+          onClick={() => setShowLeerdoel(!showLeerdoel)}
+          className="w-full flex items-center justify-between mb-3"
+        >
+          <h2 className="text-lg font-bold text-gray-900">Leerdoel</h2>
+          <span className="text-gray-500 text-lg">{showLeerdoel ? '−' : '+'}</span>
+        </button>
+        {showLeerdoel && (
+          <div className="space-y-4">
+            {isEditingLeerdoel ? (
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  value={leerdoel}
+                  onChange={(e) => setLeerdoel(e.target.value)}
+                  onBlur={() => setIsEditingLeerdoel(false)}
+                  onKeyDown={(e) => e.key === 'Enter' && setIsEditingLeerdoel(false)}
+                  className="flex-1 px-4 py-3 text-xl font-semibold border-2 border-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  autoFocus
+                />
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900">{leerdoel}</h2>
+                <Button variant="secondary" onClick={() => setIsEditingLeerdoel(true)}>
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
 
-          <button
-            onClick={() => setVraagCountdown(10)}
-            className="w-full h-14 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
-          >
-            <MessageCircle className="w-5 h-5 inline mr-2" />
-            Vraag
-          </button>
+            <div className="grid grid-cols-5 gap-3">
+              {didacticSteps.map((step) => (
+                <button
+                  key={step.id}
+                  onClick={() => setActiveStep(activeStep === step.id ? null : step.id)}
+                  className={`w-full px-4 py-3 rounded-lg font-semibold transition-all ${
+                    activeStep === step.id
+                      ? 'bg-blue-600 text-white shadow-lg scale-105'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {step.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </Card>
 
-          <button
-            onClick={() => setDuoDeelCountdown(5)}
-            className="w-full h-14 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
-          >
-            <UserPlus className="w-5 h-5 inline mr-2" />
-            Duo-deel
-          </button>
+      <div className="grid grid-cols-5 gap-2 mb-4">
+        <button
+          onClick={() => setShowLesTimerInput(!showLesTimerInput)}
+          className="w-full h-12 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-sm"
+        >
+          <Clock className="w-5 h-5 inline mr-2" />
+          Les
+        </button>
 
-          <button
-            onClick={pickRandomStudent}
-            className="w-full h-14 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
-          >
-            <UserCheck className="w-5 h-5 inline mr-2" />
-            Zit klaar
-          </button>
+        <button
+          onClick={() => setVraagCountdown(10)}
+          className="w-full h-12 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-sm"
+        >
+          <MessageCircle className="w-5 h-5 inline mr-2" />
+          Vraag
+        </button>
 
-          <button
-            onClick={() => setShowControLEER(true)}
-            className="w-full h-14 px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
-          >
-            <CheckCircle className="w-5 h-5 inline mr-2" />
-            ControLEER
-          </button>
-        </div>
+        <button
+          onClick={() => setDuoDeelCountdown(5)}
+          className="w-full h-12 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-sm"
+        >
+          <UserPlus className="w-5 h-5 inline mr-2" />
+          Duo-deel
+        </button>
 
-        <div className="mt-4 space-y-3">
-          {showLesTimerInput && (
+        <button
+          onClick={pickRandomStudent}
+          className="w-full h-12 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-sm"
+        >
+          <UserCheck className="w-5 h-5 inline mr-2" />
+          Zit klaar
+        </button>
+
+        <button
+          onClick={() => setShowControLEER(true)}
+          className="w-full h-12 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-sm"
+        >
+          <CheckCircle className="w-5 h-5 inline mr-2" />
+          ControLEER
+        </button>
+      </div>
+
+      <div className="space-y-3 mb-4">
+        {showLesTimerInput && (
             <div className="p-3 bg-white border-2 border-blue-500 rounded-lg space-y-2">
               <input
                 type="number"
@@ -413,15 +432,14 @@ export function EDITab() {
             </div>
           )}
 
-          {showNamePicker && selectedStudent && (
-            <div className="p-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-center animate-in fade-in duration-500">
-              <p className="text-5xl font-bold text-white">
-                {selectedStudent.first_name} {selectedStudent.last_name}
-              </p>
-            </div>
-          )}
-        </div>
-      </Card>
+        {showNamePicker && selectedStudent && (
+          <div className="p-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-center animate-in fade-in duration-500">
+            <p className="text-5xl font-bold text-white">
+              {selectedStudent.first_name} {selectedStudent.last_name}
+            </p>
+          </div>
+        )}
+      </div>
 
       {showControLEER && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
