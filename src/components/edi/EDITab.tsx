@@ -302,12 +302,12 @@ export function EDITab() {
             </div>
           )}
 
-          <div className="flex gap-3 overflow-x-auto pb-2">
+          <div className="grid grid-cols-5 gap-3">
             {didacticSteps.map((step) => (
               <button
                 key={step.id}
                 onClick={() => setActiveStep(activeStep === step.id ? null : step.id)}
-                className={`flex-shrink-0 px-6 py-3 rounded-lg font-semibold transition-all ${
+                className={`w-full px-4 py-3 rounded-lg font-semibold transition-all ${
                   activeStep === step.id
                     ? 'bg-blue-600 text-white shadow-lg scale-105'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
