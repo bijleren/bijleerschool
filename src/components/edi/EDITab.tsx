@@ -167,7 +167,64 @@ export function EDITab() {
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-gray-900">EDI - Expliciete Directe Instructie</h1>
+        <div className="flex items-center gap-3">
+          <Button variant="primary" onClick={pickRandomStudent}>
+            <Users className="w-4 h-4 mr-2" />
+            Kies Random Leerling
+          </Button>
+          <Button variant="secondary" onClick={() => setShowStudentSelector(!showStudentSelector)}>
+            <Edit2 className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
+
+      {showNamePicker && selectedStudent && (
+        <div className="p-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-center animate-in fade-in duration-500">
+          <p className="text-5xl font-bold text-white">
+            {selectedStudent.first_name} {selectedStudent.last_name}
+          </p>
+        </div>
+      )}
+
+      {showStudentSelector && (
+        <Card className="p-4 border-2 border-blue-500">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Selecteer Groep</label>
+              <select
+                value={selectedGroup}
+                onChange={(e) => setSelectedGroup(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              >
+                <option value="all">Alle Leerlingen</option>
+                {groups.map(group => (
+                  <option key={group.id} value={group.id}>{group.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="max-h-60 overflow-y-auto">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Of selecteer individuele leerlingen</label>
+              {students.map(student => (
+                <label key={student.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
+                  <input
+                    type="checkbox"
+                    checked={selectedStudents.includes(student.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedStudents([...selectedStudents, student.id]);
+                      } else {
+                        setSelectedStudents(selectedStudents.filter(id => id !== student.id));
+                      }
+                    }}
+                    className="w-4 h-4"
+                  />
+                  <span>{student.first_name} {student.last_name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </Card>
+      )}
 
       <Card className="p-6">
         <div className="space-y-6">
@@ -214,65 +271,6 @@ export function EDITab() {
             ))}
           </div>
         </div>
-      </Card>
-
-      <Card className="p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Random Naam Picker</h3>
-        <div className="flex items-center gap-3">
-          <Button variant="primary" onClick={pickRandomStudent}>
-            <Users className="w-4 h-4 mr-2" />
-            Kies Random Leerling
-          </Button>
-          <Button variant="secondary" onClick={() => setShowStudentSelector(!showStudentSelector)}>
-            <Edit2 className="w-4 h-4" />
-          </Button>
-        </div>
-
-        {showNamePicker && selectedStudent && (
-          <div className="mt-4 p-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-center">
-            <p className="text-5xl font-bold text-white">
-              {selectedStudent.first_name} {selectedStudent.last_name}
-            </p>
-          </div>
-        )}
-
-        {showStudentSelector && (
-          <div className="mt-4 p-4 border-2 border-gray-300 rounded-lg space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Selecteer Groep</label>
-              <select
-                value={selectedGroup}
-                onChange={(e) => setSelectedGroup(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-              >
-                <option value="all">Alle Leerlingen</option>
-                {groups.map(group => (
-                  <option key={group.id} value={group.id}>{group.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="max-h-60 overflow-y-auto">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Of selecteer individuele leerlingen</label>
-              {students.map(student => (
-                <label key={student.id} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
-                  <input
-                    type="checkbox"
-                    checked={selectedStudents.includes(student.id)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedStudents([...selectedStudents, student.id]);
-                      } else {
-                        setSelectedStudents(selectedStudents.filter(id => id !== student.id));
-                      }
-                    }}
-                    className="w-4 h-4"
-                  />
-                  <span>{student.first_name} {student.last_name}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
       </Card>
 
       <Card className="p-6">
