@@ -321,11 +321,11 @@ export function EDITab() {
       </Card>
 
       <Card className="p-6">
-        <div className="flex items-center gap-4 overflow-x-auto pb-2">
-          <div className="flex-shrink-0">
+        <div className="grid grid-cols-5 gap-3">
+          <div className="flex flex-col">
             <button
               onClick={() => setShowLesTimerInput(!showLesTimerInput)}
-              className="px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+              className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
             >
               <Clock className="w-5 h-5 inline mr-2" />
               Les
@@ -365,7 +365,7 @@ export function EDITab() {
             {isLesTimerRunning && (
               <div className="mt-2">
                 <div className="text-2xl font-bold text-blue-600">{formatTime(lesTimer)}</div>
-                <div className="w-40 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-blue-600 transition-all duration-1000"
                     style={{ width: `${(lesTimer / lesTargetTime) * 100}%` }}
@@ -375,31 +375,31 @@ export function EDITab() {
             )}
           </div>
 
-          <div className="flex-shrink-0">
+          <div className="flex flex-col">
             <button
               onClick={() => setVraagCountdown(10)}
-              className="px-6 py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-all"
+              className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
             >
               <MessageCircle className="w-5 h-5 inline mr-2" />
               Vraag
             </button>
             {vraagCountdown > 0 && (
-              <div className="mt-2 text-3xl font-bold text-green-600 text-center">
+              <div className="mt-2 text-3xl font-bold text-blue-600 text-center">
                 {vraagCountdown}s
               </div>
             )}
           </div>
 
-          <div className="flex-shrink-0">
+          <div className="flex flex-col">
             <button
               onClick={() => setDuoDeelCountdown(5)}
-              className="px-6 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all"
+              className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
             >
               <UserPlus className="w-5 h-5 inline mr-2" />
               Duo-deel
             </button>
             {duoDeelCountdown > 0 && (
-              <div className="mt-2 text-3xl font-bold text-purple-600 text-center">
+              <div className="mt-2 text-3xl font-bold text-blue-600 text-center">
                 {duoDeelCountdown}s
               </div>
             )}
@@ -407,22 +407,22 @@ export function EDITab() {
 
           <button
             onClick={pickRandomStudent}
-            className="flex-shrink-0 px-6 py-4 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-semibold transition-all"
+            className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
           >
             <UserCheck className="w-5 h-5 inline mr-2" />
             Zit klaar
           </button>
 
-          <div className="flex-shrink-0">
+          <div className="flex flex-col">
             <button
               onClick={() => setShowControLEER(!showControLEER)}
-              className="px-6 py-4 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-all"
+              className="w-full px-4 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
             >
               <CheckCircle className="w-5 h-5 inline mr-2" />
               ControLEER
             </button>
             {showControLEER && (
-              <div className="mt-2 p-4 bg-white border-2 border-red-500 rounded-lg space-y-3">
+              <div className="mt-2 p-4 bg-white border-2 border-blue-500 rounded-lg space-y-3">
                 <div className="grid grid-cols-4 gap-2">
                   <button
                     onClick={() => setControleScore({ ...controleScore, pp: controleScore.pp + 1 })}
@@ -449,6 +449,53 @@ export function EDITab() {
                     --
                   </button>
                 </div>
+
+                {totalControleCount > 0 && (
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <svg viewBox="0 0 100 100" className="w-32 h-32 mx-auto">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="20" />
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          fill="none"
+                          stroke="#16a34a"
+                          strokeWidth="20"
+                          strokeDasharray={`${((controleScore.pp + controleScore.p) / totalControleCount) * 251.2} 251.2`}
+                          strokeDashoffset="0"
+                          transform="rotate(-90 50 50)"
+                        />
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="40"
+                          fill="none"
+                          stroke="#dc2626"
+                          strokeWidth="20"
+                          strokeDasharray={`${((controleScore.m + controleScore.mm) / totalControleCount) * 251.2} 251.2`}
+                          strokeDashoffset={`-${((controleScore.pp + controleScore.p) / totalControleCount) * 251.2}`}
+                          transform="rotate(-90 50 50)"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1 text-left space-y-2">
+                      <div>
+                        <div className="text-lg font-bold text-green-600">
+                          {Math.round(((controleScore.pp + controleScore.p) / totalControleCount) * 100)}%
+                        </div>
+                        <div className="text-sm text-gray-600">++ en + totaal</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-bold text-red-600">
+                          {Math.round(((controleScore.m + controleScore.mm) / totalControleCount) * 100)}%
+                        </div>
+                        <div className="text-sm text-gray-600">- en -- totaal</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="text-center">
                   <div className="text-lg font-semibold text-gray-700">Totaal: {totalControleCount}</div>
                   <div className="text-sm text-gray-600 mt-1">
