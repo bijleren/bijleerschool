@@ -303,20 +303,20 @@ export function EDITab() {
             </div>
           ) : (
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">{leerdoel}</h2>
-              <Button variant="secondary" onClick={() => setIsEditingLeerdoel(true)}>
-                <Edit2 className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-bold text-gray-900">{leerdoel}</h2>
+                <Button variant="secondary" onClick={() => setIsEditingLeerdoel(true)}>
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+              </div>
+              <button
+                onClick={() => setShowLeerdoel(!showLeerdoel)}
+                className="text-2xl text-gray-600 hover:text-gray-900 w-8 h-8 flex items-center justify-center"
+              >
+                {showLeerdoel ? '−' : '+'}
+              </button>
             </div>
           )}
-
-          <button
-            onClick={() => setShowLeerdoel(!showLeerdoel)}
-            className="w-full flex items-center justify-between text-sm text-gray-600 hover:text-gray-900"
-          >
-            <span className="font-medium">Didactische stappen</span>
-            <span className="text-lg">{showLeerdoel ? '−' : '+'}</span>
-          </button>
 
           {showLeerdoel && (
             <div className="grid grid-cols-5 gap-3">
