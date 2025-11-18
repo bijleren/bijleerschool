@@ -270,6 +270,13 @@ export function Dashboard() {
     setActiveTab('boeker');
   };
 
+  const handleNavigateToEDI = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('edi');
+  };
+
   const handleNavigateToBehaviorWithSchool = (school: { id: string; name: string }) => {
     // Use focus school instead of passed school
     setSelectedSchool(focusSchool);
@@ -440,6 +447,7 @@ export function Dashboard() {
         onNavigateToWebWijzer={handleNavigateToWebWijzer}
         onNavigateToActivityBoards={handleNavigateToActivityBoards}
         onNavigateToBoeker={handleNavigateToBoeker}
+        onNavigateToEDI={handleNavigateToEDI}
         focusSchool={focusSchool}
       />
       )}
