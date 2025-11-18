@@ -60,11 +60,11 @@ export function EDITab() {
   const [selectedTechnique, setSelectedTechnique] = useState<string | null>(null);
 
   const didacticSteps = [
-    { id: 'wat-weet', label: 'Wat weet je al?', color: 'bg-blue-500' },
-    { id: 'uitleg', label: 'Uitleg', color: 'bg-green-500' },
-    { id: 'oefenen', label: 'Oefenen', color: 'bg-yellow-500' },
-    { id: 'waarom', label: 'Waarom nodig?', color: 'bg-orange-500' },
-    { id: 'pas-toe', label: 'Pas toe', color: 'bg-red-500' }
+    { id: 'wat-weet', label: 'Wat weet je al?' },
+    { id: 'uitleg', label: 'Uitleg' },
+    { id: 'oefenen', label: 'Oefenen' },
+    { id: 'waarom', label: 'Waarom nodig?' },
+    { id: 'pas-toe', label: 'Pas toe' }
   ];
 
   const teachingTechniques = [
@@ -302,25 +302,19 @@ export function EDITab() {
             </div>
           )}
 
-          <div className="flex items-center gap-4 overflow-x-auto pb-2">
-            {didacticSteps.map((step, index) => (
-              <React.Fragment key={step.id}>
-                <button
-                  onClick={() => setActiveStep(activeStep === step.id ? null : step.id)}
-                  className={`flex-shrink-0 px-6 py-4 rounded-lg font-semibold text-white transition-all ${
-                    step.color
-                  } ${
-                    activeStep === step.id
-                      ? 'ring-4 ring-offset-2 ring-blue-600 scale-105'
-                      : 'opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  {step.label}
-                </button>
-                {index < didacticSteps.length - 1 && (
-                  <div className="flex-shrink-0 text-3xl text-gray-400">→</div>
-                )}
-              </React.Fragment>
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {didacticSteps.map((step) => (
+              <button
+                key={step.id}
+                onClick={() => setActiveStep(activeStep === step.id ? null : step.id)}
+                className={`flex-shrink-0 px-6 py-3 rounded-lg font-semibold transition-all ${
+                  activeStep === step.id
+                    ? 'bg-blue-600 text-white shadow-lg scale-105'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {step.label}
+              </button>
             ))}
           </div>
         </div>
