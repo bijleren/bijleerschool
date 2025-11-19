@@ -167,7 +167,7 @@ export function EDITab() {
           .order('first_name');
 
         const { data: groupsData } = await supabase
-          .from('student_groups')
+          .from('groups')
           .select('id, name')
           .eq('school_id', schoolsData.school_id)
           .eq('is_active', true)
