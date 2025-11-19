@@ -98,7 +98,7 @@ export function EDITab() {
     } else {
       setSelectedStudents(students.map(s => s.id));
     }
-  }, [selectedGroup]);
+  }, [selectedGroup, students.length]);
 
   const fetchStudentsByGroup = async (groupId: string) => {
     try {
