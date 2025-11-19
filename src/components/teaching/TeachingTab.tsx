@@ -555,12 +555,12 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
               {techniques.length === 0 ? 'Geen technieken gevonden' : 'Geen technieken gevonden met deze filters'}
             </h3>
             <p className="text-gray-600 mb-6">
-              {techniques.length === 0 
+              {techniques.length === 0
                 ? 'Er zijn nog geen didactische technieken toegevoegd.'
                 : 'Probeer je zoekfilters aan te passen.'
               }
             </p>
-            {techniques.length === 0 && (
+            {techniques.length === 0 && isAdmin && (
               <Button onClick={() => setActiveView('form')}>
                 <Plus className="w-4 h-4 mr-2" />
                 Eerste techniek toevoegen
