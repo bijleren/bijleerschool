@@ -103,9 +103,10 @@ export function EDITab() {
   const fetchStudentsByGroup = async (groupId: string) => {
     try {
       const { data: groupStudents } = await supabase
-        .from('group_students')
+        .from('student_groups')
         .select('student_id')
-        .eq('group_id', groupId);
+        .eq('group_id', groupId)
+        .eq('is_active', true);
 
       if (groupStudents) {
         setSelectedStudents(groupStudents.map(gs => gs.student_id));
