@@ -387,8 +387,15 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
   };
 
   const getVimeoEmbedUrl = (url: string) => {
-    const vimeoId = url.match(/vimeo\.com\/(\d+)/)?.[1];
-    return vimeoId ? `https://player.vimeo.com/video/${vimeoId}` : null;
+    const vimeoMatch = url.match(/vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?/);
+    if (!vimeoMatch) return null;
+
+    const videoId = vimeoMatch[1];
+    const hash = vimeoMatch[2];
+
+    return hash
+      ? `https://player.vimeo.com/video/${videoId}?h=${hash}`
+      : `https://player.vimeo.com/video/${videoId}`;
   };
 
   const externalLinks = technique.external_links || [];
