@@ -3,13 +3,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { GraduationCap, ArrowLeft, LogIn, BookOpen, Users, Package, Tag, Calendar, User } from 'lucide-react';
+import { GraduationCap, ArrowLeft, LogIn, BookOpen, Users, Package, Tag, Calendar, User, Play, ExternalLink } from 'lucide-react';
 
 interface TeachingTechnique {
   id: string;
   title: string;
   description: string;
   content: string;
+  student_video_url: string | null;
+  teacher_video_url: string | null;
   created_at: string;
   profiles: {
     first_name: string;
@@ -92,6 +94,18 @@ export function PublicTechniqueView() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getVimeoEmbedUrl = (url: string) => {
+    const vimeoMatch = url.match(/vimeo\.com\/(\d+)(?:\/([a-zA-Z0-9]+))?/);
+    if (!vimeoMatch) return null;
+
+    const videoId = vimeoMatch[1];
+    const hash = vimeoMatch[2];
+
+    return hash
+      ? `https://player.vimeo.com/video/${videoId}?h=${hash}`
+      : `https://player.vimeo.com/video/${videoId}`;
   };
 
   const handleLogin = () => {
@@ -249,6 +263,73 @@ export function PublicTechniqueView() {
               </div>
             </div>
           </div>
+
+          {(technique.teacher_video_url || technique.student_video_url) && (
+            <div className="mb-8 space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <Play className="w-6 h-6 text-blue-600" />
+                Video's
+              </h2>
+
+              {technique.teacher_video_url && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Leerkracht Video</h3>
+                  <div className="bg-black rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                    {getVimeoEmbedUrl(technique.teacher_video_url) ? (
+                      <iframe
+                        src={getVimeoEmbedUrl(technique.teacher_video_url)!}
+                        className="w-full h-full"
+                        frameBorder="0"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <a
+                          href={technique.teacher_video_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-white flex items-center gap-2 hover:text-blue-300"
+                        >
+                          <ExternalLink className="w-5 h-5" />
+                          Open video in nieuwe tab
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {technique.student_video_url && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Leerling Video</h3>
+                  <div className="bg-black rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                    {getVimeoEmbedUrl(technique.student_video_url) ? (
+                      <iframe
+                        src={getVimeoEmbedUrl(technique.student_video_url)!}
+                        className="w-full h-full"
+                        frameBorder="0"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <a
+                          href={technique.student_video_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-white flex items-center gap-2 hover:text-blue-300"
+                        >
+                          <ExternalLink className="w-5 h-5" />
+                          Open video in nieuwe tab
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="prose max-w-none">
             <div className="text-gray-800" dangerouslySetInnerHTML={{ __html: technique.content }} />
