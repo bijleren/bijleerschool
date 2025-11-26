@@ -138,6 +138,13 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
         sessionStorage.removeItem('selectedTechniqueData');
       }
     }
+
+    // Check if there's a technique ID from a shared link
+    const techniqueId = sessionStorage.getItem('selectedTechniqueId');
+    if (techniqueId) {
+      sessionStorage.removeItem('selectedTechniqueId');
+      fetchTechniqueById(techniqueId);
+    }
   }, []);
 
   useEffect(() => {
@@ -239,6 +246,41 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
       setTechniques(data || []);
     } catch (error) {
       console.error('Error fetching techniques:', error);
+    }
+  };
+
+  const fetchTechniqueById = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('teaching_techniques')
+        .select(`
+          *,
+          profiles (first_name, last_name),
+          teaching_technique_age_groups (
+            age_groups (*)
+          ),
+          teaching_technique_subjects (
+            subjects (*)
+          ),
+          teaching_technique_materials (
+            materials (*)
+          ),
+          teaching_technique_categories (
+            technique_categories (*)
+          )
+        `)
+        .eq('id', id)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setSelectedTechnique(data);
+        setActiveView('detail');
+      }
+    } catch (error) {
+      console.error('Error fetching technique:', error);
     }
   };
 

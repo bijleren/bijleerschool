@@ -29,21 +29,42 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function RootRedirect() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const hash = params.get('h');
+    const techniqueId = params.get('technique');
 
     if (hash) {
       navigate(`/webwijzer?h=${hash}`, { replace: true });
+    } else if (techniqueId) {
+      // Store the technique ID for after login/dashboard load
+      sessionStorage.setItem('selectedTechniqueId', techniqueId);
+
+      if (user && !loading) {
+        // User is logged in, navigate to dashboard
+        navigate('/dashboard', { replace: true });
+      } else if (!loading) {
+        // User is not logged in, redirect to login
+        navigate('/auth', { replace: true });
+      }
     }
-  }, [location.search, navigate]);
+  }, [location.search, navigate, user, loading]);
 
   const params = new URLSearchParams(location.search);
   const hash = params.get('h');
+  const techniqueId = params.get('technique');
 
-  if (hash) {
-    return null;
+  if (hash || techniqueId) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">BijleerSchool wordt geladen...</p>
+        </div>
+      </div>
+    );
   }
 
   return <LandingPage />;

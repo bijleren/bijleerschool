@@ -67,7 +67,15 @@ export function Dashboard() {
     if (user) {
       fetchUserSchools();
     }
-    
+
+    // Check if there's a technique ID from a shared link
+    const techniqueId = sessionStorage.getItem('selectedTechniqueId');
+    if (techniqueId) {
+      // Don't remove it yet - let TeachingTab handle it
+      setActiveTab('teaching');
+      setTeachingPageOverride('technieken');
+    }
+
     // Listen for navigation events from schoolday
     const handleNavigateToBehavior = (event: CustomEvent) => {
       const { schoolId, preloadData } = event.detail;
