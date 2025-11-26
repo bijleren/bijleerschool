@@ -7,6 +7,7 @@ import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { PublicWebWijzerAccess } from './components/webwijzer/PublicWebWijzerAccess';
 import { PublicTechniqueView } from './components/teaching/PublicTechniqueView';
+import { PublicFAQView } from './components/teaching/PublicFAQView';
 import { LandingPage } from './components/landing/LandingPage';
 import { GraduationCap, ArrowLeft } from 'lucide-react';
 
@@ -36,6 +37,7 @@ function RootRedirect() {
     const params = new URLSearchParams(location.search);
     const hash = params.get('h');
     const techniqueId = params.get('technique');
+    const faqId = params.get('faq');
 
     if (hash) {
       navigate(`/webwijzer?h=${hash}`, { replace: true });
@@ -48,14 +50,23 @@ function RootRedirect() {
         // User is not logged in, show public view
         navigate(`/technique?technique=${techniqueId}`, { replace: true });
       }
+    } else if (faqId) {
+      if (user && !loading) {
+        // User is logged in, navigate to dashboard FAQ section
+        navigate('/dashboard?tab=teaching&subtab=faq', { replace: true });
+      } else if (!loading) {
+        // User is not logged in, show public FAQ view
+        navigate(`/faq?faq=${faqId}`, { replace: true });
+      }
     }
   }, [location.search, navigate, user, loading]);
 
   const params = new URLSearchParams(location.search);
   const hash = params.get('h');
   const techniqueId = params.get('technique');
+  const faqId = params.get('faq');
 
-  if (hash || techniqueId) {
+  if (hash || techniqueId || faqId) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -109,6 +120,7 @@ function App() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/webwijzer" element={<PublicWebWijzerAccess />} />
           <Route path="/technique" element={<PublicTechniqueView />} />
+          <Route path="/faq" element={<PublicFAQView />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/login" element={<Navigate to="/auth" replace />} />
           <Route

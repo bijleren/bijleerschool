@@ -4,7 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
 import { RichTextEditor } from '../ui/RichTextEditor';
-import { Plus, Edit2, Trash2, ChevronDown, ChevronUp, Save, X, HelpCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, ChevronDown, ChevronUp, Save, X, HelpCircle, Search, Share2, Copy, Check } from 'lucide-react';
 
 interface FAQ {
   id: string;
@@ -29,6 +29,8 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [copiedFaqId, setCopiedFaqId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     question: '',
@@ -155,10 +157,23 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
     });
   };
 
+  const handleShareFaq = (faqId: string) => {
+    const shareUrl = `${window.location.origin}?faq=${faqId}`;
+    navigator.clipboard.writeText(shareUrl);
+    setCopiedFaqId(faqId);
+    setToast({ message: 'Link gekopieerd naar klembord', type: 'success' });
+    setTimeout(() => setCopiedFaqId(null), 2000);
+  };
+
   const categories = Array.from(new Set(faqs.map(faq => faq.category)));
-  const filteredFaqs = selectedCategory === 'all'
-    ? faqs
-    : faqs.filter(faq => faq.category === selectedCategory);
+
+  const filteredFaqs = faqs.filter(faq => {
+    const matchesCategory = selectedCategory === 'all' || faq.category === selectedCategory;
+    const matchesSearch = searchQuery === '' ||
+      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   if (loading) {
     return (
@@ -271,6 +286,18 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
         </div>
       )}
 
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Zoek in vragen en antwoorden..."
+            className="pl-10"
+          />
+        </div>
+      </div>
+
       {categories.length > 1 && (
         <div className="mb-6">
           <div className="flex gap-2 flex-wrap">
@@ -337,6 +364,20 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShareFaq(faq.id);
+                    }}
+                    className="p-2 text-green-600 hover:bg-green-50 rounded transition-colors"
+                    title="Deel deze FAQ"
+                  >
+                    {copiedFaqId === faq.id ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <Share2 className="w-4 h-4" />
+                    )}
+                  </button>
                   {isAdmin && (
                     <>
                       <button
