@@ -41,20 +41,17 @@ export function NieuwsbriefTab() {
   }, [user]);
 
   const checkAdminStatus = async () => {
-    if (!user) return;
+    if (!user?.email) return;
 
     try {
       const { data, error } = await supabase
-        .from('user_schools')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('is_active', true)
-        .maybeSingle();
+        .rpc('is_admin', { user_email: user.email });
 
       if (error) throw error;
-      setIsAdmin(data?.role === 'admin');
+      setIsAdmin(data || false);
     } catch (err) {
       console.error('Error checking admin status:', err);
+      setIsAdmin(false);
     }
   };
 
