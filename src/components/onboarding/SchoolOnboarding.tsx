@@ -4,19 +4,16 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
-import {
-  GraduationCap,
-  School,
-  Plus,
-  Users,
+import { 
+  GraduationCap, 
+  School, 
+  Plus, 
+  Users, 
   ArrowRight,
   CheckCircle,
   Building,
   UserPlus,
-  LogOut,
-  Copy,
-  Check,
-  Share2
+  LogOut
 } from 'lucide-react';
 
 interface SchoolOnboardingProps {
@@ -28,9 +25,6 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
   const [activeStep, setActiveStep] = useState<'choose' | 'join' | 'create'>('choose');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [createdSchoolCode, setCreatedSchoolCode] = useState('');
-  const [codeCopied, setCodeCopied] = useState(false);
 
   // Join school form
   const [schoolCode, setSchoolCode] = useState('');
@@ -142,25 +136,18 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
 
       if (userSchoolError) throw userSchoolError;
 
-      setCreatedSchoolCode(generatedSchoolCode);
-      setShowSuccessModal(true);
+      setMessage(`School succesvol aangemaakt! Schoolcode: ${generatedSchoolCode}. Je hebt nu toegang tot alle functies.`);
+      
+      // Refresh the parent component after a short delay
+      setTimeout(() => {
+        onSchoolConnected();
+      }, 2000);
     } catch (error) {
       console.error('Error creating school:', error);
       setMessage('Er is een fout opgetreden bij het aanmaken van de school.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(createdSchoolCode);
-    setCodeCopied(true);
-    setTimeout(() => setCodeCopied(false), 2000);
-  };
-
-  const handleConfirmUnderstand = () => {
-    setShowSuccessModal(false);
-    onSchoolConnected();
   };
 
   if (activeStep === 'join') {
@@ -436,94 +423,6 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
           </div>
         </Card>
       </div>
-
-      {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="max-w-lg w-full">
-            <div className="p-8">
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                  <CheckCircle className="w-8 h-8 text-green-600" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">School aangemaakt!</h2>
-                <p className="text-gray-600">Je school is klaar voor gebruik</p>
-              </div>
-
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <Share2 className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-900">Deel deze code met collega's</h3>
-                </div>
-                <p className="text-sm text-gray-700 mb-4">
-                  Collega's kunnen zich registreren op BijleerSchool en tijdens de registratie deze code invoeren om zich aan te sluiten bij jouw school.
-                </p>
-
-                <div className="bg-white rounded-lg p-4 border border-blue-300">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">Schoolcode:</span>
-                    <button
-                      onClick={handleCopyCode}
-                      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
-                    >
-                      {codeCopied ? (
-                        <>
-                          <Check className="w-4 h-4" />
-                          Gekopieerd!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          Kopieer
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <div className="text-center">
-                    <span className="text-3xl font-mono font-bold text-gray-900 tracking-wider">
-                      {createdSchoolCode}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-amber-600" />
-                  Wat moet je doen?
-                </h4>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 font-bold mt-0.5">✓</span>
-                    <span>Deel deze code met je collega's via e-mail, WhatsApp of een ander kanaal</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 font-bold mt-0.5">✓</span>
-                    <span>Bewaar de code op een veilige plek voor toekomstig gebruik</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                <h4 className="font-semibold text-gray-900 mb-2">Voor je collega's:</h4>
-                <ol className="space-y-2 text-sm text-gray-700 list-decimal list-inside">
-                  <li>Ga naar BijleerSchool en klik op "Registreren"</li>
-                  <li>Vul hun persoonlijke gegevens in</li>
-                  <li>Voer de schoolcode <span className="font-mono font-bold">{createdSchoolCode}</span> in</li>
-                  <li>Klaar! Ze zijn nu verbonden met jouw school</li>
-                </ol>
-              </div>
-
-              <Button
-                onClick={handleConfirmUnderstand}
-                className="w-full"
-                size="lg"
-              >
-                Ik begrijp het, ga naar dashboard
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }
