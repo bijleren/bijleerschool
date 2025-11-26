@@ -660,44 +660,44 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       </div>
 
       {/* Quick Access Buttons - Row 1: Didactiek */}
-      <div className="mb-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="mb-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <button
             onClick={onNavigateToTeaching}
-            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
           >
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
-              <BookOpen className="w-6 h-6 text-blue-600" />
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
+              <BookOpen className="w-5 h-5 text-blue-600" />
             </div>
             <span className="text-sm font-medium text-gray-900">Technieken</span>
           </button>
 
           <button
             onClick={onNavigateToTeachingFAQ}
-            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
           >
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
-              <HelpCircle className="w-6 h-6 text-blue-600" />
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
+              <HelpCircle className="w-5 h-5 text-blue-600" />
             </div>
             <span className="text-sm font-medium text-gray-900">FAQ</span>
           </button>
 
           <button
             onClick={onNavigateToTeachingVormingen}
-            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
           >
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
-              <Video className="w-6 h-6 text-blue-600" />
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
+              <Video className="w-5 h-5 text-blue-600" />
             </div>
             <span className="text-sm font-medium text-gray-900">Vormingen</span>
           </button>
 
           <button
             onClick={onNavigateToNieuwsbrief}
-            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
           >
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
-              <Newspaper className="w-6 h-6 text-blue-600" />
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
+              <Newspaper className="w-5 h-5 text-blue-600" />
             </div>
             <span className="text-sm font-medium text-gray-900">Nieuwsbrief</span>
           </button>
@@ -706,43 +706,43 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
 
       {/* Quick Access Buttons - Row 2: Apps */}
       <div className="mb-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <button
             onClick={onNavigateToEDI}
-            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
           >
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-green-200 transition-colors">
-              <School className="w-6 h-6 text-green-600" />
+            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 transition-colors">
+              <School className="w-5 h-5 text-green-600" />
             </div>
             <span className="text-sm font-medium text-gray-900">EDI</span>
           </button>
 
           <button
             onClick={onNavigateToWebWijzer}
-            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
           >
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-green-200 transition-colors">
-              <Link className="w-6 h-6 text-green-600" />
+            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 transition-colors">
+              <Link className="w-5 h-5 text-green-600" />
             </div>
             <span className="text-sm font-medium text-gray-900">WebWijzer</span>
           </button>
 
           <button
             onClick={onNavigateToActivityBoards}
-            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
           >
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-green-200 transition-colors">
-              <Grid className="w-6 h-6 text-green-600" />
+            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 transition-colors">
+              <Grid className="w-5 h-5 text-green-600" />
             </div>
             <span className="text-sm font-medium text-gray-900">Activi-tijd</span>
           </button>
 
           <button
             onClick={onNavigateToBoeker}
-            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
           >
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-green-200 transition-colors">
-              <BookMarked className="w-6 h-6 text-green-600" />
+            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 transition-colors">
+              <BookMarked className="w-5 h-5 text-green-600" />
             </div>
             <span className="text-sm font-medium text-gray-900">Boeker</span>
           </button>
