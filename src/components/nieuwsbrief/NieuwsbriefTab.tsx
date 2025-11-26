@@ -261,24 +261,26 @@ export function NieuwsbriefTab() {
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       {newsletter.title}
                     </h3>
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
-                      <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
-                      {formatDate(newsletter.created_at)}
-                    </div>
                     {newsletter.description && (
-                      <p className="text-gray-600 text-sm">
+                      <p className="text-gray-600 text-sm mb-2">
                         {newsletter.description}
                       </p>
                     )}
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <Button
-                      variant="outline"
-                      onClick={() => handleDownload(newsletter)}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download PDF
-                    </Button>
+                    <div className="text-center">
+                      <Button
+                        onClick={() => handleDownload(newsletter)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download PDF
+                      </Button>
+                      <div className="flex items-center justify-center text-xs text-gray-500 mt-2">
+                        <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
+                        {formatDate(newsletter.created_at)}
+                      </div>
+                    </div>
                     {isAdmin && (
                       <button
                         onClick={() => handleDeleteNewsletter(newsletter)}
