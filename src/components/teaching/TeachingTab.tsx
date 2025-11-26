@@ -122,7 +122,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
     fetchUserSchools();
     fetchData();
     checkAdminStatus();
-    
+
     // Check if there's a preselected technique data from navigation
     const selectedTechniqueData = sessionStorage.getItem('selectedTechniqueData');
     if (selectedTechniqueData) {
@@ -139,6 +139,10 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
       }
     }
   }, []);
+
+  useEffect(() => {
+    setActivePage(initialPage);
+  }, [initialPage]);
 
   const checkAdminStatus = async () => {
     if (!user?.email) return;

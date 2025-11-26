@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { Newspaper, Download, Plus, Trash2, Calendar, FileText, Upload, X } from 'lucide-react';
+import { Newspaper, Download, Plus, Trash2, Calendar, FileText, Upload, X, Search } from 'lucide-react';
 
 interface Newsletter {
   id: string;
@@ -26,6 +26,8 @@ interface UserSchool {
 export function NieuwsbriefTab() {
   const { user } = useAuth();
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
+  const [filteredNewsletters, setFilteredNewsletters] = useState<Newsletter[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -65,12 +67,26 @@ export function NieuwsbriefTab() {
 
       if (error) throw error;
       setNewsletters(data || []);
+      setFilteredNewsletters(data || []);
     } catch (err) {
       console.error('Error fetching newsletters:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredNewsletters(newsletters);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const filtered = newsletters.filter(newsletter =>
+        newsletter.title.toLowerCase().includes(query) ||
+        (newsletter.description && newsletter.description.toLowerCase().includes(query))
+      );
+      setFilteredNewsletters(filtered);
+    }
+  }, [searchQuery, newsletters]);
 
   const handleDownload = async (newsletter: Newsletter) => {
     try {
@@ -204,6 +220,21 @@ export function NieuwsbriefTab() {
         </div>
       )}
 
+      {newsletters.length > 0 && (
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Zoek nieuwsbrieven..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+      )}
+
       {newsletters.length === 0 ? (
         <Card className="text-center py-12">
           <Newspaper className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -212,44 +243,53 @@ export function NieuwsbriefTab() {
             {isAdmin ? 'Voeg de eerste nieuwsbrief toe om te beginnen.' : 'Er zijn momenteel geen nieuwsbrieven beschikbaar.'}
           </p>
         </Card>
+      ) : filteredNewsletters.length === 0 ? (
+        <Card className="text-center py-12">
+          <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Geen resultaten gevonden</h3>
+          <p className="text-gray-600">
+            Probeer een andere zoekterm
+          </p>
+        </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {newsletters.map((newsletter) => (
-            <Card key={newsletter.id} className="hover:shadow-lg transition-shadow">
+        <div className="space-y-4">
+          {filteredNewsletters.map((newsletter) => (
+            <Card key={newsletter.id} className="hover:shadow-md transition-shadow">
               <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       {newsletter.title}
                     </h3>
-                    <div className="flex items-center text-sm text-gray-500 mb-3">
-                      <Calendar className="w-4 h-4 mr-1" />
+                    <div className="flex items-center text-sm text-gray-500 mb-2">
+                      <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
                       {formatDate(newsletter.created_at)}
                     </div>
+                    {newsletter.description && (
+                      <p className="text-gray-600 text-sm">
+                        {newsletter.description}
+                      </p>
+                    )}
                   </div>
-                  {isAdmin && (
-                    <button
-                      onClick={() => handleDeleteNewsletter(newsletter)}
-                      className="text-red-600 hover:text-red-700 transition-colors"
-                      title="Verwijderen"
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleDownload(newsletter)}
                     >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  )}
+                      <Download className="w-4 h-4 mr-2" />
+                      Download PDF
+                    </Button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDeleteNewsletter(newsletter)}
+                        className="text-red-600 hover:text-red-700 transition-colors p-2"
+                        title="Verwijderen"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                  {newsletter.description}
-                </p>
-
-                <Button
-                  variant="outline"
-                  onClick={() => handleDownload(newsletter)}
-                  className="w-full"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download PDF
-                </Button>
               </div>
             </Card>
           ))}
