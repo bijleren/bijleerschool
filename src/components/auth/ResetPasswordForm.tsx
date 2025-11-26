@@ -22,8 +22,11 @@ export function ResetPasswordForm() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const type = searchParams.get('type');
-    const accessToken = searchParams.get('access_token');
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get('type') || searchParams.get('type');
+    const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
+
+    console.log('Reset password page loaded', { type, hasToken: !!accessToken, hash: window.location.hash });
 
     if (type !== 'recovery' || !accessToken) {
       setError('Ongeldige of verlopen wachtwoord herstel link. Vraag een nieuwe aan.');
