@@ -15,7 +15,14 @@ import {
   AlertTriangle,
   Clock,
   CheckCircle,
-  Filter
+  Filter,
+  BookOpen,
+  HelpCircle,
+  Video,
+  Newspaper,
+  Link,
+  Grid,
+  BookMarked
 } from 'lucide-react';
 
 interface FavoriteStudent {
@@ -96,12 +103,20 @@ interface DashboardTabProps {
   onNavigateToSchools: () => void;
   onNavigateToBehaviorWithStudent: (schoolId: string, studentId: string) => void;
   onNavigateToBehavior: (filter?: 'all' | 'today' | 'open' | 'followup') => void;
+  onNavigateToTeaching?: () => void;
+  onNavigateToTeachingFAQ?: () => void;
+  onNavigateToTeachingVormingen?: () => void;
+  onNavigateToNieuwsbrief?: () => void;
+  onNavigateToEDI?: () => void;
+  onNavigateToWebWijzer?: () => void;
+  onNavigateToActivityBoards?: () => void;
+  onNavigateToBoeker?: () => void;
   userSchools: { id: string; name: string }[];
   focusSchool: { id: string; name: string } | null;
   onFocusSchoolChange: (school: { id: string; name: string }) => void;
 }
 
-export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigateToSchools, onNavigateToBehaviorWithStudent, onNavigateToBehavior, userSchools, focusSchool, onFocusSchoolChange }: DashboardTabProps) {
+export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigateToSchools, onNavigateToBehaviorWithStudent, onNavigateToBehavior, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToEDI, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, userSchools, focusSchool, onFocusSchoolChange }: DashboardTabProps) {
   const { user } = useAuth();
   const [favoriteStudents, setFavoriteStudents] = useState<FavoriteStudent[]>([]);
   const [favoriteGroups, setFavoriteGroups] = useState<FavoriteGroup[]>([]);
@@ -641,6 +656,96 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
               ))}
             </select>
           )}
+        </div>
+      </div>
+
+      {/* Quick Access Buttons - Row 1: Didactiek */}
+      <div className="mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button
+            onClick={onNavigateToTeaching}
+            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+          >
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
+              <BookOpen className="w-6 h-6 text-blue-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-900">Technieken</span>
+          </button>
+
+          <button
+            onClick={onNavigateToTeachingFAQ}
+            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+          >
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
+              <HelpCircle className="w-6 h-6 text-blue-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-900">FAQ</span>
+          </button>
+
+          <button
+            onClick={onNavigateToTeachingVormingen}
+            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+          >
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
+              <Video className="w-6 h-6 text-blue-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-900">Vormingen</span>
+          </button>
+
+          <button
+            onClick={onNavigateToNieuwsbrief}
+            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+          >
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-200 transition-colors">
+              <Newspaper className="w-6 h-6 text-blue-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-900">Nieuwsbrief</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Quick Access Buttons - Row 2: Apps */}
+      <div className="mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button
+            onClick={onNavigateToEDI}
+            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
+          >
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-green-200 transition-colors">
+              <School className="w-6 h-6 text-green-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-900">EDI</span>
+          </button>
+
+          <button
+            onClick={onNavigateToWebWijzer}
+            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
+          >
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-green-200 transition-colors">
+              <Link className="w-6 h-6 text-green-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-900">WebWijzer</span>
+          </button>
+
+          <button
+            onClick={onNavigateToActivityBoards}
+            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
+          >
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-green-200 transition-colors">
+              <Grid className="w-6 h-6 text-green-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-900">Activi-tijd</span>
+          </button>
+
+          <button
+            onClick={onNavigateToBoeker}
+            className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
+          >
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-green-200 transition-colors">
+              <BookMarked className="w-6 h-6 text-green-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-900">Boeker</span>
+          </button>
         </div>
       </div>
 

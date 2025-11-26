@@ -470,12 +470,20 @@ export function Dashboard() {
       )}
       <main className={isFullscreen ? '' : 'p-8'}>
         {activeTab === 'dashboard' && (
-          <DashboardTab 
+          <DashboardTab
             onNavigateToStudent={handleNavigateToStudent}
             onNavigateToGroup={handleNavigateToGroup}
             onNavigateToSchools={handleNavigateToSchools}
             onNavigateToBehaviorWithStudent={handleNavigateToBehaviorWithStudent}
             onNavigateToBehavior={handleNavigateToBehavior}
+            onNavigateToTeaching={handleNavigateToTeaching}
+            onNavigateToTeachingFAQ={handleNavigateToTeachingFAQ}
+            onNavigateToTeachingVormingen={handleNavigateToTeachingVormingen}
+            onNavigateToNieuwsbrief={handleNavigateToNewsletter}
+            onNavigateToEDI={handleNavigateToEDI}
+            onNavigateToWebWijzer={handleNavigateToWebWijzer}
+            onNavigateToActivityBoards={handleNavigateToActivityBoards}
+            onNavigateToBoeker={handleNavigateToBoeker}
             userSchools={userSchools}
             focusSchool={focusSchool}
             onFocusSchoolChange={setFocusSchool}
