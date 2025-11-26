@@ -54,14 +54,24 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
           placeholder="jouw@email.be"
         />
 
-        <Input
-          label="Wachtwoord"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          placeholder="••••••••"
-        />
+        <div>
+          <Input
+            label="Wachtwoord"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            placeholder="••••••••"
+          />
+          <div className="mt-2 text-right">
+            <a
+              href="/forgot-password"
+              className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            >
+              Wachtwoord vergeten?
+            </a>
+          </div>
+        </div>
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3">
