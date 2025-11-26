@@ -13,6 +13,7 @@ import { WebWijzerTab } from '../webwijzer/WebWijzerTab';
 import { ActivityBoardsTab } from '../activityboard/ActivityBoardsTab';
 import { BoekerTab } from '../boeker/BoekerTab';
 import { EDITab } from '../edi/EDITab';
+import { NieuwsbriefTab } from '../nieuwsbrief/NieuwsbriefTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
@@ -51,7 +52,7 @@ interface Group {
 
 export function Dashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'edi'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'edi' | 'nieuwsbrief'>('dashboard');
   const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -277,6 +278,13 @@ export function Dashboard() {
     setActiveTab('edi');
   };
 
+  const handleNavigateToNieuwsbrief = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('nieuwsbrief');
+  };
+
   const handleNavigateToBehaviorWithSchool = (school: { id: string; name: string }) => {
     // Use focus school instead of passed school
     setSelectedSchool(focusSchool);
@@ -443,6 +451,7 @@ export function Dashboard() {
         onNavigateToTeaching={handleNavigateToTeaching}
         onNavigateToTeachingFAQ={handleNavigateToTeachingFAQ}
         onNavigateToTeachingVormingen={handleNavigateToTeachingVormingen}
+        onNavigateToNieuwsbrief={handleNavigateToNieuwsbrief}
         onNavigateToSchoolDay={handleNavigateToSchoolDay}
         onNavigateToWebWijzer={handleNavigateToWebWijzer}
         onNavigateToActivityBoards={handleNavigateToActivityBoards}
@@ -477,6 +486,7 @@ export function Dashboard() {
           />
         )}
         {activeTab === 'teaching' && <TeachingTab initialPage={teachingPageOverride} />}
+        {activeTab === 'nieuwsbrief' && <NieuwsbriefTab />}
         {activeTab === 'schoolday' && <SchoolDayTab />}
         {activeTab === 'webwijzer' && <WebWijzerTab />}
         {activeTab === 'boeker' && <BoekerTab />}

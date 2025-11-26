@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid, HelpCircle, Video } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid, HelpCircle, Video, Newspaper } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateToDashboard: () => void;
@@ -34,6 +34,7 @@ interface HeaderProps {
   onNavigateToTeaching: () => void;
   onNavigateToTeachingFAQ: () => void;
   onNavigateToTeachingVormingen: () => void;
+  onNavigateToNieuwsbrief: () => void;
   onNavigateToSchoolDay: () => void;
   onNavigateToWebWijzer: () => void;
   onNavigateToActivityBoards: () => void;
@@ -42,7 +43,7 @@ interface HeaderProps {
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToEDI, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToEDI, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -360,6 +361,16 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     >
                       <Video className="w-4 h-4 mr-3" />
                       Vormingen
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToNieuwsbrief();
+                        setShowDidactiekDropdown(false);
+                      }}
+                      className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <Newspaper className="w-4 h-4 mr-3" />
+                      Nieuwsbrief
                     </button>
                   </div>
                 )}
