@@ -485,7 +485,7 @@ export function Dashboard() {
             onFilterChange={setBehaviorFilter}
           />
         )}
-        {activeTab === 'teaching' && <TeachingTab initialPage={teachingPageOverride} />}
+        {activeTab === 'teaching' && <TeachingTab key={teachingPageOverride} initialPage={teachingPageOverride} />}
         {activeTab === 'schoolday' && <SchoolDayTab />}
         {activeTab === 'webwijzer' && <WebWijzerTab />}
         {activeTab === 'boeker' && <BoekerTab />}

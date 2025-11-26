@@ -142,6 +142,8 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
 
   useEffect(() => {
     setActivePage(initialPage);
+    // Reset to list view when changing pages
+    setActiveView('list');
   }, [initialPage]);
 
   const checkAdminStatus = async () => {
