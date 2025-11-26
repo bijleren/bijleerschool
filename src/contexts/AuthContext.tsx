@@ -90,9 +90,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Ensure profile exists after setting user state
+        // Ensure profile exists after setting user state - use async block to avoid deadlock
         if (session?.user) {
-          ensureProfileExists(session.user);
+          (async () => {
+            await ensureProfileExists(session.user);
+          })();
         }
       }
     );

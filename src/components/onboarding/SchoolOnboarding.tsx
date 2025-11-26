@@ -445,8 +445,8 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">School succesvol aangemaakt!</h2>
-                <p className="text-gray-600">Je school is nu klaar voor gebruik</p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">School aangemaakt!</h2>
+                <p className="text-gray-600">Je school is klaar voor gebruik</p>
               </div>
 
               <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6">
