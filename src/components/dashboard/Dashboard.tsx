@@ -13,7 +13,6 @@ import { WebWijzerTab } from '../webwijzer/WebWijzerTab';
 import { ActivityBoardsTab } from '../activityboard/ActivityBoardsTab';
 import { BoekerTab } from '../boeker/BoekerTab';
 import { EDITab } from '../edi/EDITab';
-import { NieuwsbriefTab } from '../nieuwsbrief/NieuwsbriefTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
@@ -52,8 +51,8 @@ interface Group {
 
 export function Dashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'edi' | 'nieuwsbrief'>('dashboard');
-  const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen'>('technieken');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'edi' | 'newsletter'>('dashboard');
+  const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
@@ -278,11 +277,12 @@ export function Dashboard() {
     setActiveTab('edi');
   };
 
-  const handleNavigateToNieuwsbrief = () => {
+  const handleNavigateToNewsletter = () => {
     setSelectedSchool(null);
     setSelectedStudent(null);
     setSelectedGroup(null);
-    setActiveTab('nieuwsbrief');
+    setActiveTab('teaching');
+    setTeachingPageOverride('newsletter');
   };
 
   const handleNavigateToBehaviorWithSchool = (school: { id: string; name: string }) => {
@@ -486,7 +486,6 @@ export function Dashboard() {
           />
         )}
         {activeTab === 'teaching' && <TeachingTab initialPage={teachingPageOverride} />}
-        {activeTab === 'nieuwsbrief' && <NieuwsbriefTab />}
         {activeTab === 'schoolday' && <SchoolDayTab />}
         {activeTab === 'webwijzer' && <WebWijzerTab />}
         {activeTab === 'boeker' && <BoekerTab />}

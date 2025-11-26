@@ -11,11 +11,12 @@ import { TeachingAnalytics } from './TeachingAnalytics';
 import { TeachingUsageLog } from './TeachingUsageLog';
 import { DidactiekFAQ } from './DidactiekFAQ';
 import { DidactiekVormingen } from './DidactiekVormingen';
-import { 
-  BookOpen, 
-  Plus, 
-  Search, 
-  Filter, 
+import { NieuwsbriefTab } from '../nieuwsbrief/NieuwsbriefTab';
+import {
+  BookOpen,
+  Plus,
+  Search,
+  Filter,
   Settings,
   Play,
   ExternalLink,
@@ -26,7 +27,8 @@ import {
   Clock,
   Edit,
   HelpCircle,
-  Video
+  Video,
+  FileText
 } from 'lucide-react';
 
 interface AgeGroup {
@@ -93,14 +95,14 @@ interface UserSchool {
 }
 
 interface TeachingTabProps {
-  initialPage?: 'technieken' | 'faq' | 'vormingen';
+  initialPage?: 'technieken' | 'faq' | 'vormingen' | 'newsletter';
 }
 
 export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {}) {
   const { user } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activePage, setActivePage] = useState<'technieken' | 'faq' | 'vormingen'>(initialPage);
+  const [activePage, setActivePage] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>(initialPage);
   const [activeView, setActiveView] = useState<'list' | 'form' | 'detail' | 'management' | 'analytics'>('list');
   const [techniques, setTechniques] = useState<TeachingTechnique[]>([]);
   const [ageGroups, setAgeGroups] = useState<AgeGroup[]>([]);
@@ -340,29 +342,59 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
     );
   }
 
+  const renderTabNav = () => (
+    <div className="flex gap-4 border-b border-gray-200 pb-4 mb-6">
+      <button
+        onClick={() => setActivePage('technieken')}
+        className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
+          activePage === 'technieken'
+            ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+            : 'text-gray-700 hover:text-blue-600'
+        }`}
+      >
+        <BookOpen className="w-4 h-4" />
+        <span>Technieken</span>
+      </button>
+      <button
+        onClick={() => setActivePage('faq')}
+        className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
+          activePage === 'faq'
+            ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+            : 'text-gray-700 hover:text-blue-600'
+        }`}
+      >
+        <HelpCircle className="w-4 h-4" />
+        <span>FAQ</span>
+      </button>
+      <button
+        onClick={() => setActivePage('vormingen')}
+        className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
+          activePage === 'vormingen'
+            ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+            : 'text-gray-700 hover:text-blue-600'
+        }`}
+      >
+        <Video className="w-4 h-4" />
+        <span>Vormingen</span>
+      </button>
+      <button
+        onClick={() => setActivePage('newsletter')}
+        className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
+          activePage === 'newsletter'
+            ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+            : 'text-gray-700 hover:text-blue-600'
+        }`}
+      >
+        <FileText className="w-4 h-4" />
+        <span>Nieuwsbrief</span>
+      </button>
+    </div>
+  );
+
   if (activePage === 'faq') {
     return (
       <div className="space-y-6">
-        <div className="flex gap-4 border-b border-gray-200 pb-4">
-          <button
-            onClick={() => setActivePage('technieken')}
-            className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
-          >
-            Technieken
-          </button>
-          <button
-            onClick={() => setActivePage('faq')}
-            className="px-4 py-2 text-blue-600 border-b-2 border-blue-600 font-medium"
-          >
-            FAQ
-          </button>
-          <button
-            onClick={() => setActivePage('vormingen')}
-            className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
-          >
-            Vormingen
-          </button>
-        </div>
+        {renderTabNav()}
         <DidactiekFAQ isAdmin={isAdmin} />
       </div>
     );
@@ -371,27 +403,17 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
   if (activePage === 'vormingen') {
     return (
       <div className="space-y-6">
-        <div className="flex gap-4 border-b border-gray-200 pb-4">
-          <button
-            onClick={() => setActivePage('technieken')}
-            className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
-          >
-            Technieken
-          </button>
-          <button
-            onClick={() => setActivePage('faq')}
-            className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors"
-          >
-            FAQ
-          </button>
-          <button
-            onClick={() => setActivePage('vormingen')}
-            className="px-4 py-2 text-blue-600 border-b-2 border-blue-600 font-medium"
-          >
-            Vormingen
-          </button>
-        </div>
+        {renderTabNav()}
         <DidactiekVormingen isAdmin={isAdmin} />
+      </div>
+    );
+  }
+
+  if (activePage === 'newsletter') {
+    return (
+      <div className="space-y-6">
+        {renderTabNav()}
+        <NieuwsbriefTab />
       </div>
     );
   }
@@ -407,38 +429,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
   return (
     <div className="max-w-6xl mx-auto">
       {/* Page Navigation Tabs */}
-      <div className="flex gap-4 border-b border-gray-200 mb-6">
-        <button
-          onClick={() => setActivePage('technieken')}
-          className={`px-4 py-2 transition-colors ${
-            activePage === 'technieken'
-              ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
-              : 'text-gray-700 hover:text-blue-600'
-          }`}
-        >
-          Technieken
-        </button>
-        <button
-          onClick={() => setActivePage('faq')}
-          className={`px-4 py-2 transition-colors ${
-            activePage === 'faq'
-              ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
-              : 'text-gray-700 hover:text-blue-600'
-          }`}
-        >
-          FAQ
-        </button>
-        <button
-          onClick={() => setActivePage('vormingen')}
-          className={`px-4 py-2 transition-colors ${
-            activePage === 'vormingen'
-              ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
-              : 'text-gray-700 hover:text-blue-600'
-          }`}
-        >
-          Vormingen
-        </button>
-      </div>
+      {renderTabNav()}
 
       {/* Header */}
       <div className="flex justify-between items-center mb-8">

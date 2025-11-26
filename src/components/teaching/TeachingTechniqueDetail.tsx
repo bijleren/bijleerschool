@@ -22,7 +22,9 @@ import {
   Plus,
   Star,
   Send,
-  Trash2
+  Trash2,
+  Share2,
+  Check
 } from 'lucide-react';
 
 interface AgeGroup {
@@ -120,6 +122,7 @@ interface Comment {
 export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, userSchools = [] }: TeachingTechniqueDetailProps) {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
   const [usageStats, setUsageStats] = useState<UsageStats>({
     totalUsage: 0,
     uniqueTeachers: 0,
@@ -137,6 +140,17 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
     description: ''
   });
   const [selectedSchoolId, setSelectedSchoolId] = useState(userSchools[0]?.id || '');
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}?technique=${technique.id}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
+  };
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -430,6 +444,19 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
               ))}
             </select>
           )}
+          <Button variant="secondary" onClick={handleShare}>
+            {copySuccess ? (
+              <>
+                <Check className="w-4 h-4 mr-2" />
+                Gekopieerd!
+              </>
+            ) : (
+              <>
+                <Share2 className="w-4 h-4 mr-2" />
+                Delen
+              </>
+            )}
+          </Button>
           <Button variant="secondary" onClick={() => logUsage()}>
             <Plus className="w-4 h-4 mr-2" />
             Gebruik registreren
