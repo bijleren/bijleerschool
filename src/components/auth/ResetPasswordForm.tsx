@@ -16,8 +16,9 @@ export function ResetPasswordForm() {
   const [success, setSuccess] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, text: '', color: '' });
+  const [verifying, setVerifying] = useState(true);
 
-  const { updatePassword } = useAuth();
+  const { updatePassword, session } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -25,13 +26,39 @@ export function ResetPasswordForm() {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const type = hashParams.get('type') || searchParams.get('type');
     const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
+    const code = searchParams.get('code');
 
-    console.log('Reset password page loaded', { type, hasToken: !!accessToken, hash: window.location.hash });
+    console.log('Reset password page loaded', {
+      type,
+      hasToken: !!accessToken,
+      hasCode: !!code,
+      hasSession: !!session,
+      hash: window.location.hash,
+      search: window.location.search
+    });
 
-    if (type !== 'recovery' || !accessToken) {
+    if (code || accessToken || session) {
+      const timeout = setTimeout(() => {
+        if (session) {
+          console.log('Session verified, ready for password reset');
+          setVerifying(false);
+        } else {
+          console.log('Waiting for session...');
+        }
+      }, 1000);
+      return () => clearTimeout(timeout);
+    } else {
+      setVerifying(false);
       setError('Ongeldige of verlopen wachtwoord herstel link. Vraag een nieuwe aan.');
     }
-  }, [searchParams]);
+  }, [searchParams, session]);
+
+  useEffect(() => {
+    if (session && verifying) {
+      console.log('Session established, stopping verification');
+      setVerifying(false);
+    }
+  }, [session, verifying]);
 
   useEffect(() => {
     if (success && countdown > 0) {
@@ -110,6 +137,23 @@ export function ResetPasswordForm() {
           <Button onClick={() => navigate('/auth')} className="w-full">
             Nu inloggen
           </Button>
+        </div>
+      </Card>
+    );
+  }
+
+  if (verifying) {
+    return (
+      <Card className="w-full max-w-md">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+            <Lock className="w-8 h-8 text-blue-600 animate-pulse" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Link wordt geverifieerd...</h1>
+          <p className="text-gray-600 mb-6">
+            Een moment geduld terwijl we je wachtwoord herstel link controleren.
+          </p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
         </div>
       </Card>
     );

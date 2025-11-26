@@ -105,13 +105,6 @@ export function ForgotPasswordForm() {
           </div>
         )}
 
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-          <p className="text-xs text-amber-800">
-            <strong>Let op:</strong> De e-mail service moet correct geconfigureerd zijn in Supabase.
-            Als je een timeout error krijgt, vraag de beheerder om SMTP in te stellen via Dashboard → Settings → Authentication → SMTP Settings.
-          </p>
-        </div>
-
         <Button
           type="submit"
           loading={loading}
