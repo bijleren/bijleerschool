@@ -23,7 +23,17 @@ export function ForgotPasswordForm() {
     const { error } = await resetPassword(email);
 
     if (error) {
-      setError(error.message);
+      console.error('Password reset error:', error);
+
+      if (error.message?.includes('No API key found')) {
+        setError('Er is een configuratieprobleem met de authenticatie service. Neem contact op met de beheerder.');
+      } else if (error.message?.includes('timeout') || error.status === 504) {
+        setError('De aanvraag duurde te lang. Controleer je internetverbinding en probeer het opnieuw.');
+      } else if (error.message?.includes('User not found')) {
+        setError('Er bestaat geen account met dit e-mailadres.');
+      } else {
+        setError(error.message || 'Er is een fout opgetreden. Probeer het later opnieuw.');
+      }
       setLoading(false);
     } else {
       setSuccess(true);
@@ -81,6 +91,11 @@ export function ForgotPasswordForm() {
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3">
             <p className="text-sm text-red-600">{error}</p>
+            {error.includes('configuratieprobleem') && (
+              <p className="text-xs text-red-500 mt-2">
+                Zorg dat de redirect URL is toegevoegd in Supabase Dashboard → Authentication → URL Configuration
+              </p>
+            )}
           </div>
         )}
 
