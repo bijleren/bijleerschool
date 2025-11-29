@@ -15,6 +15,8 @@ interface DigiTool {
   is_beta: boolean;
   is_new: boolean;
   is_active: boolean;
+  visible_to_users: boolean;
+  requires_premium: boolean;
   created_at: string;
 }
 
@@ -37,6 +39,8 @@ export function DigiToolsTab() {
     is_beta: false,
     is_new: false,
     is_active: true,
+    visible_to_users: true,
+    requires_premium: false,
   });
 
   useEffect(() => {
@@ -129,6 +133,8 @@ export function DigiToolsTab() {
       is_beta: tool.is_beta,
       is_new: tool.is_new,
       is_active: tool.is_active,
+      visible_to_users: tool.visible_to_users,
+      requires_premium: tool.requires_premium,
     });
     setShowModal(true);
   };
@@ -159,6 +165,8 @@ export function DigiToolsTab() {
       is_beta: false,
       is_new: false,
       is_active: true,
+      visible_to_users: true,
+      requires_premium: false,
     });
   };
 
@@ -283,7 +291,7 @@ export function DigiToolsTab() {
                     <p className="text-sm text-gray-600 line-clamp-2">{tool.description}</p>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {tool.is_new && (
                         <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded">
                           NEW
@@ -297,6 +305,16 @@ export function DigiToolsTab() {
                       {!tool.is_active && (
                         <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded">
                           INACTIVE
+                        </span>
+                      )}
+                      {!tool.visible_to_users && (
+                        <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded">
+                          HIDDEN
+                        </span>
+                      )}
+                      {tool.requires_premium && (
+                        <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded">
+                          PREMIUM
                         </span>
                       )}
                     </div>
@@ -412,36 +430,60 @@ export function DigiToolsTab() {
                   />
                 </div>
 
-                <div className="flex gap-6">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_new}
-                      onChange={(e) => setFormData({ ...formData, is_new: e.target.checked })}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Mark as New</span>
-                  </label>
+                <div className="space-y-3">
+                  <div className="flex gap-6">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.is_new}
+                        onChange={(e) => setFormData({ ...formData, is_new: e.target.checked })}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Mark as New</span>
+                    </label>
 
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_beta}
-                      onChange={(e) => setFormData({ ...formData, is_beta: e.target.checked })}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Mark as Beta</span>
-                  </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.is_beta}
+                        onChange={(e) => setFormData({ ...formData, is_beta: e.target.checked })}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Mark as Beta</span>
+                    </label>
 
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_active}
-                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Active</span>
-                  </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.is_active}
+                        onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Active</span>
+                    </label>
+                  </div>
+
+                  <div className="flex gap-6">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.visible_to_users}
+                        onChange={(e) => setFormData({ ...formData, visible_to_users: e.target.checked })}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Visible to End Users</span>
+                    </label>
+
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.requires_premium}
+                        onChange={(e) => setFormData({ ...formData, requires_premium: e.target.checked })}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Requires Premium School</span>
+                    </label>
+                  </div>
                 </div>
 
                 <div className="flex gap-3 pt-4">
