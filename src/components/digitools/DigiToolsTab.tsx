@@ -70,11 +70,12 @@ export function DigiToolsTab() {
 
     const { data } = await supabase
       .from('user_schools')
-      .select('role')
+      .select('role, is_active')
       .eq('user_id', user.id)
-      .single();
+      .eq('is_active', true);
 
-    setIsAdmin(data?.role === 'admin');
+    const hasAdminRole = data?.some(school => school.role === 'admin');
+    setIsAdmin(hasAdminRole || false);
   };
 
   const fetchTools = async () => {
@@ -184,12 +185,27 @@ export function DigiToolsTab() {
           <p className="text-gray-600 mt-1">Ontdek digitale tools en bronnen</p>
         </div>
         {isAdmin && (
-          <Button onClick={openModal}>
+          <Button onClick={openModal} className="bg-blue-600 hover:bg-blue-700 text-white">
             <Plus className="w-4 h-4 mr-2" />
             Tool Toevoegen
           </Button>
         )}
       </div>
+
+      {isAdmin && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-blue-900">Admin Functies</h3>
+              <p className="text-sm text-blue-700">Beheer digitale tools voor alle gebruikers</p>
+            </div>
+            <Button onClick={openModal} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Plus className="w-5 h-5 mr-2" />
+              Nieuwe Tool Toevoegen
+            </Button>
+          </div>
+        </div>
+      )}
 
       {spotlightTool && (
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
