@@ -26,7 +26,7 @@ export function DigiToolsTab() {
   const [filteredTools, setFilteredTools] = useState<DigiTool[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
   const [editingTool, setEditingTool] = useState<DigiTool | null>(null);
   const [spotlightTool, setSpotlightTool] = useState<DigiTool | null>(null);
@@ -66,16 +66,32 @@ export function DigiToolsTab() {
   }, [tools]);
 
   const checkAdminStatus = async () => {
-    if (!user) return;
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
 
-    const { data } = await supabase
-      .from('user_schools')
-      .select('role, is_active')
-      .eq('user_id', user.id)
-      .eq('is_active', true);
+    try {
+      const { data, error } = await supabase
+        .from('user_schools')
+        .select('role, is_active')
+        .eq('user_id', user.id)
+        .eq('is_active', true);
 
-    const hasAdminRole = data?.some(school => school.role === 'admin');
-    setIsAdmin(hasAdminRole || false);
+      if (error) {
+        console.error('Error checking admin status:', error);
+        setIsAdmin(false);
+        return;
+      }
+
+      console.log('DigiTools - User schools data:', data);
+      const hasAdminRole = data && data.length > 0 && data.some(school => school.role === 'admin');
+      console.log('DigiTools - Has admin role:', hasAdminRole);
+      setIsAdmin(hasAdminRole === true);
+    } catch (error) {
+      console.error('Error in checkAdminStatus:', error);
+      setIsAdmin(false);
+    }
   };
 
   const fetchTools = async () => {
