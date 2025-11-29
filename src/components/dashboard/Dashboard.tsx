@@ -13,6 +13,7 @@ import { WebWijzerTab } from '../webwijzer/WebWijzerTab';
 import { ActivityBoardsTab } from '../activityboard/ActivityBoardsTab';
 import { BoekerTab } from '../boeker/BoekerTab';
 import { EDITab } from '../edi/EDITab';
+import { DigiToolsTab } from '../digitools/DigiToolsTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
@@ -51,7 +52,7 @@ interface Group {
 
 export function Dashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'edi' | 'newsletter'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'edi' | 'digitools' | 'newsletter'>('dashboard');
   const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -285,6 +286,13 @@ export function Dashboard() {
     setActiveTab('edi');
   };
 
+  const handleNavigateToDigiTools = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('digitools');
+  };
+
   const handleNavigateToNewsletter = () => {
     setSelectedSchool(null);
     setSelectedStudent(null);
@@ -465,6 +473,7 @@ export function Dashboard() {
         onNavigateToActivityBoards={handleNavigateToActivityBoards}
         onNavigateToBoeker={handleNavigateToBoeker}
         onNavigateToEDI={handleNavigateToEDI}
+        onNavigateToDigiTools={handleNavigateToDigiTools}
         focusSchool={focusSchool}
       />
       )}
@@ -506,6 +515,7 @@ export function Dashboard() {
         {activeTab === 'webwijzer' && <WebWijzerTab />}
         {activeTab === 'boeker' && <BoekerTab />}
         {activeTab === 'edi' && <EDITab />}
+        {activeTab === 'digitools' && <DigiToolsTab />}
         {activeTab === 'activityboards' && <ActivityBoardsTab onFullscreenChange={setIsFullscreen} />}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail

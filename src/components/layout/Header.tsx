@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid, HelpCircle, Video, Newspaper } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid, HelpCircle, Video, Newspaper, Wrench } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateToDashboard: () => void;
@@ -40,10 +40,11 @@ interface HeaderProps {
   onNavigateToActivityBoards: () => void;
   onNavigateToBoeker: () => void;
   onNavigateToEDI: () => void;
+  onNavigateToDigiTools: () => void;
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToEDI, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToEDI, onNavigateToDigiTools, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -313,6 +314,16 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     >
                       <GraduationCap className="w-4 h-4 mr-2" />
                       EDI
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToDigiTools();
+                        setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Wrench className="w-4 h-4 mr-2" />
+                      DigiTools
                     </button>
                   </div>
                 </div>
