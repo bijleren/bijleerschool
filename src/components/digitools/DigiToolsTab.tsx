@@ -72,11 +72,26 @@ export function DigiToolsTab() {
     }
 
     try {
+      const { data: platformSchool, error: schoolError } = await supabase
+        .from('schools')
+        .select('id')
+        .eq('name', 'Bijleren')
+        .maybeSingle();
+
+      if (schoolError || !platformSchool) {
+        console.error('Error fetching platform school:', schoolError);
+        setIsAdmin(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('user_schools')
-        .select('role, is_active')
+        .select('role, is_active, school_id')
         .eq('user_id', user.id)
-        .eq('is_active', true);
+        .eq('school_id', platformSchool.id)
+        .eq('is_active', true)
+        .eq('role', 'admin')
+        .maybeSingle();
 
       if (error) {
         console.error('Error checking admin status:', error);
@@ -84,10 +99,8 @@ export function DigiToolsTab() {
         return;
       }
 
-      console.log('DigiTools - User schools data:', data);
-      const hasAdminRole = data && data.length > 0 && data.some(school => school.role === 'admin');
-      console.log('DigiTools - Has admin role:', hasAdminRole);
-      setIsAdmin(hasAdminRole === true);
+      const isPlatformAdmin = data !== null;
+      setIsAdmin(isPlatformAdmin);
     } catch (error) {
       console.error('Error in checkAdminStatus:', error);
       setIsAdmin(false);
