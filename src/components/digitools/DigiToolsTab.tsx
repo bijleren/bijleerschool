@@ -119,7 +119,7 @@ export function DigiToolsTab() {
       fetchTools();
     } catch (error) {
       console.error('Error saving tool:', error);
-      alert('Failed to save tool');
+      alert('Fout bij opslaan van tool');
     }
   };
 
@@ -140,7 +140,7 @@ export function DigiToolsTab() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this tool?')) return;
+    if (!confirm('Weet je zeker dat je deze tool wilt verwijderen?')) return;
 
     try {
       const { error } = await supabase
@@ -152,7 +152,7 @@ export function DigiToolsTab() {
       fetchTools();
     } catch (error) {
       console.error('Error deleting tool:', error);
-      alert('Failed to delete tool');
+      alert('Fout bij verwijderen van tool');
     }
   };
 
@@ -181,12 +181,12 @@ export function DigiToolsTab() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">DigiTools</h1>
-          <p className="text-gray-600 mt-1">Explore digital tools and resources</p>
+          <p className="text-gray-600 mt-1">Ontdek digitale tools en bronnen</p>
         </div>
         {isAdmin && (
           <Button onClick={openModal}>
             <Plus className="w-4 h-4 mr-2" />
-            Add Tool
+            Tool Toevoegen
           </Button>
         )}
       </div>
@@ -196,7 +196,7 @@ export function DigiToolsTab() {
           <div className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-bold text-gray-900">Spotlight Tool</h2>
+              <h2 className="text-xl font-bold text-gray-900">Tool in de Kijker</h2>
             </div>
             <div className="flex gap-6">
               {spotlightTool.screenshot_url && (
@@ -235,7 +235,7 @@ export function DigiToolsTab() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
-            placeholder="Search tools..."
+            placeholder="Zoek tools..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -245,7 +245,7 @@ export function DigiToolsTab() {
 
       {loading ? (
         <div className="text-center py-12">
-          <p className="text-gray-600">Loading tools...</p>
+          <p className="text-gray-600">Tools laden...</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -256,13 +256,13 @@ export function DigiToolsTab() {
                   Tool
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Description
+                  Beschrijving
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  Acties
                 </th>
               </tr>
             </thead>
@@ -294,7 +294,7 @@ export function DigiToolsTab() {
                     <div className="flex flex-wrap gap-2">
                       {tool.is_new && (
                         <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded">
-                          NEW
+                          NIEUW
                         </span>
                       )}
                       {tool.is_beta && (
@@ -304,12 +304,12 @@ export function DigiToolsTab() {
                       )}
                       {!tool.is_active && (
                         <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded">
-                          INACTIVE
+                          INACTIEF
                         </span>
                       )}
                       {!tool.visible_to_users && (
                         <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded">
-                          HIDDEN
+                          VERBORGEN
                         </span>
                       )}
                       {tool.requires_premium && (
@@ -355,7 +355,7 @@ export function DigiToolsTab() {
 
           {filteredTools.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-600">No tools found</p>
+              <p className="text-gray-600">Geen tools gevonden</p>
             </div>
           )}
         </div>
@@ -367,7 +367,7 @@ export function DigiToolsTab() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {editingTool ? 'Edit Tool' : 'Add New Tool'}
+                  {editingTool ? 'Tool Bewerken' : 'Nieuwe Tool Toevoegen'}
                 </h2>
                 <button
                   onClick={() => {
@@ -383,7 +383,7 @@ export function DigiToolsTab() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Title
+                    Titel
                   </label>
                   <Input
                     value={formData.title}
@@ -394,7 +394,7 @@ export function DigiToolsTab() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
+                    Beschrijving
                   </label>
                   <textarea
                     value={formData.description}
@@ -439,7 +439,7 @@ export function DigiToolsTab() {
                         onChange={(e) => setFormData({ ...formData, is_new: e.target.checked })}
                         className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
-                      <span className="text-sm font-medium text-gray-700">Mark as New</span>
+                      <span className="text-sm font-medium text-gray-700">Markeer als Nieuw</span>
                     </label>
 
                     <label className="flex items-center gap-2">
@@ -449,7 +449,7 @@ export function DigiToolsTab() {
                         onChange={(e) => setFormData({ ...formData, is_beta: e.target.checked })}
                         className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
-                      <span className="text-sm font-medium text-gray-700">Mark as Beta</span>
+                      <span className="text-sm font-medium text-gray-700">Markeer als Beta</span>
                     </label>
 
                     <label className="flex items-center gap-2">
@@ -459,7 +459,7 @@ export function DigiToolsTab() {
                         onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                         className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
-                      <span className="text-sm font-medium text-gray-700">Active</span>
+                      <span className="text-sm font-medium text-gray-700">Actief</span>
                     </label>
                   </div>
 
@@ -471,7 +471,7 @@ export function DigiToolsTab() {
                         onChange={(e) => setFormData({ ...formData, visible_to_users: e.target.checked })}
                         className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
-                      <span className="text-sm font-medium text-gray-700">Visible to End Users</span>
+                      <span className="text-sm font-medium text-gray-700">Zichtbaar voor Eindgebruikers</span>
                     </label>
 
                     <label className="flex items-center gap-2">
@@ -481,7 +481,7 @@ export function DigiToolsTab() {
                         onChange={(e) => setFormData({ ...formData, requires_premium: e.target.checked })}
                         className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
-                      <span className="text-sm font-medium text-gray-700">Requires Premium School</span>
+                      <span className="text-sm font-medium text-gray-700">Vereist Premium School</span>
                     </label>
                   </div>
                 </div>
@@ -496,10 +496,10 @@ export function DigiToolsTab() {
                     }}
                     className="flex-1"
                   >
-                    Cancel
+                    Annuleren
                   </Button>
                   <Button type="submit" className="flex-1">
-                    {editingTool ? 'Update Tool' : 'Add Tool'}
+                    {editingTool ? 'Tool Bijwerken' : 'Tool Toevoegen'}
                   </Button>
                 </div>
               </form>
