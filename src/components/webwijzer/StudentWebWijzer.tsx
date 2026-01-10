@@ -84,17 +84,18 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
 
   const checkActiveBoard = async () => {
     try {
-      const { data: session, error } = await supabase
+      const { data: sessions, error } = await supabase
         .from('activity_sessions')
         .select('board_id, activity_boards!inner(is_active)')
         .eq('student_id', studentId)
         .is('end_time', null)
-        .maybeSingle();
+        .order('start_time', { ascending: false })
+        .limit(1);
 
       if (error) throw error;
 
-      if (session && session.activity_boards?.is_active) {
-        setActiveBoard(session.board_id);
+      if (sessions && sessions.length > 0 && sessions[0].activity_boards?.is_active) {
+        setActiveBoard(sessions[0].board_id);
       } else {
         const { data: boards, error: boardsError } = await supabase
           .from('activity_boards')
