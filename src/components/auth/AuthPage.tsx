@@ -37,7 +37,15 @@ export function AuthPage() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-xs text-gray-500">
-            © 2025 BijleerSchool. Alle rechten voorbehouden.
+            © 2025 BijleerSchool. Alle rechten voorbehouden.{' '}
+            <a
+              href="https://bijleren.eu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-700 hover:underline"
+            >
+              bijleren.eu
+            </a>
           </p>
         </div>
       </div>
