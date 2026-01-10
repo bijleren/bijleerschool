@@ -14,6 +14,7 @@ export function PublicWebWijzerAccess() {
   const [pinCode, setPinCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [pushCancelled, setPushCancelled] = useState(false);
   const [authenticatedStudent, setAuthenticatedStudent] = useState<{
     id: string;
     name: string;
