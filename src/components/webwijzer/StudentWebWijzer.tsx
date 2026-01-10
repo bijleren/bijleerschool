@@ -3,10 +3,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid } from 'lucide-react';
+import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid, Search } from 'lucide-react';
 import { WebWijzerContentViewer } from './WebWijzerContentViewer';
 import { StudentBibliotheekModal } from './StudentBibliotheekModal';
 import { StudentActiviTijdModal } from './StudentActiviTijdModal';
+import { StudentZoekerModal } from '../zoeker/StudentZoekerModal';
 
 interface ContentAssignment {
   id: string;
@@ -51,6 +52,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
   const [showBibliotheek, setShowBibliotheek] = useState(false);
   const [showActiviTijd, setShowActiviTijd] = useState(false);
+  const [showZoeker, setShowZoeker] = useState(false);
   const [activeBoard, setActiveBoard] = useState<string | null>(null);
   const [schoolId, setSchoolId] = useState<string | null>(null);
 
@@ -457,14 +459,24 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
         <div className="flex justify-between items-center mb-4">
           <div className="flex gap-2">
             {schoolId && (
-              <Button
-                onClick={() => setShowBibliotheek(true)}
-                variant="secondary"
-                className="flex items-center gap-2"
-              >
-                <BookOpen className="w-4 h-4" />
-                Bibliotheek
-              </Button>
+              <>
+                <Button
+                  onClick={() => setShowBibliotheek(true)}
+                  variant="secondary"
+                  className="flex items-center gap-2"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Bibliotheek
+                </Button>
+                <Button
+                  onClick={() => setShowZoeker(true)}
+                  variant="secondary"
+                  className="flex items-center gap-2"
+                >
+                  <Search className="w-4 h-4" />
+                  Zoeker
+                </Button>
+              </>
             )}
             {activeBoard && (
               <Button
@@ -636,6 +648,15 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
           studentId={studentId}
           boardId={activeBoard}
           onClose={() => setShowActiviTijd(false)}
+        />
+      )}
+
+      {showZoeker && schoolId && (
+        <StudentZoekerModal
+          studentId={studentId}
+          schoolId={schoolId}
+          studentName={studentName}
+          onClose={() => setShowZoeker(false)}
         />
       )}
     </div>

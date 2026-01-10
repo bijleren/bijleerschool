@@ -14,6 +14,7 @@ import { ActivityBoardsTab } from '../activityboard/ActivityBoardsTab';
 import { BoekerTab } from '../boeker/BoekerTab';
 import { EDITab } from '../edi/EDITab';
 import { DigiToolsTab } from '../digitools/DigiToolsTab';
+import { ZoekerTab } from '../zoeker/ZoekerTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
@@ -52,7 +53,7 @@ interface Group {
 
 export function Dashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'edi' | 'digitools' | 'newsletter'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter'>('dashboard');
   const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -514,6 +515,7 @@ export function Dashboard() {
         {activeTab === 'schoolday' && <SchoolDayTab />}
         {activeTab === 'webwijzer' && <WebWijzerTab />}
         {activeTab === 'boeker' && <BoekerTab />}
+        {activeTab === 'zoeker' && <ZoekerTab />}
         {activeTab === 'edi' && <EDITab />}
         {activeTab === 'digitools' && <DigiToolsTab />}
         {activeTab === 'activityboards' && <ActivityBoardsTab onFullscreenChange={setIsFullscreen} />}
