@@ -10,7 +10,6 @@ interface Student {
   id: string;
   first_name: string;
   last_name: string;
-  group_id: string | null;
 }
 
 interface Group {
@@ -115,14 +114,26 @@ export function ZoekerTab() {
     try {
       setLoading(true);
 
-      const { data: studentData, error: studentError } = await supabase
-        .from('students')
-        .select('id, first_name, last_name, group_id')
+      const { data: studentGroupData, error: studentGroupError } = await supabase
+        .from('student_groups')
+        .select(`
+          student_id,
+          students (
+            id,
+            first_name,
+            last_name
+          )
+        `)
         .eq('group_id', selectedGroup)
-        .eq('is_active', true)
-        .order('first_name');
+        .eq('is_active', true);
 
-      if (studentError) throw studentError;
+      if (studentGroupError) throw studentGroupError;
+
+      const studentData = studentGroupData?.map((sg: any) => ({
+        id: sg.students.id,
+        first_name: sg.students.first_name,
+        last_name: sg.students.last_name
+      })).sort((a, b) => a.first_name.localeCompare(b.first_name));
 
       const { data: requests, error: requestError } = await supabase
         .from('zoeker_search_requests')
