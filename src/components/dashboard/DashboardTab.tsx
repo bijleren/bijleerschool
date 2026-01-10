@@ -22,7 +22,8 @@ import {
   Newspaper,
   Link,
   Grid,
-  BookMarked
+  BookMarked,
+  Search
 } from 'lucide-react';
 
 interface FavoriteStudent {
@@ -111,12 +112,13 @@ interface DashboardTabProps {
   onNavigateToWebWijzer?: () => void;
   onNavigateToActivityBoards?: () => void;
   onNavigateToBoeker?: () => void;
+  onNavigateToZoeker?: () => void;
   userSchools: { id: string; name: string }[];
   focusSchool: { id: string; name: string } | null;
   onFocusSchoolChange: (school: { id: string; name: string }) => void;
 }
 
-export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigateToSchools, onNavigateToBehaviorWithStudent, onNavigateToBehavior, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToEDI, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, userSchools, focusSchool, onFocusSchoolChange }: DashboardTabProps) {
+export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigateToSchools, onNavigateToBehaviorWithStudent, onNavigateToBehavior, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToEDI, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToZoeker, userSchools, focusSchool, onFocusSchoolChange }: DashboardTabProps) {
   const { user } = useAuth();
   const [favoriteStudents, setFavoriteStudents] = useState<FavoriteStudent[]>([]);
   const [favoriteGroups, setFavoriteGroups] = useState<FavoriteGroup[]>([]);
@@ -706,7 +708,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
 
       {/* Quick Access Buttons - Row 2: Apps */}
       <div className="mb-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <button
             onClick={onNavigateToEDI}
             className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
@@ -745,6 +747,16 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
               <BookMarked className="w-5 h-5 text-green-600" />
             </div>
             <span className="text-sm font-medium text-gray-900">Boeker</span>
+          </button>
+
+          <button
+            onClick={onNavigateToZoeker}
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all group"
+          >
+            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 transition-colors">
+              <Search className="w-5 h-5 text-green-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-900">Zoeker</span>
           </button>
         </div>
       </div>

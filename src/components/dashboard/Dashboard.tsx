@@ -280,6 +280,13 @@ export function Dashboard() {
     setActiveTab('boeker');
   };
 
+  const handleNavigateToZoeker = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('zoeker');
+  };
+
   const handleNavigateToEDI = () => {
     setSelectedSchool(null);
     setSelectedStudent(null);
@@ -494,6 +501,7 @@ export function Dashboard() {
             onNavigateToWebWijzer={handleNavigateToWebWijzer}
             onNavigateToActivityBoards={handleNavigateToActivityBoards}
             onNavigateToBoeker={handleNavigateToBoeker}
+            onNavigateToZoeker={handleNavigateToZoeker}
             userSchools={userSchools}
             focusSchool={focusSchool}
             onFocusSchoolChange={setFocusSchool}
