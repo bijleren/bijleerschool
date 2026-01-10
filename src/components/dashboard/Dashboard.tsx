@@ -480,6 +480,7 @@ export function Dashboard() {
         onNavigateToWebWijzer={handleNavigateToWebWijzer}
         onNavigateToActivityBoards={handleNavigateToActivityBoards}
         onNavigateToBoeker={handleNavigateToBoeker}
+        onNavigateToZoeker={handleNavigateToZoeker}
         onNavigateToEDI={handleNavigateToEDI}
         onNavigateToDigiTools={handleNavigateToDigiTools}
         focusSchool={focusSchool}
