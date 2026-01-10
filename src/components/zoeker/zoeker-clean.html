@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoeker - Slim zoeken op het internet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #4A90A4;
+            --color-primary-dark: #3A7A8E;
+            --color-secondary: #F5A962;
+            --color-bg: #F8F6F1;
+            --color-bg-card: #FFFFFF;
+            --color-text: #2D3436;
+            --color-text-light: #636E72;
+            --color-text-muted: #B2BEC3;
+            --color-success: #27AE60;
+            --color-warning: #F39C12;
+            --color-error: #E74C3C;
+            --color-info: #3498DB;
+            --color-youtube: #FF0000;
+            --color-google: #4285F4;
+            --color-images: #34A853;
+            --color-schooltv: #FF6B00;
+            --color-wikipedia: #636363;
+            --color-wikikids: #8BC34A;
+            --font-display: 'Quicksand', sans-serif;
+            --font-body: 'Nunito', sans-serif;
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-full: 50px;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 20% 80%, rgba(74, 144, 164, 0.05) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 20%, rgba(245, 169, 98, 0.05) 0%, transparent 50%);
+        }
+        .top-nav {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: var(--color-bg-card); box-shadow: var(--shadow-sm);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 var(--spacing-lg); z-index: 100;
+        }
+        .nav-brand { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--color-primary); }
+        .nav-user { display: flex; align-items: center; gap: var(--spacing-md); }
+        .nav-role-switch { display: flex; background: var(--color-bg); border-radius: var(--radius-full); padding: 3px; }
+        .role-btn {
+            font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
+            padding: var(--spacing-xs) var(--spacing-md); border: none; border-radius: var(--radius-full);
+            background: transparent; color: var(--color-text-light); cursor: pointer;
+        }
+        .role-btn.active { background: var(--color-primary); color: white; }
+        .role-btn[data-role="teacher"].active { background: var(--color-secondary); }
+        .app-container { padding-top: 72px; min-height: 100vh; }
+        .view { display: none; animation: fadeIn 0.4s ease-out; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .student-view { max-width: 750px; margin: 0 auto; padding: var(--spacing-lg); }
+        .student-header { text-align: center; margin-bottom: var(--spacing-xl); }
+        .zoeker-logo {
+            font-family: var(--font-display); font-size: 3rem; font-weight: 700;
+            color: var(--color-primary); position: relative; display: inline-block;
+        }
+        .zoeker-logo::after {
+            content: ''; position: absolute; bottom: 6px; left: 0; right: 0; height: 10px;
+            background: var(--color-secondary); opacity: 0.3; z-index: -1; border-radius: 4px;
+        }
+        .zoeker-tagline { font-size: 1rem; color: var(--color-text-light); }
+        .search-section { margin-bottom: var(--spacing-lg); }
+        .search-row { display: flex; gap: var(--spacing-sm); align-items: center; }
+        .search-input-wrapper { position: relative; flex: 1; }
+        .search-input {
+            width: 100%; font-family: var(--font-body); font-size: 1.15rem;
+            padding: var(--spacing-md) var(--spacing-xl); padding-right: 50px;
+            border: 2px solid transparent; border-radius: var(--radius-full);
+            background: var(--color-bg-card); box-shadow: var(--shadow-md); outline: none;
+        }
+        .search-input:focus { border-color: var(--color-primary); }
+        .search-input::placeholder { color: var(--color-text-muted); }
+        .search-icon { position: absolute; right: var(--spacing-lg); top: 50%; transform: translateY(-50%); width: 22px; height: 22px; color: var(--color-text-muted); }
+        .help-btn {
+            width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--color-primary);
+            background: var(--color-bg-card); color: var(--color-primary); font-size: 1.2rem; font-weight: 700;
+            cursor: pointer; flex-shrink: 0; transition: all 0.2s;
+        }
+        .help-btn:hover, .help-btn.active { background: var(--color-primary); color: white; }
+        .templates-dropdown {
+            display: none; background: var(--color-bg-card); border-radius: var(--radius-md);
+            padding: var(--spacing-md); margin-top: var(--spacing-sm); box-shadow: var(--shadow-md);
+        }
+        .templates-dropdown.visible { display: block; animation: slideUp 0.2s ease-out; }
+        .templates-title { font-size: 0.85rem; color: var(--color-text-light); margin-bottom: var(--spacing-sm); }
+        .templates-list { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+        .template-btn {
+            font-family: var(--font-body); font-size: 0.85rem;
+            padding: var(--spacing-xs) var(--spacing-md); border: 1px solid var(--color-text-muted);
+            border-radius: var(--radius-full); background: transparent; color: var(--color-text-light); cursor: pointer;
+        }
+        .template-btn:hover { border-color: var(--color-primary); color: var(--color-primary); background: rgba(74, 144, 164, 0.05); }
+        .action-buttons { display: flex; justify-content: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg); }
+        .action-btn-main {
+            font-family: var(--font-body); font-size: 1rem; font-weight: 700;
+            padding: var(--spacing-sm) var(--spacing-xl); border: none; border-radius: var(--radius-full);
+            color: white; cursor: pointer; transition: all 0.2s;
+        }
+        .action-btn-main.search { background: var(--color-primary); }
+        .action-btn-main.check { background: var(--color-secondary); }
+        .action-btn-main:hover:not(:disabled) { transform: scale(1.02); filter: brightness(1.1); }
+        .action-btn-main:disabled { opacity: 0.4; cursor: not-allowed; }
+        .target-btn.selected { box-shadow: 0 0 0 3px var(--color-primary), var(--shadow-md); transform: scale(1.05); }
+        .trash-section { margin-top: var(--spacing-lg); }
+        .trash-toggle {
+            width: 100%; font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
+            padding: var(--spacing-sm) var(--spacing-md); border: 1px dashed var(--color-text-muted);
+            border-radius: var(--radius-sm); background: transparent; color: var(--color-text-light);
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);
+        }
+        .trash-toggle:hover { border-color: var(--color-error); color: var(--color-error); }
+        .trash-toggle.active { border-style: solid; border-color: var(--color-error); background: rgba(231,76,60,0.05); }
+        .trash-count { background: var(--color-error); color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; }
+        .trash-count:empty, .trash-count[data-count="0"] { display: none; }
+        .trash-list { display: none; margin-top: var(--spacing-sm); }
+        .trash-list.visible { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+        .trash-item { background: rgba(231,76,60,0.05); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); font-size: 0.85rem; border-left: 3px solid var(--color-error); }
+        .trash-item-query { font-weight: 600; color: var(--color-text); margin-bottom: var(--spacing-xs); }
+        .trash-item-reason { font-size: 0.8rem; color: var(--color-text-light); }
+        .target-section { margin-bottom: var(--spacing-lg); }
+        .target-title { font-size: 0.9rem; color: var(--color-text-light); margin-bottom: var(--spacing-sm); text-align: center; font-weight: 600; }
+        .target-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-sm); }
+        @media (min-width: 600px) { .target-buttons { grid-template-columns: repeat(7, 1fr); } }
+        .target-btn {
+            font-family: var(--font-body); font-size: 0.8rem; font-weight: 600;
+            padding: var(--spacing-md) var(--spacing-sm); border: 2px solid transparent;
+            border-radius: var(--radius-md); background: var(--color-bg-card); color: var(--color-text);
+            cursor: pointer; display: flex; flex-direction: column; align-items: center;
+            gap: var(--spacing-xs); box-shadow: var(--shadow-sm); transition: all 0.2s;
+        }
+        .target-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .target-btn svg { width: 24px; height: 24px; }
+        .target-btn[data-target="youtube"]:hover { border-color: var(--color-youtube); color: var(--color-youtube); }
+        .target-btn[data-target="google"]:hover { border-color: var(--color-google); color: var(--color-google); }
+        .target-btn[data-target="images"]:hover { border-color: var(--color-images); color: var(--color-images); }
+        .target-btn[data-target="schooltv"]:hover { border-color: var(--color-schooltv); color: var(--color-schooltv); }
+        .target-btn[data-target="wikipedia"]:hover { border-color: var(--color-wikipedia); color: var(--color-wikipedia); }
+        .target-btn[data-target="wikikids"]:hover { border-color: var(--color-wikikids); color: var(--color-wikikids); }
+        .target-btn[data-target="prompt"]:hover { border-color: var(--color-info); color: var(--color-info); }
+        .target-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .feedback-panel {
+            background: var(--color-bg-card); border-radius: var(--radius-md); padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg); box-shadow: var(--shadow-sm); display: none;
+        }
+        .feedback-panel.visible { display: block; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .feedback-header { margin-bottom: var(--spacing-sm); }
+        .feedback-title { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: var(--spacing-sm); }
+        .feedback-title svg { width: 18px; height: 18px; color: var(--color-secondary); }
+        .feedback-list { list-style: none; display: flex; flex-direction: column; gap: var(--spacing-xs); }
+        .feedback-item { display: flex; align-items: flex-start; gap: var(--spacing-sm); padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-sm); font-size: 0.85rem; }
+        .feedback-item.success { background: rgba(39, 174, 96, 0.1); color: var(--color-success); }
+        .feedback-item.warning { background: rgba(243, 156, 18, 0.1); color: var(--color-warning); }
+        .feedback-item.info { background: rgba(52, 152, 219, 0.1); color: var(--color-info); }
+        .feedback-item svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+        .pending-responses { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+        .pending-item { background: var(--color-bg-card); border-left: 4px solid var(--color-warning); border-radius: var(--radius-sm); padding: var(--spacing-md); box-shadow: var(--shadow-sm); }
+        .pending-item.approved { border-left-color: var(--color-success); }
+        .pending-item.answered { border-left-color: var(--color-info); }
+        .pending-item.needs_improvement { border-left-color: var(--color-warning); background: rgba(245,169,98,0.05); }
+        .pending-item.rejected { border-left-color: var(--color-error); }
+        .pending-query { font-weight: 600; margin-bottom: var(--spacing-xs); }
+        .pending-status { font-size: 0.85rem; color: var(--color-text-light); margin-bottom: var(--spacing-sm); }
+        .pending-feedback { font-size: 0.9rem; background: var(--color-bg); padding: var(--spacing-sm); border-radius: var(--radius-sm); margin-bottom: var(--spacing-sm); }
+        .pending-actions { display: flex; gap: var(--spacing-sm); }
+        .pending-action-btn { font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; padding: var(--spacing-xs) var(--spacing-md); border: 1px solid var(--color-text-muted); border-radius: var(--radius-sm); cursor: pointer; background: var(--color-bg); color: var(--color-text); }
+        .pending-action-btn:hover { background: var(--color-bg-card); border-color: var(--color-primary); }
+        .pending-action-btn.primary { background: var(--color-success); color: white; border: none; }
+        .pending-action-btn.primary:hover { filter: brightness(1.1); }
+        .pending-action-btn.improve { background: var(--color-warning); color: white; border: none; }
+        .pending-action-btn.improve:hover { filter: brightness(1.1); }
+        .history-section { margin-top: var(--spacing-lg); }
+        .history-toggle {
+            width: 100%; font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
+            padding: var(--spacing-sm) var(--spacing-md); border: 1px dashed var(--color-text-muted);
+            border-radius: var(--radius-sm); background: transparent; color: var(--color-text-light);
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);
+        }
+        .history-toggle:hover { border-color: var(--color-primary); color: var(--color-primary); }
+        .history-toggle.active { border-style: solid; border-color: var(--color-primary); background: rgba(74,144,164,0.05); }
+        .history-count { background: var(--color-primary); color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; }
+        .history-count:empty, .history-count[data-count="0"] { display: none; }
+        .history-content { display: none; margin-top: var(--spacing-sm); background: var(--color-bg-card); border-radius: var(--radius-sm); padding: var(--spacing-md); box-shadow: var(--shadow-sm); }
+        .history-content.visible { display: block; }
+        .history-header { display: flex; justify-content: flex-end; margin-bottom: var(--spacing-sm); }
+        .history-clear { font-family: var(--font-body); font-size: 0.8rem; padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid var(--color-error); border-radius: var(--radius-sm); background: transparent; color: var(--color-error); cursor: pointer; }
+        .history-clear:hover { background: var(--color-error); color: white; }
+        .teacher-feedback-section { display: none; margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 1px solid rgba(0,0,0,0.08); }
+        .teacher-feedback-section.visible { display: block; }
+        .section-header-student { margin-bottom: var(--spacing-md); }
+        .section-title-student { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--color-text); }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); }
+        .history-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--color-text-light); }
+        .history-clear { font-size: 0.85rem; color: var(--color-text-muted); background: none; border: none; cursor: pointer; }
+        .history-clear:hover { color: var(--color-error); }
+        .history-list { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+        .history-item { background: var(--color-bg); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-sm); }
+        .history-query { font-weight: 600; color: var(--color-text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .history-meta { display: flex; gap: var(--spacing-xs); align-items: center; font-size: 0.8rem; flex-shrink: 0; }
+        .history-target { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+        .history-target.youtube { background: rgba(255,0,0,0.1); color: var(--color-youtube); }
+        .history-target.google { background: rgba(66,133,244,0.1); color: var(--color-google); }
+        .history-target.images { background: rgba(52,168,83,0.1); color: var(--color-images); }
+        .history-target.schooltv { background: rgba(255,107,0,0.1); color: var(--color-schooltv); }
+        .history-target.wikipedia { background: rgba(99,99,99,0.1); color: var(--color-wikipedia); }
+        .history-target.wikikids { background: rgba(139,195,74,0.1); color: var(--color-wikikids); }
+        .history-target.prompt { background: rgba(52,152,219,0.1); color: var(--color-info); }
+        .history-target.teacher { background: rgba(52,152,219,0.1); color: var(--color-info); }
+        .history-search-btn {
+            width: 28px; height: 28px; border-radius: 50%; border: none;
+            background: var(--color-primary); color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .history-search-btn:hover { background: var(--color-primary-dark); }
+        .history-search-btn svg { width: 14px; height: 14px; }
+        .history-empty { text-align: center; color: var(--color-text-muted); padding: var(--spacing-xl); font-style: italic; }
+        .teacher-view { max-width: 1200px; margin: 0 auto; padding: var(--spacing-lg); }
+        .teacher-header { margin-bottom: var(--spacing-xl); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
+        .teacher-title { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; }
+        .class-selector { display: flex; align-items: center; gap: var(--spacing-sm); }
+        .class-label { font-weight: 600; color: var(--color-text-light); }
+        .class-select { font-family: var(--font-body); font-size: 1rem; padding: var(--spacing-sm) var(--spacing-md); border: 2px solid var(--color-primary); border-radius: var(--radius-sm); background: var(--color-bg-card); color: var(--color-text); cursor: pointer; }
+        .class-select:focus { outline: none; box-shadow: 0 0 0 3px rgba(74,144,164,0.2); }
+        .teacher-subtitle { color: var(--color-text-light); }
+        .students-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--spacing-md); }
+        .student-card { background: var(--color-bg-card); border-radius: var(--radius-md); padding: var(--spacing-md); box-shadow: var(--shadow-sm); border: 2px solid transparent; transition: all 0.2s; }
+        .student-card.has-request { border-color: var(--color-warning); background: rgba(245,169,98,0.05); }
+        .student-card.approved { border-color: var(--color-success); background: rgba(39,174,96,0.05); }
+        .student-card.needs-work { border-color: var(--color-info); background: rgba(52,152,219,0.05); }
+        .student-card-header { display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-sm); }
+        .student-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--color-bg); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--color-text-light); font-size: 0.9rem; }
+        .student-card.has-request .student-avatar { background: var(--color-warning); color: white; }
+        .student-card.approved .student-avatar { background: var(--color-success); color: white; }
+        .student-card.needs-work .student-avatar { background: var(--color-info); color: white; }
+        .student-name { font-weight: 600; flex: 1; }
+        .student-status { font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; }
+        .student-status.waiting { background: var(--color-warning); color: white; }
+        .student-status.idle { background: var(--color-bg); color: var(--color-text-muted); }
+        .student-status.done { background: var(--color-success); color: white; }
+        .student-status.improve { background: var(--color-info); color: white; }
+        .student-empty { text-align: center; padding: var(--spacing-md); color: var(--color-text-muted); font-size: 0.85rem; }
+        .student-request { margin-top: var(--spacing-sm); }
+        .student-query { font-size: 0.9rem; color: var(--color-text); margin-bottom: var(--spacing-sm); padding: var(--spacing-sm); background: var(--color-bg); border-radius: var(--radius-sm); }
+        .student-target { font-size: 0.75rem; color: var(--color-text-light); margin-bottom: var(--spacing-sm); }
+        .student-input { width: 100%; font-family: var(--font-body); font-size: 0.85rem; padding: var(--spacing-xs) var(--spacing-sm); border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-sm); margin-bottom: var(--spacing-xs); }
+        .student-input:focus { outline: none; border-color: var(--color-primary); }
+        .student-actions { display: flex; gap: var(--spacing-xs); }
+        .student-btn { flex: 1; font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; padding: var(--spacing-xs); border: none; border-radius: var(--radius-sm); cursor: pointer; }
+        .student-btn.ok { background: var(--color-success); color: white; }
+        .student-btn.improve { background: var(--color-info); color: white; }
+        .student-btn.reject { background: var(--color-error); color: white; }
+        .student-btn:hover { filter: brightness(1.1); }
+        .teacher-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-xl); }
+        .stat-card { background: var(--color-bg-card); border-radius: var(--radius-md); padding: var(--spacing-lg); box-shadow: var(--shadow-sm); }
+        .stat-card-value { font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--color-primary); }
+        .stat-card-label { color: var(--color-text-light); font-size: 0.9rem; }
+        .stat-card.warning .stat-card-value { color: var(--color-warning); }
+        .stat-card.success .stat-card-value { color: var(--color-success); }
+        .teacher-section { background: var(--color-bg-card); border-radius: var(--radius-md); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); box-shadow: var(--shadow-sm); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+        .section-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+        .section-count { background: var(--color-warning); color: white; padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600; }
+        .request-list { display: flex; flex-direction: column; gap: var(--spacing-md); }
+        .request-card { background: var(--color-bg); border-radius: var(--radius-md); padding: var(--spacing-lg); border-left: 4px solid var(--color-warning); }
+        .request-card.question { border-left-color: var(--color-info); }
+        .request-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); flex-wrap: wrap; gap: var(--spacing-xs); }
+        .request-student { font-weight: 600; }
+        .request-target-badge { font-size: 0.75rem; padding: 2px 8px; background: var(--color-bg); border-radius: var(--radius-sm); color: var(--color-text-light); display: inline-flex; align-items: center; gap: 4px; }
+        .request-target-badge svg { width: 12px; height: 12px; }
+        .request-time { font-size: 0.85rem; color: var(--color-text-muted); margin-left: auto; }
+        .request-query { font-size: 1.1rem; font-weight: 600; background: var(--color-bg-card); padding: var(--spacing-md); border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); }
+        .request-feedback { margin-bottom: var(--spacing-md); }
+        .request-feedback-title { font-size: 0.85rem; color: var(--color-text-light); margin-bottom: var(--spacing-sm); }
+        .request-feedback-list { display: flex; flex-wrap: wrap; gap: var(--spacing-xs); }
+        .request-feedback-tag { font-size: 0.8rem; padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-sm); }
+        .request-feedback-tag.success { background: rgba(39, 174, 96, 0.1); color: var(--color-success); }
+        .request-feedback-tag.warning { background: rgba(243, 156, 18, 0.1); color: var(--color-warning); }
+        .request-feedback-tag.info { background: rgba(52, 152, 219, 0.1); color: var(--color-info); }
+        .request-edit-section { margin-bottom: var(--spacing-sm); }
+        .request-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--color-text-light); margin-bottom: var(--spacing-xs); }
+        .request-query-input, .request-feedback-input {
+            width: 100%; font-family: var(--font-body); font-size: 0.95rem;
+            padding: var(--spacing-sm) var(--spacing-md); border: 1px solid rgba(0,0,0,0.1);
+            border-radius: var(--radius-sm); background: var(--color-bg);
+        }
+        .request-query-input:focus, .request-feedback-input:focus { outline: none; border-color: var(--color-primary); }
+        .request-query-input { font-weight: 600; }
+        .request-actions { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); padding-top: var(--spacing-md); border-top: 1px solid rgba(0,0,0,0.05); }
+        .request-btn { font-family: var(--font-body); font-size: 0.9rem; font-weight: 600; padding: var(--spacing-sm) var(--spacing-md); border: none; border-radius: var(--radius-sm); cursor: pointer; }
+        .request-btn.approve { background: var(--color-success); color: white; }
+        .request-btn.feedback { background: var(--color-error); color: white; }
+        .request-btn:hover { filter: brightness(1.1); }
+        .request-empty { text-align: center; color: var(--color-text-muted); padding: var(--spacing-xl); }
+        .live-feed { max-height: 400px; overflow-y: auto; }
+        .feed-item { display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-sm) 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .feed-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .feed-content { flex: 1; }
+        .feed-student { font-weight: 600; font-size: 0.9rem; }
+        .feed-query { color: var(--color-text-light); font-size: 0.85rem; }
+        .feed-meta { text-align: right; }
+        .feed-target { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        .feed-time { font-size: 0.75rem; color: var(--color-text-muted); }
+        .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); }
+        @media (max-width: 900px) { .two-columns { grid-template-columns: 1fr; } }
+        .toast-container { position: fixed; bottom: var(--spacing-lg); right: var(--spacing-lg); display: flex; flex-direction: column; gap: var(--spacing-sm); z-index: 1000; }
+        .toast { padding: var(--spacing-md) var(--spacing-lg); border-radius: var(--radius-sm); color: white; font-weight: 600; box-shadow: var(--shadow-lg); animation: toastIn 0.3s ease-out; display: flex; align-items: center; gap: var(--spacing-sm); }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+        .toast.success { background: var(--color-success); }
+        .toast.warning { background: var(--color-warning); }
+        .toast.error { background: var(--color-error); }
+        .toast.info { background: var(--color-info); }
+        .toast-icon { font-size: 1.2rem; }
+        @media (max-width: 600px) {
+            .zoeker-logo { font-size: 2.2rem; }
+            .target-buttons { grid-template-columns: repeat(4, 1fr); }
+            .nav-role-switch { display: none; }
+            .search-row { flex-wrap: wrap; }
+            .help-btn { width: 40px; height: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">🔍 Zoeker</div>
+        <div class="nav-user">
+            <div class="nav-role-switch">
+                <button class="role-btn active" data-role="student">👧 Leerling</button>
+                <button class="role-btn" data-role="teacher">👩‍🏫 Leerkracht</button>
+            </div>
+        </div>
+    </nav>
+    <div class="app-container">
+        <div class="view student-view active" id="studentView">
+            <header class="student-header">
+                <h1 class="zoeker-logo">Zoeker</h1>
+                <p class="zoeker-tagline">Slim zoeken op het internet</p>
+            </header>
+            
+            <!-- 1. ZOEKER - Search Interface -->
+            <div class="search-section">
+                <div class="search-row">
+                    <div class="search-input-wrapper">
+                        <input type="text" class="search-input" id="searchInput" placeholder="Typ je zoekopdracht..." autocomplete="off" autofocus>
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    </div>
+                    <button class="help-btn" id="helpBtn" title="Zoektips">?</button>
+                </div>
+                <div class="templates-dropdown" id="templatesDropdown">
+                    <p class="templates-title">💡 Probeer een zoekstructuur:</p>
+                    <div class="templates-list" id="templatesList"></div>
+                </div>
+            </div>
+            <section class="target-section" id="targetSection">
+                <p class="target-title">Waar wil je zoeken?</p>
+                <div class="target-buttons" id="targetButtons"></div>
+            </section>
+            <div class="action-buttons" id="actionButtons">
+                <button class="action-btn-main search" id="btnGaMeleen" disabled>🔍 Ga meteen</button>
+                <button class="action-btn-main check" id="btnControleer" disabled>👩‍🏫 Controleer</button>
+            </div>
+            <section class="feedback-panel" id="feedbackPanel">
+                <div class="feedback-header">
+                    <h2 class="feedback-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>Tips voor je zoekopdracht</h2>
+                </div>
+                <ul class="feedback-list" id="feedbackList"></ul>
+            </section>
+            
+            <!-- 2. TEACHER FEEDBACK - Items awaiting student action -->
+            <section class="teacher-feedback-section" id="teacherFeedbackSection">
+                <div class="section-header-student"><h2 class="section-title-student">📬 Feedback van je leerkracht</h2></div>
+                <div class="pending-responses" id="pendingResponses"></div>
+            </section>
+            
+            <!-- 3. SEARCH HISTORY - Collapsible -->
+            <section class="history-section">
+                <button class="history-toggle" id="historyToggle">📚 Je zoekgeschiedenis <span class="history-count" id="historyCount">0</span></button>
+                <div class="history-content" id="historyContent">
+                    <div class="history-header"><button class="history-clear" id="clearHistory">🗑️ Wissen</button></div>
+                    <div class="history-list" id="historyList"><p class="history-empty">Nog geen zoekopdrachten</p></div>
+                </div>
+            </section>
+            
+            <!-- 4. TRASH - Rejected items -->
+            <section class="trash-section" id="trashSection">
+                <button class="trash-toggle" id="trashToggle">🗑️ Afgekeurd <span class="trash-count" id="trashCount">0</span></button>
+                <div class="trash-list" id="trashList"></div>
+            </section>
+        </div>
+        <div class="view teacher-view" id="teacherView">
+            <header class="teacher-header">
+                <h1 class="teacher-title">Leerkracht Dashboard</h1>
+                <div class="class-selector">
+                    <label class="class-label">Klas:</label>
+                    <select class="class-select" id="classSelect">
+                        <option value="3a">Klas 3A</option>
+                        <option value="3b">Klas 3B</option>
+                        <option value="4a">Klas 4A</option>
+                        <option value="4b">Klas 4B</option>
+                    </select>
+                </div>
+            </header>
+            <div class="teacher-stats">
+                <div class="stat-card warning"><div class="stat-card-value" id="teacherPendingCount">0</div><div class="stat-card-label">Wachtend</div></div>
+                <div class="stat-card success"><div class="stat-card-value" id="teacherApprovedCount">0</div><div class="stat-card-label">Goedgekeurd</div></div>
+                <div class="stat-card"><div class="stat-card-value" id="teacherTodayCount">0</div><div class="stat-card-label">Vandaag</div></div>
+            </div>
+            <section class="teacher-section students-section">
+                <div class="section-header"><h2 class="section-title">👨‍👩‍👧‍👦 Leerlingen</h2></div>
+                <div class="students-grid" id="studentsGrid"></div>
+            </section>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+<script>
+const Config = {
+    targets: {
+        youtube: { url: 'https://www.youtube.com/results?search_query={query}', label: 'YouTube', icon: '🎬' },
+        google: { url: 'https://www.google.com/search?q={query}', label: 'Google', icon: '🔍' },
+        images: { url: 'https://www.google.com/search?tbm=isch&q={query}', label: 'Afbeeldingen', icon: '🖼️' },
+        schooltv: { url: 'https://schooltv.nl/zoeken?query={query}', label: 'SchoolTV', icon: '📺' },
+        wikipedia: { url: 'https://nl.wikipedia.org/wiki/Speciaal:Zoeken?search={query}', label: 'Wikipedia', icon: '📖' },
+        wikikids: { url: 'https://wikikids.nl/Speciaal:Zoeken?search={query}', label: 'WikiKids', icon: '👶' },
+        prompt: { url: null, label: 'Antwoord', icon: '✋' }
+    },
+    templates: [
+        { label: 'Wie is...', template: 'Wie is ' },
+        { label: 'Wat is...', template: 'Wat is ' },
+        { label: 'Hoe werkt...', template: 'Hoe werkt ' },
+        { label: 'Waarom...', template: 'Waarom ' },
+        { label: 'Wanneer...', template: 'Wanneer ' },
+        { label: 'Waar ligt...', template: 'Waar ligt ' },
+        { label: 'Hoeveel...', template: 'Hoeveel ' },
+        { label: 'Verschil tussen', template: 'Verschil tussen ' }
+    ],
+    classes: {
+        '3a': ['Emma', 'Liam', 'Sophie', 'Noah', 'Julia', 'Lucas', 'Mila', 'Daan', 'Tess', 'Finn', 'Sara', 'Tim'],
+        '3b': ['Anna', 'Max', 'Eva', 'Sem', 'Fleur', 'Luuk', 'Lisa', 'Thijs', 'Nina', 'Bram'],
+        '4a': ['Sanne', 'Jesse', 'Lotte', 'Milan', 'Isa', 'Stijn', 'Fenna', 'Lars', 'Noor', 'Ruben', 'Evi', 'Cas'],
+        '4b': ['Lynn', 'Thomas', 'Amy', 'Sven', 'Roos', 'Niels', 'Vera', 'Jasper', 'Lina', 'Joep']
+    },
+    questionWords: ['wie', 'wat', 'waar', 'wanneer', 'waarom', 'hoe', 'welke', 'hoeveel'],
+    vagueTerms: ['ding', 'iets', 'dinges', 'dat', 'het', 'dit']
+};
+
+const Icons = {
+    youtube: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+    google: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>',
+    images: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+    schooltv: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+    wikipedia: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>',
+    wikikids: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2"/></svg>',
+    prompt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+    warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+    success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>'
+};
+
+const Store = {
+    data: { searches: [], pendingRequests: [], feedbackCounts: {} },
+    init() { const saved = localStorage.getItem('zoeker_v13'); if (saved) try { this.data = JSON.parse(saved); } catch(e) {} },
+    save() { localStorage.setItem('zoeker_v13', JSON.stringify(this.data)); },
+    addSearch(entry) {
+        const id = 'search_' + Date.now();
+        this.data.searches.unshift({ id, timestamp: Date.now(), student: 'Jij', ...entry });
+        if (entry.feedback) entry.feedback.forEach(f => this.data.feedbackCounts[f.code] = (this.data.feedbackCounts[f.code] || 0) + 1);
+        this.save(); return id;
+    },
+    addPendingRequest(entry) {
+        const id = 'req_' + Date.now();
+        this.data.pendingRequests.unshift({ id, timestamp: Date.now(), student: 'Jij', status: 'pending', ...entry });
+        this.save(); return id;
+    },
+    updateRequest(id, updates) { const req = this.data.pendingRequests.find(r => r.id === id); if (req) { Object.assign(req, updates); this.save(); } },
+    getPending() { return this.data.pendingRequests.filter(r => r.status === 'pending'); },
+    getRejected() { return this.data.pendingRequests.filter(r => r.status === 'rejected'); },
+    clear() { this.data.searches = []; this.data.pendingRequests = []; this.save(); }
+};
+
+const Analyzer = {
+    analyze(query) {
+        const feedback = [], trimmed = query.trim();
+        if (!trimmed) return { feedback, score: 0, hasQuestionWord: false };
+        const words = trimmed.split(/\s+/).filter(w => w.length > 0), lower = trimmed.toLowerCase();
+        if (words.length <= 1) feedback.push({ type: 'warning', code: 'WORD_COUNT_LOW', message: `Slechts ${words.length} woord — probeer specifieker te zijn.` });
+        else if (words.length >= 10) feedback.push({ type: 'info', code: 'WORD_COUNT_HIGH', message: `${words.length} woorden is veel. Kun je het korter maken?` });
+        else if (words.length >= 4) feedback.push({ type: 'success', code: 'WORD_COUNT_GREAT', message: `Uitstekend! ${words.length} specifieke woorden.` });
+        else if (words.length >= 3) feedback.push({ type: 'success', code: 'WORD_COUNT_GOOD', message: `Goed! ${words.length} woorden is specifiek.` });
+        const foundQ = Config.questionWords.filter(w => lower.startsWith(w) || lower.includes(' ' + w));
+        const hasQ = foundQ.length > 0;
+        if (hasQ) feedback.push({ type: 'success', code: 'HAS_QUESTION', message: `Top! Je gebruikt "${foundQ[0]}" — dat helpt.` });
+        else feedback.push({ type: 'info', code: 'NO_QUESTION', message: 'Tip: Begin met een vraagwoord (wie, wat, waar...).' });
+        const foundV = Config.vagueTerms.filter(t => lower.includes(t));
+        if (foundV.length) feedback.push({ type: 'warning', code: 'VAGUE', message: `"${foundV[0]}" is vaag. Wat bedoel je precies?` });
+        if (words.slice(1).some(w => w.length > 1 && w[0] === w[0].toUpperCase() && /[a-zA-Z]/.test(w[0]))) feedback.push({ type: 'success', code: 'PROPER_NOUN', message: 'Goed dat je hoofdletters gebruikt voor namen!' });
+        if (trimmed.includes('"')) feedback.push({ type: 'success', code: 'QUOTES', message: 'Slim! Aanhalingstekens zoeken naar exacte zinnen.' });
+        if (/\b(19|20)\d{2}\b/.test(trimmed)) feedback.push({ type: 'success', code: 'YEAR', message: 'Een jaartal toevoegen helpt!' });
+        let score = 50;
+        feedback.forEach(f => { if (f.type === 'success') score += 12; else if (f.type === 'info') score += 3; else if (f.type === 'warning') score -= 8; });
+        return { feedback, score: Math.max(10, Math.min(100, score)), hasQuestionWord: hasQ };
+    }
+};
+
+const UI = {
+    el: {}, role: 'student', selectedTarget: null, currentClass: '3a',
+    init() {
+        this.el = {
+            studentView: document.getElementById('studentView'), teacherView: document.getElementById('teacherView'),
+            searchInput: document.getElementById('searchInput'), feedbackPanel: document.getElementById('feedbackPanel'),
+            feedbackList: document.getElementById('feedbackList'),
+            targetSection: document.getElementById('targetSection'), targetButtons: document.getElementById('targetButtons'),
+            btnGaMeleen: document.getElementById('btnGaMeleen'), btnControleer: document.getElementById('btnControleer'),
+            helpBtn: document.getElementById('helpBtn'), templatesDropdown: document.getElementById('templatesDropdown'),
+            templatesList: document.getElementById('templatesList'),
+            historyToggle: document.getElementById('historyToggle'), historyContent: document.getElementById('historyContent'), historyCount: document.getElementById('historyCount'),
+            historyList: document.getElementById('historyList'), pendingResponses: document.getElementById('pendingResponses'),
+            teacherFeedbackSection: document.getElementById('teacherFeedbackSection'),
+            trashToggle: document.getElementById('trashToggle'), trashList: document.getElementById('trashList'), trashCount: document.getElementById('trashCount'),
+            toastContainer: document.getElementById('toastContainer'), teacherPendingCount: document.getElementById('teacherPendingCount'),
+            teacherApprovedCount: document.getElementById('teacherApprovedCount'),
+            teacherTodayCount: document.getElementById('teacherTodayCount'),
+            classSelect: document.getElementById('classSelect'), studentsGrid: document.getElementById('studentsGrid')
+        };
+        this.renderTargets(); this.renderTemplates(); this.updateAll();
+    },
+    setRole(r) { this.role = r; document.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('active', b.dataset.role === r)); this.el.studentView.classList.toggle('active', r === 'student'); this.el.teacherView.classList.toggle('active', r === 'teacher'); if (r === 'teacher') this.updateTeacher(); },
+    toggleHelp() { this.el.templatesDropdown.classList.toggle('visible'); this.el.helpBtn.classList.toggle('active'); },
+    toggleTrash() { this.el.trashList.classList.toggle('visible'); this.el.trashToggle.classList.toggle('active'); },
+    toggleHistory() { this.el.historyContent.classList.toggle('visible'); this.el.historyToggle.classList.toggle('active'); },
+    selectTarget(target) {
+        this.selectedTarget = target;
+        document.querySelectorAll('.target-btn').forEach(b => b.classList.toggle('selected', b.dataset.target === target));
+        this.updateButtons(this.el.searchInput.value.trim().length > 0);
+    },
+    renderTargets() { this.el.targetButtons.innerHTML = Object.entries(Config.targets).map(([k,v]) => `<button class="target-btn" data-target="${k}">${Icons[k]}${v.label}</button>`).join(''); },
+    renderTemplates() { this.el.templatesList.innerHTML = Config.templates.map(t => `<button class="template-btn" data-template="${t.template}">${t.label}</button>`).join(''); },
+    updateAll() { this.updateHistory(); this.updateTrash(); this.updatePending(); this.updateTeacher(); },
+    updateFeedback(a) {
+        if (!a.feedback.length) { this.el.feedbackPanel.classList.remove('visible'); return; }
+        this.el.feedbackList.innerHTML = a.feedback.map(f => `<li class="feedback-item ${f.type}">${Icons[f.type] || Icons.info}<span>${f.message}</span></li>`).join('');
+        this.el.feedbackPanel.classList.add('visible');
+    },
+    updateButtons(hasQuery) { 
+        const ready = hasQuery && this.selectedTarget;
+        const isPrompt = this.selectedTarget === 'prompt';
+        this.el.btnGaMeleen.disabled = !ready || isPrompt;
+        this.el.btnGaMeleen.style.display = isPrompt ? 'none' : 'flex';
+        this.el.btnControleer.disabled = !ready;
+        this.el.btnControleer.textContent = isPrompt ? '✋ Verstuur antwoord' : '👩‍🏫 Controleer';
+    },
+    updateTrash() {
+        const rejected = Store.getRejected();
+        this.el.trashCount.textContent = rejected.length;
+        this.el.trashCount.dataset.count = rejected.length;
+        if (!rejected.length) { 
+            this.el.trashList.innerHTML = ''; 
+            this.el.trashSection && (document.getElementById('trashSection').style.display = 'none');
+            return; 
+        }
+        document.getElementById('trashSection').style.display = 'block';
+        this.el.trashList.innerHTML = rejected.map(r => `<div class="trash-item"><div class="trash-item-query">${this.esc(r.query)}</div><div class="trash-item-reason">💬 ${this.esc(r.teacherFeedback || 'Afgekeurd door leerkracht')}</div></div>`).join('');
+    },
+    updateHistory() {
+        const s = Store.data.searches.slice(0, 15);
+        this.el.historyCount.textContent = s.length;
+        this.el.historyCount.dataset.count = s.length;
+        if (!s.length) { this.el.historyList.innerHTML = '<p class="history-empty">Nog geen zoekopdrachten</p>'; return; }
+        this.el.historyList.innerHTML = s.map(x => {
+            const t = x.target || 'google', tl = Config.targets[x.target]?.label || 'Google';
+            const isPrompt = t === 'prompt';
+            const searchBtn = isPrompt ? '' : `<button class="history-search-btn" onclick="App.reSearch('${x.id}')" title="Opnieuw zoeken"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></button>`;
+            return `<div class="history-item"><span class="history-query">${this.esc(x.query)}</span><div class="history-meta"><span class="history-target ${t}">${tl}</span>${searchBtn}</div></div>`;
+        }).join('');
+    },
+    updatePending() {
+        // Show items that have teacher feedback but student hasn't opened yet
+        const p = Store.data.pendingRequests.filter(r => 
+            (r.status === 'approved' || r.status === 'answered' || r.status === 'needs_improvement') && !r.studentOpened
+        ).slice(0, 5);
+        if (!p.length) { 
+            this.el.pendingResponses.innerHTML = ''; 
+            this.el.teacherFeedbackSection.classList.remove('visible');
+            return; 
+        }
+        this.el.teacherFeedbackSection.classList.add('visible');
+        this.el.pendingResponses.innerHTML = p.map(r => {
+            let statusText = '', statusClass = r.status, actions = '';
+            const isPrompt = r.target === 'prompt';
+            if (r.status === 'approved') {
+                statusText = '✅ Goedgekeurd';
+                if (isPrompt) {
+                    actions = `<button class="pending-action-btn primary" onclick="App.dismissFeedback('${r.id}')">👍 OK</button>`;
+                } else {
+                    actions = `<button class="pending-action-btn primary" onclick="App.openApproved('${r.id}')">🔍 Zoeken op ${Config.targets[r.target]?.label || 'Google'}</button>`;
+                }
+            } else if (r.status === 'needs_improvement') {
+                statusText = '✏️ Moet verbeterd worden';
+                actions = `<button class="pending-action-btn improve" onclick="App.retrySearch('${r.id}')">🔄 Opnieuw proberen</button>`;
+            } else {
+                statusText = '💬 Beantwoord';
+                actions = `<button class="pending-action-btn" onclick="App.dismissFeedback('${r.id}')">👍 Begrepen</button>`;
+            }
+            return `<div class="pending-item ${statusClass}">
+                <div class="pending-query">"${this.esc(r.modifiedQuery || r.query)}"</div>
+                <div class="pending-status">${statusText}</div>
+                ${r.teacherFeedback ? `<div class="pending-feedback">💬 ${this.esc(r.teacherFeedback)}</div>` : ''}
+                <div class="pending-actions">${actions}</div>
+            </div>`;
+        }).join('');
+    },
+    updateTeacher() {
+        const students = Config.classes[this.currentClass] || [];
+        const pending = Store.getPending();
+        const approved = Store.data.pendingRequests.filter(r => r.status === 'approved' && !r.studentOpened);
+        const needsWork = Store.data.pendingRequests.filter(r => r.status === 'needs_improvement' && !r.studentOpened);
+        const today = Store.data.searches.filter(s => new Date(s.timestamp).toDateString() === new Date().toDateString());
+        
+        this.el.teacherPendingCount.textContent = pending.length;
+        this.el.teacherApprovedCount.textContent = approved.length;
+        this.el.teacherTodayCount.textContent = today.length;
+        
+        // Render student grid
+        this.el.studentsGrid.innerHTML = students.map(name => {
+            const req = pending.find(r => r.student === name);
+            const approvedReq = approved.find(r => r.student === name);
+            const needsWorkReq = needsWork.find(r => r.student === name);
+            
+            let statusClass = '', statusLabel = '', statusText = '';
+            if (req) { statusClass = 'has-request'; statusLabel = 'waiting'; statusText = '⏳ Wacht'; }
+            else if (needsWorkReq) { statusClass = 'needs-work'; statusLabel = 'improve'; statusText = '✏️ Verbeteren'; }
+            else if (approvedReq) { statusClass = 'approved'; statusLabel = 'done'; statusText = '✅ Klaar'; }
+            else { statusClass = ''; statusLabel = 'idle'; statusText = '💤'; }
+            
+            return `<div class="student-card ${statusClass}">
+                <div class="student-card-header">
+                    <div class="student-avatar">${name.charAt(0)}</div>
+                    <span class="student-name">${name}</span>
+                    <span class="student-status ${statusLabel}">${statusText}</span>
+                </div>
+                ${req ? `<div class="student-request">
+                    <div class="student-query">🔍 ${this.esc(req.query)}</div>
+                    <div class="student-target">📍 ${Config.targets[req.target]?.label || 'Onbekend'}</div>
+                    <input type="text" class="student-input" id="query-${req.id}" value="${this.esc(req.query)}" placeholder="Zoekopdracht aanpassen...">
+                    <input type="text" class="student-input" id="fb-${req.id}" placeholder="Feedback (optioneel)...">
+                    <div class="student-actions">
+                        <button class="student-btn ok" onclick="App.respond('${req.id}','approve')">✓ OK</button>
+                        <button class="student-btn improve" onclick="App.respond('${req.id}','improve')">✏️</button>
+                        <button class="student-btn reject" onclick="App.respond('${req.id}','reject')">✗</button>
+                    </div>
+                </div>` : `<div class="student-empty">${approvedReq ? 'Wacht op leerling...' : needsWorkReq ? 'Moet verbeteren...' : 'Geen verzoek'}</div>`}
+            </div>`;
+        }).join('');
+    },
+    setClass(classId) { this.currentClass = classId; this.updateTeacher(); },
+    onQuery(q) { const t = q.trim(), has = t.length > 0; this.updateButtons(has); if (t.length >= 2) this.updateFeedback(Analyzer.analyze(t)); else this.el.feedbackPanel.classList.remove('visible'); },
+    toast(msg, type = 'info', icon = '') { const t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = `${icon ? `<span class="toast-icon">${icon}</span>` : ''}${msg}`; this.el.toastContainer.appendChild(t); setTimeout(() => { t.style.animation = 'toastIn 0.3s ease-out reverse'; setTimeout(() => t.remove(), 300); }, 3500); },
+    esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+};
+
+const App = {
+    init() { Store.init(); UI.init(); this.bind(); },
+    bind() {
+        document.querySelectorAll('.role-btn').forEach(b => b.addEventListener('click', () => UI.setRole(b.dataset.role)));
+        UI.el.searchInput.addEventListener('input', e => UI.onQuery(e.target.value));
+        UI.el.targetButtons.addEventListener('click', e => { const b = e.target.closest('.target-btn'); if (b) UI.selectTarget(b.dataset.target); });
+        UI.el.btnGaMeleen.addEventListener('click', () => this.searchNow());
+        UI.el.btnControleer.addEventListener('click', () => this.sendToTeacher());
+        UI.el.helpBtn.addEventListener('click', () => UI.toggleHelp());
+        UI.el.trashToggle.addEventListener('click', () => UI.toggleTrash());
+        UI.el.historyToggle.addEventListener('click', () => UI.toggleHistory());
+        UI.el.classSelect.addEventListener('change', e => UI.setClass(e.target.value));
+        UI.el.templatesList.addEventListener('click', e => { const b = e.target.closest('.template-btn'); if (b) { UI.el.searchInput.value = b.dataset.template; UI.el.searchInput.focus(); UI.onQuery(b.dataset.template); UI.toggleHelp(); } });
+        document.getElementById('clearHistory').addEventListener('click', () => { if (confirm('Geschiedenis wissen?')) { Store.clear(); UI.updateAll(); UI.toast('Gewist', 'info'); } });
+        document.addEventListener('click', e => { 
+            if (!e.target.closest('.help-btn') && !e.target.closest('.templates-dropdown')) {
+                UI.el.templatesDropdown.classList.remove('visible');
+                UI.el.helpBtn.classList.remove('active');
+            }
+        });
+        UI.el.searchInput.addEventListener('keydown', e => { if (e.key === 'Enter' && UI.selectedTarget) { e.preventDefault(); this.searchNow(); } });
+    },
+    searchNow() {
+        const q = UI.el.searchInput.value.trim(); 
+        if (!q) { UI.toast('Typ eerst iets', 'warning', '⚠️'); return; }
+        if (!UI.selectedTarget) { UI.toast('Kies eerst waar je wilt zoeken', 'warning', '⚠️'); return; }
+        const a = Analyzer.analyze(q);
+        Store.addSearch({ query: q, mode: 'free', target: UI.selectedTarget, feedback: a.feedback });
+        window.open(Config.targets[UI.selectedTarget].url.replace('{query}', encodeURIComponent(q)), '_blank');
+        UI.toast(`Zoeken op ${Config.targets[UI.selectedTarget].label}...`, 'success', '🔍');
+        UI.updateAll();
+    },
+    reSearch(id) {
+        const s = Store.data.searches.find(x => x.id === id); if (!s) return;
+        const target = s.target || 'google';
+        if (target === 'prompt' || !Config.targets[target]?.url) {
+            UI.toast('Dit is een antwoord, geen zoekopdracht', 'info', '✋');
+            return;
+        }
+        window.open(Config.targets[target].url.replace('{query}', encodeURIComponent(s.query)), '_blank');
+    },
+    sendToTeacher() {
+        const q = UI.el.searchInput.value.trim(); 
+        if (!q) { UI.toast('Typ eerst iets', 'warning', '⚠️'); return; }
+        if (!UI.selectedTarget) { UI.toast('Kies eerst waar je wilt zoeken', 'warning', '⚠️'); return; }
+        // Check if student already has a pending request
+        const existingPending = Store.data.pendingRequests.find(r => r.student === 'Jij' && r.status === 'pending');
+        if (existingPending) {
+            if (!confirm('Je hebt al een zoekopdracht in de wachtrij. Wil je deze vervangen?')) return;
+            // Remove the existing pending request
+            Store.data.pendingRequests = Store.data.pendingRequests.filter(r => r.id !== existingPending.id);
+            Store.save();
+        }
+        const a = Analyzer.analyze(q);
+        Store.addPendingRequest({ query: q, mode: 'controlled', target: UI.selectedTarget, feedback: a.feedback });
+        UI.toast('Verstuurd naar leerkracht!', 'success', '📨'); UI.el.searchInput.value = ''; UI.onQuery(''); UI.updateAll();
+    },
+    respond(id, action) {
+        const r = Store.data.pendingRequests.find(x => x.id === id); if (!r) return;
+        const fb = document.getElementById(`fb-${id}`)?.value.trim() || '';
+        const newQuery = document.getElementById(`query-${id}`)?.value.trim() || r.query;
+        const queryChanged = newQuery !== r.query;
+        
+        if (action === 'approve') {
+            const updates = { status: 'approved' };
+            if (queryChanged) {
+                updates.modifiedQuery = newQuery;
+                updates.teacherFeedback = fb || `Aangepast naar: "${newQuery}"`;
+            } else {
+                updates.teacherFeedback = fb || 'Goed gedaan!';
+            }
+            Store.updateRequest(id, updates);
+            UI.toast('Goedgekeurd!', 'success', '✅');
+        } else if (action === 'improve') {
+            Store.updateRequest(id, { status: 'needs_improvement', teacherFeedback: fb || 'Probeer je zoekopdracht te verbeteren.' });
+            UI.toast('Feedback verstuurd', 'info', '✏️');
+        } else if (action === 'reject') {
+            Store.updateRequest(id, { status: 'rejected', teacherFeedback: fb || 'Deze zoekopdracht is niet toegestaan.' });
+            UI.toast('Afgekeurd', 'info', '❌');
+        } else if (action === 'answer') {
+            if (!fb) { UI.toast('Typ eerst je antwoord', 'warning'); return; }
+            Store.updateRequest(id, { status: 'answered', teacherFeedback: fb });
+            UI.toast('Beantwoord!', 'success', '💬');
+        }
+        Store.save(); UI.updateAll();
+    },
+    openApproved(id) {
+        const r = Store.data.pendingRequests.find(x => x.id === id); if (!r) return;
+        const target = r.target || 'google';
+        const q = r.modifiedQuery || r.query;
+        Store.addSearch({ query: q, mode: 'controlled', target, feedback: r.feedback });
+        Store.updateRequest(id, { studentOpened: true });
+        window.open(Config.targets[target].url.replace('{query}', encodeURIComponent(q)), '_blank');
+        UI.updateAll();
+    },
+    dismissFeedback(id) {
+        const r = Store.data.pendingRequests.find(x => x.id === id);
+        if (r && r.status === 'approved' && r.target === 'prompt') {
+            // Add approved prompts to history
+            Store.addSearch({ query: r.modifiedQuery || r.query, mode: 'prompt', target: 'prompt', feedback: r.feedback });
+        }
+        Store.updateRequest(id, { studentOpened: true });
+        UI.updateAll();
+    },
+    retrySearch(id) {
+        const r = Store.data.pendingRequests.find(x => x.id === id); if (!r) return;
+        // Pre-fill the search input with the original query and target
+        UI.el.searchInput.value = r.query;
+        UI.selectTarget(r.target);
+        UI.onQuery(r.query);
+        // Mark as opened so it disappears from pending
+        Store.updateRequest(id, { studentOpened: true });
+        UI.updateAll();
+        UI.toast('Verbeter je zoekopdracht en verstuur opnieuw', 'info', '✏️');
+    }
+};
+document.addEventListener('DOMContentLoaded', () => App.init());
+</script>
+</body>
+</html>
