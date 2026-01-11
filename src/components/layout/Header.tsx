@@ -228,54 +228,33 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
 
                   <div className="border-t border-gray-100 my-2"></div>
 
-                  {/* WebWijzer Section */}
-                  <div className="px-3 py-2">
-                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                      <Link className="w-4 h-4" />
-                      <span>WebWijzer</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        onNavigateToWebWijzer();
-                        setShowAppsDropdown(false);
-                        setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('navigateToWebWijzerCreate'));
-                        }, 100);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Nieuwe content
-                    </button>
-                    <button
-                      onClick={() => {
-                        onNavigateToWebWijzer();
-                        setShowAppsDropdown(false);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <List className="w-4 h-4 mr-2" />
-                      Content beheren
-                    </button>
-                    <button
-                      onClick={() => {
-                        onNavigateToWebWijzer();
-                        setShowAppsDropdown(false);
-                        setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('navigateToStudentWebWijzer'));
-                        }, 100);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      Leerling WebWijzer
-                    </button>
-                  </div>
-
-                  <div className="border-t border-gray-100 my-2"></div>
-
                   {/* Direct App Links */}
                   <div className="px-3 py-2">
+                    <div className="relative flex items-center group">
+                      <button
+                        onClick={() => {
+                          onNavigateToWebWijzer();
+                          setShowAppsDropdown(false);
+                        }}
+                        className="flex-1 flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                      >
+                        <Link className="w-4 h-4 mr-2" />
+                        WebWijzer
+                      </button>
+                      <button
+                        onClick={() => {
+                          onNavigateToWebWijzer();
+                          setShowAppsDropdown(false);
+                          setTimeout(() => {
+                            window.dispatchEvent(new CustomEvent('navigateToWebWijzerCreate'));
+                          }, 100);
+                        }}
+                        className="mr-2 w-6 h-6 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                        title="Nieuwe content"
+                      >
+                        <Plus className="w-4 h-4 text-gray-600" />
+                      </button>
+                    </div>
                     <button
                       onClick={() => {
                         onNavigateToSchoolDay();
