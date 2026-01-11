@@ -172,64 +172,43 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
               {/* Apps Dropdown Menu */}
               {showAppsDropdown && (
                 <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                  {/* Gedrag Section */}
-                  <div className="px-3 py-2">
-                    <div className="flex items-center space-x-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span>Gedrag</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        if (focusSchool) {
-                          onNavigateToBehaviorWithSchool(focusSchool);
-                          setTimeout(() => {
-                            window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
-                          }, 100);
-                        } else {
-                          onNavigateToBehavior();
-                          setTimeout(() => {
-                            window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
-                          }, 100);
-                        }
-                        setShowAppsDropdown(false);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Incident melden
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleBehaviorClick();
-                        setShowAppsDropdown(false);
-                        setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('navigateToBehaviorIncidents'));
-                        }, 100);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <List className="w-4 h-4 mr-2" />
-                      Incidenten
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleBehaviorClick();
-                        setShowAppsDropdown(false);
-                        setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('navigateToBehaviorAnalytics'));
-                        }, 100);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <BarChart3 className="w-4 h-4 mr-2" />
-                      Analyses
-                    </button>
-                  </div>
-
-                  <div className="border-t border-gray-100 my-2"></div>
-
                   {/* Direct App Links */}
                   <div className="px-3 py-2">
+                    <div className="relative flex items-center group">
+                      <button
+                        onClick={() => {
+                          handleBehaviorClick();
+                          setShowAppsDropdown(false);
+                          setTimeout(() => {
+                            window.dispatchEvent(new CustomEvent('navigateToBehaviorIncidents'));
+                          }, 100);
+                        }}
+                        className="flex-1 flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                      >
+                        <AlertTriangle className="w-4 h-4 mr-2" />
+                        Gedrag
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (focusSchool) {
+                            onNavigateToBehaviorWithSchool(focusSchool);
+                            setTimeout(() => {
+                              window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
+                            }, 100);
+                          } else {
+                            onNavigateToBehavior();
+                            setTimeout(() => {
+                              window.dispatchEvent(new CustomEvent('navigateToBehaviorForm'));
+                            }, 100);
+                          }
+                          setShowAppsDropdown(false);
+                        }}
+                        className="mr-2 w-6 h-6 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                        title="Incident melden"
+                      >
+                        <Plus className="w-4 h-4 text-gray-600" />
+                      </button>
+                    </div>
                     <div className="relative flex items-center group">
                       <button
                         onClick={() => {
