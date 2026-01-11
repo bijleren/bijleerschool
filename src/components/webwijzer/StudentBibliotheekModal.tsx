@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { UniversalScanner } from '../ui/UniversalScanner';
+import { ReadingSessionModal } from './ReadingSessionModal';
+import { ReturnItemModal } from './ReturnItemModal';
 import { X, BookOpen, Package, Scan, AlertCircle } from 'lucide-react';
 
 interface Book {
@@ -10,6 +12,7 @@ interface Book {
   author: string;
   cover_image_url: string;
   borrowed_at: string;
+  student_book_id: string;
 }
 
 interface Material {
@@ -19,6 +22,7 @@ interface Material {
   photo_url: string;
   loaned_at: string;
   blink_code: string;
+  material_loan_id: string;
 }
 
 interface StudentBibliotheekModalProps {
@@ -35,6 +39,10 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
   const [error, setError] = useState<string | null>(null);
   const [scannedItem, setScannedItem] = useState<{code: string; type: 'book' | 'material'; title: string} | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [selectedMaterial, setMaterial] = useState<Material | null>(null);
+  const [showReadingModal, setShowReadingModal] = useState(false);
+  const [showReturnModal, setShowReturnModal] = useState(false);
 
   useEffect(() => {
     fetchBibliotheek();
@@ -87,7 +95,8 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
           title: item.books.title,
           author: item.books.author,
           cover_image_url: item.books.cover_image_url,
-          borrowed_at: item.borrowed_at
+          borrowed_at: item.borrowed_at,
+          student_book_id: item.id
         }));
 
       const formattedMaterials = (materialsResult.data || [])
@@ -98,7 +107,8 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
           description: item.school_materials.description,
           photo_url: item.school_materials.photo_url,
           blink_code: item.school_materials.blink_code,
-          loaned_at: item.loaned_at
+          loaned_at: item.loaned_at,
+          material_loan_id: item.id
         }));
 
       setBooks(formattedBooks);
@@ -258,6 +268,45 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
     setError(null);
   };
 
+  const handleBookClick = (book: Book) => {
+    setSelectedBook(book);
+  };
+
+  const handleMaterialClick = (material: Material) => {
+    setMaterial(material);
+  };
+
+  const handleStartReading = () => {
+    if (selectedBook) {
+      setShowReadingModal(true);
+    }
+  };
+
+  const handleReturnBook = () => {
+    if (selectedBook) {
+      setShowReturnModal(true);
+    }
+  };
+
+  const handleReturnMaterial = () => {
+    if (selectedMaterial) {
+      setShowReturnModal(true);
+    }
+  };
+
+  const handleReadingComplete = () => {
+    setShowReadingModal(false);
+    setSelectedBook(null);
+    fetchBibliotheek();
+  };
+
+  const handleReturnComplete = () => {
+    setShowReturnModal(false);
+    setSelectedBook(null);
+    setMaterial(null);
+    fetchBibliotheek();
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
@@ -366,24 +415,29 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                     ) : (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {books.map((book) => (
-                          <div key={book.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                            {book.cover_image_url ? (
-                              <img
-                                src={book.cover_image_url}
-                                alt={book.title}
-                                className="w-full h-48 object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
-                                <BookOpen className="w-12 h-12 text-gray-400" />
+                          <div key={book.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <button
+                              onClick={() => handleBookClick(book)}
+                              className="w-full text-left"
+                            >
+                              {book.cover_image_url ? (
+                                <img
+                                  src={book.cover_image_url}
+                                  alt={book.title}
+                                  className="w-full h-48 object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
+                                  <BookOpen className="w-12 h-12 text-gray-400" />
+                                </div>
+                              )}
+                              <div className="p-3">
+                                <h4 className="font-semibold text-sm text-gray-900 line-clamp-1">
+                                  {book.title}
+                                </h4>
+                                <p className="text-xs text-gray-600 mt-1">{book.author}</p>
                               </div>
-                            )}
-                            <div className="p-3">
-                              <h4 className="font-semibold text-sm text-gray-900 line-clamp-1">
-                                {book.title}
-                              </h4>
-                              <p className="text-xs text-gray-600 mt-1">{book.author}</p>
-                            </div>
+                            </button>
                           </div>
                         ))}
                       </div>
@@ -402,28 +456,33 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                     ) : (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {materials.map((material) => (
-                          <div key={material.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                            {material.photo_url ? (
-                              <img
-                                src={material.photo_url}
-                                alt={material.title}
-                                className="w-full h-48 object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
-                                <Package className="w-12 h-12 text-gray-400" />
-                              </div>
-                            )}
-                            <div className="p-3">
-                              <h4 className="font-semibold text-sm text-gray-900 line-clamp-1">
-                                {material.title}
-                              </h4>
-                              {material.description && (
-                                <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                                  {material.description}
-                                </p>
+                          <div key={material.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <button
+                              onClick={() => handleMaterialClick(material)}
+                              className="w-full text-left"
+                            >
+                              {material.photo_url ? (
+                                <img
+                                  src={material.photo_url}
+                                  alt={material.title}
+                                  className="w-full h-48 object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
+                                  <Package className="w-12 h-12 text-gray-400" />
+                                </div>
                               )}
-                            </div>
+                              <div className="p-3">
+                                <h4 className="font-semibold text-sm text-gray-900 line-clamp-1">
+                                  {material.title}
+                                </h4>
+                                {material.description && (
+                                  <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                                    {material.description}
+                                  </p>
+                                )}
+                              </div>
+                            </button>
                           </div>
                         ))}
                       </div>
@@ -435,7 +494,7 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
           </div>
         )}
 
-        {!showScanner && (
+        {!showScanner && !selectedBook && !selectedMaterial && (
           <div className="p-6 border-t border-gray-200">
             <Button
               onClick={() => setShowScanner(true)}
@@ -446,7 +505,85 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
             </Button>
           </div>
         )}
+
+        {selectedBook && !showScanner && (
+          <div className="p-6 border-t border-gray-200 space-y-3">
+            <Button
+              onClick={handleStartReading}
+              className="w-full bg-green-600 hover:bg-green-700"
+            >
+              <BookOpen className="w-5 h-5 mr-2" />
+              Ik lees
+            </Button>
+            <Button
+              onClick={handleReturnBook}
+              variant="secondary"
+              className="w-full"
+            >
+              Inleveren
+            </Button>
+            <Button
+              onClick={() => setSelectedBook(null)}
+              variant="secondary"
+              className="w-full"
+            >
+              Annuleren
+            </Button>
+          </div>
+        )}
+
+        {selectedMaterial && !showScanner && (
+          <div className="p-6 border-t border-gray-200 space-y-3">
+            <Button
+              onClick={handleReturnMaterial}
+              className="w-full"
+            >
+              Inleveren
+            </Button>
+            <Button
+              onClick={() => setMaterial(null)}
+              variant="secondary"
+              className="w-full"
+            >
+              Annuleren
+            </Button>
+          </div>
+        )}
       </div>
+
+      {showReadingModal && selectedBook && (
+        <ReadingSessionModal
+          book={selectedBook}
+          studentId={studentId}
+          onClose={() => setShowReadingModal(false)}
+          onComplete={handleReadingComplete}
+        />
+      )}
+
+      {showReturnModal && (selectedBook || selectedMaterial) && (
+        <ReturnItemModal
+          item={
+            selectedBook
+              ? {
+                  id: selectedBook.id,
+                  title: selectedBook.title,
+                  type: 'book' as const,
+                  student_book_id: selectedBook.student_book_id,
+                  cover_image_url: selectedBook.cover_image_url
+                }
+              : {
+                  id: selectedMaterial!.id,
+                  title: selectedMaterial!.title,
+                  type: 'material' as const,
+                  material_loan_id: selectedMaterial!.material_loan_id,
+                  photo_url: selectedMaterial!.photo_url
+                }
+          }
+          studentId={studentId}
+          onClose={() => setShowReturnModal(false)}
+          onComplete={handleReturnComplete}
+        />
+      )}
     </div>
   );
 }
