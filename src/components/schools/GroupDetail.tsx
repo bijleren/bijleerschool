@@ -5,7 +5,8 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, AlertTriangle, Calendar, Clock } from 'lucide-react';
+import { GroupStudentImport } from './GroupStudentImport';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, AlertTriangle, Calendar, Clock, Upload } from 'lucide-react';
 
 interface Group {
   id: string;
@@ -123,6 +124,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
   const [showAddStudent, setShowAddStudent] = useState(false);
   const [showAddTeammember, setShowAddTeammember] = useState(false);
   const [showAddGrade, setShowAddGrade] = useState(false);
+  const [showImportStudents, setShowImportStudents] = useState(false);
   const [studentSearch, setStudentSearch] = useState('');
   const [teammemberSearch, setTeammemberSearch] = useState('');
 
@@ -904,10 +906,16 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
             <GraduationCap className="w-5 h-5 mr-2" />
             Leerlingen ({groupStudents.length})
           </h3>
-          <Button variant="secondary" onClick={() => setShowAddStudent(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Student toevoegen
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setShowImportStudents(true)}>
+              <Upload className="w-4 h-4 mr-2" />
+              Importeren
+            </Button>
+            <Button variant="secondary" onClick={() => setShowAddStudent(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Student toevoegen
+            </Button>
+          </div>
         </div>
 
         {showAddStudent && (
@@ -1155,6 +1163,19 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
           </div>
         )}
       </Card>
+
+      {/* Student Import Modal */}
+      {showImportStudents && (
+        <GroupStudentImport
+          schoolId={schoolId}
+          groupId={group.id}
+          onImportComplete={() => {
+            fetchGroupMembers();
+            setMessage('Studenten succesvol geïmporteerd!');
+          }}
+          onClose={() => setShowImportStudents(false)}
+        />
+      )}
 
       {/* Confirmation Modal */}
       <ConfirmationModal
