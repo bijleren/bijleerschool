@@ -508,20 +508,22 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
 
         {selectedBook && !showScanner && (
           <div className="p-6 border-t border-gray-200 space-y-3">
-            <Button
-              onClick={handleStartReading}
-              className="w-full bg-green-600 hover:bg-green-700"
-            >
-              <BookOpen className="w-5 h-5 mr-2" />
-              Ik lees
-            </Button>
-            <Button
-              onClick={handleReturnBook}
-              variant="secondary"
-              className="w-full"
-            >
-              Inleveren
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                onClick={handleStartReading}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                <BookOpen className="w-5 h-5 mr-2" />
+                Ik lees
+              </Button>
+              <Button
+                onClick={handleReturnBook}
+                variant="secondary"
+                className="flex-1"
+              >
+                Inleveren
+              </Button>
+            </div>
             <Button
               onClick={() => setSelectedBook(null)}
               variant="secondary"
