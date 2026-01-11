@@ -27,7 +27,7 @@ interface MatchResult {
 }
 
 export function GroupStudentImport({ schoolId, groupId, onImportComplete, onClose }: GroupStudentImportProps) {
-  const [file, setFile] = useState<File | null>(null);
+  const [csvData, setCsvData] = useState('');
   const [processing, setProcessing] = useState(false);
   const [matchResults, setMatchResults] = useState<MatchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -35,28 +35,25 @@ export function GroupStudentImport({ schoolId, groupId, onImportComplete, onClos
   const [importComplete, setImportComplete] = useState(false);
   const [importStats, setImportStats] = useState({ added: 0, skipped: 0, errors: 0 });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setMatchResults([]);
-      setShowResults(false);
-      setImportComplete(false);
+  const handleProcessData = async () => {
+    if (!csvData.trim()) {
+      alert('Plak eerst CSV data in het tekstveld');
+      return;
     }
-  };
-
-  const handleProcessFile = async () => {
-    if (!file) return;
 
     setProcessing(true);
     setMatchResults([]);
 
     try {
-      const text = await file.text();
+      const text = csvData;
+
+      // Auto-detect delimiter (tab for Excel/Sheets copy-paste, comma for CSV)
+      const delimiter = text.includes('\t') ? '\t' : ',';
 
       const parseResult = Papa.parse(text, {
         header: true,
         skipEmptyLines: true,
+        delimiter: delimiter,
       });
 
       const rows = parseResult.data as any[];
@@ -72,16 +69,16 @@ export function GroupStudentImport({ schoolId, groupId, onImportComplete, onClos
       let lastNameField = '';
 
       headers.forEach(header => {
-        const normalized = header.toLowerCase().trim();
-        if (normalized.includes('voornaam') || normalized.includes('first')) {
-          firstNameField = header;
-        } else if (normalized.includes('achternaam') || normalized.includes('last')) {
+        const normalized = header.toLowerCase().trim().replace(/[_\s]/g, '');
+        if (normalized.includes('voornaam') || normalized.includes('first') || normalized === 'naam' || normalized === 'name') {
+          if (!firstNameField) firstNameField = header;
+        } else if (normalized.includes('achternaam') || normalized.includes('last') || normalized.includes('achter')) {
           lastNameField = header;
         }
       });
 
       if (!firstNameField || !lastNameField) {
-        alert('Kan kolommen voor voornaam en achternaam niet vinden. Zorg dat je CSV kolommen heeft met "voornaam" en "achternaam" of "first_name" en "last_name".');
+        alert('Kan kolommen voor voornaam en achternaam niet vinden.\n\nZorg ervoor dat de eerste rij kolomnamen bevat zoals:\n- "voornaam" en "achternaam"\n- "first_name" en "last_name"\n\nOf kopieer direct vanuit Excel/Sheets met headers.');
         setProcessing(false);
         return;
       }
@@ -224,7 +221,7 @@ export function GroupStudentImport({ schoolId, groupId, onImportComplete, onClos
                   <div className="text-sm text-blue-800">
                     <p className="font-medium mb-2">Let op:</p>
                     <ul className="list-disc ml-4 space-y-1">
-                      <li>CSV bestand moet kolommen hebben met "voornaam" en "achternaam" (of "first_name" en "last_name")</li>
+                      <li>Plak CSV data met kolommen "voornaam" en "achternaam" (of kopieer direct vanuit Excel/Google Sheets)</li>
                       <li>Alleen bestaande studenten in de school worden gematcht</li>
                       <li>Studenten die al in de groep zitten worden overgeslagen</li>
                       <li>Bij meerdere studenten met dezelfde naam wordt geen match gemaakt</li>
@@ -242,20 +239,23 @@ export function GroupStudentImport({ schoolId, groupId, onImportComplete, onClos
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Selecteer CSV Bestand
+                  Plak CSV Data
                 </label>
-                <input
-                  type="file"
-                  accept=".csv"
-                  onChange={handleFileChange}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                <textarea
+                  value={csvData}
+                  onChange={(e) => setCsvData(e.target.value)}
+                  placeholder="Plak hier je CSV data (bijv. gekopieerd vanuit Excel of Google Sheets)&#10;&#10;voornaam,achternaam&#10;Jan,Jansen&#10;Marie,Pietersen"
+                  className="w-full h-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Tip: Kopieer cellen uit Excel/Google Sheets en plak ze hier
+                </p>
               </div>
 
-              {file && !showResults && (
-                <Button onClick={handleProcessFile} loading={processing}>
+              {csvData.trim() && !showResults && (
+                <Button onClick={handleProcessData} loading={processing}>
                   <Upload className="w-4 h-4 mr-2" />
-                  Bestand Verwerken
+                  Data Verwerken
                 </Button>
               )}
 
