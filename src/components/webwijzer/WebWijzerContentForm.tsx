@@ -236,7 +236,8 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
           .eq('user_id', user.id)
           .eq('is_active', true)
           .eq('status', 'approved')
-          .maybeSingle();
+          .limit(1)
+          .single();
 
         if (!userSchools?.school_id) {
           throw new Error('Je hebt geen actieve school. Neem contact op met je schoolbeheerder.');
