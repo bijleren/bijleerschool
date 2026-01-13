@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { trackFileUpload } from '../../utils/storageTracking';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
@@ -618,6 +619,16 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
     }
 
     console.log('Upload successful:', uploadData);
+
+    if (user) {
+      await trackFileUpload(
+        schoolId,
+        'student_photo',
+        `student-files/${filePath}`,
+        file.size,
+        user.id
+      );
+    }
 
     const { data: { publicUrl } } = supabase.storage
       .from('student-files')

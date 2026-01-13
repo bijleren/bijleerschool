@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { trackFileUpload } from '../../utils/storageTracking';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
@@ -138,6 +139,16 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
+
+      if (user) {
+        await trackFileUpload(
+          schoolId,
+          'school_material',
+          `material-photos/${filePath}`,
+          file.size,
+          user.id
+        );
+      }
 
       const { data } = supabase.storage
         .from('material-photos')
