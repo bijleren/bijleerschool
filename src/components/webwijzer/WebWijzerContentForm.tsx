@@ -5,7 +5,9 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, Video, FileText, ExternalLink, Users, User, Star, Zap, Hash, Calendar, X, Trash2 } from 'lucide-react';
+import { uploadFileWithTracking } from '../../utils/fileUploadWithTracking';
+import { trackFileUpload, trackFileDelete } from '../../utils/storageTracking';
+import { ArrowLeft, Video, FileText, ExternalLink, Users, User, Star, Zap, Hash, Calendar, X, Trash2, Upload, File } from 'lucide-react';
 
 interface WebWijzerContent {
   id: string;
@@ -102,6 +104,8 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const [studentToRemove, setStudentToRemove] = useState<{ id: string; name: string } | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -193,14 +197,104 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const maxSize = 20 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setMessage({ type: 'error', text: 'Bestand is te groot. Maximum grootte is 20MB.' });
+      return;
+    }
+
+    setSelectedFile(file);
+    setMessage(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    if (formData.content_type === 'file' && !selectedFile && !content?.content_url) {
+      setMessage({ type: 'error', text: 'Selecteer een bestand om te uploaden.' });
+      return;
+    }
 
     setSaving(true);
     setMessage(null);
 
     try {
+      let fileUrl = formData.content_url;
+
+      if (formData.content_type === 'file' && selectedFile) {
+        setUploadingFile(true);
+
+        const { data: userSchools } = await supabase
+          .from('user_schools')
+          .select('school_id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!userSchools?.school_id) {
+          throw new Error('School not found');
+        }
+
+        if (content?.content_url) {
+          try {
+            const oldUrl = new URL(content.content_url);
+            const oldPath = oldUrl.pathname.split('/storage/v1/object/public/webwijzer-files/')[1];
+            if (oldPath) {
+              await supabase.storage
+                .from('webwijzer-files')
+                .remove([oldPath]);
+
+              await trackFileDelete(userSchools.school_id, oldPath);
+            }
+          } catch (error) {
+            console.error('Error removing old file:', error);
+          }
+        }
+
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${userSchools.school_id}/${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('webwijzer-files')
+          .upload(filePath, selectedFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('webwijzer-files')
+          .getPublicUrl(filePath);
+
+        fileUrl = urlData.publicUrl;
+
+        const totalStudents = selectedStudents.size +
+          (await Promise.all(
+            Array.from(selectedGroups).map(async (groupId) => {
+              const { count } = await supabase
+                .from('student_groups')
+                .select('*', { count: 'exact', head: true })
+                .eq('group_id', groupId);
+              return count || 0;
+            })
+          )).reduce((a, b) => a + b, 0);
+
+        const adjustedFileSize = selectedFile.size * (totalStudents / 2);
+
+        await trackFileUpload(
+          userSchools.school_id,
+          'other',
+          filePath,
+          adjustedFileSize,
+          user.id
+        );
+
+        setUploadingFile(false);
+      }
+
       let contentId: string;
 
       if (content) {
@@ -208,6 +302,7 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
           .from('webwijzer_content')
           .update({
             ...formData,
+            content_url: fileUrl,
             has_date_limit: hasDateLimit,
             available_from: hasDateLimit && dateFrom ? new Date(dateFrom).toISOString() : null,
             available_until: hasDateLimit && dateUntil ? new Date(dateUntil).toISOString() : null,
@@ -222,6 +317,7 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
           .from('webwijzer_content')
           .insert({
             ...formData,
+            content_url: fileUrl,
             user_id: user.id,
             has_date_limit: hasDateLimit,
             available_from: hasDateLimit && dateFrom ? new Date(dateFrom).toISOString() : null,
@@ -447,25 +543,82 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
                   required
                 />
 
-                <Input
-                  label={
-                    formData.content_type === 'video'
-                      ? 'YouTube URL'
-                      : formData.content_type === 'file'
-                      ? 'File URL'
-                      : 'Website URL'
-                  }
-                  value={formData.content_url}
-                  onChange={(e) => setFormData({ ...formData, content_url: e.target.value })}
-                  placeholder={
-                    formData.content_type === 'video'
-                      ? 'https://www.youtube.com/watch?v=...'
-                      : formData.content_type === 'file'
-                      ? 'https://example.com/file.pdf'
-                      : 'https://example.com'
-                  }
-                  required
-                />
+{formData.content_type === 'file' ? (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Bestand uploaden
+                    </label>
+                    <div className="space-y-3">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                        <input
+                          type="file"
+                          id="file-upload"
+                          className="hidden"
+                          onChange={handleFileSelect}
+                          accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.mov"
+                        />
+                        <label htmlFor="file-upload" className="cursor-pointer">
+                          <Upload className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+                          {selectedFile ? (
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-center gap-2 text-green-600">
+                                <File className="w-5 h-5" />
+                                <span className="font-medium">{selectedFile.name}</span>
+                              </div>
+                              <p className="text-sm text-gray-500">
+                                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                              </p>
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => setSelectedFile(null)}
+                              >
+                                Verwijder
+                              </Button>
+                            </div>
+                          ) : (
+                            <div>
+                              <p className="text-gray-700 font-medium mb-1">
+                                Klik om een bestand te selecteren
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                Maximum grootte: 20MB
+                              </p>
+                              <p className="text-xs text-gray-400 mt-2">
+                                Ondersteunde formaten: PDF, Word, Excel, PowerPoint, afbeeldingen, video's
+                              </p>
+                            </div>
+                          )}
+                        </label>
+                      </div>
+                      {content && !selectedFile && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <p className="text-sm text-blue-800">
+                            Huidig bestand: <a href={formData.content_url} target="_blank" rel="noopener noreferrer" className="underline">Bekijk bestand</a>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <Input
+                    label={
+                      formData.content_type === 'video'
+                        ? 'YouTube URL'
+                        : 'Website URL'
+                    }
+                    value={formData.content_url}
+                    onChange={(e) => setFormData({ ...formData, content_url: e.target.value })}
+                    placeholder={
+                      formData.content_type === 'video'
+                        ? 'https://www.youtube.com/watch?v=...'
+                        : 'https://example.com'
+                    }
+                    type="url"
+                    required
+                  />
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -850,8 +1003,8 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
           <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
             Cancel
           </Button>
-          <Button type="submit" disabled={saving} className="flex-1">
-            {saving ? 'Saving...' : content ? 'Update Content' : 'Create Content'}
+          <Button type="submit" disabled={saving || uploadingFile} className="flex-1">
+            {uploadingFile ? 'Bestand uploaden...' : saving ? 'Opslaan...' : content ? 'Bijwerken' : 'Aanmaken'}
           </Button>
         </div>
       </form>
