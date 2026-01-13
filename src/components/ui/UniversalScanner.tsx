@@ -21,6 +21,7 @@ export function UniversalScanner({
   const lastScanRef = useRef<string>('');
   const lastScanTimeRef = useRef<number>(0);
   const initializingRef = useRef(false);
+  const processingRef = useRef(false);
 
   useEffect(() => {
     if (initializingRef.current) return;
@@ -70,14 +71,22 @@ export function UniversalScanner({
         },
         (decodedText) => {
           const now = Date.now();
-          if (decodedText === lastScanRef.current && now - lastScanTimeRef.current < 2000) {
+          if (processingRef.current) {
+            return;
+          }
+          if (decodedText === lastScanRef.current && now - lastScanTimeRef.current < 5000) {
             return;
           }
 
           lastScanRef.current = decodedText;
           lastScanTimeRef.current = now;
+          processingRef.current = true;
 
           handleScan(decodedText);
+
+          setTimeout(() => {
+            processingRef.current = false;
+          }, 3000);
         },
         undefined
       );

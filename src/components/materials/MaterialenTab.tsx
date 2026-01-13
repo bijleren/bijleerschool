@@ -99,17 +99,23 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
   };
 
   const handleMaterialScan = async (blinkCode: string) => {
+    if (showScanner === false) return;
+
     const existing = materials.find(m => m.blink_code === blinkCode);
     if (existing) {
-      setSelectedMaterial(existing);
-      setViewMode('detail');
       setShowScanner(false);
-      setToast({ message: 'Materiaal gevonden!', type: 'success' });
+      setTimeout(() => {
+        setSelectedMaterial(existing);
+        setViewMode('detail');
+        setToast({ message: 'Materiaal gevonden!', type: 'success' });
+      }, 100);
     } else {
-      setFormBlinkCode(blinkCode);
-      setShowMaterialForm(true);
       setShowScanner(false);
-      setToast({ message: 'Nieuw materiaal - vul details in', type: 'info' });
+      setTimeout(() => {
+        setFormBlinkCode(blinkCode);
+        setShowMaterialForm(true);
+        setToast({ message: 'Nieuw materiaal - vul details in', type: 'info' });
+      }, 100);
     }
   };
 
@@ -850,11 +856,15 @@ function MaterialLoanView({
   };
 
   const handleScan = async (scannedCode: string) => {
+    if (showScanner === false) return;
+
     const student = students.find(s => s.student_code === scannedCode);
     if (student) {
-      setSelectedStudent(student.id);
       setShowScanner(false);
-      setToast({ message: `${student.first_name} ${student.last_name} geselecteerd`, type: 'success' });
+      setTimeout(() => {
+        setSelectedStudent(student.id);
+        setToast({ message: `${student.first_name} ${student.last_name} geselecteerd`, type: 'success' });
+      }, 100);
     } else {
       setToast({ message: 'Leerling niet gevonden', type: 'error' });
     }
