@@ -117,37 +117,42 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
     if (!user || !content) return;
 
     try {
-      const { data, error } = await supabase
+      const { data: assignments, error: assignError } = await supabase
         .from('webwijzer_assignments')
-        .select(`
-          id,
-          is_push,
-          is_favorite,
-          click_limit,
-          students:assignable_id (
-            id,
-            first_name,
-            last_name,
-            student_number,
-            grade_level
-          )
-        `)
+        .select('id, assignable_id, is_push, is_favorite, click_limit')
         .eq('content_id', content.id)
         .eq('assignable_type', 'student');
 
-      if (error) throw error;
+      if (assignError) throw assignError;
 
-      const assigned = data?.map((assignment: any) => ({
-        id: assignment.students.id,
-        first_name: assignment.students.first_name,
-        last_name: assignment.students.last_name,
-        student_number: assignment.students.student_number,
-        grade_level: assignment.students.grade_level,
-        assignment_id: assignment.id,
-        is_push: assignment.is_push,
-        is_favorite: assignment.is_favorite,
-        click_limit: assignment.click_limit,
-      })) || [];
+      if (!assignments || assignments.length === 0) {
+        setAssignedStudents([]);
+        return;
+      }
+
+      const studentIds = assignments.map(a => a.assignable_id);
+
+      const { data: students, error: studentsError } = await supabase
+        .from('students')
+        .select('id, first_name, last_name, student_number, grade_level')
+        .in('id', studentIds);
+
+      if (studentsError) throw studentsError;
+
+      const assigned = assignments.map((assignment) => {
+        const student = students?.find(s => s.id === assignment.assignable_id);
+        return {
+          id: student?.id || '',
+          first_name: student?.first_name || '',
+          last_name: student?.last_name || '',
+          student_number: student?.student_number || null,
+          grade_level: student?.grade_level || null,
+          assignment_id: assignment.id,
+          is_push: assignment.is_push,
+          is_favorite: assignment.is_favorite,
+          click_limit: assignment.click_limit,
+        };
+      }).filter(s => s.id);
 
       setAssignedStudents(assigned);
     } catch (error) {
