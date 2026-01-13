@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
+import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { ArrowLeft, Search, Trash2, Video, FileText, ExternalLink, Users, AlertCircle, Eye, Star } from 'lucide-react';
 
 interface Student {
@@ -36,6 +37,9 @@ export function StudentWebWijzerManager({ onBack }: StudentWebWijzerManagerProps
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [contentToDelete, setContentToDelete] = useState<WebWijzerContent | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchStudents();
@@ -165,32 +169,40 @@ export function StudentWebWijzerManager({ onBack }: StudentWebWijzerManagerProps
     }
   };
 
-  const handleRemoveContent = async (content: WebWijzerContent) => {
+  const handleRemoveContent = (content: WebWijzerContent) => {
     if (content.assignment_source === 'group') {
       setMessage('Deze content komt van een groep en kan alleen daar verwijderd worden');
       setTimeout(() => setMessage(''), 3000);
       return;
     }
 
-    if (!window.confirm(`Weet je zeker dat je "${content.title}" wilt verwijderen voor ${selectedStudent?.first_name}?`)) {
-      return;
-    }
+    setContentToDelete(content);
+    setShowDeleteConfirm(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!contentToDelete) return;
+
+    setIsDeleting(true);
     try {
       const { error } = await supabase
         .from('webwijzer_assignments')
         .delete()
-        .eq('id', content.assignment_id!);
+        .eq('id', contentToDelete.assignment_id!);
 
       if (error) throw error;
 
       setMessage('Content succesvol verwijderd');
       fetchStudentContent();
       setTimeout(() => setMessage(''), 3000);
+      setShowDeleteConfirm(false);
+      setContentToDelete(null);
     } catch (error) {
       console.error('Error removing content:', error);
       setMessage('Fout bij verwijderen van content');
       setTimeout(() => setMessage(''), 3000);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -341,6 +353,21 @@ export function StudentWebWijzerManager({ onBack }: StudentWebWijzerManagerProps
             )}
           </div>
         )}
+
+        <ConfirmationModal
+          isOpen={showDeleteConfirm}
+          onClose={() => {
+            setShowDeleteConfirm(false);
+            setContentToDelete(null);
+          }}
+          onConfirm={confirmDelete}
+          title="Content verwijderen"
+          message={`Weet je zeker dat je "${contentToDelete?.title}" wilt verwijderen voor ${selectedStudent?.first_name}?`}
+          confirmText="Verwijderen"
+          cancelText="Annuleren"
+          variant="danger"
+          loading={isDeleting}
+        />
       </div>
     );
   }
