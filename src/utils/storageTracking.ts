@@ -83,7 +83,7 @@ export async function getSchoolStorageUsage(schoolId: string) {
   try {
     const { data: school, error: schoolError } = await supabase
       .from('schools')
-      .select('storage_used_bytes, storage_limit_bytes, is_premium_school')
+      .select('storage_used_bytes, storage_limit_bytes, premium_school')
       .eq('id', schoolId)
       .maybeSingle();
 
@@ -103,7 +103,7 @@ export async function getSchoolStorageUsage(schoolId: string) {
       usedGB: parseFloat(usedGB.toFixed(2)),
       limitGB: parseFloat(limitGB.toFixed(2)),
       percentageUsed: parseFloat(percentageUsed.toFixed(1)),
-      isPremium: school.is_premium_school,
+      isPremium: school.premium_school === 1,
     };
   } catch (error) {
     console.error('Error getting school storage usage:', error);
