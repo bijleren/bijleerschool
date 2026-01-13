@@ -64,6 +64,7 @@ interface PendingItem {
   item: Book | Material;
   type: 'book' | 'material';
   currentHolder?: { id: string; first_name: string; last_name: string; access_hash?: string };
+  currentHolders?: Array<{ id: string; first_name: string; last_name: string; loan_id: string }>;
   autoReturn?: boolean;
 }
 
@@ -83,6 +84,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [pendingItem, setPendingItem] = useState<PendingItem | null>(null);
   const [pendingStudentSwitch, setPendingStudentSwitch] = useState<PendingStudentSwitch | null>(null);
+  const [selectedReturnHolder, setSelectedReturnHolder] = useState<string | null>(null);
 
   const action = actionState;
   const setAction = (newAction: Action | null) => {
@@ -198,36 +200,49 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
 
       console.log('Book found. Setting pending item. Current action:', action);
 
-      const { data: currentLoan } = await supabase
+      const { data: currentLoans } = await supabase
         .from('book_loans')
-        .select('student_id, student:students(id, first_name, last_name, access_hash)')
+        .select('id, student_id, student:students(id, first_name, last_name, access_hash)')
         .eq('book_id', book.id)
-        .is('returned_at', null)
-        .maybeSingle();
+        .is('returned_at', null);
 
-      if (!selectedStudent && currentLoan) {
-        const studentWithLoan = currentLoan.student as any;
+      if (!selectedStudent && currentLoans && currentLoans.length > 0) {
+        const holders = currentLoans.map((loan: any) => ({
+          id: loan.student.id,
+          first_name: loan.student.first_name,
+          last_name: loan.student.last_name,
+          loan_id: loan.id
+        }));
+
         setPendingItem({
           item: book,
           type: 'book',
-          currentHolder: studentWithLoan,
+          currentHolders: holders,
           autoReturn: true
         });
         setProcessing(false);
         return;
       }
 
-      if (!selectedStudent && !currentLoan) {
+      if (!selectedStudent && (!currentLoans || currentLoans.length === 0)) {
         setToast({ message: 'Selecteer eerst een leerling om een boek uit te lenen', type: 'error' });
         setProcessing(false);
         return;
       }
 
       if (action === 'lend' && book.available_copies <= 0) {
+        const holders = currentLoans?.map((loan: any) => ({
+          id: loan.student.id,
+          first_name: loan.student.first_name,
+          last_name: loan.student.last_name,
+          loan_id: loan.id
+        })) || [];
+
         setPendingItem({
           item: book,
           type: 'book',
-          currentHolder: currentLoan?.student as any
+          currentHolders: holders.length > 0 ? holders : undefined,
+          currentHolder: holders.length === 1 ? holders[0] : undefined
         });
         setProcessing(false);
         return;
@@ -268,36 +283,49 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
 
       console.log('Material found. Setting pending item. Current action:', action);
 
-      const { data: currentLoan } = await supabase
+      const { data: currentLoans } = await supabase
         .from('school_material_loans')
-        .select('student_id, students(id, first_name, last_name)')
+        .select('id, student_id, students(id, first_name, last_name)')
         .eq('material_id', material.id)
-        .is('returned_at', null)
-        .maybeSingle();
+        .is('returned_at', null);
 
-      if (!selectedStudent && currentLoan) {
-        const studentWithLoan = currentLoan.students as any;
+      if (!selectedStudent && currentLoans && currentLoans.length > 0) {
+        const holders = currentLoans.map((loan: any) => ({
+          id: loan.students.id,
+          first_name: loan.students.first_name,
+          last_name: loan.students.last_name,
+          loan_id: loan.id
+        }));
+
         setPendingItem({
           item: material,
           type: 'material',
-          currentHolder: studentWithLoan,
+          currentHolders: holders,
           autoReturn: true
         });
         setProcessing(false);
         return;
       }
 
-      if (!selectedStudent && !currentLoan) {
+      if (!selectedStudent && (!currentLoans || currentLoans.length === 0)) {
         setToast({ message: 'Selecteer eerst een leerling om materiaal uit te lenen', type: 'error' });
         setProcessing(false);
         return;
       }
 
       if (action === 'lend' && material.available_copies <= 0) {
+        const holders = currentLoans?.map((loan: any) => ({
+          id: loan.students.id,
+          first_name: loan.students.first_name,
+          last_name: loan.students.last_name,
+          loan_id: loan.id
+        })) || [];
+
         setPendingItem({
           item: material,
           type: 'material',
-          currentHolder: currentLoan?.students as any
+          currentHolders: holders.length > 0 ? holders : undefined,
+          currentHolder: holders.length === 1 ? holders[0] : undefined
         });
         setProcessing(false);
         return;
@@ -313,30 +341,52 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
   };
 
   const handleAutoReturn = async () => {
-    if (!pendingItem || !pendingItem.currentHolder) return;
+    if (!pendingItem) return;
+
+    if (pendingItem.currentHolders && pendingItem.currentHolders.length > 1 && !selectedReturnHolder) {
+      setToast({ message: 'Selecteer een leerling', type: 'error' });
+      return;
+    }
 
     setProcessing(true);
     try {
       const item = pendingItem.item;
-      const holder = pendingItem.currentHolder;
       const isBook = pendingItem.type === 'book';
-
       const table = isBook ? 'book_loans' : 'school_material_loans';
-      const idField = isBook ? 'book_id' : 'material_id';
 
-      const { data: loan, error: loanFetchError } = await supabase
-        .from(table)
-        .select('id')
-        .eq(idField, item.id)
-        .eq('student_id', holder.id)
-        .is('returned_at', null)
-        .maybeSingle();
+      let loanId: string | null = null;
+      let holder: { id: string; first_name: string; last_name: string } | null = null;
 
-      if (loanFetchError) throw loanFetchError;
+      if (pendingItem.currentHolders && pendingItem.currentHolders.length > 0) {
+        if (pendingItem.currentHolders.length === 1) {
+          loanId = pendingItem.currentHolders[0].loan_id;
+          holder = pendingItem.currentHolders[0];
+        } else if (selectedReturnHolder) {
+          const selectedHolder = pendingItem.currentHolders.find(h => h.loan_id === selectedReturnHolder);
+          if (selectedHolder) {
+            loanId = selectedHolder.loan_id;
+            holder = selectedHolder;
+          }
+        }
+      } else if (pendingItem.currentHolder) {
+        holder = pendingItem.currentHolder;
+        const idField = isBook ? 'book_id' : 'material_id';
+        const { data: loan, error: loanFetchError } = await supabase
+          .from(table)
+          .select('id')
+          .eq(idField, item.id)
+          .eq('student_id', holder.id)
+          .is('returned_at', null)
+          .maybeSingle();
 
-      if (!loan) {
+        if (loanFetchError) throw loanFetchError;
+        if (loan) loanId = loan.id;
+      }
+
+      if (!loanId || !holder) {
         setToast({ message: 'Geen actieve lening gevonden', type: 'error' });
         setPendingItem(null);
+        setSelectedReturnHolder(null);
         setProcessing(false);
         return;
       }
@@ -344,7 +394,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
       const { error: returnError } = await supabase
         .from(table)
         .update({ returned_at: new Date().toISOString() })
-        .eq('id', loan.id);
+        .eq('id', loanId);
 
       if (returnError) throw returnError;
 
@@ -375,11 +425,13 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
 
       onBookProcessed();
       setPendingItem(null);
+      setSelectedReturnHolder(null);
       setProcessing(false);
     } catch (error) {
       console.error('Error processing auto-return:', error);
       setToast({ message: 'Fout bij verwerken', type: 'error' });
       setPendingItem(null);
+      setSelectedReturnHolder(null);
       setProcessing(false);
     }
   };
@@ -540,6 +592,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
 
   const cancelItemAction = () => {
     setPendingItem(null);
+    setSelectedReturnHolder(null);
   };
 
   const handleReset = () => {
@@ -771,7 +824,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                 {pendingItem.autoReturn ? `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} inleveren` : (action === 'lend' ? `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} uitlenen` : `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} inleveren`)}
               </h3>
 
-              {pendingItem.autoReturn && pendingItem.currentHolder ? (
+              {pendingItem.autoReturn && (pendingItem.currentHolder || pendingItem.currentHolders) ? (
                 <div className="mb-4">
                   <p className="text-gray-700 mb-2">
                     <strong>{title}</strong>
@@ -781,30 +834,90 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                       {subtitle}
                     </p>
                   )}
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-3">
-                    <div className="flex items-start">
-                      <BookOpen className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-blue-900">Momenteel uitgeleend aan</p>
-                        <p className="text-sm text-blue-700 mt-1">
-                          <strong>{pendingItem.currentHolder.first_name} {pendingItem.currentHolder.last_name}</strong>
-                        </p>
+
+                  {pendingItem.currentHolders && pendingItem.currentHolders.length > 1 ? (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium text-gray-700 mb-2">
+                        Selecteer wie het {itemType} inlevert:
+                      </p>
+                      <div className="space-y-2 max-h-60 overflow-y-auto border border-gray-200 rounded-lg">
+                        {pendingItem.currentHolders.map((holder) => (
+                          <label
+                            key={holder.loan_id}
+                            className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-200 last:border-b-0"
+                          >
+                            <input
+                              type="radio"
+                              name="returnStudent"
+                              value={holder.loan_id}
+                              checked={selectedReturnHolder === holder.loan_id}
+                              onChange={(e) => setSelectedReturnHolder(e.target.value)}
+                              className="w-4 h-4 text-blue-600 mr-3"
+                            />
+                            <span className="text-gray-900">
+                              {holder.first_name} {holder.last_name}
+                            </span>
+                          </label>
+                        ))}
                       </div>
                     </div>
-                  </div>
+                  ) : pendingItem.currentHolder ? (
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+                      <div className="flex items-start">
+                        <BookOpen className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-blue-900">Momenteel uitgeleend aan</p>
+                          <p className="text-sm text-blue-700 mt-1">
+                            <strong>{pendingItem.currentHolder.first_name} {pendingItem.currentHolder.last_name}</strong>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : pendingItem.currentHolders && pendingItem.currentHolders.length === 1 ? (
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+                      <div className="flex items-start">
+                        <BookOpen className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-blue-900">Momenteel uitgeleend aan</p>
+                          <p className="text-sm text-blue-700 mt-1">
+                            <strong>{pendingItem.currentHolders[0].first_name} {pendingItem.currentHolders[0].last_name}</strong>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+
                   <p className="text-sm text-gray-600">
-                    Wil je dit {itemType} inleveren?
+                    {pendingItem.currentHolders && pendingItem.currentHolders.length > 1
+                      ? 'Selecteer een leerling om het materiaal in te leveren'
+                      : `Wil je dit ${itemType} inleveren?`
+                    }
                   </p>
                 </div>
-              ) : pendingItem.currentHolder && !pendingItem.autoReturn ? (
+              ) : (pendingItem.currentHolder || (pendingItem.currentHolders && pendingItem.currentHolders.length > 0)) && !pendingItem.autoReturn ? (
                 <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <div className="flex items-start">
                     <AlertCircle className="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" />
-                    <div>
+                    <div className="flex-1">
                       <p className="text-sm font-medium text-yellow-900">Geen exemplaren beschikbaar</p>
-                      <p className="text-sm text-yellow-700 mt-1">
-                        Dit {itemType} is momenteel uitgeleend aan <strong>{pendingItem.currentHolder.first_name} {pendingItem.currentHolder.last_name}</strong>
-                      </p>
+                      {pendingItem.currentHolders && pendingItem.currentHolders.length > 0 ? (
+                        <div className="mt-2">
+                          <p className="text-sm text-yellow-700 mb-1">
+                            Dit {itemType} is momenteel uitgeleend aan:
+                          </p>
+                          <ul className="text-sm text-yellow-700 list-disc list-inside">
+                            {pendingItem.currentHolders.map((holder) => (
+                              <li key={holder.loan_id}>
+                                <strong>{holder.first_name} {holder.last_name}</strong>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : pendingItem.currentHolder ? (
+                        <p className="text-sm text-yellow-700 mt-1">
+                          Dit {itemType} is momenteel uitgeleend aan <strong>{pendingItem.currentHolder.first_name} {pendingItem.currentHolder.last_name}</strong>
+                        </p>
+                      ) : null}
                     </div>
                   </div>
                 </div>
