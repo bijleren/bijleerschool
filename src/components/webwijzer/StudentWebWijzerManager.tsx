@@ -4,7 +4,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, Search, Trash2, Video, FileText, ExternalLink, Users, AlertCircle, Eye, Star, Edit2 } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Video, FileText, ExternalLink, Users, AlertCircle, Eye, Star, CreditCard as Edit2 } from 'lucide-react';
 
 interface Student {
   id: string;
