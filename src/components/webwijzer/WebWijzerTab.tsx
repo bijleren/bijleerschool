@@ -305,7 +305,20 @@ export function WebWijzerTab() {
   }
 
   if (showStudentManager) {
-    return <StudentWebWijzerManager onBack={() => setShowStudentManager(false)} />;
+    const handleEditContent = async (contentId: string) => {
+      const content = contents.find(c => c.id === contentId);
+      if (content) {
+        setShowStudentManager(false);
+        setEditingContent(content);
+      }
+    };
+
+    return (
+      <StudentWebWijzerManager
+        onBack={() => setShowStudentManager(false)}
+        onEditContent={handleEditContent}
+      />
+    );
   }
 
   const filteredStudents = students.filter(s =>

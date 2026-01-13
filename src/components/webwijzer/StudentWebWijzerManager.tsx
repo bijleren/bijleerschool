@@ -4,7 +4,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, Search, Trash2, Video, FileText, ExternalLink, Users, AlertCircle, Eye, Star } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Video, FileText, ExternalLink, Users, AlertCircle, Eye, Star, Edit2 } from 'lucide-react';
 
 interface Student {
   id: string;
@@ -28,9 +28,10 @@ interface WebWijzerContent {
 
 interface StudentWebWijzerManagerProps {
   onBack: () => void;
+  onEditContent?: (contentId: string) => void;
 }
 
-export function StudentWebWijzerManager({ onBack }: StudentWebWijzerManagerProps) {
+export function StudentWebWijzerManager({ onBack, onEditContent }: StudentWebWijzerManagerProps) {
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [studentContents, setStudentContents] = useState<WebWijzerContent[]>([]);
@@ -246,6 +247,15 @@ export function StudentWebWijzerManager({ onBack }: StudentWebWijzerManagerProps
             >
               <Eye className="w-4 h-4 text-blue-600" />
             </button>
+            {onEditContent && (
+              <button
+                onClick={() => onEditContent(content.id)}
+                className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+                title="Bewerk content"
+              >
+                <Edit2 className="w-4 h-4 text-green-600" />
+              </button>
+            )}
             {content.assignment_source === 'direct' && (
               <button
                 onClick={() => handleRemoveContent(content)}
