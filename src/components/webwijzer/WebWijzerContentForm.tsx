@@ -4,7 +4,8 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { ArrowLeft, Video, FileText, ExternalLink, Users, User, Star, Zap, Hash, Calendar } from 'lucide-react';
+import { ConfirmationModal } from '../ui/ConfirmationModal';
+import { ArrowLeft, Video, FileText, ExternalLink, Users, User, Star, Zap, Hash, Calendar, X, Trash2 } from 'lucide-react';
 
 interface WebWijzerContent {
   id: string;
@@ -26,6 +27,13 @@ interface Student {
   last_name: string;
   student_number: string | null;
   grade_level: string | null;
+}
+
+interface AssignedStudent extends Student {
+  assignment_id: string;
+  is_push: boolean;
+  is_favorite: boolean;
+  click_limit: number | null;
 }
 
 interface Group {
@@ -90,12 +98,62 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
   const [hasDateLimit, setHasDateLimit] = useState(false);
   const [dateFrom, setDateFrom] = useState('');
   const [dateUntil, setDateUntil] = useState('');
+  const [assignedStudents, setAssignedStudents] = useState<AssignedStudent[]>([]);
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
+  const [studentToRemove, setStudentToRemove] = useState<{ id: string; name: string } | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
-    if (user && !content) {
-      fetchStudentsAndGroups();
+    if (user) {
+      if (content) {
+        fetchAssignedStudents();
+      } else {
+        fetchStudentsAndGroups();
+      }
     }
   }, [user, content]);
+
+  const fetchAssignedStudents = async () => {
+    if (!user || !content) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('webwijzer_assignments')
+        .select(`
+          id,
+          is_push,
+          is_favorite,
+          click_limit,
+          students:assignable_id (
+            id,
+            first_name,
+            last_name,
+            student_number,
+            grade_level
+          )
+        `)
+        .eq('content_id', content.id)
+        .eq('assignable_type', 'student');
+
+      if (error) throw error;
+
+      const assigned = data?.map((assignment: any) => ({
+        id: assignment.students.id,
+        first_name: assignment.students.first_name,
+        last_name: assignment.students.last_name,
+        student_number: assignment.students.student_number,
+        grade_level: assignment.students.grade_level,
+        assignment_id: assignment.id,
+        is_push: assignment.is_push,
+        is_favorite: assignment.is_favorite,
+        click_limit: assignment.click_limit,
+      })) || [];
+
+      setAssignedStudents(assigned);
+    } catch (error) {
+      console.error('Error fetching assigned students:', error);
+    }
+  };
 
   const fetchStudentsAndGroups = async () => {
     if (!user) return;
@@ -233,6 +291,64 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
       newSelected.add(groupId);
     }
     setSelectedGroups(newSelected);
+  };
+
+  const handleUpdateAssignment = async (assignmentId: string, updates: Partial<AssignedStudent>) => {
+    try {
+      const { error } = await supabase
+        .from('webwijzer_assignments')
+        .update(updates)
+        .eq('id', assignmentId);
+
+      if (error) throw error;
+
+      setAssignedStudents(prev =>
+        prev.map(student =>
+          student.assignment_id === assignmentId
+            ? { ...student, ...updates }
+            : student
+        )
+      );
+
+      setMessage({ type: 'success', text: 'Assignment updated' });
+      setTimeout(() => setMessage(null), 2000);
+    } catch (error) {
+      console.error('Error updating assignment:', error);
+      setMessage({ type: 'error', text: 'Failed to update assignment' });
+    }
+  };
+
+  const handleRemoveAssignment = (student: AssignedStudent) => {
+    setStudentToRemove({
+      id: student.assignment_id,
+      name: `${student.first_name} ${student.last_name}`,
+    });
+    setShowRemoveConfirm(true);
+  };
+
+  const confirmRemoveAssignment = async () => {
+    if (!studentToRemove) return;
+
+    setIsRemoving(true);
+    try {
+      const { error } = await supabase
+        .from('webwijzer_assignments')
+        .delete()
+        .eq('id', studentToRemove.id);
+
+      if (error) throw error;
+
+      setAssignedStudents(prev => prev.filter(s => s.assignment_id !== studentToRemove.id));
+      setMessage({ type: 'success', text: 'Assignment removed' });
+      setTimeout(() => setMessage(null), 2000);
+      setShowRemoveConfirm(false);
+      setStudentToRemove(null);
+    } catch (error) {
+      console.error('Error removing assignment:', error);
+      setMessage({ type: 'error', text: 'Failed to remove assignment' });
+    } finally {
+      setIsRemoving(false);
+    }
   };
 
   const filteredStudents = students.filter(student =>
@@ -402,6 +518,98 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
                 </div>
               </div>
             </Card>
+
+            {/* Assigned Students - Only show when editing */}
+            {content && assignedStudents.length > 0 && (
+              <Card>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  Individually Assigned Students ({assignedStudents.length})
+                </h2>
+                <p className="text-sm text-gray-600 mb-4">
+                  Students who have this content assigned directly (not through a group)
+                </p>
+
+                <div className="space-y-3">
+                  {assignedStudents.map((student) => (
+                    <div
+                      key={student.assignment_id}
+                      className="border border-gray-200 rounded-lg p-4 space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {student.first_name} {student.last_name}
+                          </p>
+                          {student.student_number && (
+                            <p className="text-sm text-gray-500">#{student.student_number}</p>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAssignment(student)}
+                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Remove assignment"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={student.is_push}
+                            onChange={(e) =>
+                              handleUpdateAssignment(student.assignment_id, {
+                                is_push: e.target.checked,
+                              })
+                            }
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          />
+                          <Zap className="w-4 h-4 text-orange-500" />
+                          <span className="text-sm font-medium text-gray-700">Push</span>
+                        </label>
+
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={student.is_favorite}
+                            onChange={(e) =>
+                              handleUpdateAssignment(student.assignment_id, {
+                                is_favorite: e.target.checked,
+                              })
+                            }
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          />
+                          <Star className="w-4 h-4 text-yellow-500" />
+                          <span className="text-sm font-medium text-gray-700">Favorite</span>
+                        </label>
+                      </div>
+
+                      <div>
+                        <label className="flex items-center gap-2 mb-2">
+                          <Hash className="w-4 h-4 text-blue-500" />
+                          <span className="text-sm font-medium text-gray-700">Click Limit</span>
+                        </label>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={student.click_limit || ''}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value) || null;
+                            handleUpdateAssignment(student.assignment_id, {
+                              click_limit: value,
+                            });
+                          }}
+                          placeholder="No limit"
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
 
             {/* Assignment Section - Only show for new content */}
             {!content && (
@@ -642,6 +850,21 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
           </Button>
         </div>
       </form>
+
+      <ConfirmationModal
+        isOpen={showRemoveConfirm}
+        onClose={() => {
+          setShowRemoveConfirm(false);
+          setStudentToRemove(null);
+        }}
+        onConfirm={confirmRemoveAssignment}
+        title="Verwijder toewijzing"
+        message={`Weet je zeker dat je deze content wilt verwijderen voor ${studentToRemove?.name}?`}
+        confirmText="Verwijderen"
+        cancelText="Annuleren"
+        variant="danger"
+        loading={isRemoving}
+      />
     </div>
   );
 }
