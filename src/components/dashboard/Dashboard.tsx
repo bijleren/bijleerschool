@@ -15,7 +15,6 @@ import { BoekerTab } from '../boeker/BoekerTab';
 import { EDITab } from '../edi/EDITab';
 import { DigiToolsTab } from '../digitools/DigiToolsTab';
 import { ZoekerTab } from '../zoeker/ZoekerTab';
-import { DataGebruikTab } from '../storage/DataGebruikTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
@@ -54,7 +53,7 @@ interface Group {
 
 export function Dashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'datagebruik'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter'>('dashboard');
   const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -310,13 +309,6 @@ export function Dashboard() {
     setTeachingPageOverride('newsletter');
   };
 
-  const handleNavigateToDataGebruik = () => {
-    setSelectedSchool(null);
-    setSelectedStudent(null);
-    setSelectedGroup(null);
-    setActiveTab('datagebruik');
-  };
-
   const handleNavigateToBehaviorWithSchool = (school: { id: string; name: string }) => {
     // Use focus school instead of passed school
     setSelectedSchool(focusSchool);
@@ -491,7 +483,6 @@ export function Dashboard() {
         onNavigateToZoeker={handleNavigateToZoeker}
         onNavigateToEDI={handleNavigateToEDI}
         onNavigateToDigiTools={handleNavigateToDigiTools}
-        onNavigateToDataGebruik={handleNavigateToDataGebruik}
         focusSchool={focusSchool}
       />
       )}
@@ -536,7 +527,6 @@ export function Dashboard() {
         {activeTab === 'zoeker' && <ZoekerTab />}
         {activeTab === 'edi' && <EDITab />}
         {activeTab === 'digitools' && <DigiToolsTab />}
-        {activeTab === 'datagebruik' && <DataGebruikTab />}
         {activeTab === 'activityboards' && <ActivityBoardsTab onFullscreenChange={setIsFullscreen} />}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail

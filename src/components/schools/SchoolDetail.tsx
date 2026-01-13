@@ -8,7 +8,8 @@ import { StudentImport } from './StudentImport';
 import { GradeManagement } from '../schoolday/GradeManagement';
 import { SubjectsManagement } from '../schoolday/SubjectsManagement';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Settings, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Settings, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive } from 'lucide-react';
+import { DataGebruikTab } from '../storage/DataGebruikTab';
 
 interface School {
   id: string;
@@ -78,7 +79,7 @@ interface SchoolDetailProps {
 
 export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStudent, onNavigateToGroup }: SchoolDetailProps) {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'grades' | 'teamleden'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'grades' | 'teamleden' | 'datagebruik'>('students');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -547,6 +548,17 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             <UserPlus className="w-4 h-4 mr-2" />
             Teamleden ({schoolUsers.length})
           </button>
+          <button
+            onClick={() => setActiveTab('datagebruik')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
+              activeTab === 'datagebruik'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <HardDrive className="w-4 h-4 mr-2" />
+            Data-gebruik
+          </button>
         </nav>
       </div>
 
@@ -947,6 +959,10 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             )}
           </div>
         </div>
+      )}
+
+      {activeTab === 'datagebruik' && (
+        <DataGebruikTab schoolId={school.id} />
       )}
 
       {/* Import Students Modal */}

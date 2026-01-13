@@ -55,21 +55,27 @@ interface RecentUpload {
 type SortField = 'fileType' | 'totalSize' | 'fileCount';
 type SortDirection = 'asc' | 'desc';
 
-export function DataGebruikTab() {
+interface DataGebruikTabProps {
+  schoolId?: string;
+}
+
+export function DataGebruikTab({ schoolId: propSchoolId }: DataGebruikTabProps = {}) {
   const { user } = useAuth();
   const [storageData, setStorageData] = useState<StorageData | null>(null);
   const [breakdown, setBreakdown] = useState<StorageBreakdown[]>([]);
   const [recentUploads, setRecentUploads] = useState<RecentUpload[]>([]);
   const [loading, setLoading] = useState(true);
-  const [schoolId, setSchoolId] = useState<string | null>(null);
+  const [schoolId, setSchoolId] = useState<string | null>(propSchoolId || null);
   const [sortField, setSortField] = useState<SortField>('totalSize');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   useEffect(() => {
-    if (user) {
+    if (propSchoolId) {
+      setSchoolId(propSchoolId);
+    } else if (user) {
       loadSchoolId();
     }
-  }, [user]);
+  }, [user, propSchoolId]);
 
   useEffect(() => {
     if (schoolId) {
@@ -78,7 +84,7 @@ export function DataGebruikTab() {
   }, [schoolId]);
 
   const loadSchoolId = async () => {
-    if (!user) return;
+    if (!user || propSchoolId) return;
 
     const { data: userSchools } = await supabase
       .from('user_schools')
