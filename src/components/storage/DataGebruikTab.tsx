@@ -29,7 +29,7 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
     try {
       const { data: school, error: schoolError } = await supabase
         .from('schools')
-        .select('storage_used_bytes, storage_limit_bytes, is_premium_school')
+        .select('storage_used_bytes, storage_limit_bytes, premium_school')
         .eq('id', schoolId)
         .maybeSingle();
 
@@ -45,7 +45,7 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
 
       setStorageUsedGB(parseFloat(usedGB.toFixed(2)));
       setStorageLimitGB(parseFloat(limitGB.toFixed(2)));
-      setIsPremium(school.is_premium_school || false);
+      setIsPremium(school.premium_school === 1);
     } catch (err) {
       console.error('Error loading storage data:', err);
       setError('Kon opslaggegevens niet laden');
