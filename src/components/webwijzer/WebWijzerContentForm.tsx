@@ -170,7 +170,9 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
       const { data: userSchools } = await supabase
         .from('user_schools')
         .select('school_id')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .eq('status', 'approved');
 
       const schoolIds = userSchools?.map(us => us.school_id) || [];
 
@@ -232,10 +234,12 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
           .from('user_schools')
           .select('school_id')
           .eq('user_id', user.id)
+          .eq('is_active', true)
+          .eq('status', 'approved')
           .maybeSingle();
 
         if (!userSchools?.school_id) {
-          throw new Error('School not found');
+          throw new Error('Je hebt geen actieve school. Neem contact op met je schoolbeheerder.');
         }
 
         if (content?.content_url) {
