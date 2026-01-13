@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { ArrowLeft, Search, Trash2, Video, FileText, ExternalLink, Users, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Video, FileText, ExternalLink, Users, AlertCircle, Eye, Star } from 'lucide-react';
 
 interface Student {
   id: string;
@@ -22,6 +22,7 @@ interface WebWijzerContent {
   assignment_source: 'direct' | 'group';
   assignment_id?: string;
   group_name?: string;
+  is_favorite?: boolean;
 }
 
 interface StudentWebWijzerManagerProps {
@@ -82,6 +83,7 @@ export function StudentWebWijzerManager({ onBack }: StudentWebWijzerManagerProps
         .select(`
           id,
           content_id,
+          is_favorite,
           webwijzer_content (
             id,
             title,
@@ -110,6 +112,7 @@ export function StudentWebWijzerManager({ onBack }: StudentWebWijzerManagerProps
             id,
             content_id,
             assignable_id,
+            is_favorite,
             webwijzer_content (
               id,
               title,
@@ -132,6 +135,7 @@ export function StudentWebWijzerManager({ onBack }: StudentWebWijzerManagerProps
             ...assignment.webwijzer_content,
             assignment_source: 'direct',
             assignment_id: assignment.id,
+            is_favorite: assignment.is_favorite || false,
           });
         }
       });
@@ -144,6 +148,7 @@ export function StudentWebWijzerManager({ onBack }: StudentWebWijzerManagerProps
             assignment_source: 'group',
             assignment_id: assignment.id,
             group_name: group?.groups?.name,
+            is_favorite: assignment.is_favorite || false,
           });
         }
       });
@@ -209,6 +214,61 @@ export function StudentWebWijzerManager({ onBack }: StudentWebWijzerManagerProps
   );
 
   if (selectedStudent) {
+    const favoriteContents = studentContents.filter(c => c.is_favorite);
+    const generalContents = studentContents.filter(c => !c.is_favorite);
+
+    const renderContentCard = (content: WebWijzerContent) => (
+      <Card key={`${content.id}-${content.assignment_id}`} className="relative">
+        <div className="flex items-start justify-between mb-4">
+          <div
+            className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
+            style={{ backgroundColor: content.color + '20' }}
+          >
+            {content.symbol}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => window.open(content.content_url, '_blank')}
+              className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Bekijk content"
+            >
+              <Eye className="w-4 h-4 text-blue-600" />
+            </button>
+            {content.assignment_source === 'direct' && (
+              <button
+                onClick={() => handleRemoveContent(content)}
+                className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                title="Verwijder content"
+              >
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <h3 className="font-semibold text-gray-900 mb-2">{content.title}</h3>
+
+        <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+          {getContentIcon(content.content_type)}
+          <span className="capitalize">{content.content_type}</span>
+        </div>
+
+        <div className="pt-3 border-t border-gray-200">
+          {content.assignment_source === 'direct' ? (
+            <div className="flex items-center gap-2 text-sm text-green-700">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              Direct toegewezen
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-sm text-blue-700">
+              <Users className="w-4 h-4" />
+              Via groep: {content.group_name}
+            </div>
+          )}
+        </div>
+      </Card>
+    );
+
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
@@ -253,52 +313,32 @@ export function StudentWebWijzerManager({ onBack }: StudentWebWijzerManagerProps
             </p>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {studentContents.map((content) => (
-              <Card key={`${content.id}-${content.assignment_id}`} className="relative">
-                <div className="flex items-start justify-between mb-4">
-                  <div
-                    className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
-                    style={{ backgroundColor: content.color + '20' }}
-                  >
-                    {content.symbol}
-                  </div>
-                  {content.assignment_source === 'direct' && (
-                    <button
-                      onClick={() => handleRemoveContent(content)}
-                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Verwijder content"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-600" />
-                    </button>
-                  )}
+          <div className="space-y-8">
+            {favoriteContents.length > 0 && (
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
+                  <h2 className="text-2xl font-bold text-gray-900">Favorieten</h2>
+                  <span className="text-sm text-gray-500">({favoriteContents.length})</span>
                 </div>
-
-                <h3 className="font-semibold text-gray-900 mb-2">{content.title}</h3>
-
-                <button
-                  onClick={() => window.open(content.content_url, '_blank')}
-                  className="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 mb-3 transition-colors"
-                >
-                  {getContentIcon(content.content_type)}
-                  <span className="capitalize">{content.content_type}</span>
-                </button>
-
-                <div className="pt-3 border-t border-gray-200">
-                  {content.assignment_source === 'direct' ? (
-                    <div className="flex items-center gap-2 text-sm text-green-700">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      Direct toegewezen
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-sm text-blue-700">
-                      <Users className="w-4 h-4" />
-                      Via groep: {content.group_name}
-                    </div>
-                  )}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {favoriteContents.map(renderContentCard)}
                 </div>
-              </Card>
-            ))}
+              </div>
+            )}
+
+            {generalContents.length > 0 && (
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <FileText className="w-6 h-6 text-gray-500" />
+                  <h2 className="text-2xl font-bold text-gray-900">Algemene Items</h2>
+                  <span className="text-sm text-gray-500">({generalContents.length})</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {generalContents.map(renderContentCard)}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
