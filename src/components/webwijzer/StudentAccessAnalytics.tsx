@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { ArrowLeft, Users, Clock, Calendar, TrendingUp, Search, User, QrCode, MousePointer } from 'lucide-react';
+import { ArrowLeft, Users, Clock, Calendar, TrendingUp, Search, User, QrCode, MousePointer, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface StudentAccess {
   student_id: string;
@@ -21,6 +21,9 @@ interface StudentAccess {
   }>;
 }
 
+type SortField = 'name' | 'total_visits' | 'last_visit' | 'first_visit';
+type SortDirection = 'asc' | 'desc';
+
 export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
   const { user } = useAuth();
   const [studentAccess, setStudentAccess] = useState<StudentAccess[]>([]);
@@ -29,6 +32,8 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<StudentAccess | null>(null);
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [sortField, setSortField] = useState<SortField>('total_visits');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   useEffect(() => {
     if (user) {
@@ -38,7 +43,7 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
 
   useEffect(() => {
     filterStudents();
-  }, [studentAccess, searchTerm, dateFilter]);
+  }, [studentAccess, searchTerm, dateFilter, sortField, sortDirection]);
 
   const fetchStudentAccess = async () => {
     if (!user) return;
@@ -128,7 +133,57 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
       });
     }
 
+    filtered = sortStudents(filtered);
     setFilteredAccess(filtered);
+  };
+
+  const sortStudents = (students: StudentAccess[]) => {
+    return [...students].sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortField) {
+        case 'name':
+          comparison = a.student_name.localeCompare(b.student_name);
+          break;
+        case 'total_visits':
+          comparison = a.total_visits - b.total_visits;
+          break;
+        case 'last_visit':
+          if (!a.last_visit && !b.last_visit) comparison = 0;
+          else if (!a.last_visit) comparison = 1;
+          else if (!b.last_visit) comparison = -1;
+          else comparison = new Date(a.last_visit).getTime() - new Date(b.last_visit).getTime();
+          break;
+        case 'first_visit':
+          if (!a.first_visit && !b.first_visit) comparison = 0;
+          else if (!a.first_visit) comparison = 1;
+          else if (!b.first_visit) comparison = -1;
+          else comparison = new Date(a.first_visit).getTime() - new Date(b.first_visit).getTime();
+          break;
+      }
+
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  };
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="w-4 h-4 text-gray-400" />;
+    }
+    return sortDirection === 'asc' ? (
+      <ArrowUp className="w-4 h-4 text-blue-600" />
+    ) : (
+      <ArrowDown className="w-4 h-4 text-blue-600" />
+    );
   };
 
   const formatDate = (dateString: string) => {
@@ -408,20 +463,44 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Leerling
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleSort('name')}
+                  >
+                    <div className="flex items-center gap-2">
+                      Leerling
+                      <SortIcon field="name" />
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Totaal bezoeken
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleSort('total_visits')}
+                  >
+                    <div className="flex items-center gap-2">
+                      Totaal bezoeken
+                      <SortIcon field="total_visits" />
+                    </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     QR / Handmatig
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Laatste bezoek
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleSort('last_visit')}
+                  >
+                    <div className="flex items-center gap-2">
+                      Laatste bezoek
+                      <SortIcon field="last_visit" />
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Eerste bezoek
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleSort('first_visit')}
+                  >
+                    <div className="flex items-center gap-2">
+                      Eerste bezoek
+                      <SortIcon field="first_visit" />
+                    </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actie
