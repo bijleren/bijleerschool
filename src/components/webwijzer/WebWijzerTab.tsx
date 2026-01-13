@@ -4,11 +4,12 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { Link, Plus, Video, FileText, ExternalLink, Trash2, Pencil, Users, BarChart3, Eye, Zap, Star, X, Filter, QrCode } from 'lucide-react';
+import { Link, Plus, Video, FileText, ExternalLink, Trash2, Pencil, Users, BarChart3, Eye, Zap, Star, X, Filter, QrCode, UserCog } from 'lucide-react';
 import { WebWijzerContentForm } from './WebWijzerContentForm';
 import { WebWijzerAssignments } from './WebWijzerAssignments';
 import { WebWijzerAnalytics } from './WebWijzerAnalytics';
 import { QRCardGenerator } from './QRCardGenerator';
+import { StudentWebWijzerManager } from './StudentWebWijzerManager';
 
 interface WebWijzerContent {
   id: string;
@@ -45,6 +46,7 @@ export function WebWijzerTab() {
   const [studentSearchTerm, setStudentSearchTerm] = useState('');
   const [showOnlyMyContent, setShowOnlyMyContent] = useState(true);
   const [showQRCardGenerator, setShowQRCardGenerator] = useState(false);
+  const [showStudentManager, setShowStudentManager] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -293,12 +295,17 @@ export function WebWijzerTab() {
           setViewMode('assign');
           setSelectedContent(null);
         }}
+        initialContentId={selectedContent?.id}
       />
     );
   }
 
   if (showQRCardGenerator) {
     return <QRCardGenerator onClose={() => setShowQRCardGenerator(false)} />;
+  }
+
+  if (showStudentManager) {
+    return <StudentWebWijzerManager onBack={() => setShowStudentManager(false)} />;
   }
 
   const filteredStudents = students.filter(s =>
@@ -315,6 +322,10 @@ export function WebWijzerTab() {
           <p className="text-gray-600 mt-1">Share content with students using QR codes</p>
         </div>
         <div className="flex gap-3">
+          <Button variant="secondary" onClick={() => setShowStudentManager(true)}>
+            <UserCog className="w-4 h-4 mr-2" />
+            Student Beheer
+          </Button>
           <Button variant="secondary" onClick={() => setShowQRCardGenerator(true)}>
             <QrCode className="w-4 h-4 mr-2" />
             QR-kaarten

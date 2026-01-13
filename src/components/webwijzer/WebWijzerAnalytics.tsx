@@ -31,7 +31,12 @@ interface AnalyticsData {
   }>;
 }
 
-export function WebWijzerAnalytics({ onBack }: { onBack: () => void }) {
+interface WebWijzerAnalyticsProps {
+  onBack: () => void;
+  initialContentId?: string;
+}
+
+export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyticsProps) {
   const { user } = useAuth();
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +48,15 @@ export function WebWijzerAnalytics({ onBack }: { onBack: () => void }) {
       fetchAnalytics();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (initialContentId && analyticsData.length > 0) {
+      const content = analyticsData.find(d => d.content.id === initialContentId);
+      if (content) {
+        setSelectedContent(content);
+      }
+    }
+  }, [initialContentId, analyticsData]);
 
   const fetchAnalytics = async () => {
     if (!user) return;
