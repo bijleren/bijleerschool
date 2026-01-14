@@ -59,6 +59,8 @@ export function ZoekerTab() {
   const [todayCount, setTodayCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'requests' | 'analytics'>('requests');
+  const [editingStudents, setEditingStudents] = useState<Set<string>>(new Set());
+  const [newRequestsCount, setNewRequestsCount] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -71,14 +73,34 @@ export function ZoekerTab() {
       fetchStudentsWithRequests();
       fetchStats();
 
-      const interval = setInterval(() => {
-        fetchStudentsWithRequests();
-        fetchStats();
-      }, 10000);
+      // Set up Realtime subscription for new requests
+      const channel = supabase
+        .channel(`zoeker-requests-${selectedGroup}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'zoeker_search_requests'
+          },
+          (payload) => {
+            // Only update if no students are being edited
+            if (editingStudents.size === 0) {
+              fetchStudentsWithRequests();
+              fetchStats();
+            } else {
+              // Show notification of new requests
+              setNewRequestsCount(prev => prev + 1);
+            }
+          }
+        )
+        .subscribe();
 
-      return () => clearInterval(interval);
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
-  }, [selectedGroup]);
+  }, [selectedGroup, editingStudents]);
 
   const fetchGroups = async () => {
     if (!user) return;
@@ -106,6 +128,24 @@ export function ZoekerTab() {
     } catch (error) {
       console.error('Error fetching groups:', error);
     }
+  };
+
+  const handleStartEditing = (studentId: string) => {
+    setEditingStudents(prev => new Set(prev).add(studentId));
+  };
+
+  const handleStopEditing = (studentId: string) => {
+    setEditingStudents(prev => {
+      const next = new Set(prev);
+      next.delete(studentId);
+      return next;
+    });
+  };
+
+  const handleRefreshData = () => {
+    fetchStudentsWithRequests();
+    fetchStats();
+    setNewRequestsCount(0);
   };
 
   const fetchStudentsWithRequests = async () => {
@@ -219,8 +259,9 @@ export function ZoekerTab() {
   };
 
   const handleRespond = async (requestId: string, action: 'approve' | 'improve' | 'reject') => {
-    const request = students.find(s => s.pending_request?.id === requestId)?.pending_request;
-    if (!request) return;
+    const student = students.find(s => s.pending_request?.id === requestId);
+    const request = student?.pending_request;
+    if (!request || !student) return;
 
     const queryInput = document.getElementById(`query-${requestId}`) as HTMLInputElement;
     const feedbackInput = document.getElementById(`feedback-${requestId}`) as HTMLInputElement;
@@ -228,6 +269,16 @@ export function ZoekerTab() {
     const newQuery = queryInput?.value.trim() || request.query;
     const feedback = feedbackInput?.value.trim() || '';
     const queryChanged = newQuery !== request.query;
+
+    // Clear editing state for this student
+    handleStopEditing(student.id);
+
+    // Optimistic update: immediately remove from pending list
+    setStudents(prev => prev.map(s =>
+      s.id === student.id
+        ? { ...s, pending_request: undefined, status: action === 'approve' ? 'approved' : action === 'improve' ? 'needs_work' : 'idle' }
+        : s
+    ));
 
     try {
       const updates: any = {
@@ -268,11 +319,14 @@ export function ZoekerTab() {
           : `❌ Je zoekopdracht is afgekeurd`
       });
 
+      // Refresh to get accurate data
       fetchStudentsWithRequests();
       fetchStats();
     } catch (error) {
       console.error('Error responding to request:', error);
       alert('Er ging iets mis. Probeer het opnieuw.');
+      // Revert optimistic update on error
+      fetchStudentsWithRequests();
     }
   };
 
@@ -305,6 +359,28 @@ export function ZoekerTab() {
           </select>
         </div>
       </div>
+
+      {/* New Requests Notification */}
+      {newRequestsCount > 0 && (
+        <div className="bg-blue-50 border-2 border-blue-500 rounded-lg p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-lg">{newRequestsCount}</span>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">
+                {newRequestsCount === 1 ? 'Nieuw verzoek beschikbaar' : `${newRequestsCount} nieuwe verzoeken beschikbaar`}
+              </p>
+              <p className="text-sm text-gray-600">
+                Klik op vernieuwen om de nieuwe verzoeken te zien
+              </p>
+            </div>
+          </div>
+          <Button onClick={handleRefreshData} className="bg-blue-500 hover:bg-blue-600">
+            Vernieuwen
+          </Button>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -399,11 +475,15 @@ export function ZoekerTab() {
                       defaultValue={student.pending_request.query}
                       placeholder="Zoekopdracht aanpassen..."
                       className="text-sm"
+                      onFocus={() => handleStartEditing(student.id)}
+                      onBlur={() => handleStopEditing(student.id)}
                     />
                     <Input
                       id={`feedback-${student.pending_request.id}`}
                       placeholder="Feedback (optioneel)..."
                       className="text-sm"
+                      onFocus={() => handleStartEditing(student.id)}
+                      onBlur={() => handleStopEditing(student.id)}
                     />
 
                     <div className="flex gap-2">
