@@ -213,7 +213,7 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
                 <Eye className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Total Views</p>
+                <p className="text-sm text-gray-600">Totaal Weergaven</p>
                 <p className="text-2xl font-bold text-gray-900">{selectedContent.totalViews}</p>
               </div>
             </div>
@@ -225,7 +225,7 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
                 <User className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Unique Students</p>
+                <p className="text-sm text-gray-600">Unieke Leerlingen</p>
                 <p className="text-2xl font-bold text-gray-900">{selectedContent.uniqueStudents}</p>
               </div>
             </div>
@@ -237,7 +237,7 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
                 <Users className="w-6 h-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Total Access</p>
+                <p className="text-sm text-gray-600">Totaal Toegang</p>
                 <p className="text-2xl font-bold text-gray-900">{selectedContent.totalStudentsWithAccess}</p>
               </div>
             </div>
@@ -249,7 +249,7 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
                 <TrendingUp className="w-6 h-6 text-orange-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Engagement</p>
+                <p className="text-sm text-gray-600">Betrokkenheid</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {selectedContent.totalStudentsWithAccess > 0
                     ? Math.round((selectedContent.uniqueStudents / selectedContent.totalStudentsWithAccess) * 100)
@@ -262,9 +262,9 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Views by Student</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Weergaven per Leerling</h3>
             {selectedContent.viewsByStudent.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No views yet</p>
+              <p className="text-gray-500 text-center py-8">Nog geen weergaven</p>
             ) : (
               <div className="space-y-3">
                 {selectedContent.viewsByStudent.map((student, idx) => (
@@ -289,9 +289,9 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
           </Card>
 
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recente Activiteit</h3>
             {selectedContent.recentViews.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No recent activity</p>
+              <p className="text-gray-500 text-center py-8">Geen recente activiteit</p>
             ) : (
               <div className="space-y-3">
                 {selectedContent.recentViews.map((view, idx) => (
@@ -320,7 +320,7 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">WebWijzer Analytics</h1>
-            <p className="text-gray-600 mt-1">Overview of all content performance</p>
+            <p className="text-gray-600 mt-1">Overzicht van alle content prestaties</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -329,11 +329,11 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
             variant="secondary"
           >
             <UserCheck className="w-4 h-4 mr-2" />
-            Open Student Access
+            Student Toegang Openen
           </Button>
           <Button onClick={() => setShowStudentAccess(true)}>
             <BarChart3 className="w-4 h-4 mr-2" />
-            Access Analytics
+            Toegang Analytics
           </Button>
         </div>
       </div>
@@ -341,13 +341,13 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
       {loading ? (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading analytics...</p>
+          <p className="text-gray-600 mt-4">Analytics laden...</p>
         </div>
       ) : analyticsData.length === 0 ? (
         <Card className="text-center py-12">
           <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No content yet</h3>
-          <p className="text-gray-600">Create content to see analytics</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Nog geen content</h3>
+          <p className="text-gray-600">Maak content aan om analytics te zien</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -373,14 +373,14 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
                 <div>
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
                     <Eye className="w-4 h-4" />
-                    <span>Views</span>
+                    <span>Weergaven</span>
                   </div>
                   <p className="text-2xl font-bold text-gray-900">{data.totalViews}</p>
                 </div>
                 <div>
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
                     <Users className="w-4 h-4" />
-                    <span>Students</span>
+                    <span>Leerlingen</span>
                   </div>
                   <p className="text-2xl font-bold text-gray-900">
                     {data.uniqueStudents}/{data.totalStudentsWithAccess}

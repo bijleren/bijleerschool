@@ -349,7 +349,7 @@ export function WebWijzerTab() {
           </Button>
           <Button onClick={() => setShowForm(true)}>
             <Plus className="w-4 h-4 mr-2" />
-            Create Content
+            Content Aanmaken
           </Button>
         </div>
       </div>
@@ -369,7 +369,7 @@ export function WebWijzerTab() {
                 className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
               />
               <span className="text-sm font-medium text-gray-700">
-                Show only my content
+                Toon alleen mijn content
               </span>
             </label>
           </div>
@@ -380,7 +380,7 @@ export function WebWijzerTab() {
           <Filter className="w-5 h-5 text-gray-500" />
           <div className="flex-1 relative">
             <Input
-              placeholder="Filter by student..."
+              placeholder="Filter op leerling..."
               value={studentSearchTerm}
               onChange={(e) => setStudentSearchTerm(e.target.value)}
             />
@@ -428,16 +428,16 @@ export function WebWijzerTab() {
       {loading ? (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading content...</p>
+          <p className="text-gray-600 mt-4">Content laden...</p>
         </div>
       ) : contents.length === 0 ? (
         <Card className="text-center py-12">
           <Link className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No content yet</h3>
-          <p className="text-gray-600 mb-6">Create your first content item to share with students</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Nog geen content</h3>
+          <p className="text-gray-600 mb-6">Maak je eerste content aan om te delen met leerlingen</p>
           <Button onClick={() => setShowForm(true)}>
             <Plus className="w-4 h-4 mr-2" />
-            Create Content
+            Content Aanmaken
           </Button>
         </Card>
       ) : (
@@ -455,14 +455,14 @@ export function WebWijzerTab() {
                   <button
                     onClick={() => setEditingContent(content)}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Edit content"
+                    title="Content bewerken"
                   >
                     <Pencil className="w-4 h-4 text-gray-600" />
                   </button>
                   <button
                     onClick={() => handleDelete(content.id)}
                     className="p-2 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete content"
+                    title="Content verwijderen"
                   >
                     <Trash2 className="w-4 h-4 text-red-600" />
                   </button>

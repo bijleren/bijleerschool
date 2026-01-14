@@ -451,7 +451,7 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">QR-kaarten Generator</h2>
-            <p className="text-gray-600 mt-1">Select students to generate QR cards (3x3 per page)</p>
+            <p className="text-gray-600 mt-1">Selecteer leerlingen om QR-kaarten te genereren (3x3 per pagina)</p>
           </div>
           <button
             onClick={onClose}
@@ -465,23 +465,23 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
           <div className="mb-4 flex gap-3">
             <input
               type="text"
-              placeholder="Search students..."
+              placeholder="Zoek leerlingen..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <Button variant="secondary" onClick={selectAll}>
-              Select All
+              Alles Selecteren
             </Button>
             <Button variant="secondary" onClick={deselectAll}>
-              Deselect All
+              Alles Deselecteren
             </Button>
           </div>
 
           {loading ? (
             <div className="text-center py-12">
               <Loader className="w-8 h-8 animate-spin mx-auto text-gray-400" />
-              <p className="text-gray-600 mt-4">Loading students...</p>
+              <p className="text-gray-600 mt-4">Leerlingen laden...</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -519,16 +519,16 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
 
         <div className="p-6 border-t border-gray-200 flex items-center justify-between">
           <p className="text-gray-600">
-            {selectedStudents.size} student{selectedStudents.size !== 1 ? 's' : ''} selected
+            {selectedStudents.size} leerling{selectedStudents.size !== 1 ? 'en' : ''} geselecteerd
             {selectedStudents.size > 0 && (
               <span className="ml-2 text-gray-500">
-                ({Math.ceil(selectedStudents.size / 9)} page{Math.ceil(selectedStudents.size / 9) !== 1 ? 's' : ''})
+                ({Math.ceil(selectedStudents.size / 9)} pagina{Math.ceil(selectedStudents.size / 9) !== 1 ? "'s" : ''})
               </span>
             )}
           </p>
           <div className="flex gap-3">
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              Annuleren
             </Button>
             <Button
               onClick={generatePDF}
@@ -537,12 +537,12 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
               {generating ? (
                 <>
                   <Loader className="w-4 h-4 mr-2 animate-spin" />
-                  Generating...
+                  Genereren...
                 </>
               ) : (
                 <>
                   <Download className="w-4 h-4 mr-2" />
-                  Generate PDF
+                  PDF Genereren
                 </>
               )}
             </Button>

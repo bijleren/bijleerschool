@@ -35,7 +35,7 @@ export function WebWijzerContentViewer({ content, onClose }: WebWijzerContentVie
                 className="inline-flex items-center gap-2"
               >
                 <Youtube className="w-5 h-5" />
-                View Video on YouTube
+                Video Bekijken op YouTube
               </Button>
             </div>
             <div className="aspect-video w-full bg-black rounded-lg overflow-hidden">
@@ -50,14 +50,14 @@ export function WebWijzerContentViewer({ content, onClose }: WebWijzerContentVie
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-red-600 mb-4">Invalid YouTube URL</p>
+            <p className="text-red-600 mb-4">Ongeldige YouTube URL</p>
             <a
               href={content.content_url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >
-              Open video in new tab
+              Video openen in nieuw tabblad
             </a>
           </div>
         );
@@ -72,7 +72,7 @@ export function WebWijzerContentViewer({ content, onClose }: WebWijzerContentVie
               {content.symbol}
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{content.title}</h2>
-            <p className="text-gray-600 mb-6">Click the button below to download the file</p>
+            <p className="text-gray-600 mb-6">Klik op de knop hieronder om het bestand te downloaden</p>
             <Button
               onClick={() => {
                 const link = document.createElement('a');
@@ -86,7 +86,7 @@ export function WebWijzerContentViewer({ content, onClose }: WebWijzerContentVie
               className="inline-flex items-center gap-2"
             >
               <Download className="w-5 h-5" />
-              Download File
+              Bestand Downloaden
             </Button>
           </div>
         );
