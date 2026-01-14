@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
@@ -61,6 +61,7 @@ export function ZoekerTab() {
   const [viewMode, setViewMode] = useState<'requests' | 'analytics'>('requests');
   const [editingStudents, setEditingStudents] = useState<Set<string>>(new Set());
   const [newRequestsCount, setNewRequestsCount] = useState(0);
+  const editingStudentsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (user) {
@@ -84,8 +85,9 @@ export function ZoekerTab() {
             table: 'zoeker_search_requests'
           },
           (payload) => {
+            console.log('Realtime update received:', payload);
             // Only update if no students are being edited
-            if (editingStudents.size === 0) {
+            if (editingStudentsRef.current.size === 0) {
               fetchStudentsWithRequests();
               fetchStats();
             } else {
@@ -94,13 +96,16 @@ export function ZoekerTab() {
             }
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log('Realtime subscription status:', status);
+        });
 
       return () => {
+        console.log('Cleaning up Realtime subscription');
         supabase.removeChannel(channel);
       };
     }
-  }, [selectedGroup, editingStudents]);
+  }, [selectedGroup]);
 
   const fetchGroups = async () => {
     if (!user) return;
@@ -131,10 +136,12 @@ export function ZoekerTab() {
   };
 
   const handleStartEditing = (studentId: string) => {
+    editingStudentsRef.current.add(studentId);
     setEditingStudents(prev => new Set(prev).add(studentId));
   };
 
   const handleStopEditing = (studentId: string) => {
+    editingStudentsRef.current.delete(studentId);
     setEditingStudents(prev => {
       const next = new Set(prev);
       next.delete(studentId);
