@@ -140,7 +140,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                   onClick={() => setShowVersionModal(true)}
                   className="flex items-center space-x-1 px-2 py-0.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-full hover:bg-indigo-100 transition-colors"
                 >
-                  <span>V1.3</span>
+                  <span>V1.4</span>
                   <Info className="w-3 h-3" />
                 </button>
               </div>
