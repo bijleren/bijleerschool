@@ -18,7 +18,7 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
         <div className="relative bg-white rounded-xl shadow-xl max-w-2xl w-full p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Versie 1.3</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Versie 1.4</h2>
               <p className="text-sm text-gray-500 mt-1">Wat is er nieuw?</p>
             </div>
             <button
@@ -35,7 +35,7 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
-                  <span>Koppel digitale content aan leerlingen</span>
+                  <span>Betere analyse en betere iconen</span>
                 </li>
                
                 <li className="flex items-start">
@@ -46,16 +46,16 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Gedragsincidenten - Meerdere studenten</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Zoeker</h3>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
-                  <span>Mogelijkheid om meerdere studenten toe te voegen aan één incident</span>
+                  <span>Oefen op prompten met leerlingen</span>
                 </li>
                
                 <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
-                  <span>Bij incidenten zie je nu meerdere studenten en hun rol.</span>
+                  <span>Leerlingen kunnen sneller en veiliger zoeken.</span>
                 </li>
                
               </ul>
@@ -90,11 +90,11 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
-                  <span>Dashboard heeft nieuwe gegevens en berekent nu ook specifiek incidenten per gebruiker</span>
+                  <span>Betere groepcreatie.</span>
                 </li>
                  <li className="flex items-start">
                   <span className="text-indigo-600 mr-2">•</span>
-                  <span>Fix analysepagina met snellere doorklikmogelijkheden.</span>
+                  <span>Opslagruimte zichtbaar.</span>
                 </li>
                 
               </ul>
