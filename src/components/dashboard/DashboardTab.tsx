@@ -141,6 +141,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   const [incidents, setIncidents] = useState<BehaviorIncident[]>([]);
   const [statusFilters, setStatusFilters] = useState<string[]>(['pending', 'in_progress']);
   const [incidentsLoading, setIncidentsLoading] = useState(false);
+  const [studentSearchQuery, setStudentSearchQuery] = useState('');
 
   useEffect(() => {
     if (user && focusSchool) {
@@ -616,6 +617,40 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
     onNavigateToBehaviorWithStudent(selectedSchoolId, student.id);
   };
 
+  const handleStudentSearch = async () => {
+    if (!studentSearchQuery.trim()) return;
+
+    try {
+      const searchTerm = studentSearchQuery.trim().toLowerCase();
+
+      const { data: students, error } = await supabase
+        .from('students')
+        .select('id, first_name, last_name, school_id')
+        .eq('is_active', true)
+        .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%`)
+        .limit(10);
+
+      if (error) throw error;
+
+      if (students && students.length === 1) {
+        onNavigateToStudent(students[0].school_id, students[0].id);
+      } else {
+        sessionStorage.setItem('studentSearchQuery', studentSearchQuery);
+        onNavigateToSchools();
+      }
+    } catch (error) {
+      console.error('Error searching students:', error);
+      sessionStorage.setItem('studentSearchQuery', studentSearchQuery);
+      onNavigateToSchools();
+    }
+  };
+
+  const handleStudentSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleStudentSearch();
+    }
+  };
+
   const selectedSchool = userSchools.find(school => school.id === selectedSchoolId);
 
   if (loading) {
@@ -806,17 +841,40 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         </div>
         {/* Favorite Students */}
         <div>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Je Leerlingen
-            </h2>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => onNavigateToSchools()}
-            >
-              Alle leerlingen
-            </Button>
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Je Leerlingen
+              </h2>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => onNavigateToSchools()}
+              >
+                Alle leerlingen
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Zoek een leerling..."
+                  value={studentSearchQuery}
+                  onChange={(e) => setStudentSearchQuery(e.target.value)}
+                  onKeyPress={handleStudentSearchKeyPress}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                />
+              </div>
+              <Button
+                onClick={handleStudentSearch}
+                disabled={!studentSearchQuery.trim()}
+                size="sm"
+              >
+                Zoeken
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-4">

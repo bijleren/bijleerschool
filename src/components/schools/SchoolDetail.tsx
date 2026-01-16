@@ -137,6 +137,12 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     fetchStudents();
     fetchGroups();
     fetchSchoolUsers();
+
+    const searchQuery = sessionStorage.getItem('studentSearchQuery');
+    if (searchQuery) {
+      setStudentSearch(searchQuery);
+      sessionStorage.removeItem('studentSearchQuery');
+    }
   }, []);
 
   const fetchUserRole = async () => {
@@ -402,6 +408,16 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     `${student.first_name} ${student.last_name}`.toLowerCase().includes(studentSearch.toLowerCase()) ||
     (student.student_number && student.student_number.includes(studentSearch))
   );
+
+  useEffect(() => {
+    if (studentSearch && filteredStudents.length === 1 && students.length > 0) {
+      const autoNavigateTimeout = setTimeout(() => {
+        handleStudentClick(filteredStudents[0]);
+      }, 500);
+
+      return () => clearTimeout(autoNavigateTimeout);
+    }
+  }, [filteredStudents.length, studentSearch, students.length]);
 
   const filteredGroups = groups.filter(group =>
     groupSearch === '' ||
