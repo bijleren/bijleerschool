@@ -143,8 +143,9 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   const [incidentsLoading, setIncidentsLoading] = useState(false);
   const [studentSearchQuery, setStudentSearchQuery] = useState('');
   const [allStudents, setAllStudents] = useState<Array<{ id: string; first_name: string; last_name: string; school_id: string }>>([]);
-  const [showStudentDropdown, setShowStudentDropdown] = useState(false);
-  const studentDropdownRef = useRef<HTMLDivElement>(null);
+  const [showStudentModal, setShowStudentModal] = useState(false);
+  const studentModalRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user && focusSchool) {
@@ -161,16 +162,26 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (studentDropdownRef.current && !studentDropdownRef.current.contains(event.target as Node)) {
-        setShowStudentDropdown(false);
+      if (studentModalRef.current && !studentModalRef.current.contains(event.target as Node)) {
+        setShowStudentModal(false);
+        setStudentSearchQuery('');
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    if (showStudentModal) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [showStudentModal]);
+
+  useEffect(() => {
+    if (showStudentModal && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [showStudentModal]);
   const fetchDashboardData = async () => {
     if (!user || !selectedSchoolId) return;
 
@@ -658,19 +669,18 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         const fullName = `${student.first_name} ${student.last_name}`.toLowerCase();
         const searchTerm = studentSearchQuery.toLowerCase();
         return fullName.includes(searchTerm);
-      }).slice(0, 5)
-    : [];
+      })
+    : allStudents;
 
   const handleStudentInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setStudentSearchQuery(value);
-    setShowStudentDropdown(value.trim().length > 0);
   };
 
   const handleStudentSelect = (student: { id: string; first_name: string; last_name: string; school_id: string }) => {
     onNavigateToStudent(student.school_id, student.id);
     setStudentSearchQuery('');
-    setShowStudentDropdown(false);
+    setShowStudentModal(false);
   };
 
   const selectedSchool = userSchools.find(school => school.id === selectedSchoolId);
@@ -864,60 +874,75 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         {/* Favorite Students */}
         <div>
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Je Leerlingen
-            </h2>
-
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1" ref={studentDropdownRef}>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input
-                    type="text"
-                    placeholder="Zoek een leerling..."
-                    value={studentSearchQuery}
-                    onChange={handleStudentInputChange}
-                    onFocus={() => studentSearchQuery.trim().length > 0 && setShowStudentDropdown(true)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  />
-                </div>
-
-                {showStudentDropdown && filteredStudentResults.length > 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                    {filteredStudentResults.map((student) => (
-                      <button
-                        key={student.id}
-                        onClick={() => handleStudentSelect(student)}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 flex items-center gap-3"
-                      >
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <GraduationCap className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {student.first_name} {student.last_name}
-                          </p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {showStudentDropdown && studentSearchQuery.trim() && filteredStudentResults.length === 0 && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-center text-gray-500 text-sm">
-                    Geen leerlingen gevonden
-                  </div>
-                )}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Je Leerlingen
+              </h2>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowStudentModal(true)}
+                >
+                  <Search className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => onNavigateToSchools()}
+                >
+                  Alle leerlingen
+                </Button>
               </div>
-
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => onNavigateToSchools()}
-              >
-                Alle leerlingen
-              </Button>
             </div>
+
+            {/* Student Search Modal */}
+            {showStudentModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 pt-20">
+                <div ref={studentModalRef} className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col">
+                  <div className="p-4 border-b border-gray-200">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        placeholder="Zoek een leerling..."
+                        value={studentSearchQuery}
+                        onChange={handleStudentInputChange}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="overflow-y-auto flex-1">
+                    {filteredStudentResults.length > 0 ? (
+                      <div className="divide-y divide-gray-100">
+                        {filteredStudentResults.map((student) => (
+                          <button
+                            key={student.id}
+                            onClick={() => handleStudentSelect(student)}
+                            className="w-full px-6 py-4 text-left hover:bg-gray-50 transition-colors flex items-center gap-3"
+                          >
+                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <GraduationCap className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {student.first_name} {student.last_name}
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-8 text-center text-gray-500">
+                        Geen leerlingen gevonden
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">
