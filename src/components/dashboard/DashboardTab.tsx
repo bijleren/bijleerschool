@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
@@ -142,6 +142,9 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   const [statusFilters, setStatusFilters] = useState<string[]>(['pending', 'in_progress']);
   const [incidentsLoading, setIncidentsLoading] = useState(false);
   const [studentSearchQuery, setStudentSearchQuery] = useState('');
+  const [allStudents, setAllStudents] = useState<Array<{ id: string; first_name: string; last_name: string; school_id: string }>>([]);
+  const [showStudentDropdown, setShowStudentDropdown] = useState(false);
+  const studentDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user && focusSchool) {
@@ -152,8 +155,22 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   useEffect(() => {
     if (selectedSchoolId) {
       fetchDashboardData();
+      fetchAllStudents();
     }
   }, [selectedSchoolId]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (studentDropdownRef.current && !studentDropdownRef.current.contains(event.target as Node)) {
+        setShowStudentDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   const fetchDashboardData = async () => {
     if (!user || !selectedSchoolId) return;
 
@@ -617,42 +634,43 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
     onNavigateToBehaviorWithStudent(selectedSchoolId, student.id);
   };
 
-  const handleStudentSearch = async () => {
-    if (!studentSearchQuery.trim() || !selectedSchoolId) return;
+  const fetchAllStudents = async () => {
+    if (!selectedSchoolId) return;
 
     try {
-      const searchTerm = studentSearchQuery.trim().toLowerCase();
-
       const { data: students, error } = await supabase
         .from('students')
         .select('id, first_name, last_name, school_id')
         .eq('school_id', selectedSchoolId)
         .eq('is_active', true)
-        .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%`)
-        .limit(10);
+        .order('first_name');
 
       if (error) throw error;
-
-      if (students && students.length === 1) {
-        onNavigateToStudent(students[0].school_id, students[0].id);
-      } else if (students && students.length > 1) {
-        sessionStorage.setItem('studentSearchQuery', studentSearchQuery);
-        onNavigateToSchools();
-      } else {
-        sessionStorage.setItem('studentSearchQuery', studentSearchQuery);
-        onNavigateToSchools();
-      }
+      setAllStudents(students || []);
     } catch (error) {
-      console.error('Error searching students:', error);
-      sessionStorage.setItem('studentSearchQuery', studentSearchQuery);
-      onNavigateToSchools();
+      console.error('Error fetching students:', error);
+      setAllStudents([]);
     }
   };
 
-  const handleStudentSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleStudentSearch();
-    }
+  const filteredStudentResults = studentSearchQuery.trim()
+    ? allStudents.filter(student => {
+        const fullName = `${student.first_name} ${student.last_name}`.toLowerCase();
+        const searchTerm = studentSearchQuery.toLowerCase();
+        return fullName.includes(searchTerm);
+      }).slice(0, 5)
+    : [];
+
+  const handleStudentInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setStudentSearchQuery(value);
+    setShowStudentDropdown(value.trim().length > 0);
+  };
+
+  const handleStudentSelect = (student: { id: string; first_name: string; last_name: string; school_id: string }) => {
+    onNavigateToStudent(student.school_id, student.id);
+    setStudentSearchQuery('');
+    setShowStudentDropdown(false);
   };
 
   const selectedSchool = userSchools.find(school => school.id === selectedSchoolId);
@@ -859,25 +877,45 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
               </Button>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="relative" ref={studentDropdownRef}>
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
                   placeholder="Zoek een leerling..."
                   value={studentSearchQuery}
-                  onChange={(e) => setStudentSearchQuery(e.target.value)}
-                  onKeyPress={handleStudentSearchKeyPress}
+                  onChange={handleStudentInputChange}
+                  onFocus={() => studentSearchQuery.trim().length > 0 && setShowStudentDropdown(true)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 />
               </div>
-              <Button
-                onClick={handleStudentSearch}
-                disabled={!studentSearchQuery.trim() || !selectedSchoolId}
-                size="sm"
-              >
-                Zoeken
-              </Button>
+
+              {showStudentDropdown && filteredStudentResults.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {filteredStudentResults.map((student) => (
+                    <button
+                      key={student.id}
+                      onClick={() => handleStudentSelect(student)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 flex items-center gap-3"
+                    >
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <GraduationCap className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {student.first_name} {student.last_name}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {showStudentDropdown && studentSearchQuery.trim() && filteredStudentResults.length === 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-center text-gray-500 text-sm">
+                  Geen leerlingen gevonden
+                </div>
+              )}
             </div>
           </div>
 
