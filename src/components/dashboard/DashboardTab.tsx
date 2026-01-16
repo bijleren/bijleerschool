@@ -618,7 +618,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   };
 
   const handleStudentSearch = async () => {
-    if (!studentSearchQuery.trim()) return;
+    if (!studentSearchQuery.trim() || !selectedSchoolId) return;
 
     try {
       const searchTerm = studentSearchQuery.trim().toLowerCase();
@@ -626,6 +626,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       const { data: students, error } = await supabase
         .from('students')
         .select('id, first_name, last_name, school_id')
+        .eq('school_id', selectedSchoolId)
         .eq('is_active', true)
         .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%`)
         .limit(10);
@@ -634,6 +635,9 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
 
       if (students && students.length === 1) {
         onNavigateToStudent(students[0].school_id, students[0].id);
+      } else if (students && students.length > 1) {
+        sessionStorage.setItem('studentSearchQuery', studentSearchQuery);
+        onNavigateToSchools();
       } else {
         sessionStorage.setItem('studentSearchQuery', studentSearchQuery);
         onNavigateToSchools();
@@ -869,7 +873,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
               </div>
               <Button
                 onClick={handleStudentSearch}
-                disabled={!studentSearchQuery.trim()}
+                disabled={!studentSearchQuery.trim() || !selectedSchoolId}
                 size="sm"
               >
                 Zoeken
