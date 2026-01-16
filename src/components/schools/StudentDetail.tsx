@@ -1161,10 +1161,25 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
 
       {/* Recent Incidents */}
       <Card className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <AlertTriangle className="w-5 h-5 mr-2" />
-          Recente Incidenten
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <AlertTriangle className="w-5 h-5 mr-2" />
+            Recente Incidenten
+          </h3>
+          {incidentStats.total > 0 && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                sessionStorage.setItem('behaviorFilterStudent', student.id);
+                window.dispatchEvent(new CustomEvent('navigate-to-behavior', { detail: { schoolId: schoolId, studentId: student.id } }));
+              }}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Alle incidenten ({incidentStats.total})
+            </Button>
+          )}
+        </div>
 
         {incidentsLoading ? (
           <div className="flex items-center justify-center py-8">

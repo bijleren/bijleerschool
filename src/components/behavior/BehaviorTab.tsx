@@ -9,17 +9,18 @@ import { BehaviorSettings } from './BehaviorSettings';
 import { BehaviorAnalytics } from './BehaviorAnalytics';
 import { BehaviorIncidentEdit } from './BehaviorIncidentEdit';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { 
-  AlertTriangle, 
-  Plus, 
-  Settings, 
-  BarChart3, 
+import {
+  AlertTriangle,
+  Plus,
+  Settings,
+  BarChart3,
   Calendar,
   User,
   MapPin,
   Clock,
   Filter,
-  Search
+  Search,
+  X
 } from 'lucide-react';
 
 interface School {
@@ -82,6 +83,8 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
   const [severityFilter, setSeverityFilter] = useState<string>('all');
   const [dashboardFilter, setDashboardFilter] = useState<'all' | 'today' | 'open' | 'followup'>(initialFilter);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [studentFilter, setStudentFilter] = useState<string>('all');
+  const [filteredStudentName, setFilteredStudentName] = useState<string>('');
 
   // Update dashboard filter when initialFilter changes
   useEffect(() => {
@@ -95,6 +98,17 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
       setActiveView('form');
       // Clear the preselected student after using it
       sessionStorage.removeItem('preselectedStudentId');
+    }
+
+    // Check if there's a student filter from navigation
+    const behaviorFilterStudent = sessionStorage.getItem('behaviorFilterStudent');
+    if (behaviorFilterStudent && incidents.length > 0) {
+      setStudentFilter(behaviorFilterStudent);
+      const student = incidents.find(i => i.students.id === behaviorFilterStudent)?.students;
+      if (student) {
+        setFilteredStudentName(`${student.first_name} ${student.last_name}`);
+      }
+      sessionStorage.removeItem('behaviorFilterStudent');
     }
 
     // Listen for navigation events from header dropdown
@@ -123,14 +137,36 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
       setSeverityFilter(event.detail.severityLevel.toString());
       setActiveView('incidents');
     };
-    
+
+    const handleNavigateToBehavior = (event: any) => {
+      const { studentId, incidentId } = event.detail;
+
+      if (studentId) {
+        setStudentFilter(studentId);
+        const student = incidents.find(i => i.students.id === studentId)?.students;
+        if (student) {
+          setFilteredStudentName(`${student.first_name} ${student.last_name}`);
+        }
+      }
+
+      if (incidentId) {
+        const incident = incidents.find(i => i.id === incidentId);
+        if (incident) {
+          setEditingIncident(incident);
+        }
+      }
+
+      setActiveView('incidents');
+    };
+
     window.addEventListener('navigateToBehaviorForm', handleNavigateToBehaviorForm);
     window.addEventListener('navigateToBehaviorIncidents', handleNavigateToBehaviorIncidents);
     window.addEventListener('navigateToBehaviorAnalytics', handleNavigateToBehaviorAnalytics);
     window.addEventListener('navigateToBehaviorSettings', handleNavigateToBehaviorSettings);
     window.addEventListener('filterByCategory', handleFilterByCategory as EventListener);
     window.addEventListener('filterBySeverity', handleFilterBySeverity as EventListener);
-    
+    window.addEventListener('navigate-to-behavior', handleNavigateToBehavior as EventListener);
+
     return () => {
       window.removeEventListener('navigateToBehaviorForm', handleNavigateToBehaviorForm);
       window.removeEventListener('navigateToBehaviorIncidents', handleNavigateToBehaviorIncidents);
@@ -138,6 +174,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
       window.removeEventListener('navigateToBehaviorSettings', handleNavigateToBehaviorSettings);
       window.removeEventListener('filterByCategory', handleFilterByCategory as EventListener);
       window.removeEventListener('filterBySeverity', handleFilterBySeverity as EventListener);
+      window.removeEventListener('navigate-to-behavior', handleNavigateToBehavior as EventListener);
     };
   }, [selectedSchool, incidents]);
 
@@ -317,6 +354,8 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
     const matchesCategory = categoryFilter === 'all' ||
       incident.behavior_items.behavior_categories.name === categoryFilter;
 
+    const matchesStudent = studentFilter === 'all' || incident.students.id === studentFilter;
+
     // Apply dashboard filter
     let matchesDashboardFilter = true;
     if (dashboardFilter === 'today') {
@@ -332,7 +371,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
       matchesDashboardFilter = incident.follow_up_required === true;
     }
 
-    return matchesSearch && matchesStatus && matchesSeverity && matchesCategory && matchesDashboardFilter;
+    return matchesSearch && matchesStatus && matchesSeverity && matchesCategory && matchesDashboardFilter && matchesStudent;
   });
 
   if (!selectedSchool) {
@@ -529,6 +568,31 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
             {filteredIncidents.length} van {incidents.length} incidenten
           </div>
         </div>
+
+        {studentFilter !== 'all' && filteredStudentName && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between bg-blue-50 rounded-lg p-3">
+              <div className="flex items-center space-x-2">
+                <User className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-900">
+                  Gefilterd op student: {filteredStudentName}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setStudentFilter('all');
+                  setFilteredStudentName('');
+                }}
+                className="text-blue-600 hover:text-blue-700 hover:bg-blue-100"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Wissen
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* Incidents List */}
