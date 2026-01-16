@@ -868,55 +868,56 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
               Je Leerlingen
             </h2>
 
-            <div className="relative mb-4" ref={studentDropdownRef}>
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Zoek een leerling..."
-                  value={studentSearchQuery}
-                  onChange={handleStudentInputChange}
-                  onFocus={() => studentSearchQuery.trim().length > 0 && setShowStudentDropdown(true)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                />
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1" ref={studentDropdownRef}>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="text"
+                    placeholder="Zoek een leerling..."
+                    value={studentSearchQuery}
+                    onChange={handleStudentInputChange}
+                    onFocus={() => studentSearchQuery.trim().length > 0 && setShowStudentDropdown(true)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  />
+                </div>
+
+                {showStudentDropdown && filteredStudentResults.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {filteredStudentResults.map((student) => (
+                      <button
+                        key={student.id}
+                        onClick={() => handleStudentSelect(student)}
+                        className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 flex items-center gap-3"
+                      >
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <GraduationCap className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {student.first_name} {student.last_name}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {showStudentDropdown && studentSearchQuery.trim() && filteredStudentResults.length === 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-center text-gray-500 text-sm">
+                    Geen leerlingen gevonden
+                  </div>
+                )}
               </div>
 
-              {showStudentDropdown && filteredStudentResults.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  {filteredStudentResults.map((student) => (
-                    <button
-                      key={student.id}
-                      onClick={() => handleStudentSelect(student)}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 flex items-center gap-3"
-                    >
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <GraduationCap className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {student.first_name} {student.last_name}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {showStudentDropdown && studentSearchQuery.trim() && filteredStudentResults.length === 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-center text-gray-500 text-sm">
-                  Geen leerlingen gevonden
-                </div>
-              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => onNavigateToSchools()}
+              >
+                Alle leerlingen
+              </Button>
             </div>
-
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => onNavigateToSchools()}
-              className="w-full"
-            >
-              Alle leerlingen
-            </Button>
           </div>
 
           <div className="space-y-4">
