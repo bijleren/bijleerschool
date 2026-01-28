@@ -36,7 +36,9 @@ interface SeverityStats {
 }
 
 interface TimeOfDayStats {
-  hour: number;
+  timeLabel: string;
+  startMinutes: number;
+  endMinutes: number;
   incident_count: number;
   percentage: number;
 }
@@ -172,18 +174,53 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
       })).sort((a, b) => a.level - b.level);
       setSeverityStats(severityStatsData);
 
-      // Calculate time of day statistics
-      const hourMap = new Map<number, number>();
+      // Calculate time of day statistics with 30-minute intervals
+      // Create time slots: 00:00-08:30, then 30-min intervals until 16:00, then 16:00-23:59
+      const timeSlots: Array<{ timeLabel: string; startMinutes: number; endMinutes: number }> = [];
+
+      // First slot: 00:00 - 08:30
+      timeSlots.push({ timeLabel: '00:00 - 08:30', startMinutes: 0, endMinutes: 510 });
+
+      // 30-minute intervals from 08:30 to 16:00
+      for (let minutes = 510; minutes < 960; minutes += 30) {
+        const startHour = Math.floor(minutes / 60);
+        const startMin = minutes % 60;
+        const endHour = Math.floor((minutes + 30) / 60);
+        const endMin = (minutes + 30) % 60;
+
+        const startTime = `${startHour.toString().padStart(2, '0')}:${startMin.toString().padStart(2, '0')}`;
+        const endTime = `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`;
+
+        timeSlots.push({
+          timeLabel: `${startTime} - ${endTime}`,
+          startMinutes: minutes,
+          endMinutes: minutes + 30
+        });
+      }
+
+      // Last slot: 16:00 - 23:59
+      timeSlots.push({ timeLabel: '16:00 - 23:59', startMinutes: 960, endMinutes: 1440 });
+
+      // Count incidents per time slot
+      const slotCounts = new Map<number, number>();
       incidentData.forEach((incident: any) => {
         const date = new Date(incident.incident_date);
-        const hour = date.getHours();
-        hourMap.set(hour, (hourMap.get(hour) || 0) + 1);
+        const totalMinutes = date.getHours() * 60 + date.getMinutes();
+
+        // Find which slot this incident belongs to
+        const slotIndex = timeSlots.findIndex(slot =>
+          totalMinutes >= slot.startMinutes && totalMinutes < slot.endMinutes
+        );
+
+        if (slotIndex !== -1) {
+          slotCounts.set(slotIndex, (slotCounts.get(slotIndex) || 0) + 1);
+        }
       });
 
-      const timeOfDayStatsData = Array.from({ length: 24 }, (_, hour) => ({
-        hour,
-        incident_count: hourMap.get(hour) || 0,
-        percentage: incidentData.length > 0 ? ((hourMap.get(hour) || 0) / incidentData.length) * 100 : 0,
+      const timeOfDayStatsData = timeSlots.map((slot, index) => ({
+        ...slot,
+        incident_count: slotCounts.get(index) || 0,
+        percentage: incidentData.length > 0 ? ((slotCounts.get(index) || 0) / incidentData.length) * 100 : 0,
       }));
       setTimeOfDayStats(timeOfDayStatsData);
 
@@ -485,7 +522,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
           </h3>
         </div>
         <p className="text-sm text-gray-600 mb-6">
-          Overzicht van incidenten per uur van de dag (ongeacht datum)
+          Overzicht van incidenten per tijdsblok (30-minuten intervallen van 08:30-16:00, ongeacht datum)
         </p>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -506,27 +543,22 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {timeOfDayStats.map((stat) => {
+              {timeOfDayStats.map((stat, index) => {
                 const maxCount = Math.max(...timeOfDayStats.map(s => s.incident_count));
                 const intensity = maxCount > 0 ? stat.incident_count / maxCount : 0;
                 const barWidth = stat.percentage;
 
                 return (
                   <tr
-                    key={stat.hour}
+                    key={index}
                     className={`hover:bg-gray-50 transition-colors ${
                       stat.incident_count > 0 ? '' : 'opacity-50'
                     }`}
                   >
                     <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <span className="text-sm font-medium text-gray-900">
-                          {stat.hour.toString().padStart(2, '0')}:00
-                        </span>
-                        <span className="text-xs text-gray-500 ml-1">
-                          - {stat.hour.toString().padStart(2, '0')}:59
-                        </span>
-                      </div>
+                      <span className="text-sm font-medium text-gray-900">
+                        {stat.timeLabel}
+                      </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className="text-sm font-bold text-gray-900">
