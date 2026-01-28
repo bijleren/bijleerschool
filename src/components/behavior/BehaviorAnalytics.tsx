@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, TrendingUp, Users, AlertTriangle, Calendar } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Users, AlertTriangle, Calendar, Clock } from 'lucide-react';
 
 interface BehaviorAnalyticsProps {
   schoolId: string;
@@ -35,12 +35,19 @@ interface SeverityStats {
   percentage: number;
 }
 
+interface TimeOfDayStats {
+  hour: number;
+  incident_count: number;
+  percentage: number;
+}
+
 export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: BehaviorAnalyticsProps) {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30'); // days
   const [studentFrequencies, setStudentFrequencies] = useState<StudentFrequency[]>([]);
   const [categoryStats, setCategoryStats] = useState<CategoryStats[]>([]);
   const [severityStats, setSeverityStats] = useState<SeverityStats[]>([]);
+  const [timeOfDayStats, setTimeOfDayStats] = useState<TimeOfDayStats[]>([]);
   const [totalIncidents, setTotalIncidents] = useState(0);
 
   useEffect(() => {
@@ -164,6 +171,21 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
         percentage: incidentData.length > 0 ? (data.count / incidentData.length) * 100 : 0,
       })).sort((a, b) => a.level - b.level);
       setSeverityStats(severityStatsData);
+
+      // Calculate time of day statistics
+      const hourMap = new Map<number, number>();
+      incidentData.forEach((incident: any) => {
+        const date = new Date(incident.incident_date);
+        const hour = date.getHours();
+        hourMap.set(hour, (hourMap.get(hour) || 0) + 1);
+      });
+
+      const timeOfDayStatsData = Array.from({ length: 24 }, (_, hour) => ({
+        hour,
+        incident_count: hourMap.get(hour) || 0,
+        percentage: incidentData.length > 0 ? ((hourMap.get(hour) || 0) / incidentData.length) * 100 : 0,
+      }));
+      setTimeOfDayStats(timeOfDayStatsData);
 
     } catch (error) {
       console.error('Error fetching analytics:', error);
@@ -453,6 +475,96 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
           </div>
         </Card>
       </div>
+
+      {/* Time of Day Analysis */}
+      <Card className="mt-8">
+        <div className="flex items-center mb-4">
+          <Clock className="w-5 h-5 text-blue-600 mr-2" />
+          <h3 className="text-lg font-semibold text-gray-900">
+            Incidenten per tijdstip
+          </h3>
+        </div>
+        <p className="text-sm text-gray-600 mb-6">
+          Overzicht van incidenten per uur van de dag (ongeacht datum)
+        </p>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Uur
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Aantal incidenten
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Percentage
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Visualisatie
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {timeOfDayStats.map((stat) => {
+                const maxCount = Math.max(...timeOfDayStats.map(s => s.incident_count));
+                const intensity = maxCount > 0 ? stat.incident_count / maxCount : 0;
+                const barWidth = stat.percentage;
+
+                return (
+                  <tr
+                    key={stat.hour}
+                    className={`hover:bg-gray-50 transition-colors ${
+                      stat.incident_count > 0 ? '' : 'opacity-50'
+                    }`}
+                  >
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <span className="text-sm font-medium text-gray-900">
+                          {stat.hour.toString().padStart(2, '0')}:00
+                        </span>
+                        <span className="text-xs text-gray-500 ml-1">
+                          - {stat.hour.toString().padStart(2, '0')}:59
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="text-sm font-bold text-gray-900">
+                        {stat.incident_count}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="text-sm text-gray-600">
+                        {stat.percentage.toFixed(1)}%
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="w-full bg-gray-200 rounded-full h-6 relative">
+                        <div
+                          className="h-6 rounded-full transition-all duration-300 flex items-center justify-end pr-2"
+                          style={{
+                            width: `${barWidth}%`,
+                            backgroundColor: `rgba(59, 130, 246, ${0.3 + intensity * 0.7})`,
+                          }}
+                        >
+                          {stat.incident_count > 0 && (
+                            <span className="text-xs font-medium text-blue-900">
+                              {stat.incident_count}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        {timeOfDayStats.every(s => s.incident_count === 0) && (
+          <p className="text-gray-500 text-center py-8">Geen data beschikbaar</p>
+        )}
+      </Card>
     </div>
   );
 }
