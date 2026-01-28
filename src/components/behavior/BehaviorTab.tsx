@@ -85,6 +85,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [studentFilter, setStudentFilter] = useState<string>('all');
   const [filteredStudentName, setFilteredStudentName] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<{ startMinutes: number; endMinutes: number; label: string } | null>(null);
 
   // Update dashboard filter when initialFilter changes
   useEffect(() => {
@@ -317,6 +318,11 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
     }
   };
 
+  const handleFilterByTimeSlot = (startMinutes: number, endMinutes: number, timeLabel: string) => {
+    setTimeFilter({ startMinutes, endMinutes, label: timeLabel });
+    setActiveView('incidents');
+  };
+
   const handleEditIncident = (incident: BehaviorIncident) => {
     setEditingIncident(incident);
     setActiveView('form');
@@ -371,7 +377,15 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
       matchesDashboardFilter = incident.follow_up_required === true;
     }
 
-    return matchesSearch && matchesStatus && matchesSeverity && matchesCategory && matchesDashboardFilter && matchesStudent;
+    // Apply time filter
+    let matchesTimeFilter = true;
+    if (timeFilter) {
+      const incidentDate = new Date(incident.incident_date);
+      const incidentMinutes = incidentDate.getHours() * 60 + incidentDate.getMinutes();
+      matchesTimeFilter = incidentMinutes >= timeFilter.startMinutes && incidentMinutes < timeFilter.endMinutes;
+    }
+
+    return matchesSearch && matchesStatus && matchesSeverity && matchesCategory && matchesDashboardFilter && matchesStudent && matchesTimeFilter;
   });
 
   if (!selectedSchool) {
@@ -457,6 +471,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
         schoolId={selectedSchool.id}
         onBack={() => setActiveView('incidents')}
         onNavigateToStudent={onNavigateToStudent}
+        onFilterByTimeSlot={handleFilterByTimeSlot}
       />
     );
   }
@@ -569,30 +584,52 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
           </div>
         </div>
 
-        {studentFilter !== 'all' && filteredStudentName && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex items-center justify-between bg-blue-50 rounded-lg p-3">
-              <div className="flex items-center space-x-2">
-                <User className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-900">
-                  Gefilterd op student: {filteredStudentName}
-                </span>
+        {(studentFilter !== 'all' && filteredStudentName) || timeFilter ? (
+          <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
+            {studentFilter !== 'all' && filteredStudentName && (
+              <div className="flex items-center justify-between bg-blue-50 rounded-lg p-3">
+                <div className="flex items-center space-x-2">
+                  <User className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-900">
+                    Gefilterd op student: {filteredStudentName}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setStudentFilter('all');
+                    setFilteredStudentName('');
+                  }}
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-100"
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Wissen
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setStudentFilter('all');
-                  setFilteredStudentName('');
-                }}
-                className="text-blue-600 hover:text-blue-700 hover:bg-blue-100"
-              >
-                <X className="w-4 h-4 mr-1" />
-                Wissen
-              </Button>
-            </div>
+            )}
+
+            {timeFilter && (
+              <div className="flex items-center justify-between bg-green-50 rounded-lg p-3">
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-4 h-4 text-green-600" />
+                  <span className="text-sm font-medium text-green-900">
+                    Gefilterd op tijdstip: {timeFilter.label}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setTimeFilter(null)}
+                  className="text-green-600 hover:text-green-700 hover:bg-green-100"
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Wissen
+                </Button>
+              </div>
+            )}
           </div>
-        )}
+        ) : null}
       </Card>
 
       {/* Incidents List */}

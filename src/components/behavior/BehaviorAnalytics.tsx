@@ -8,6 +8,7 @@ interface BehaviorAnalyticsProps {
   schoolId: string;
   onBack: () => void;
   onNavigateToStudent?: (schoolId: string, studentId: string) => void;
+  onFilterByTimeSlot?: (startMinutes: number, endMinutes: number, timeLabel: string) => void;
 }
 
 interface StudentFrequency {
@@ -43,7 +44,7 @@ interface TimeOfDayStats {
   percentage: number;
 }
 
-export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: BehaviorAnalyticsProps) {
+export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFilterByTimeSlot }: BehaviorAnalyticsProps) {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30'); // days
   const [studentFrequencies, setStudentFrequencies] = useState<StudentFrequency[]>([]);
@@ -551,8 +552,15 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent }: Beh
                 return (
                   <tr
                     key={index}
-                    className={`hover:bg-gray-50 transition-colors ${
-                      stat.incident_count > 0 ? '' : 'opacity-50'
+                    onClick={() => {
+                      if (stat.incident_count > 0 && onFilterByTimeSlot) {
+                        onFilterByTimeSlot(stat.startMinutes, stat.endMinutes, stat.timeLabel);
+                      }
+                    }}
+                    className={`transition-colors ${
+                      stat.incident_count > 0
+                        ? 'hover:bg-blue-50 cursor-pointer'
+                        : 'opacity-50'
                     }`}
                   >
                     <td className="px-4 py-3 whitespace-nowrap">
