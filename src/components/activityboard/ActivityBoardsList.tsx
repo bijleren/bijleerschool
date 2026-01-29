@@ -384,8 +384,19 @@ export function ActivityBoardsList({
                 <div className="flex flex-col h-full">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Archive className="w-5 h-5 text-gray-600" />
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center relative">
+                        {board.icon_url ? (
+                          <img
+                            src={board.icon_url}
+                            alt={board.name}
+                            className="w-full h-full object-cover rounded-lg opacity-50"
+                          />
+                        ) : (
+                          <Grid className="w-6 h-6 text-gray-600" />
+                        )}
+                        <div className="absolute bottom-0 right-0 bg-gray-200 rounded-tl-lg rounded-br-lg p-1">
+                          <Archive className="w-3 h-3 text-gray-600" />
+                        </div>
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900">{board.name}</h3>
@@ -438,17 +449,26 @@ export function ActivityBoardsList({
                 {activeBoards.map((board) => {
                   const remaining = remainingTimes[board.id] || 0;
                   const isExpiringSoon = remaining > 0 && remaining < 600000;
+                  const details = boardDetails[board.id] || { studentCount: 0, groupNames: [], activeOptionsCount: 0 };
 
                   return (
                     <Card key={board.id} className={`hover:shadow-md transition-shadow ${isExpiringSoon ? 'border-2 border-yellow-400' : ''}`}>
                       <div className="flex flex-col h-full">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center relative">
-                              <Grid className="w-5 h-5 text-green-600" />
+                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center relative">
+                              {board.icon_url ? (
+                                <img
+                                  src={board.icon_url}
+                                  alt={board.name}
+                                  className="w-full h-full object-cover rounded-lg"
+                                />
+                              ) : (
+                                <Grid className="w-6 h-6 text-green-600" />
+                              )}
                               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
                             </div>
-                            <div>
+                            <div className="flex-1">
                               <h3 className="font-semibold text-gray-900">{board.name}</h3>
                               {board.active_until && (
                                 <div className={`flex items-center space-x-1 text-sm mt-1 ${isExpiringSoon ? 'text-yellow-600 font-semibold' : 'text-gray-600'}`}>
@@ -456,12 +476,19 @@ export function ActivityBoardsList({
                                   <span>{formatRemainingTime(remaining)}</span>
                                 </div>
                               )}
-                              {activeCounts[board.id] > 0 && (
-                                <div className="flex items-center space-x-1 text-sm text-blue-600">
-                                  <Users className="w-3 h-3" />
-                                  <span>{activeCounts[board.id]} actief</span>
-                                </div>
-                              )}
+                              <div className="flex items-center gap-2 mt-1">
+                                {activeCounts[board.id] > 0 && (
+                                  <div className="flex items-center space-x-1 text-sm text-blue-600 font-medium">
+                                    <Users className="w-3 h-3" />
+                                    <span>{activeCounts[board.id]} actief</span>
+                                  </div>
+                                )}
+                                {details.studentCount > 0 && (
+                                  <span className="text-xs text-gray-500">
+                                    ({details.studentCount} toegewezen)
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -525,20 +552,34 @@ export function ActivityBoardsList({
                     <Card key={board.id} className="hover:shadow-md transition-shadow">
                       <div className="flex flex-col h-full">
                         <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                              <Grid className="w-5 h-5 text-gray-600" />
+                          <div className="flex items-center space-x-3 flex-1">
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              {board.icon_url ? (
+                                <img
+                                  src={board.icon_url}
+                                  alt={board.name}
+                                  className="w-full h-full object-cover rounded-lg"
+                                />
+                              ) : (
+                                <Grid className="w-6 h-6 text-gray-600" />
+                              )}
                             </div>
-                            <div>
+                            <div className="flex-1 min-w-0">
                               <h3 className="font-semibold text-gray-900">{board.name}</h3>
-                              <div className="flex items-center gap-2 mt-1">
-                                {details.studentCount > 0 && (
-                                  <span className="text-xs text-gray-500">
+                              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                <div className="flex items-center gap-1">
+                                  <Users className="w-3 h-3 text-gray-500" />
+                                  <span className={`text-sm ${details.studentCount === 0 ? 'text-yellow-600 font-medium' : 'text-gray-700'}`}>
                                     {details.studentCount} leerling{details.studentCount !== 1 ? 'en' : ''}
+                                  </span>
+                                </div>
+                                {details.activeOptionsCount > 0 && (
+                                  <span className="text-xs text-gray-500">
+                                    • {details.activeOptionsCount} activiteit{details.activeOptionsCount !== 1 ? 'en' : ''}
                                   </span>
                                 )}
                                 {hasWarnings && (
-                                  <AlertTriangle className="w-3 h-3 text-yellow-500" />
+                                  <AlertTriangle className="w-3 h-3 text-yellow-500" title={details.studentCount === 0 ? 'Geen leerlingen toegewezen' : 'Geen actieve activiteiten'} />
                                 )}
                               </div>
                             </div>

@@ -156,6 +156,10 @@ export function ActivityBoardSettings({
   const [newPresetMaxStudents, setNewPresetMaxStudents] = useState<number | ''>('');
   const [showIconPicker, setShowIconPicker] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [boardIcon, setBoardIcon] = useState<string>('Grid');
+  const [boardIconUrl, setBoardIconUrl] = useState<string | null>(null);
+  const [showBoardIconPicker, setShowBoardIconPicker] = useState(false);
+  const [uploadingIcon, setUploadingIcon] = useState(false);
 
   useEffect(() => {
     fetchGroupsAndStudents();
@@ -296,7 +300,7 @@ export function ActivityBoardSettings({
     try {
       const { data, error } = await supabase
         .from('activity_boards')
-        .select('student_group_ids, student_ids')
+        .select('student_group_ids, student_ids, board_icon, icon_url')
         .eq('id', board.id)
         .maybeSingle();
 
@@ -304,6 +308,8 @@ export function ActivityBoardSettings({
       if (data) {
         setSelectedGroups(data.student_group_ids || []);
         setSelectedStudents(data.student_ids || []);
+        setBoardIcon(data.board_icon || 'Grid');
+        setBoardIconUrl(data.icon_url);
       }
 
       const { data: timeBlocksData, error: timeBlocksError } = await supabase
@@ -417,6 +423,8 @@ export function ActivityBoardSettings({
             is_active: isActive,
             student_group_ids: selectedGroups,
             student_ids: selectedStudents,
+            board_icon: boardIcon,
+            icon_url: boardIconUrl,
             updated_at: new Date().toISOString()
           })
           .eq('id', board.id);
@@ -526,6 +534,8 @@ export function ActivityBoardSettings({
             is_active: isActive,
             student_group_ids: selectedGroups,
             student_ids: selectedStudents,
+            board_icon: boardIcon,
+            icon_url: boardIconUrl,
             created_by: user.id
           })
           .select()
@@ -636,6 +646,126 @@ export function ActivityBoardSettings({
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Bordpictogram
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-200">
+                    {boardIconUrl ? (
+                      <img
+                        src={boardIconUrl}
+                        alt="Board icon"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    ) : (() => {
+                      const IconComponent = ICON_OPTIONS.find(opt => opt.name === boardIcon)?.component || Grid;
+                      return <IconComponent className="w-8 h-8 text-gray-700" />;
+                    })()}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant="secondary"
+                      onClick={() => setShowBoardIconPicker(!showBoardIconPicker)}
+                      type="button"
+                    >
+                      Kies Pictogram
+                    </Button>
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+
+                          if (file.size > 2097152) {
+                            setToast({ message: 'Bestand is te groot (max 2MB)', type: 'error' });
+                            return;
+                          }
+
+                          setUploadingIcon(true);
+                          try {
+                            const fileExt = file.name.split('.').pop();
+                            const fileName = `${schoolId}/${Date.now()}.${fileExt}`;
+
+                            const { error: uploadError, data } = await supabase.storage
+                              .from('activity-board-icons')
+                              .upload(fileName, file);
+
+                            if (uploadError) throw uploadError;
+
+                            const { data: { publicUrl } } = supabase.storage
+                              .from('activity-board-icons')
+                              .getPublicUrl(fileName);
+
+                            setBoardIconUrl(publicUrl);
+                            setBoardIcon('Grid');
+                            setToast({ message: 'Afbeelding geüpload', type: 'success' });
+                          } catch (error) {
+                            console.error('Error uploading icon:', error);
+                            setToast({ message: 'Fout bij uploaden', type: 'error' });
+                          } finally {
+                            setUploadingIcon(false);
+                            e.target.value = '';
+                          }
+                        }}
+                        className="hidden"
+                        disabled={uploadingIcon}
+                      />
+                      <Button
+                        variant="secondary"
+                        as="span"
+                        disabled={uploadingIcon}
+                        type="button"
+                      >
+                        {uploadingIcon ? 'Uploaden...' : 'Upload Afbeelding'}
+                      </Button>
+                    </label>
+                    {boardIconUrl && (
+                      <Button
+                        variant="secondary"
+                        onClick={() => setBoardIconUrl(null)}
+                        type="button"
+                      >
+                        Verwijder Afbeelding
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {showBoardIconPicker && (
+                <div className="mt-3 border border-gray-300 rounded-lg p-4 bg-gray-50">
+                  <div className="grid grid-cols-10 gap-2">
+                    {ICON_OPTIONS.map((iconOption) => {
+                      const IconComponent = iconOption.component;
+                      return (
+                        <button
+                          key={iconOption.name}
+                          type="button"
+                          onClick={() => {
+                            setBoardIcon(iconOption.name);
+                            setBoardIconUrl(null);
+                            setShowBoardIconPicker(false);
+                          }}
+                          className={`p-2 rounded-lg border-2 transition-all ${
+                            boardIcon === iconOption.name && !boardIconUrl
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300 bg-white'
+                          }`}
+                          title={iconOption.name}
+                        >
+                          <IconComponent className="w-5 h-5 text-gray-700" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
