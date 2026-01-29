@@ -8,6 +8,8 @@ import { WebWijzerContentViewer } from './WebWijzerContentViewer';
 import { StudentBibliotheekModal } from './StudentBibliotheekModal';
 import { StudentActiviTijdModal } from './StudentActiviTijdModal';
 import { StudentZoekerModal } from '../zoeker/StudentZoekerModal';
+import { BoardSelectionModal } from '../activityboard/BoardSelectionModal';
+import { SwitchBoardModal } from '../activityboard/SwitchBoardModal';
 
 interface ContentAssignment {
   id: string;
@@ -55,17 +57,43 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   const [showZoeker, setShowZoeker] = useState(false);
   const [activeBoard, setActiveBoard] = useState<string | null>(null);
   const [schoolId, setSchoolId] = useState<string | null>(null);
+  const [availableBoards, setAvailableBoards] = useState<any[]>([]);
+  const [showBoardSelection, setShowBoardSelection] = useState(false);
+  const [switchingToBoard, setSwitchingToBoard] = useState<{id: string; name: string} | null>(null);
+  const [currentBoardName, setCurrentBoardName] = useState<string>('');
+  const [showDeactivationNotice, setShowDeactivationNotice] = useState(false);
+  const [deactivationCountdown, setDeactivationCountdown] = useState(5);
 
   useEffect(() => {
     fetchAssignments();
     fetchStudentSchool();
     checkActiveBoard();
+
     const interval = setInterval(() => {
       fetchAssignments();
       checkActiveBoard();
     }, 15000);
-    return () => clearInterval(interval);
-  }, [studentId]);
+
+    const subscription = supabase
+      .channel('board_deactivation')
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'activity_boards',
+        filter: `id=eq.${activeBoard}`
+      }, (payload) => {
+        if (payload.new && !payload.new.is_active && activeBoard) {
+          setShowDeactivationNotice(true);
+          setDeactivationCountdown(5);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      subscription.unsubscribe();
+    };
+  }, [studentId, activeBoard]);
 
   const fetchStudentSchool = async () => {
     try {
@@ -84,27 +112,70 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
 
   const checkActiveBoard = async () => {
     try {
-      const { data: sessions, error } = await supabase
+      const { data: student, error: studentError } = await supabase
+        .from('students')
+        .select('id, group_id')
+        .eq('id', studentId)
+        .maybeSingle();
+
+      if (studentError) throw studentError;
+      if (!student) return;
+
+      const { data: currentSession, error: sessionError } = await supabase
         .from('activity_sessions')
-        .select('board_id, activity_boards!inner(is_active)')
+        .select('board_id, activity_boards!inner(id, name, is_active, active_until)')
         .eq('student_id', studentId)
         .is('end_time', null)
         .order('start_time', { ascending: false })
         .limit(1);
 
-      if (error) throw error;
+      if (sessionError) throw sessionError;
 
-      if (sessions && sessions.length > 0 && sessions[0].activity_boards?.is_active) {
-        setActiveBoard(sessions[0].board_id);
+      if (currentSession && currentSession.length > 0) {
+        const session = currentSession[0];
+        if (session.activity_boards?.is_active &&
+            session.activity_boards?.active_until &&
+            new Date(session.activity_boards.active_until) > new Date()) {
+          setActiveBoard(session.board_id);
+          setCurrentBoardName(session.activity_boards.name);
+          return;
+        }
+      }
+
+      const query = supabase
+        .from('activity_boards')
+        .select('id, name, description, active_until, board_icon, icon_url, student_group_ids, student_ids')
+        .eq('is_active', true)
+        .not('active_until', 'is', null)
+        .gt('active_until', new Date().toISOString());
+
+      const { data: boards, error: boardsError } = await query;
+      if (boardsError) throw boardsError;
+
+      const accessibleBoards = (boards || []).filter(board => {
+        const hasGroupAccess = student.group_id &&
+          board.student_group_ids &&
+          board.student_group_ids.includes(student.group_id);
+
+        const hasDirectAccess = board.student_ids &&
+          board.student_ids.includes(studentId);
+
+        return hasGroupAccess || hasDirectAccess;
+      }).filter(board => {
+        if (!board.active_until) return false;
+        const remaining = new Date(board.active_until).getTime() - Date.now();
+        return remaining > 300000;
+      });
+
+      setAvailableBoards(accessibleBoards);
+
+      if (accessibleBoards.length === 1) {
+        setActiveBoard(accessibleBoards[0].id);
+        setCurrentBoardName(accessibleBoards[0].name);
+      } else if (accessibleBoards.length > 1) {
+        setActiveBoard(null);
       } else {
-        const { data: boards, error: boardsError } = await supabase
-          .from('activity_boards')
-          .select('id')
-          .eq('is_active', true)
-          .limit(1);
-
-        if (boardsError) throw boardsError;
-        setActiveBoard(boards && boards.length > 0 ? boards[0].id : null);
+        setActiveBoard(null);
       }
     } catch (error) {
       console.error('Error checking active board:', error);
@@ -139,6 +210,63 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
       onStop();
     } else if (onBackToDashboard) {
       onBackToDashboard();
+    }
+  };
+
+  useEffect(() => {
+    if (showDeactivationNotice && deactivationCountdown > 0) {
+      const timer = setTimeout(() => {
+        setDeactivationCountdown(prev => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (showDeactivationNotice && deactivationCountdown === 0) {
+      setShowDeactivationNotice(false);
+      setActiveBoard(null);
+      setShowActiviTijd(false);
+      checkActiveBoard();
+    }
+  }, [showDeactivationNotice, deactivationCountdown]);
+
+  const handleBoardSelect = (boardId: string) => {
+    const selectedBoard = availableBoards.find(b => b.id === boardId);
+    if (!selectedBoard) return;
+
+    if (activeBoard && activeBoard !== boardId) {
+      setSwitchingToBoard({ id: selectedBoard.id, name: selectedBoard.name });
+      setShowBoardSelection(false);
+    } else {
+      setActiveBoard(boardId);
+      setCurrentBoardName(selectedBoard.name);
+      setShowBoardSelection(false);
+      setShowActiviTijd(true);
+    }
+  };
+
+  const handleStopAndSwitch = async () => {
+    if (!switchingToBoard) return;
+
+    try {
+      await supabase
+        .from('activity_sessions')
+        .update({ end_time: new Date().toISOString() })
+        .eq('student_id', studentId)
+        .eq('board_id', activeBoard)
+        .is('end_time', null);
+
+      setActiveBoard(switchingToBoard.id);
+      setCurrentBoardName(switchingToBoard.name);
+      setSwitchingToBoard(null);
+      setShowActiviTijd(true);
+    } catch (error) {
+      console.error('Error switching boards:', error);
+    }
+  };
+
+  const handleActiviTijdClick = () => {
+    if (availableBoards.length > 1 && !activeBoard) {
+      setShowBoardSelection(true);
+    } else if (activeBoard || availableBoards.length === 1) {
+      setShowActiviTijd(true);
     }
   };
 
@@ -479,9 +607,9 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
                 </Button>
               </>
             )}
-            {activeBoard && (
+            {(activeBoard || availableBoards.length > 0) && (
               <Button
-                onClick={() => setShowActiviTijd(true)}
+                onClick={handleActiviTijdClick}
                 variant="secondary"
                 className="flex items-center gap-2"
               >
@@ -650,6 +778,57 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
           boardId={activeBoard}
           onClose={() => setShowActiviTijd(false)}
         />
+      )}
+
+      {showBoardSelection && (
+        <BoardSelectionModal
+          boards={availableBoards}
+          onSelectBoard={handleBoardSelect}
+          onClose={() => setShowBoardSelection(false)}
+        />
+      )}
+
+      {switchingToBoard && (
+        <SwitchBoardModal
+          currentBoardName={currentBoardName}
+          newBoardName={switchingToBoard.name}
+          onClose={() => setSwitchingToBoard(null)}
+          onStopAndSwitch={handleStopAndSwitch}
+        />
+      )}
+
+      {showDeactivationNotice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-md w-full">
+            <div className="p-6 text-center space-y-4">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto">
+                <Clock className="w-8 h-8 text-orange-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Les Beëindigd
+                </h2>
+                <p className="text-gray-600">
+                  Dit activiteitenbord is beëindigd door je leerkracht
+                </p>
+              </div>
+              <div className="text-4xl font-bold text-blue-600">
+                {deactivationCountdown}
+              </div>
+              <Button
+                onClick={() => {
+                  setShowDeactivationNotice(false);
+                  setActiveBoard(null);
+                  setShowActiviTijd(false);
+                  checkActiveBoard();
+                }}
+                className="w-full"
+              >
+                Terug naar Overzicht
+              </Button>
+            </div>
+          </Card>
+        </div>
       )}
 
       {showZoeker && schoolId && (

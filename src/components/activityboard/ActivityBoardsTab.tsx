@@ -18,6 +18,14 @@ interface ActivityBoard {
   created_by: string;
   created_at: string;
   updated_at: string;
+  active_until: string | null;
+  activated_at: string | null;
+  activated_by: string | null;
+  icon_url: string | null;
+  board_icon: string | null;
+  student_group_ids: string[];
+  student_ids: string[];
+  archived_at?: string;
 }
 
 interface UserSchool {

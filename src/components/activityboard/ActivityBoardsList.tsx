@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { Plus, Grid, Edit, Trash2, BarChart3, Eye, Users, Archive, ArchiveRestore } from 'lucide-react';
+import { ActivationModal } from './ActivationModal';
+import { StopBoardModal } from './StopBoardModal';
+import { ExtendTimeModal } from './ExtendTimeModal';
+import { Plus, Grid, Edit, Trash2, BarChart3, Eye, Users, Archive, ArchiveRestore, Play, Square, Clock, AlertTriangle } from 'lucide-react';
 
 interface ActivityBoard {
   id: string;
@@ -14,6 +17,14 @@ interface ActivityBoard {
   created_by: string;
   created_at: string;
   updated_at: string;
+  active_until: string | null;
+  activated_at: string | null;
+  activated_by: string | null;
+  icon_url: string | null;
+  board_icon: string | null;
+  student_group_ids: string[];
+  student_ids: string[];
+  archived_at?: string;
 }
 
 interface UserSchool {
@@ -52,9 +63,30 @@ export function ActivityBoardsList({
   const [archiving, setArchiving] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [activeCounts, setActiveCounts] = useState<Record<string, number>>({});
+  const [activationBoard, setActivationBoard] = useState<ActivityBoard | null>(null);
+  const [stopBoard, setStopBoard] = useState<ActivityBoard | null>(null);
+  const [extendBoard, setExtendBoard] = useState<ActivityBoard | null>(null);
+  const [boardDetails, setBoardDetails] = useState<Record<string, { studentCount: number; groupNames: string[]; activeOptionsCount: number }>>({});
+  const [remainingTimes, setRemainingTimes] = useState<Record<string, number>>({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchActiveCounts();
+    fetchBoardDetails();
+  }, [boards]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newRemainingTimes: Record<string, number> = {};
+      boards.forEach(board => {
+        if (board.is_active && board.active_until) {
+          const remaining = new Date(board.active_until).getTime() - Date.now();
+          newRemainingTimes[board.id] = Math.max(0, remaining);
+        }
+      });
+      setRemainingTimes(newRemainingTimes);
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, [boards]);
 
   const fetchActiveCounts = async () => {
@@ -77,6 +109,138 @@ export function ActivityBoardsList({
     }
 
     setActiveCounts(counts);
+  };
+
+  const fetchBoardDetails = async () => {
+    const details: Record<string, { studentCount: number; groupNames: string[]; activeOptionsCount: number }> = {};
+
+    for (const board of boards) {
+      try {
+        const studentIds = new Set<string>();
+
+        if (board.student_group_ids && board.student_group_ids.length > 0) {
+          const { data: groupStudents, error: groupError } = await supabase
+            .from('students')
+            .select('id')
+            .in('group_id', board.student_group_ids);
+
+          if (!groupError && groupStudents) {
+            groupStudents.forEach(s => studentIds.add(s.id));
+          }
+        }
+
+        if (board.student_ids && board.student_ids.length > 0) {
+          board.student_ids.forEach(id => studentIds.add(id));
+        }
+
+        const { data: groups, error: groupNamesError } = await supabase
+          .from('groups')
+          .select('name')
+          .in('id', board.student_group_ids || []);
+
+        const { count: optionsCount, error: optionsError } = await supabase
+          .from('activity_options')
+          .select('*', { count: 'exact', head: true })
+          .eq('board_id', board.id)
+          .eq('is_active', true);
+
+        details[board.id] = {
+          studentCount: studentIds.size,
+          groupNames: !groupNamesError && groups ? groups.map(g => g.name) : [],
+          activeOptionsCount: !optionsError && optionsCount !== null ? optionsCount : 0
+        };
+      } catch (error) {
+        console.error('Error fetching board details:', error);
+        details[board.id] = { studentCount: 0, groupNames: [], activeOptionsCount: 0 };
+      }
+    }
+
+    setBoardDetails(details);
+  };
+
+  const handleActivateBoard = async (board: ActivityBoard, durationMinutes: number) => {
+    try {
+      const activatedAt = new Date();
+      const activeUntil = new Date(activatedAt.getTime() + durationMinutes * 60000);
+
+      const { error } = await supabase
+        .from('activity_boards')
+        .update({
+          is_active: true,
+          activated_at: activatedAt.toISOString(),
+          active_until: activeUntil.toISOString(),
+          activated_by: (await supabase.auth.getUser()).data.user?.id
+        })
+        .eq('id', board.id);
+
+      if (error) throw error;
+
+      setActivationBoard(null);
+      onBoardsChanged();
+    } catch (error) {
+      console.error('Error activating board:', error);
+      throw error;
+    }
+  };
+
+  const handleStopBoard = async (board: ActivityBoard) => {
+    try {
+      await supabase
+        .from('activity_sessions')
+        .update({ end_time: new Date().toISOString() })
+        .eq('board_id', board.id)
+        .is('end_time', null);
+
+      const { error } = await supabase
+        .from('activity_boards')
+        .update({
+          is_active: false,
+          active_until: null,
+          activated_at: null
+        })
+        .eq('id', board.id);
+
+      if (error) throw error;
+
+      setStopBoard(null);
+      onBoardsChanged();
+    } catch (error) {
+      console.error('Error stopping board:', error);
+      throw error;
+    }
+  };
+
+  const handleExtendBoard = async (board: ActivityBoard, additionalMinutes: number) => {
+    try {
+      if (!board.active_until) return;
+
+      const currentEnd = new Date(board.active_until);
+      const newEnd = new Date(currentEnd.getTime() + additionalMinutes * 60000);
+
+      const { error } = await supabase
+        .from('activity_boards')
+        .update({ active_until: newEnd.toISOString() })
+        .eq('id', board.id);
+
+      if (error) throw error;
+
+      setExtendBoard(null);
+      onBoardsChanged();
+    } catch (error) {
+      console.error('Error extending board:', error);
+      throw error;
+    }
+  };
+
+  const formatRemainingTime = (ms: number): string => {
+    const totalMinutes = Math.floor(ms / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    if (hours > 0) {
+      return `${hours}u ${minutes}m`;
+    }
+    return `${minutes}m`;
   };
 
   const handleArchiveBoard = async () => {
@@ -271,113 +435,158 @@ export function ActivityBoardsList({
             <div className="mb-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Actieve Borden</h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {activeBoards.map((board) => (
-                  <Card key={board.id} className="hover:shadow-md transition-shadow">
-                    <div className="flex flex-col h-full">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <Grid className="w-5 h-5 text-blue-600" />
+                {activeBoards.map((board) => {
+                  const remaining = remainingTimes[board.id] || 0;
+                  const isExpiringSoon = remaining > 0 && remaining < 600000;
+
+                  return (
+                    <Card key={board.id} className={`hover:shadow-md transition-shadow ${isExpiringSoon ? 'border-2 border-yellow-400' : ''}`}>
+                      <div className="flex flex-col h-full">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center relative">
+                              <Grid className="w-5 h-5 text-green-600" />
+                              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900">{board.name}</h3>
+                              {board.active_until && (
+                                <div className={`flex items-center space-x-1 text-sm mt-1 ${isExpiringSoon ? 'text-yellow-600 font-semibold' : 'text-gray-600'}`}>
+                                  <Clock className="w-3 h-3" />
+                                  <span>{formatRemainingTime(remaining)}</span>
+                                </div>
+                              )}
+                              {activeCounts[board.id] > 0 && (
+                                <div className="flex items-center space-x-1 text-sm text-blue-600">
+                                  <Users className="w-3 h-3" />
+                                  <span>{activeCounts[board.id]} actief</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{board.name}</h3>
-                            {activeCounts[board.id] > 0 && (
-                              <div className="flex items-center space-x-1 text-sm text-green-600 mt-1">
-                                <Users className="w-3 h-3" />
-                                <span>{activeCounts[board.id]} actief</span>
-                              </div>
-                            )}
+                        </div>
+
+                        {board.description && (
+                          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                            {board.description}
+                          </p>
+                        )}
+
+                        <div className="mt-auto space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              onClick={() => setStopBoard(board)}
+                              className="flex-1 bg-red-600 hover:bg-red-700"
+                            >
+                              <Square className="w-4 h-4 mr-1" />
+                              Stop Les
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              onClick={() => setExtendBoard(board)}
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="secondary"
+                              onClick={() => onViewBoard(board)}
+                              className="flex-1"
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              Openen
+                            </Button>
+                            <button
+                              onClick={() => onEditBoard(board)}
+                              className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
-
-                      {board.description && (
-                        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                          {board.description}
-                        </p>
-                      )}
-
-                      <div className="mt-auto flex items-center space-x-2">
-                        <Button
-                          variant="secondary"
-                          onClick={() => onViewBoard(board)}
-                          className="flex-1"
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          Openen
-                        </Button>
-                        <button
-                          onClick={() => onEditBoard(board)}
-                          className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setArchiveConfirm(board)}
-                          className="p-2 text-gray-600 hover:text-orange-600 hover:bg-gray-50 rounded-lg transition-colors"
-                          title="Archiveren"
-                        >
-                          <Archive className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm(board)}
-                          className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
-                          title="Permanent verwijderen"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {inactiveBoards.length > 0 && (
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Inactieve Borden</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Beschikbare Borden</h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {inactiveBoards.map((board) => (
-                  <Card key={board.id} className="opacity-60 hover:opacity-100 transition-opacity">
-                    <div className="flex flex-col h-full">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <Grid className="w-5 h-5 text-gray-600" />
+                {inactiveBoards.map((board) => {
+                  const details = boardDetails[board.id] || { studentCount: 0, groupNames: [], activeOptionsCount: 0 };
+                  const hasWarnings = details.studentCount === 0 || details.activeOptionsCount === 0;
+
+                  return (
+                    <Card key={board.id} className="hover:shadow-md transition-shadow">
+                      <div className="flex flex-col h-full">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                              <Grid className="w-5 h-5 text-gray-600" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900">{board.name}</h3>
+                              <div className="flex items-center gap-2 mt-1">
+                                {details.studentCount > 0 && (
+                                  <span className="text-xs text-gray-500">
+                                    {details.studentCount} leerling{details.studentCount !== 1 ? 'en' : ''}
+                                  </span>
+                                )}
+                                {hasWarnings && (
+                                  <AlertTriangle className="w-3 h-3 text-yellow-500" />
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{board.name}</h3>
-                            <span className="text-xs text-gray-500">Inactief</span>
+                        </div>
+
+                        {board.description && (
+                          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                            {board.description}
+                          </p>
+                        )}
+
+                        <div className="mt-auto space-y-2">
+                          <Button
+                            onClick={() => setActivationBoard(board)}
+                            className="w-full bg-green-600 hover:bg-green-700"
+                          >
+                            <Play className="w-4 h-4 mr-2" />
+                            Gebruik in Les
+                          </Button>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="secondary"
+                              onClick={() => onEditBoard(board)}
+                              className="flex-1"
+                            >
+                              <Edit className="w-4 h-4 mr-1" />
+                              Bewerken
+                            </Button>
+                            <button
+                              onClick={() => setArchiveConfirm(board)}
+                              className="p-2 text-gray-600 hover:text-orange-600 hover:bg-gray-50 rounded-lg transition-colors"
+                              title="Archiveren"
+                            >
+                              <Archive className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm(board)}
+                              className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
-
-                      {board.description && (
-                        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                          {board.description}
-                        </p>
-                      )}
-
-                      <div className="mt-auto flex items-center space-x-2">
-                        <Button
-                          variant="secondary"
-                          onClick={() => onEditBoard(board)}
-                          className="flex-1"
-                        >
-                          <Edit className="w-4 h-4 mr-1" />
-                          Bewerken
-                        </Button>
-                        <button
-                          onClick={() => setDeleteConfirm(board)}
-                          className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -407,6 +616,35 @@ export function ActivityBoardsList({
           confirmText="Permanent Verwijderen"
           cancelText="Annuleren"
           isLoading={deleting}
+        />
+      )}
+
+      {activationBoard && (
+        <ActivationModal
+          board={activationBoard}
+          onClose={() => setActivationBoard(null)}
+          onActivate={(duration) => handleActivateBoard(activationBoard, duration)}
+          studentCount={boardDetails[activationBoard.id]?.studentCount || 0}
+          groupNames={boardDetails[activationBoard.id]?.groupNames || []}
+          activeOptionsCount={boardDetails[activationBoard.id]?.activeOptionsCount || 0}
+        />
+      )}
+
+      {stopBoard && (
+        <StopBoardModal
+          boardName={stopBoard.name}
+          activeStudentCount={activeCounts[stopBoard.id] || 0}
+          onClose={() => setStopBoard(null)}
+          onConfirm={() => handleStopBoard(stopBoard)}
+        />
+      )}
+
+      {extendBoard && extendBoard.active_until && (
+        <ExtendTimeModal
+          boardName={extendBoard.name}
+          currentEndTime={extendBoard.active_until}
+          onClose={() => setExtendBoard(null)}
+          onExtend={(duration) => handleExtendBoard(extendBoard, duration)}
         />
       )}
     </div>
