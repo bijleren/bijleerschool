@@ -120,12 +120,13 @@ export function ActivityBoardsList({
 
         if (board.student_group_ids && board.student_group_ids.length > 0) {
           const { data: groupStudents, error: groupError } = await supabase
-            .from('students')
-            .select('id')
-            .in('group_id', board.student_group_ids);
+            .from('student_groups')
+            .select('student_id')
+            .in('group_id', board.student_group_ids)
+            .eq('is_active', true);
 
           if (!groupError && groupStudents) {
-            groupStudents.forEach(s => studentIds.add(s.id));
+            groupStudents.forEach(s => studentIds.add(s.student_id));
           }
         }
 
