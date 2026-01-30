@@ -598,13 +598,19 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
 
     const reorderedLevels = arrayMove(severityLevels, oldIndex, newIndex);
 
-    setSeverityLevels(reorderedLevels);
+    // Update the level property to match the new order
+    const updatedLevels = reorderedLevels.map((level, index) => ({
+      ...level,
+      level: index + 1
+    }));
+
+    setSeverityLevels(updatedLevels);
 
     try {
       // Prepare updates array for the database function
-      const levelUpdates = reorderedLevels.map((level, index) => ({
+      const levelUpdates = updatedLevels.map((level) => ({
         id: level.id,
-        level: index + 1
+        level: level.level
       }));
 
       // Call the database function to update all levels atomically
