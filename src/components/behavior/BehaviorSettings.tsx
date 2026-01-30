@@ -101,8 +101,18 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
   });
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (schoolId) {
+      setLoading(true);
+      setShowAddForm(false);
+      setEditingItem(null);
+      setFormData({});
+      setShowConsequenceConnections(null);
+      setBehaviorItemConsequences({});
+      setMessage('');
+
+      fetchData().finally(() => setLoading(false));
+    }
+  }, [schoolId]);
 
   const fetchData = async () => {
     try {
