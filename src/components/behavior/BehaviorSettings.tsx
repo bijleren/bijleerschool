@@ -320,6 +320,49 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
     }
   };
 
+  const handleDeleteSeverityLevel = async (id: string) => {
+    try {
+      // First, delete the level
+      const { error: deleteError } = await supabase
+        .from('behavior_severity_levels')
+        .update({ is_active: false })
+        .eq('id', id);
+
+      if (deleteError) throw deleteError;
+
+      // Fetch remaining active levels
+      const { data: remainingLevels, error: fetchError } = await supabase
+        .from('behavior_severity_levels')
+        .select('*')
+        .eq('school_id', schoolId)
+        .eq('is_active', true)
+        .order('level', { ascending: true });
+
+      if (fetchError) throw fetchError;
+
+      // Renumber the remaining levels sequentially
+      if (remainingLevels && remainingLevels.length > 0) {
+        const levelUpdates = remainingLevels.map((level, index) => ({
+          id: level.id,
+          level: index + 1
+        }));
+
+        const { error: reorderError } = await supabase.rpc('reorder_severity_levels', {
+          level_updates: levelUpdates
+        });
+
+        if (reorderError) throw reorderError;
+      }
+
+      setMessage('Succesvol verwijderd en hernummerd!');
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting severity level:', error);
+      setMessage('Er is een fout opgetreden bij het verwijderen.');
+      fetchData();
+    }
+  };
+
   const connectConsequence = async (behaviorItemId: string, consequenceId: string) => {
     try {
       const { error } = await supabase
@@ -683,7 +726,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                   title: 'Ernst niveau verwijderen',
                   message: `Weet je zeker dat je "${level.name}" wilt verwijderen?`,
                   onConfirm: () => {
-                    handleDelete(level.id);
+                    handleDeleteSeverityLevel(level.id);
                     setConfirmModal(prev => ({ ...prev, isOpen: false }));
                   },
                 })}
