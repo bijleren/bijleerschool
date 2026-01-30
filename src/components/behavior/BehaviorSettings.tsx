@@ -244,6 +244,13 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
       const tableName = getTableName();
 
       if (activeTab === 'levels' && !editingItem) {
+        // Check if we already have 5 severity levels
+        if (severityLevels.length >= 5) {
+          setMessage('Maximum aantal ernst niveaus (5) bereikt.');
+          setLoading(false);
+          return;
+        }
+
         const maxLevel = severityLevels.length > 0
           ? Math.max(...severityLevels.map(l => l.level))
           : 0;
@@ -684,20 +691,29 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
     );
   };
 
-  const renderSeverityLevels = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Ernst Niveaus ({severityLevels.length})</h3>
-          {severityLevels.length > 0 && (
-            <p className="text-sm text-gray-500 mt-1">Sleep om de volgorde te wijzigen</p>
-          )}
+  const renderSeverityLevels = () => {
+    const maxLevelsReached = severityLevels.length >= 5;
+
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Ernst Niveaus ({severityLevels.length}/5)</h3>
+            {severityLevels.length > 0 && (
+              <p className="text-sm text-gray-500 mt-1">Sleep om de volgorde te wijzigen</p>
+            )}
+            {maxLevelsReached && (
+              <p className="text-sm text-amber-600 mt-1">Maximum aantal niveaus bereikt</p>
+            )}
+          </div>
+          <Button
+            onClick={() => setShowAddForm(true)}
+            disabled={maxLevelsReached}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Niveau toevoegen
+          </Button>
         </div>
-        <Button onClick={() => setShowAddForm(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Niveau toevoegen
-        </Button>
-      </div>
 
       {showAddForm && activeTab === 'levels' && (
         <Card>
@@ -775,7 +791,8 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
         )}
       </div>
     </div>
-  );
+    );
+  };
 
   const renderBehaviorItems = () => (
     <div className="space-y-4">
