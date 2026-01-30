@@ -715,7 +715,14 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
           {userSchools.length > 1 && (
             <select
               value={selectedSchoolId}
-              onChange={(e) => setSelectedSchoolId(e.target.value)}
+              onChange={(e) => {
+                const newSchoolId = e.target.value;
+                setSelectedSchoolId(newSchoolId);
+                const school = userSchools.find(s => s.id === newSchoolId);
+                if (school) {
+                  onFocusSchoolChange(school);
+                }
+              }}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               {userSchools.map((school) => (
