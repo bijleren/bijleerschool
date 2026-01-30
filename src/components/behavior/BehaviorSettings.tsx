@@ -594,25 +594,18 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
     setSeverityLevels(reorderedLevels);
 
     try {
-      // Step 1: Set all to temporary negative values to avoid unique constraint conflicts
-      for (let i = 0; i < reorderedLevels.length; i++) {
-        const { error } = await supabase
-          .from('behavior_severity_levels')
-          .update({ level: -(i + 1) })
-          .eq('id', reorderedLevels[i].id);
+      // Prepare updates array for the database function
+      const levelUpdates = reorderedLevels.map((level, index) => ({
+        id: level.id,
+        level: index + 1
+      }));
 
-        if (error) throw error;
-      }
+      // Call the database function to update all levels atomically
+      const { error } = await supabase.rpc('reorder_severity_levels', {
+        level_updates: levelUpdates
+      });
 
-      // Step 2: Set to final positive values
-      for (let i = 0; i < reorderedLevels.length; i++) {
-        const { error } = await supabase
-          .from('behavior_severity_levels')
-          .update({ level: i + 1 })
-          .eq('id', reorderedLevels[i].id);
-
-        if (error) throw error;
-      }
+      if (error) throw error;
 
       setMessage('Volgorde succesvol bijgewerkt!');
       setTimeout(() => setMessage(''), 3000);
