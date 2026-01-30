@@ -5,7 +5,10 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, Plus, CreditCard as Edit, Trash2, Save, X, AlertTriangle, Tag, Users, Link, Info, Lightbulb, Zap, Ban, Package, Handshake, Target, Scale } from 'lucide-react';
+import { ArrowLeft, Plus, CreditCard as Edit, Trash2, Save, X, AlertTriangle, Tag, Users, Link, Info, Lightbulb, Zap, Ban, Package, Handshake, Target, Scale, GripVertical } from 'lucide-react';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface BehaviorCategory {
   id: string;
@@ -240,13 +243,11 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
       let error;
       const tableName = getTableName();
 
-      if (activeTab === 'levels') {
-        const level = formData.level;
-        if (!level || isNaN(level) || level < 1 || level > 5) {
-          setMessage('Niveau moet een getal tussen 1 en 5 zijn.');
-          setLoading(false);
-          return;
-        }
+      if (activeTab === 'levels' && !editingItem) {
+        const maxLevel = severityLevels.length > 0
+          ? Math.max(...severityLevels.map(l => l.level))
+          : 0;
+        formData.level = maxLevel + 1;
       }
 
       // For student roles, handle default role logic
@@ -571,10 +572,128 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
     </div>
   );
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEndSeverityLevels = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = severityLevels.findIndex((level) => level.id === active.id);
+    const newIndex = severityLevels.findIndex((level) => level.id === over.id);
+
+    const reorderedLevels = arrayMove(severityLevels, oldIndex, newIndex);
+
+    setSeverityLevels(reorderedLevels);
+
+    try {
+      const updates = reorderedLevels.map((level, index) => ({
+        id: level.id,
+        level: index + 1
+      }));
+
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('behavior_severity_levels')
+          .update({ level: update.level })
+          .eq('id', update.id);
+
+        if (error) throw error;
+      }
+
+      setMessage('Volgorde succesvol bijgewerkt!');
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      console.error('Error updating order:', error);
+      setMessage('Er is een fout opgetreden bij het bijwerken van de volgorde.');
+      fetchData();
+    }
+  };
+
+  const SortableSeverityLevel = ({ level }: { level: BehaviorSeverityLevel }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: level.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+      <div ref={setNodeRef} style={style}>
+        <Card padding="sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div
+                {...attributes}
+                {...listeners}
+                className="cursor-grab active:cursor-grabbing touch-none"
+              >
+                <GripVertical className="w-5 h-5 text-gray-400" />
+              </div>
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold"
+                style={{ backgroundColor: level.color }}
+              >
+                {level.level}
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">{level.name}</h4>
+                {level.description && (
+                  <p className="text-sm text-gray-600">{level.description}</p>
+                )}
+                <p className="text-xs text-gray-500">Niveau: {level.level}</p>
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <Button variant="secondary" size="sm" onClick={() => startEdit(level)}>
+                <Edit className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => setConfirmModal({
+                  isOpen: true,
+                  title: 'Ernst niveau verwijderen',
+                  message: `Weet je zeker dat je "${level.name}" wilt verwijderen?`,
+                  onConfirm: () => {
+                    handleDelete(level.id);
+                    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                  },
+                })}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  };
+
   const renderSeverityLevels = () => (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Ernst Niveaus ({severityLevels.length})</h3>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">Ernst Niveaus ({severityLevels.length})</h3>
+          {severityLevels.length > 0 && (
+            <p className="text-sm text-gray-500 mt-1">Sleep om de volgorde te wijzigen</p>
+          )}
+        </div>
         <Button onClick={() => setShowAddForm(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Niveau toevoegen
@@ -587,28 +706,13 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
             {editingItem ? 'Niveau bewerken' : 'Nieuw ernst niveau toevoegen'}
           </h4>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Naam"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-                placeholder="Bijv. Licht, Matig, Ernstig"
-              />
-              <Input
-                label="Niveau (1-5)"
-                type="number"
-                min="1"
-                max="5"
-                value={formData.level || ''}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  const numVal = val === '' ? '' : parseInt(val);
-                  setFormData({ ...formData, level: numVal });
-                }}
-                required
-              />
-            </div>
+            <Input
+              label="Naam"
+              value={formData.name || ''}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+              placeholder="Bijv. Licht, Matig, Ernstig"
+            />
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Beschrijving
@@ -653,47 +757,22 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
             <p className="text-gray-600">Voeg ernst niveaus toe om gedrag te classificeren.</p>
           </Card>
         ) : (
-          severityLevels.map((level) => (
-            <Card key={level.id} padding="sm">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold"
-                    style={{ backgroundColor: level.color }}
-                  >
-                    {level.level}
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">{level.name}</h4>
-                    {level.description && (
-                      <p className="text-sm text-gray-600">{level.description}</p>
-                    )}
-                    <p className="text-xs text-gray-500">Niveau: {level.level}</p>
-                  </div>
-                </div>
-                <div className="flex space-x-2">
-                  <Button variant="secondary" size="sm" onClick={() => startEdit(level)}>
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setConfirmModal({
-                      isOpen: true,
-                      title: 'Ernst niveau verwijderen',
-                      message: `Weet je zeker dat je "${level.name}" wilt verwijderen?`,
-                      onConfirm: () => {
-                        handleDelete(level.id);
-                        setConfirmModal(prev => ({ ...prev, isOpen: false }));
-                      },
-                    })}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEndSeverityLevels}
+          >
+            <SortableContext
+              items={severityLevels.map((level) => level.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-3">
+                {severityLevels.map((level) => (
+                  <SortableSeverityLevel key={level.id} level={level} />
+                ))}
               </div>
-            </Card>
-          ))
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     </div>
