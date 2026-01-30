@@ -10,6 +10,7 @@ import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, 
 import { ColorPicker } from '../ui/ColorPicker';
 import { StudentWebWijzer } from '../webwijzer/StudentWebWijzer';
 import { StudentBoekerView } from '../boeker/StudentBoekerView';
+import { StudentReadingProgress } from './StudentReadingProgress';
 
 interface Student {
   id: string;
@@ -1375,6 +1376,9 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
           </p>
         </div>
       </Card>
+
+      {/* Reading Progress */}
+      <StudentReadingProgress studentId={student.id} schoolId={schoolId} />
 
       {/* Student Groups */}
       <Card className="mb-6">
