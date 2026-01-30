@@ -239,7 +239,16 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
     try {
       let error;
       const tableName = getTableName();
-      
+
+      if (activeTab === 'levels') {
+        const level = formData.level;
+        if (!level || isNaN(level) || level < 1 || level > 5) {
+          setMessage('Niveau moet een getal tussen 1 en 5 zijn.');
+          setLoading(false);
+          return;
+        }
+      }
+
       // For student roles, handle default role logic
       if (activeTab === 'roles' && formData.is_default) {
         // First, remove default from all other roles
@@ -592,7 +601,11 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                 min="1"
                 max="5"
                 value={formData.level || ''}
-                onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) })}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const numVal = val === '' ? '' : parseInt(val);
+                  setFormData({ ...formData, level: numVal });
+                }}
                 required
               />
             </div>
