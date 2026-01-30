@@ -594,16 +594,22 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
     setSeverityLevels(reorderedLevels);
 
     try {
-      const updates = reorderedLevels.map((level, index) => ({
-        id: level.id,
-        level: index + 1
-      }));
-
-      for (const update of updates) {
+      // Step 1: Set all to temporary negative values to avoid unique constraint conflicts
+      for (let i = 0; i < reorderedLevels.length; i++) {
         const { error } = await supabase
           .from('behavior_severity_levels')
-          .update({ level: update.level })
-          .eq('id', update.id);
+          .update({ level: -(i + 1) })
+          .eq('id', reorderedLevels[i].id);
+
+        if (error) throw error;
+      }
+
+      // Step 2: Set to final positive values
+      for (let i = 0; i < reorderedLevels.length; i++) {
+        const { error } = await supabase
+          .from('behavior_severity_levels')
+          .update({ level: i + 1 })
+          .eq('id', reorderedLevels[i].id);
 
         if (error) throw error;
       }
