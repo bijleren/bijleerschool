@@ -9,7 +9,7 @@ import { Toast } from '../ui/Toast';
 import { BarcodeScanner } from './BarcodeScanner';
 import { QuickScanModal } from './QuickScanModal';
 import { fetchBookMetadata, BookMetadata } from '../../utils/bookApi';
-import { Plus, Search, Edit, Trash2, Camera, BookOpen, Users, X, Scan } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare } from 'lucide-react';
 
 interface Book {
   id: string;
@@ -36,6 +36,18 @@ interface StudentBookInfo {
   total_pages_read: number;
 }
 
+interface BookReview {
+  id: string;
+  rating: number;
+  review_text: string | null;
+  created_at: string;
+  students: {
+    id: string;
+    first_name: string;
+    last_name: string;
+  };
+}
+
 interface BookLibraryProps {
   schoolId: string;
   onViewStudent?: (studentId: string) => void;
@@ -53,6 +65,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [viewingBook, setViewingBook] = useState<Book | null>(null);
   const [currentBorrowers, setCurrentBorrowers] = useState<StudentBookInfo[]>([]);
+  const [bookReviews, setBookReviews] = useState<BookReview[]>([]);
   const [fetchingMetadata, setFetchingMetadata] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [customCoverFile, setCustomCoverFile] = useState<File | null>(null);
@@ -403,6 +416,26 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
           borrowedCount: actualBorrowedCount
         });
       }
+
+      const { data: reviews, error: reviewsError } = await supabase
+        .from('book_reviews')
+        .select(`
+          id,
+          rating,
+          review_text,
+          created_at,
+          students (
+            id,
+            first_name,
+            last_name
+          )
+        `)
+        .eq('book_id', book.id)
+        .order('created_at', { ascending: false });
+
+      if (reviewsError) throw reviewsError;
+      setBookReviews(reviews || []);
+
     } catch (error) {
       console.error('Error fetching borrowers:', error);
       setToast({ message: 'Fout bij ophalen leners', type: 'error' });
@@ -436,6 +469,25 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     } catch (error) {
       console.error('Error syncing availability:', error);
       setToast({ message: 'Fout bij synchroniseren', type: 'error' });
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!confirm('Weet je zeker dat je deze recensie wilt verwijderen?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('book_reviews')
+        .delete()
+        .eq('id', reviewId);
+
+      if (error) throw error;
+
+      setToast({ message: 'Recensie verwijderd', type: 'success' });
+      setBookReviews(bookReviews.filter(review => review.id !== reviewId));
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      setToast({ message: 'Fout bij verwijderen recensie', type: 'error' });
     }
   };
 
@@ -824,6 +876,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                   onClick={() => {
                     setViewingBook(null);
                     setCurrentBorrowers([]);
+                    setBookReviews([]);
                   }}
                   className="text-gray-400 hover:text-gray-600"
                 >
@@ -983,6 +1036,82 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                         </div>
                       );
                     })}
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t pt-4 mt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <MessageSquare className="w-5 h-5 text-green-600" />
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Recensies ({bookReviews.length})
+                  </h3>
+                </div>
+
+                {bookReviews.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">
+                    Nog geen recensies voor dit boek
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {bookReviews.map((review) => (
+                      <div
+                        key={review.id}
+                        className="bg-gray-50 rounded-lg p-4"
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4
+                                className="font-semibold text-gray-900 hover:text-blue-600 cursor-pointer"
+                                onClick={() => {
+                                  if (onViewStudent) {
+                                    setViewingBook(null);
+                                    setCurrentBorrowers([]);
+                                    setBookReviews([]);
+                                    onViewStudent(review.students.id);
+                                  }
+                                }}
+                              >
+                                {review.students.first_name} {review.students.last_name}
+                              </h4>
+                              <div className="flex items-center gap-0.5">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`w-4 h-4 ${
+                                      i < review.rating
+                                        ? 'text-yellow-400 fill-yellow-400'
+                                        : 'text-gray-300'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              {new Date(review.created_at).toLocaleDateString('nl-NL', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                              })}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteReview(review.id)}
+                            className="text-red-600 hover:text-red-700 transition-colors p-1"
+                            title="Verwijder recensie"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {review.review_text && (
+                          <p className="text-sm text-gray-700 bg-white p-3 rounded border border-gray-200 mt-2">
+                            {review.review_text}
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
