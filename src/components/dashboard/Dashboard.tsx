@@ -15,6 +15,7 @@ import { BoekerTab } from '../boeker/BoekerTab';
 import { EDITab } from '../edi/EDITab';
 import { DigiToolsTab } from '../digitools/DigiToolsTab';
 import { ZoekerTab } from '../zoeker/ZoekerTab';
+import { BlinkQRTab } from '../blinkqr/BlinkQRTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
@@ -53,7 +54,7 @@ interface Group {
 
 export function Dashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr'>('dashboard');
   const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -301,6 +302,13 @@ export function Dashboard() {
     setActiveTab('digitools');
   };
 
+  const handleNavigateToBlinkQR = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('blinkqr');
+  };
+
   const handleNavigateToNewsletter = () => {
     setSelectedSchool(null);
     setSelectedStudent(null);
@@ -483,6 +491,7 @@ export function Dashboard() {
         onNavigateToZoeker={handleNavigateToZoeker}
         onNavigateToEDI={handleNavigateToEDI}
         onNavigateToDigiTools={handleNavigateToDigiTools}
+        onNavigateToBlinkQR={handleNavigateToBlinkQR}
         focusSchool={focusSchool}
       />
       )}
@@ -503,6 +512,7 @@ export function Dashboard() {
             onNavigateToActivityBoards={handleNavigateToActivityBoards}
             onNavigateToBoeker={handleNavigateToBoeker}
             onNavigateToZoeker={handleNavigateToZoeker}
+            onNavigateToBlinkQR={handleNavigateToBlinkQR}
             userSchools={userSchools}
             focusSchool={focusSchool}
             onFocusSchoolChange={setFocusSchool}
@@ -527,6 +537,7 @@ export function Dashboard() {
         {activeTab === 'zoeker' && <ZoekerTab />}
         {activeTab === 'edi' && <EDITab />}
         {activeTab === 'digitools' && <DigiToolsTab />}
+        {activeTab === 'blinkqr' && <BlinkQRTab />}
         {activeTab === 'activityboards' && <ActivityBoardsTab onFullscreenChange={setIsFullscreen} />}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail
