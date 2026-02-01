@@ -5,6 +5,8 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { QrCode, Eye, ExternalLink, Calendar, Lock, Users, Plus, RefreshCw, Search, Filter, X, FileText, Link as LinkIcon, Image, Video, Music, File, MapPin, CheckSquare, BarChart3 } from 'lucide-react';
+import { BlinkQRPreview } from './BlinkQRPreview';
+import { BlinkQRDownloadModal } from './BlinkQRDownloadModal';
 
 interface BlinkQR {
   id: string;
@@ -58,6 +60,7 @@ export function BlinkQRTab() {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'most_viewed' | 'alphabetical'>('newest');
   const [userSchools, setUserSchools] = useState<School[]>([]);
   const [focusSchool, setFocusSchool] = useState<School | null>(null);
+  const [selectedQRForDownload, setSelectedQRForDownload] = useState<BlinkQR | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -534,15 +537,15 @@ export function BlinkQRTab() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredQRs.map((qr) => (
             <Card key={qr.id} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <QrCode className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{qr.title}</h3>
-                    <p className="text-sm text-gray-500 font-mono">{formatCode(qr.code)}</p>
-                  </div>
+              <div className="flex flex-col items-center mb-4">
+                <BlinkQRPreview
+                  code={qr.code}
+                  onClick={() => setSelectedQRForDownload(qr)}
+                  className="mb-4"
+                />
+                <div className="text-center">
+                  <h3 className="font-semibold text-gray-900">{qr.title}</h3>
+                  <p className="text-sm text-gray-500 font-mono">{formatCode(qr.code)}</p>
                 </div>
               </div>
 
@@ -582,6 +585,14 @@ export function BlinkQRTab() {
             </Card>
           ))}
         </div>
+      )}
+
+      {selectedQRForDownload && (
+        <BlinkQRDownloadModal
+          code={selectedQRForDownload.code}
+          title={selectedQRForDownload.title}
+          onClose={() => setSelectedQRForDownload(null)}
+        />
       )}
     </div>
   );
