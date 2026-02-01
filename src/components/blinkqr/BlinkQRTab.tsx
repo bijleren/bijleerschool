@@ -537,13 +537,12 @@ export function BlinkQRTab() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredQRs.map((qr) => (
             <Card key={qr.id} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex flex-col items-center mb-4">
+              <div className="flex items-start space-x-3 mb-4">
                 <BlinkQRPreview
                   code={qr.code}
                   onClick={() => setSelectedQRForDownload(qr)}
-                  className="mb-4"
                 />
-                <div className="text-center">
+                <div>
                   <h3 className="font-semibold text-gray-900">{qr.title}</h3>
                   <p className="text-sm text-gray-500 font-mono">{formatCode(qr.code)}</p>
                 </div>

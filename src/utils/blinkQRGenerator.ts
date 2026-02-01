@@ -18,7 +18,7 @@ const PROPORTIONS = {
 };
 
 function formatCode(code: string): string {
-  const cleaned = code.replace(/\D/g, '');
+  const cleaned = code.replace(/[-\s]/g, '');
   if (cleaned.length >= 10) {
     return `${cleaned.slice(0, 5)}-${cleaned.slice(5, 10)}`;
   }
