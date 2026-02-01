@@ -550,35 +550,6 @@ export function BlinkQRTab() {
                 <p className="text-sm text-gray-600 mb-4 line-clamp-2">{qr.description}</p>
               )}
 
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="inline-flex items-center px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
-                  {getContentTypeIcon(qr.content_type)}
-                  <span className="ml-1 capitalize">{qr.content_type}</span>
-                </span>
-                {qr.is_paper && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
-                    Papier QR
-                  </span>
-                )}
-                {qr.is_locked && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">
-                    <Lock className="w-3 h-3 mr-1" />
-                    Vergrendeld
-                  </span>
-                )}
-                {qr.team_editable && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
-                    <Users className="w-3 h-3 mr-1" />
-                    Team
-                  </span>
-                )}
-                {qr.created_for_school && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-700">
-                    School
-                  </span>
-                )}
-              </div>
-
               <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
                 <div className="flex items-center space-x-1">
                   <Eye className="w-4 h-4" />
