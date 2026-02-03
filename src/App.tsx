@@ -34,10 +34,30 @@ function RootRedirect() {
   const { user, loading } = useAuth();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const hash = params.get('h');
-    const techniqueId = params.get('technique');
-    const faqId = params.get('faq');
+    // Check for password reset parameters in both query string and hash
+    const queryParams = new URLSearchParams(location.search);
+    const hashParams = new URLSearchParams(location.hash.substring(1));
+
+    // Check if this is a password reset link
+    const isRecoveryInQuery = queryParams.get('type') === 'recovery';
+    const isRecoveryInHash = hashParams.get('type') === 'recovery';
+    const hasAccessTokenInQuery = queryParams.has('access_token');
+    const hasAccessTokenInHash = hashParams.has('access_token');
+
+    if (isRecoveryInQuery || isRecoveryInHash || hasAccessTokenInQuery || hasAccessTokenInHash) {
+      // Redirect to reset-password page with all parameters preserved
+      if (location.hash) {
+        navigate(`/reset-password${location.hash}`, { replace: true });
+      } else if (location.search) {
+        navigate(`/reset-password${location.search}`, { replace: true });
+      }
+      return;
+    }
+
+    // Check for other special parameters
+    const hash = queryParams.get('h');
+    const techniqueId = queryParams.get('technique');
+    const faqId = queryParams.get('faq');
 
     if (hash) {
       navigate(`/webwijzer?h=${hash}`, { replace: true });
@@ -59,14 +79,16 @@ function RootRedirect() {
         navigate(`/faq?faq=${faqId}`, { replace: true });
       }
     }
-  }, [location.search, navigate, user, loading]);
+  }, [location.search, location.hash, navigate, user, loading]);
 
   const params = new URLSearchParams(location.search);
+  const hashParams = new URLSearchParams(location.hash.substring(1));
   const hash = params.get('h');
   const techniqueId = params.get('technique');
   const faqId = params.get('faq');
+  const isPasswordReset = params.get('type') === 'recovery' || hashParams.get('type') === 'recovery' || params.has('access_token') || hashParams.has('access_token');
 
-  if (hash || techniqueId || faqId) {
+  if (hash || techniqueId || faqId || isPasswordReset) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
