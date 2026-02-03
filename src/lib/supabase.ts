@@ -35,7 +35,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
     storage: customStorage,
     storageKey: 'sb-auth-token',
-    flowType: 'pkce',
+    flowType: 'implicit',
   },
 });
 

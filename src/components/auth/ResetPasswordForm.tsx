@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
@@ -17,60 +17,77 @@ export function ResetPasswordForm() {
   const [countdown, setCountdown] = useState(3);
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, text: '', color: '' });
   const [verifying, setVerifying] = useState(true);
+  const [hasRecoveryToken, setHasRecoveryToken] = useState(false);
+  const sessionEstablishedRef = useRef(false);
 
-  const { updatePassword, session } = useAuth();
+  const { updatePassword, session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  // Check for recovery token on mount and manually process if needed
   useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const type = hashParams.get('type') || searchParams.get('type');
-    const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
-    const code = searchParams.get('code');
+    const processRecoveryToken = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const type = hashParams.get('type') || searchParams.get('type');
+      const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token') || searchParams.get('refresh_token');
+      const code = searchParams.get('code');
 
-    console.log('Reset password page loaded', {
-      type,
-      hasToken: !!accessToken,
-      hasCode: !!code,
-      hasSession: !!session,
-      hash: window.location.hash,
-      search: window.location.search
-    });
+      console.log('Reset password page loaded', {
+        type,
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken,
+        hasCode: !!code,
+        hasSession: !!session,
+        authLoading,
+        hash: window.location.hash,
+        search: window.location.search
+      });
 
-    if (code || accessToken) {
-      if (session) {
-        console.log('Session verified, ready for password reset');
+      if ((code || accessToken || type === 'recovery') && !session) {
+        setHasRecoveryToken(true);
+        console.log('Recovery token detected, waiting for Supabase to establish session...');
+
+        // Set timeout to show error if session doesn't establish
+        const timeout = setTimeout(() => {
+          if (!sessionEstablishedRef.current) {
+            console.log('Timeout: Session not established after 15 seconds');
+            setVerifying(false);
+            setError('De sessie kon niet worden gestart. Dit kan gebeuren als de link verlopen is. Vraag een nieuwe link aan.');
+          }
+        }, 15000);
+
+        return () => clearTimeout(timeout);
+      } else if (session) {
+        // Session already exists
+        console.log('Session already established');
+        setHasRecoveryToken(true);
+        sessionEstablishedRef.current = true;
         setVerifying(false);
         setError('');
       } else {
-        console.log('Waiting for Supabase to establish session from URL token...');
-        const timeout = setTimeout(() => {
-          console.log('Timeout reached - session state:', !!session);
-          setVerifying(false);
-          if (!session) {
-            setError('Kon geen verbinding maken met je account. Probeer de link opnieuw te gebruiken of vraag een nieuwe aan.');
-          }
-        }, 8000);
-        return () => clearTimeout(timeout);
+        console.log('No recovery token or session found');
+        setHasRecoveryToken(false);
+        setVerifying(false);
+        setError('Ongeldige of verlopen wachtwoord herstel link. Vraag een nieuwe aan.');
       }
-    } else if (session) {
-      console.log('Existing session found, ready for password reset');
-      setVerifying(false);
-      setError('');
-    } else {
-      console.log('No valid recovery token or session found');
-      setVerifying(false);
-      setError('Ongeldige of verlopen wachtwoord herstel link. Vraag een nieuwe aan.');
-    }
-  }, [searchParams, session]);
+    };
 
+    processRecoveryToken();
+  }, []);
+
+  // Handle session establishment
   useEffect(() => {
-    if (session && verifying) {
-      console.log('Session established, stopping verification');
+    if (session && hasRecoveryToken && !sessionEstablishedRef.current) {
+      console.log('Session established, ready for password reset');
+      sessionEstablishedRef.current = true;
       setVerifying(false);
       setError('');
+    } else if (!authLoading && hasRecoveryToken && !session && !sessionEstablishedRef.current) {
+      // AuthContext finished loading but no session was established
+      console.log('AuthContext loading complete but no session found');
     }
-  }, [session, verifying]);
+  }, [session, hasRecoveryToken, authLoading]);
 
   useEffect(() => {
     if (success && countdown > 0) {

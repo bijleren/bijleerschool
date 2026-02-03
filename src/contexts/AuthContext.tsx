@@ -88,11 +88,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        console.log('Auth state changed:', {
+          event,
+          email: session?.user?.email,
+          userId: session?.user?.id,
+          hasSession: !!session
+        });
 
         // Handle password recovery
         if (event === 'PASSWORD_RECOVERY') {
-          console.log('Password recovery event detected');
+          console.log('PASSWORD_RECOVERY event: Session established for password reset');
           setSession(session);
           setUser(session?.user ?? null);
           setLoading(false);
@@ -101,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Handle signed out or invalid session
         if (event === 'SIGNED_OUT' || !session) {
+          console.log('SIGNED_OUT or no session');
           setSession(null);
           setUser(null);
           setLoading(false);
@@ -110,6 +116,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Handle token refresh
         if (event === 'TOKEN_REFRESHED') {
           console.log('Token refreshed successfully');
+        }
+
+        // Handle signed in
+        if (event === 'SIGNED_IN') {
+          console.log('SIGNED_IN event detected');
         }
 
         setSession(session);
