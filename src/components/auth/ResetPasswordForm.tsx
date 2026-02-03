@@ -37,17 +37,28 @@ export function ResetPasswordForm() {
       search: window.location.search
     });
 
-    if (code || accessToken || session) {
-      const timeout = setTimeout(() => {
-        if (session) {
-          console.log('Session verified, ready for password reset');
+    if (code || accessToken) {
+      if (session) {
+        console.log('Session verified, ready for password reset');
+        setVerifying(false);
+        setError('');
+      } else {
+        console.log('Waiting for Supabase to establish session from URL token...');
+        const timeout = setTimeout(() => {
+          console.log('Timeout reached - session state:', !!session);
           setVerifying(false);
-        } else {
-          console.log('Waiting for session...');
-        }
-      }, 1000);
-      return () => clearTimeout(timeout);
+          if (!session) {
+            setError('Kon geen verbinding maken met je account. Probeer de link opnieuw te gebruiken of vraag een nieuwe aan.');
+          }
+        }, 8000);
+        return () => clearTimeout(timeout);
+      }
+    } else if (session) {
+      console.log('Existing session found, ready for password reset');
+      setVerifying(false);
+      setError('');
     } else {
+      console.log('No valid recovery token or session found');
       setVerifying(false);
       setError('Ongeldige of verlopen wachtwoord herstel link. Vraag een nieuwe aan.');
     }
@@ -57,6 +68,7 @@ export function ResetPasswordForm() {
     if (session && verifying) {
       console.log('Session established, stopping verification');
       setVerifying(false);
+      setError('');
     }
   }, [session, verifying]);
 

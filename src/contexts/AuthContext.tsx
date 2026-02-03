@@ -53,11 +53,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Get initial session
+    // Check for recovery/reset password tokens in URL
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+    const type = hashParams.get('type');
+
+    if (type === 'recovery' && accessToken) {
+      console.log('Recovery token detected in URL, Supabase will handle session establishment');
+    }
+
+    // Get initial session (will automatically detect and process URL tokens)
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
         console.error('Error getting session:', error);
       }
+
+      console.log('Initial session check:', {
+        hasSession: !!session,
+        hasError: !!error,
+        userId: session?.user?.id
+      });
+
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -72,6 +89,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
+
+        // Handle password recovery
+        if (event === 'PASSWORD_RECOVERY') {
+          console.log('Password recovery event detected');
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+          return;
+        }
 
         // Handle signed out or invalid session
         if (event === 'SIGNED_OUT' || !session) {
