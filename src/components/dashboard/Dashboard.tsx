@@ -95,19 +95,24 @@ export function Dashboard() {
           }
         }
 
-        // Handle school ID parameter
-        if (schoolIdParam && tabParam === 'schools') {
-          handleNavigateToSchoolById(schoolIdParam);
-        }
-
-        // Handle group ID parameter
-        if (groupIdParam && tabParam === 'schools') {
-          handleNavigateToGroupById(groupIdParam);
-        }
-
-        // Handle student ID parameter
-        if (studentIdParam && tabParam === 'schools') {
-          handleNavigateToStudentById(studentIdParam);
+        // Handle combined parameters
+        if (tabParam === 'schools') {
+          if (schoolIdParam && groupIdParam) {
+            // Navigate to specific school and group
+            handleNavigateToSchoolAndGroup(schoolIdParam, groupIdParam);
+          } else if (schoolIdParam && studentIdParam) {
+            // Navigate to specific school and student
+            handleNavigateToSchoolAndStudent(schoolIdParam, studentIdParam);
+          } else if (schoolIdParam) {
+            // Navigate to just the school
+            handleNavigateToSchoolById(schoolIdParam);
+          } else if (groupIdParam) {
+            // Navigate to group (fetch school from group data)
+            handleNavigateToGroupById(groupIdParam);
+          } else if (studentIdParam) {
+            // Navigate to student (fetch school from student data)
+            handleNavigateToStudentById(studentIdParam);
+          }
         }
 
         // Clear the URL parameters after setting the tab
@@ -577,6 +582,73 @@ export function Dashboard() {
       }
     } catch (error) {
       console.error('Error navigating to student by ID:', error);
+    }
+  };
+
+  const handleNavigateToSchoolAndGroup = async (schoolId: string, groupId: string) => {
+    try {
+      // Fetch both school and group data
+      const [schoolResult, groupResult] = await Promise.all([
+        supabase.from('schools').select('*').eq('id', schoolId).single(),
+        supabase.from('groups').select('*').eq('id', groupId).eq('school_id', schoolId).single()
+      ]);
+
+      if (schoolResult.error) throw schoolResult.error;
+      if (groupResult.error) throw groupResult.error;
+
+      const school = schoolResult.data;
+      const group = groupResult.data;
+
+      if (school && group) {
+        setSelectedSchool(school);
+        setSelectedGroup({
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          grade_level: group.grade_level,
+          school_year: group.school_year,
+          is_active: group.is_active,
+          created_at: group.created_at
+        });
+        setSelectedStudent(null);
+        setActiveTab('schools');
+      }
+    } catch (error) {
+      console.error('Error navigating to school and group:', error);
+    }
+  };
+
+  const handleNavigateToSchoolAndStudent = async (schoolId: string, studentId: string) => {
+    try {
+      // Fetch both school and student data
+      const [schoolResult, studentResult] = await Promise.all([
+        supabase.from('schools').select('*').eq('id', schoolId).single(),
+        supabase.from('students').select('*').eq('id', studentId).eq('school_id', schoolId).single()
+      ]);
+
+      if (schoolResult.error) throw schoolResult.error;
+      if (studentResult.error) throw studentResult.error;
+
+      const school = schoolResult.data;
+      const student = studentResult.data;
+
+      if (school && student) {
+        setSelectedSchool(school);
+        setSelectedStudent({
+          id: student.id,
+          first_name: student.first_name,
+          last_name: student.last_name,
+          student_number: student.student_number,
+          grade_level: student.grade_level,
+          date_of_birth: student.date_of_birth,
+          is_active: student.is_active,
+          created_at: student.created_at
+        });
+        setSelectedGroup(null);
+        setActiveTab('schools');
+      }
+    } catch (error) {
+      console.error('Error navigating to school and student:', error);
     }
   };
 
