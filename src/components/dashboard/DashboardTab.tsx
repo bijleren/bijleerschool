@@ -1035,12 +1035,26 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                         )}
                         {studentIncidentCounts[favorite.students.id] && (
                           <div className="flex items-center space-x-3 text-xs text-gray-500 mt-2">
-                            <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onNavigateToBehaviorWithStudent(selectedSchoolId, favorite.students.id);
+                              }}
+                              className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded hover:bg-yellow-100 transition-colors"
+                              title="Bekijk open incidenten voor deze leerling"
+                            >
                               {studentIncidentCounts[favorite.students.id].open} open
-                            </span>
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded">
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onNavigateToBehaviorWithStudent(selectedSchoolId, favorite.students.id);
+                              }}
+                              className="px-2 py-1 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors"
+                              title="Bekijk alle incidenten van deze week voor deze leerling"
+                            >
                               {studentIncidentCounts[favorite.students.id].week} deze week
-                            </span>
+                            </button>
                           </div>
                         )}
                       </div>
@@ -1119,12 +1133,26 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                         </div>
                         {groupIncidentCounts[favorite.groups.id] && (
                           <div className="flex items-center space-x-3 text-xs text-gray-500 mt-2">
-                            <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleGroupClick(favorite.groups);
+                              }}
+                              className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded hover:bg-yellow-100 transition-colors"
+                              title="Bekijk open incidenten voor deze klas"
+                            >
                               {groupIncidentCounts[favorite.groups.id].open} open
-                            </span>
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded">
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleGroupClick(favorite.groups);
+                              }}
+                              className="px-2 py-1 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors"
+                              title="Bekijk alle incidenten van deze week voor deze klas"
+                            >
                               {groupIncidentCounts[favorite.groups.id].week} deze week
-                            </span>
+                            </button>
                           </div>
                         )}
                       </div>
@@ -1171,7 +1199,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior('today')}>
             <div className="flex items-center">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <Calendar className="w-6 h-6 text-blue-600" />
@@ -1183,7 +1211,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             </div>
           </Card>
 
-          <Card>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior('open')}>
             <div className="flex items-center">
               <div className="p-3 bg-yellow-100 rounded-lg">
                 <AlertTriangle className="w-6 h-6 text-yellow-600" />
@@ -1195,7 +1223,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             </div>
           </Card>
 
-          <Card>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior('all')}>
             <div className="flex items-center">
               <div className="p-3 bg-green-100 rounded-lg">
                 <Users className="w-6 h-6 text-green-600" />
