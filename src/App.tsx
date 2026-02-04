@@ -116,12 +116,21 @@ function DirectTabRedirect({ tab }: { tab: string }) {
 
         // Pass along additional parameters
         const id = queryParams.get('id');
-        if (id && tab === 'schools') {
+        const schoolId = queryParams.get('schoolId');
+
+        if (tab === 'schools') {
+          // Pass schoolId if provided
+          if (schoolId) {
+            params.set('schoolId', schoolId);
+          }
+
           // Determine if this is for a group or student based on the pathname
-          if (location.pathname === '/klassen') {
-            params.set('groupId', id);
-          } else if (location.pathname === '/leerlingen') {
-            params.set('studentId', id);
+          if (id) {
+            if (location.pathname === '/klassen') {
+              params.set('groupId', id);
+            } else if (location.pathname === '/leerlingen') {
+              params.set('studentId', id);
+            }
           }
         }
 

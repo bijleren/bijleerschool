@@ -78,6 +78,7 @@ export function Dashboard() {
     const queryParams = new URLSearchParams(location.search);
     const tabParam = queryParams.get('tab');
     const subtabParam = queryParams.get('subtab');
+    const schoolIdParam = queryParams.get('schoolId');
     const groupIdParam = queryParams.get('groupId');
     const studentIdParam = queryParams.get('studentId');
 
@@ -92,6 +93,11 @@ export function Dashboard() {
           if (validSubtabs.includes(subtabParam)) {
             setTeachingPageOverride(subtabParam as typeof teachingPageOverride);
           }
+        }
+
+        // Handle school ID parameter
+        if (schoolIdParam && tabParam === 'schools') {
+          handleNavigateToSchoolById(schoolIdParam);
         }
 
         // Handle group ID parameter
@@ -488,6 +494,28 @@ export function Dashboard() {
       setActiveTab('schools');
     } catch (error) {
       console.error('Error navigating to group:', error);
+    }
+  };
+
+  const handleNavigateToSchoolById = async (schoolId: string) => {
+    try {
+      // Fetch school data
+      const { data: school, error: schoolError } = await supabase
+        .from('schools')
+        .select('*')
+        .eq('id', schoolId)
+        .single();
+
+      if (schoolError) throw schoolError;
+
+      if (school) {
+        setSelectedSchool(school);
+        setSelectedGroup(null);
+        setSelectedStudent(null);
+        setActiveTab('schools');
+      }
+    } catch (error) {
+      console.error('Error navigating to school by ID:', error);
     }
   };
 
