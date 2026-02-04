@@ -1417,6 +1417,22 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
             </div>
           </div>
 
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Status
+            </label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as 'pending' | 'in_progress' | 'resolved')}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="pending">Melding</option>
+              <option value="in_progress">Onderzoek</option>
+              <option value="resolved">Afgerond</option>
+            </select>
+          </div>
+
           {/* Follow-up Required */}
           <div className="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <input
@@ -1508,9 +1524,9 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                     <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center space-x-3">
                         {attachment.preview && (
-                          <img 
-                            src={attachment.preview} 
-                            alt="Preview" 
+                          <img
+                            src={attachment.preview}
+                            alt="Preview"
                             className="w-12 h-12 object-cover rounded"
                           />
                         )}
@@ -1534,22 +1550,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Status */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Status
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as 'pending' | 'in_progress' | 'resolved')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="pending">Melding</option>
-              <option value="in_progress">Onderzoek</option>
-              <option value="resolved">Afgerond</option>
-            </select>
           </div>
 
           {/* Teacher Notifications */}
