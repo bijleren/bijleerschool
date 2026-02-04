@@ -131,6 +131,8 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
   // Group incidents
   const [groupIncidents, setGroupIncidents] = useState<GroupIncident[]>([]);
   const [incidentsLoading, setIncidentsLoading] = useState(false);
+  const [studentIncidentCounts, setStudentIncidentCounts] = useState<Record<string, number>>({});
+  const [hasBehaviorItems, setHasBehaviorItems] = useState(false);
 
   // Confirmation modal states
   const [confirmModal, setConfirmModal] = useState<{
@@ -154,11 +156,13 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
     fetchGroupGrades();
     fetchSchoolGrades();
     checkIfGroupIsFavorite();
+    checkBehaviorItemsAvailable();
   }, [group.id, schoolId, user]);
 
   useEffect(() => {
     if (groupStudents.length > 0) {
       fetchGroupIncidents();
+      fetchStudentIncidentCounts();
     }
   }, [groupStudents]);
 
@@ -178,6 +182,54 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
       setIsGroupFavorite(!!data);
     } catch (error) {
       console.error('Error checking favorite status:', error);
+    }
+  };
+
+  const checkBehaviorItemsAvailable = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('behavior_items')
+        .select('id')
+        .eq('school_id', schoolId)
+        .limit(1);
+
+      if (error) throw error;
+      setHasBehaviorItems((data?.length || 0) > 0);
+    } catch (error) {
+      console.error('Error checking behavior items:', error);
+      setHasBehaviorItems(false);
+    }
+  };
+
+  const fetchStudentIncidentCounts = async () => {
+    try {
+      const studentIds = groupStudents.map(sg => sg.students.id);
+      if (studentIds.length === 0) return;
+
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const { data, error } = await supabase
+        .from('behavior_incident_students')
+        .select(`
+          student_id,
+          behavior_incidents!inner(incident_date)
+        `)
+        .in('student_id', studentIds)
+        .gte('behavior_incidents.incident_date', sevenDaysAgo.toISOString());
+
+      if (error) throw error;
+
+      const counts: Record<string, number> = {};
+      studentIds.forEach(id => counts[id] = 0);
+
+      data?.forEach((item: any) => {
+        counts[item.student_id] = (counts[item.student_id] || 0) + 1;
+      });
+
+      setStudentIncidentCounts(counts);
+    } catch (error) {
+      console.error('Error fetching student incident counts:', error);
     }
   };
 
@@ -658,6 +710,12 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
     window.dispatchEvent(new CustomEvent('navigateToStudentDetail', { detail: { studentId, schoolId } }));
   };
 
+  const handleStudentIncidentsClick = (studentId: string) => {
+    window.dispatchEvent(new CustomEvent('navigate-to-behavior-with-student', {
+      detail: { schoolId, studentId }
+    }));
+  };
+
   const showRemoveStudentConfirmation = (studentGroup: StudentGroup) => {
     setConfirmModal({
       isOpen: true,
@@ -980,16 +1038,37 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
                     <span className="text-sm text-gray-500 ml-2">Klas: {studentGroup.students.grade_level}</span>
                   )}
                 </div>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    showRemoveStudentConfirmation(studentGroup);
-                  }}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  {hasBehaviorItems && studentIncidentCounts[studentGroup.students.id] !== undefined && (
+                    <Button
+                      variant={studentIncidentCounts[studentGroup.students.id] > 0 ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStudentIncidentsClick(studentGroup.students.id);
+                      }}
+                      className={`${
+                        studentIncidentCounts[studentGroup.students.id] > 0
+                          ? 'bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200'
+                          : 'text-gray-400'
+                      }`}
+                      title={`${studentIncidentCounts[studentGroup.students.id]} incidenten laatste 7 dagen`}
+                    >
+                      <AlertTriangle className="w-4 h-4 mr-1" />
+                      {studentIncidentCounts[studentGroup.students.id]}
+                    </Button>
+                  )}
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      showRemoveStudentConfirmation(studentGroup);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             ))
           )}

@@ -122,7 +122,7 @@ export function Dashboard() {
 
     // Listen for navigation to behavior from incident cards
     const handleNavigateToBehaviorFromIncident = async (event: CustomEvent) => {
-      const { incidentId, schoolId } = event.detail;
+      const { incidentId, schoolId, studentId } = event.detail;
 
       // If schoolId is provided, fetch and set that school
       if (schoolId) {
@@ -150,6 +150,10 @@ export function Dashboard() {
       // Store the incident ID to scroll to or highlight it
       if (incidentId) {
         sessionStorage.setItem('highlightIncidentId', incidentId);
+      }
+      // Store the student ID to filter by
+      if (studentId) {
+        sessionStorage.setItem('behaviorFilterStudent', studentId);
       }
     };
 
