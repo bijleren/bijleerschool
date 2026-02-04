@@ -334,15 +334,34 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       ]);
 
       // Fetch teacher-connected incidents (via notifications table)
-      // Get all incidents where teacher is directly notified OR their groups are notified
+      // First get the teacher's ID from the teachers table
+      const { data: teacherRecord } = await supabase
+        .from('teachers')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      // Get the groups this teacher is connected to
+      const { data: teacherGroupsData } = await supabase
+        .from('teacher_groups')
+        .select('group_id')
+        .eq('teacher_id', teacherRecord?.id || '');
+
+      const teacherGroupIds = teacherGroupsData?.map(tg => tg.group_id) || [];
+
+      // Get all incidents where teacher is directly notified
       const { data: teacherNotifications } = await supabase
         .from('behavior_incident_notifications')
         .select('incident_id')
         .eq('teacher_id', user.id);
 
-      const { data: groupNotifications } = await supabase
-        .from('behavior_incident_notifications')
-        .select('incident_id, group_id');
+      // Get notifications for groups this teacher is connected to
+      const { data: groupNotifications } = teacherGroupIds.length > 0
+        ? await supabase
+            .from('behavior_incident_notifications')
+            .select('incident_id, group_id')
+            .in('group_id', teacherGroupIds)
+        : { data: [] };
 
       // Get unique incident IDs connected to this teacher
       const directIncidentIds = new Set(teacherNotifications?.map(n => n.incident_id) || []);
