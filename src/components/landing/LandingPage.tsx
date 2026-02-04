@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap, BookOpen, Users, BarChart3, Globe, ArrowRight } from 'lucide-react';
+import { GraduationCap, BookOpen, Users, BarChart3, Globe, ArrowRight, Grid, BookMarked, Search, QrCode, Newspaper } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 export function LandingPage() {
@@ -62,7 +62,7 @@ export function LandingPage() {
         <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
           Alles wat je nodig hebt voor effectief lesgeven
         </h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
           <FeatureCard
             icon={<BookOpen className="w-8 h-8 text-blue-600" />}
             title="Didactische Technieken"
@@ -79,9 +79,39 @@ export function LandingPage() {
             description="Gepersonaliseerde webwijzers per leerling met educatieve links en bronnen."
           />
           <FeatureCard
+            icon={<Grid className="w-8 h-8 text-teal-600" />}
+            title="ActiviTijd"
+            description="Activiteitenborden voor het organiseren en beheren van klasactiviteiten."
+          />
+          <FeatureCard
+            icon={<BookMarked className="w-8 h-8 text-pink-600" />}
+            title="Boeker"
+            description="Bibliotheeksysteem voor het beheren van schoolboeken en leenregistraties."
+          />
+          <FeatureCard
+            icon={<Search className="w-8 h-8 text-indigo-600" />}
+            title="Zoeker"
+            description="Krachtige zoekfunctionaliteit voor alle schoolinformatie en resources."
+          />
+          <FeatureCard
+            icon={<QrCode className="w-8 h-8 text-cyan-600" />}
+            title="BlinkQR"
+            description="Genereer gepersonaliseerde QR-codes voor snelle toegang tot leerlingprofielen."
+          />
+          <FeatureCard
+            icon={<Newspaper className="w-8 h-8 text-amber-600" />}
+            title="Nieuwsbrief"
+            description="Creëer en verstuur nieuwsbrieven naar ouders en leerlingen."
+          />
+          <FeatureCard
             icon={<BarChart3 className="w-8 h-8 text-purple-600" />}
             title="Analyse & Inzichten"
             description="Krijg inzicht in trends, effectiviteit van technieken en leerlingontwikkeling."
+          />
+          <FeatureCard
+            icon={<GraduationCap className="w-8 h-8 text-red-600" />}
+            title="Schooldag Planner"
+            description="Plan en beheer lessen, vakken en dagschema's voor je hele school."
           />
         </div>
       </div>
