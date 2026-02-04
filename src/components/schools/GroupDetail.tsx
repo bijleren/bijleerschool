@@ -1039,19 +1039,15 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {hasBehaviorItems && studentIncidentCounts[studentGroup.students.id] !== undefined && (
+                  {hasBehaviorItems && studentIncidentCounts[studentGroup.students.id] > 0 && (
                     <Button
-                      variant={studentIncidentCounts[studentGroup.students.id] > 0 ? "secondary" : "ghost"}
+                      variant="secondary"
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleStudentIncidentsClick(studentGroup.students.id);
                       }}
-                      className={`${
-                        studentIncidentCounts[studentGroup.students.id] > 0
-                          ? 'bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200'
-                          : 'text-gray-400'
-                      }`}
+                      className="bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200"
                       title={`${studentIncidentCounts[studentGroup.students.id]} incidenten laatste 7 dagen`}
                     >
                       <AlertTriangle className="w-4 h-4 mr-1" />
