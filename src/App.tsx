@@ -104,17 +104,33 @@ function RootRedirect() {
 
 function DirectTabRedirect({ tab }: { tab: string }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, loading } = useAuth();
 
   useEffect(() => {
     if (!loading) {
       if (user) {
-        navigate(`/dashboard?tab=${tab}`, { replace: true });
+        const queryParams = new URLSearchParams(location.search);
+        const params = new URLSearchParams();
+        params.set('tab', tab);
+
+        // Pass along additional parameters
+        const id = queryParams.get('id');
+        if (id && tab === 'schools') {
+          // Determine if this is for a group or student based on the pathname
+          if (location.pathname === '/klassen') {
+            params.set('groupId', id);
+          } else if (location.pathname === '/leerlingen') {
+            params.set('studentId', id);
+          }
+        }
+
+        navigate(`/dashboard?${params.toString()}`, { replace: true });
       } else {
         navigate('/auth', { replace: true });
       }
     }
-  }, [user, loading, navigate, tab]);
+  }, [user, loading, navigate, tab, location.search]);
 
   if (loading) {
     return (

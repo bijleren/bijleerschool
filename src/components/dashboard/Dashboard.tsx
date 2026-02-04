@@ -78,6 +78,8 @@ export function Dashboard() {
     const queryParams = new URLSearchParams(location.search);
     const tabParam = queryParams.get('tab');
     const subtabParam = queryParams.get('subtab');
+    const groupIdParam = queryParams.get('groupId');
+    const studentIdParam = queryParams.get('studentId');
 
     if (tabParam) {
       const validTabs = ['dashboard', 'profile', 'schools', 'behavior', 'teaching', 'schoolday', 'webwijzer', 'activityboards', 'boeker', 'zoeker', 'edi', 'digitools', 'newsletter', 'blinkqr'];
@@ -90,6 +92,16 @@ export function Dashboard() {
           if (validSubtabs.includes(subtabParam)) {
             setTeachingPageOverride(subtabParam as typeof teachingPageOverride);
           }
+        }
+
+        // Handle group ID parameter
+        if (groupIdParam && tabParam === 'schools') {
+          handleNavigateToGroupById(groupIdParam);
+        }
+
+        // Handle student ID parameter
+        if (studentIdParam && tabParam === 'schools') {
+          handleNavigateToStudentById(studentIdParam);
         }
 
         // Clear the URL parameters after setting the tab
@@ -476,6 +488,67 @@ export function Dashboard() {
       setActiveTab('schools');
     } catch (error) {
       console.error('Error navigating to group:', error);
+    }
+  };
+
+  const handleNavigateToGroupById = async (groupId: string) => {
+    try {
+      // Fetch group data with school info
+      const { data: group, error: groupError } = await supabase
+        .from('groups')
+        .select('*, schools(*)')
+        .eq('id', groupId)
+        .single();
+
+      if (groupError) throw groupError;
+
+      if (group && group.schools) {
+        setSelectedSchool(group.schools);
+        setSelectedGroup({
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          grade_level: group.grade_level,
+          school_year: group.school_year,
+          is_active: group.is_active,
+          created_at: group.created_at
+        });
+        setSelectedStudent(null);
+        setActiveTab('schools');
+      }
+    } catch (error) {
+      console.error('Error navigating to group by ID:', error);
+    }
+  };
+
+  const handleNavigateToStudentById = async (studentId: string) => {
+    try {
+      // Fetch student data with school info
+      const { data: student, error: studentError } = await supabase
+        .from('students')
+        .select('*, schools(*)')
+        .eq('id', studentId)
+        .single();
+
+      if (studentError) throw studentError;
+
+      if (student && student.schools) {
+        setSelectedSchool(student.schools);
+        setSelectedStudent({
+          id: student.id,
+          first_name: student.first_name,
+          last_name: student.last_name,
+          student_number: student.student_number,
+          grade_level: student.grade_level,
+          date_of_birth: student.date_of_birth,
+          is_active: student.is_active,
+          created_at: student.created_at
+        });
+        setSelectedGroup(null);
+        setActiveTab('schools');
+      }
+    } catch (error) {
+      console.error('Error navigating to student by ID:', error);
     }
   };
 
