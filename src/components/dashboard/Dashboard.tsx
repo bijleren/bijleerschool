@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Header } from '../layout/Header';
 import { DashboardTab } from './DashboardTab';
 import { ProfileTab } from '../profile/ProfileTab';
@@ -54,6 +55,8 @@ interface Group {
 
 export function Dashboard() {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr'>('dashboard');
   const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
@@ -69,6 +72,29 @@ export function Dashboard() {
   useEffect(() => {
     if (user) {
       fetchUserSchools();
+    }
+
+    // Check for URL parameters to set the active tab
+    const queryParams = new URLSearchParams(location.search);
+    const tabParam = queryParams.get('tab');
+    const subtabParam = queryParams.get('subtab');
+
+    if (tabParam) {
+      const validTabs = ['dashboard', 'profile', 'schools', 'behavior', 'teaching', 'schoolday', 'webwijzer', 'activityboards', 'boeker', 'zoeker', 'edi', 'digitools', 'newsletter', 'blinkqr'];
+      if (validTabs.includes(tabParam)) {
+        setActiveTab(tabParam as typeof activeTab);
+
+        // Handle teaching subtab
+        if (tabParam === 'teaching' && subtabParam) {
+          const validSubtabs = ['technieken', 'faq', 'vormingen', 'newsletter'];
+          if (validSubtabs.includes(subtabParam)) {
+            setTeachingPageOverride(subtabParam as typeof teachingPageOverride);
+          }
+        }
+
+        // Clear the URL parameters after setting the tab
+        navigate(location.pathname, { replace: true });
+      }
     }
 
     // Check if there's a technique ID from a shared link
@@ -168,7 +194,7 @@ export function Dashboard() {
       window.removeEventListener('navigateToGroupDetail', handleNavigateToGroupDetail as EventListener);
       window.removeEventListener('navigate-to-behavior', handleNavigateToBehaviorFromIncident as EventListener);
     };
-  }, [user]);
+  }, [user, location.search]);
 
   const fetchUserSchools = async () => {
     if (!user) return;
