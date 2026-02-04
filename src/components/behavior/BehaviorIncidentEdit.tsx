@@ -994,7 +994,14 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
             </label>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value as 'pending' | 'in_progress' | 'resolved')}
+              onChange={(e) => {
+                const newStatus = e.target.value as 'pending' | 'in_progress' | 'resolved';
+                if (newStatus === 'resolved' && followUpRequired) {
+                  setMessage('Let op: Follow-up nodig kan niet aangevinkt zijn bij status "Afgerond". De follow-up is automatisch uitgevinkt.');
+                  setFollowUpRequired(false);
+                }
+                setStatus(newStatus);
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="pending">Melding</option>
@@ -1004,16 +1011,27 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
           </div>
 
           {/* Follow-up Required */}
-          <div className="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className={`flex items-center space-x-3 p-4 border rounded-lg ${
+            status === 'resolved'
+              ? 'bg-gray-100 border-gray-300 opacity-60'
+              : 'bg-blue-50 border-blue-200'
+          }`}>
             <input
               type="checkbox"
               id="followUpRequired"
               checked={followUpRequired}
               onChange={(e) => setFollowUpRequired(e.target.checked)}
-              className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              disabled={status === 'resolved'}
+              className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <label htmlFor="followUpRequired" className="text-sm font-medium text-gray-900 cursor-pointer">
+            <label
+              htmlFor="followUpRequired"
+              className={`text-sm font-medium text-gray-900 ${status === 'resolved' ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            >
               Follow-up nodig
+              {status === 'resolved' && (
+                <span className="text-xs text-gray-600 ml-2">(niet beschikbaar bij status "Afgerond")</span>
+              )}
             </label>
           </div>
 
