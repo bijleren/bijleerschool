@@ -24,6 +24,7 @@ interface Student {
   first_name: string;
   last_name: string;
   student_number: string | null;
+  grade_level: string | null;
 }
 
 interface StudentRole {
@@ -444,7 +445,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     try {
       const { data, error } = await supabase
         .from('students')
-        .select('id, first_name, last_name, student_number')
+        .select('id, first_name, last_name, student_number, grade_level')
         .eq('school_id', schoolId)
         .eq('is_active', true)
         .order('first_name');
@@ -868,9 +869,11 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       const student = students.find(s => s.id === value);
       if (student) {
         const updatedSearches = [...studentSearches];
-        updatedSearches[index] = `${student.first_name} ${student.last_name}${student.student_number ? ` (#${student.student_number})` : ''}`;
+        const gradeInfo = student.grade_level ? ` - ${student.grade_level}` : '';
+        const studentNumberInfo = student.student_number ? ` (#${student.student_number})` : '';
+        updatedSearches[index] = `${student.first_name} ${student.last_name}${gradeInfo}${studentNumberInfo}`;
         setStudentSearches(updatedSearches);
-        
+
         const updatedDropdowns = [...showStudentDropdowns];
         updatedDropdowns[index] = false;
         setShowStudentDropdowns(updatedDropdowns);
@@ -898,14 +901,15 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
   const getFilteredStudents = (searchTerm: string, excludeIndex: number) => {
     return students.filter(student => {
-      const matchesSearch = searchTerm === '' || 
+      const matchesSearch = searchTerm === '' ||
         `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (student.student_number && student.student_number.includes(searchTerm));
-      
-      const notAlreadySelected = !selectedStudents.some((selected, idx) => 
+        (student.student_number && student.student_number.includes(searchTerm)) ||
+        (student.grade_level && student.grade_level.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      const notAlreadySelected = !selectedStudents.some((selected, idx) =>
         idx !== excludeIndex && selected.student_id === student.id
       );
-      
+
       return matchesSearch && notAlreadySelected;
     });
   };
@@ -1051,6 +1055,9 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                           >
                             <div className="font-medium text-gray-900">
                               {student.first_name} {student.last_name}
+                              {student.grade_level && (
+                                <span className="ml-2 text-sm text-gray-600">- {student.grade_level}</span>
+                              )}
                             </div>
                             {student.student_number && (
                               <div className="text-sm text-gray-500">#{student.student_number}</div>

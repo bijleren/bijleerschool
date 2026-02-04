@@ -839,6 +839,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                       {students.map((student) => (
                         <option key={student.id} value={student.id}>
                           {student.first_name} {student.last_name}
+                          {student.grade_level && ` - ${student.grade_level}`}
                           {student.student_number && ` (#${student.student_number})`}
                         </option>
                       ))}
