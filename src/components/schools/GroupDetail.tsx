@@ -711,7 +711,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
   };
 
   const handleStudentIncidentsClick = (studentId: string) => {
-    window.dispatchEvent(new CustomEvent('navigate-to-behavior-with-student', {
+    window.dispatchEvent(new CustomEvent('navigate-to-behavior', {
       detail: { schoolId, studentId }
     }));
   };
