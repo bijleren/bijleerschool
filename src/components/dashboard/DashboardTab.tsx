@@ -850,10 +850,19 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Behavior Statistics Row */}
         <div className="lg:col-span-2 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
-            Gedragsincidenten
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+              <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
+              Gedragsincidenten
+            </h2>
+            <Button
+              onClick={() => onNavigateToBehavior('all')}
+              variant="outline"
+              className="text-sm"
+            >
+              Bekijk alles
+            </Button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior('today')}>
               <div className="flex items-center">
