@@ -378,7 +378,9 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
     try {
       const currentDate = new Date(incidentDateOnly);
-      
+
+      console.log('Debug: Fetching template for group:', selectedGroupForLesson, 'on date:', incidentDateOnly);
+
       // Get the active template for this group on the selected date
       const { data: groupTemplate, error } = await supabase
         .from('group_day_templates')
@@ -394,11 +396,24 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
         .limit(1)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Debug: Template query error:', error);
+        throw error;
+      }
 
       if (groupTemplate) {
         setSelectedTemplate(groupTemplate.day_templates);
         console.log('Debug: Selected template for group:', groupTemplate.day_templates);
+
+        // Also fetch ALL blocks for this template to see what days have blocks
+        const { data: allBlocks } = await supabase
+          .from('day_template_blocks')
+          .select('day_of_week')
+          .eq('template_id', groupTemplate.day_templates.id)
+          .eq('is_active', true);
+
+        const uniqueDays = [...new Set(allBlocks?.map(b => b.day_of_week) || [])];
+        console.log('Debug: Template has blocks for these days:', uniqueDays);
       } else {
         setSelectedTemplate(null);
         setAvailableLessonBlocks([]);
@@ -413,11 +428,15 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     if (!selectedTemplate) return;
 
     try {
-      // Get day of week from incident date (0 = Sunday, 1 = Monday, etc.)
-      const incidentDateObj = new Date(incidentDateOnly);
+      // Get day of week from incident date
+      // Parse the date string correctly (YYYY-MM-DD format)
+      const incidentDateObj = new Date(incidentDateOnly + 'T00:00:00');
       const dayOfWeek = incidentDateObj.getDay();
 
-      console.log('Debug: Fetching blocks for template:', selectedTemplate.id, 'day:', dayOfWeek);
+      console.log('Debug: Incident date:', incidentDateOnly);
+      console.log('Debug: Date object:', incidentDateObj);
+      console.log('Debug: Day of week:', dayOfWeek, '(0=Sunday, 1=Monday, etc.)');
+      console.log('Debug: Fetching blocks for template:', selectedTemplate.id);
 
       const { data: blocks, error } = await supabase
         .from('day_template_blocks')
@@ -427,14 +446,22 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
         .eq('is_active', true)
         .order('start_time');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Debug: Query error:', error);
+        throw error;
+      }
 
       console.log('Debug: Found lesson blocks:', blocks);
+      console.log('Debug: Number of blocks:', blocks?.length || 0);
+
       setAvailableLessonBlocks(blocks || []);
 
       // Auto-select first lesson block if available
       if (blocks && blocks.length > 0) {
         setSelectedLessonBlock(blocks[0].id);
+      } else {
+        console.log('Debug: No blocks found for day_of_week:', dayOfWeek);
+        setSelectedLessonBlock('');
       }
     } catch (error) {
       console.error('Error fetching lesson blocks for template:', error);
@@ -1308,10 +1335,13 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                         <div className="p-4 bg-gray-50 rounded-lg text-center">
                           <p className="text-gray-500">Geen lesblokken gevonden voor vandaag</p>
                           <p className="text-sm text-gray-400 mt-1">
-                            {selectedTemplate 
-                              ? 'Er zijn geen lesblokken ingepland voor deze dag in het dagschema'
+                            {selectedTemplate
+                              ? `Er zijn geen lesblokken ingepland voor ${new Date(incidentDateOnly + 'T00:00:00').toLocaleDateString('nl-NL', { weekday: 'long' })} in het dagschema "${selectedTemplate.name}"`
                               : 'Geen actief dagschema gevonden voor deze groep op deze datum'
                             }
+                          </p>
+                          <p className="text-xs text-gray-400 mt-2">
+                            Controleer de browser console voor meer debug informatie
                           </p>
                         </div>
                       ) : (
