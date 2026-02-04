@@ -654,6 +654,10 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
     window.dispatchEvent(new CustomEvent('navigate-to-behavior', { detail: { incidentId } }));
   };
 
+  const handleStudentClick = (studentId: string) => {
+    window.dispatchEvent(new CustomEvent('navigateToStudentDetail', { detail: { studentId, schoolId } }));
+  };
+
   const showRemoveStudentConfirmation = (studentGroup: StudentGroup) => {
     setConfirmModal({
       isOpen: true,
@@ -961,9 +965,12 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
             <p className="text-gray-500 text-center py-8">Geen leerlingen in deze groep</p>
           ) : (
             groupStudents.map((studentGroup) => (
-              <div key={studentGroup.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <span className="font-medium">
+              <div key={studentGroup.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div
+                  className="flex-1 cursor-pointer"
+                  onClick={() => handleStudentClick(studentGroup.students.id)}
+                >
+                  <span className="font-medium text-blue-600 hover:text-blue-700">
                     {studentGroup.students.first_name} {studentGroup.students.last_name}
                   </span>
                   {studentGroup.students.student_number && (
@@ -976,7 +983,10 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
                 <Button
                   variant="danger"
                   size="sm"
-                  onClick={() => showRemoveStudentConfirmation(studentGroup)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    showRemoveStudentConfirmation(studentGroup);
+                  }}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -1124,7 +1134,11 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
                     {incident.involved_students.map((student, idx) => (
                       <span
                         key={`${student.student_id}-${idx}`}
-                        className="px-2 py-1 rounded-full text-xs font-medium"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStudentClick(student.student_id);
+                        }}
+                        className="px-2 py-1 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity"
                         style={{
                           backgroundColor: student.role_color + '20',
                           color: student.role_color
