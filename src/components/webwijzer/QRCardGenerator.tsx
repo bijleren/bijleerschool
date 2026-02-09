@@ -32,11 +32,17 @@ interface Group {
   grade_level: string | null;
 }
 
-interface QRCardGeneratorProps {
-  onClose: () => void;
+interface School {
+  id: string;
+  name: string;
 }
 
-export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
+interface QRCardGeneratorProps {
+  onClose: () => void;
+  focusSchool: School | null;
+}
+
+export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) {
   const { user } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
@@ -48,23 +54,16 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (user) {
+    if (user && focusSchool) {
       fetchData();
     }
-  }, [user]);
+  }, [user, focusSchool]);
 
   const fetchData = async () => {
-    if (!user) return;
+    if (!user || !focusSchool) return;
 
     setLoading(true);
     try {
-      const { data: userSchools } = await supabase
-        .from('user_schools')
-        .select('school_id')
-        .eq('user_id', user.id);
-
-      const schoolIds = userSchools?.map(us => us.school_id) || [];
-
       const [studentsResult, groupsResult] = await Promise.all([
         supabase
           .from('students')
@@ -84,13 +83,13 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
               groups(name)
             )
           `)
-          .in('school_id', schoolIds)
+          .eq('school_id', focusSchool.id)
           .eq('is_active', true)
           .order('first_name', { ascending: true }),
         supabase
           .from('groups')
           .select('id, name, grade_level')
-          .in('school_id', schoolIds)
+          .eq('school_id', focusSchool.id)
           .eq('is_active', true)
           .order('name', { ascending: true })
       ]);
@@ -484,6 +483,28 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     ctx.stroke();
   };
 
+  if (!focusSchool) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <Card className="max-w-md w-full p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-900">QR-kaarten Generator</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+          <p className="text-gray-600 mb-4">
+            Selecteer eerst een school om QR-kaarten te genereren.
+          </p>
+          <Button onClick={onClose}>Sluiten</Button>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <Card className="max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -491,6 +512,7 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
           <div>
             <h2 className="text-2xl font-bold text-gray-900">QR-kaarten Generator</h2>
             <p className="text-gray-600 mt-1">Selecteer leerlingen om QR-kaarten te genereren (3x3 per pagina)</p>
+            <p className="text-sm text-gray-500 mt-1">School: {focusSchool.name}</p>
           </div>
           <button
             onClick={onClose}

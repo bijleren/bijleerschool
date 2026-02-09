@@ -735,7 +735,7 @@ export function Dashboard() {
         )}
         {activeTab === 'teaching' && <TeachingTab key={teachingPageOverride} initialPage={teachingPageOverride} />}
         {activeTab === 'schoolday' && <SchoolDayTab />}
-        {activeTab === 'webwijzer' && <WebWijzerTab />}
+        {activeTab === 'webwijzer' && <WebWijzerTab focusSchool={focusSchool} />}
         {activeTab === 'boeker' && <BoekerTab />}
         {activeTab === 'zoeker' && <ZoekerTab />}
         {activeTab === 'edi' && <EDITab />}

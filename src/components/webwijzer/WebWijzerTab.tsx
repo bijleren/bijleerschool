@@ -32,7 +32,16 @@ interface Student {
   student_number: string | null;
 }
 
-export function WebWijzerTab() {
+interface School {
+  id: string;
+  name: string;
+}
+
+interface WebWijzerTabProps {
+  focusSchool: School | null;
+}
+
+export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
   const { user } = useAuth();
   const [contents, setContents] = useState<WebWijzerContent[]>([]);
   const [allContents, setAllContents] = useState<WebWijzerContent[]>([]);
@@ -301,7 +310,7 @@ export function WebWijzerTab() {
   }
 
   if (showQRCardGenerator) {
-    return <QRCardGenerator onClose={() => setShowQRCardGenerator(false)} />;
+    return <QRCardGenerator onClose={() => setShowQRCardGenerator(false)} focusSchool={focusSchool} />;
   }
 
   if (showStudentManager) {
