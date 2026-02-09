@@ -8,6 +8,7 @@ import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette, Link, QrCode, RefreshCw, ExternalLink, Download, BookOpen } from 'lucide-react';
 import { ColorPicker } from '../ui/ColorPicker';
+import { ImageCropper } from '../ui/ImageCropper';
 import { StudentWebWijzer } from '../webwijzer/StudentWebWijzer';
 import { StudentBoekerView } from '../boeker/StudentBoekerView';
 import { StudentReadingProgress } from './StudentReadingProgress';
@@ -119,6 +120,10 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const [profilePicturePreview, setProfilePicturePreview] = useState(student.profile_picture_url || '');
   const [symbolPreview, setSymbolPreview] = useState(student.symbol_url || '');
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [showProfileCropper, setShowProfileCropper] = useState(false);
+  const [showSymbolCropper, setShowSymbolCropper] = useState(false);
+  const [tempProfileFile, setTempProfileFile] = useState<File | null>(null);
+  const [tempSymbolFile, setTempSymbolFile] = useState<File | null>(null);
 
   // Student groups
   const [studentGroups, setStudentGroups] = useState<StudentGroup[]>([]);
@@ -585,17 +590,33 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
-      setProfilePictureFile(file);
-      setProfilePicturePreview(URL.createObjectURL(file));
+      setTempProfileFile(file);
+      setShowProfileCropper(true);
     }
+    e.target.value = '';
+  };
+
+  const handleProfileCropComplete = (croppedFile: File) => {
+    setProfilePictureFile(croppedFile);
+    setProfilePicturePreview(URL.createObjectURL(croppedFile));
+    setShowProfileCropper(false);
+    setTempProfileFile(null);
   };
 
   const handleSymbolChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
-      setSymbolFile(file);
-      setSymbolPreview(URL.createObjectURL(file));
+      setTempSymbolFile(file);
+      setShowSymbolCropper(true);
     }
+    e.target.value = '';
+  };
+
+  const handleSymbolCropComplete = (croppedFile: File) => {
+    setSymbolFile(croppedFile);
+    setSymbolPreview(URL.createObjectURL(croppedFile));
+    setShowSymbolCropper(false);
+    setTempSymbolFile(null);
   };
 
   const uploadFile = async (file: File, folder: string): Promise<string> => {
@@ -1559,6 +1580,32 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
             </div>
           </div>
         </div>
+      )}
+
+      {showProfileCropper && tempProfileFile && (
+        <ImageCropper
+          imageFile={tempProfileFile}
+          onCropComplete={handleProfileCropComplete}
+          onCancel={() => {
+            setShowProfileCropper(false);
+            setTempProfileFile(null);
+          }}
+          aspectRatio={1}
+          title="Profielfoto bijsnijden"
+        />
+      )}
+
+      {showSymbolCropper && tempSymbolFile && (
+        <ImageCropper
+          imageFile={tempSymbolFile}
+          onCropComplete={handleSymbolCropComplete}
+          onCancel={() => {
+            setShowSymbolCropper(false);
+            setTempSymbolFile(null);
+          }}
+          aspectRatio={1}
+          title="Symbool bijsnijden"
+        />
       )}
     </div>
   );
