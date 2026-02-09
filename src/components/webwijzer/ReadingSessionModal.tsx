@@ -9,6 +9,7 @@ interface ReadingSessionModalProps {
     title: string;
     author: string;
     cover_image_url: string;
+    custom_cover_url: string | null;
     student_book_id: string;
   };
   studentId: string;
@@ -206,9 +207,9 @@ export function ReadingSessionModal({ book, studentId, onClose, onComplete }: Re
 
         <div className="overflow-y-auto max-h-[calc(90vh-180px)] p-6 space-y-6">
           <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-            {book.cover_image_url ? (
+            {(book.custom_cover_url || book.cover_image_url) ? (
               <img
-                src={book.cover_image_url}
+                src={book.custom_cover_url || book.cover_image_url}
                 alt={book.title}
                 className="w-16 h-24 object-cover rounded"
               />

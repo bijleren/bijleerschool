@@ -11,6 +11,7 @@ interface Book {
   title: string;
   author: string;
   cover_image_url: string;
+  custom_cover_url: string | null;
   borrowed_at: string;
   student_book_id: string;
 }
@@ -62,7 +63,8 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
               id,
               title,
               author,
-              cover_image_url
+              cover_image_url,
+              custom_cover_url
             )
           `)
           .eq('student_id', studentId)
@@ -95,6 +97,7 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
           title: item.books.title,
           author: item.books.author,
           cover_image_url: item.books.cover_image_url,
+          custom_cover_url: item.books.custom_cover_url,
           borrowed_at: item.borrowed_at,
           student_book_id: item.id
         }));
@@ -420,9 +423,9 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                               onClick={() => handleBookClick(book)}
                               className="w-full text-left"
                             >
-                              {book.cover_image_url ? (
+                              {(book.custom_cover_url || book.cover_image_url) ? (
                                 <img
-                                  src={book.cover_image_url}
+                                  src={book.custom_cover_url || book.cover_image_url}
                                   alt={book.title}
                                   className="w-full h-48 object-cover"
                                 />
@@ -571,7 +574,7 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                   title: selectedBook.title,
                   type: 'book' as const,
                   student_book_id: selectedBook.student_book_id,
-                  cover_image_url: selectedBook.cover_image_url
+                  cover_image_url: selectedBook.custom_cover_url || selectedBook.cover_image_url
                 }
               : {
                   id: selectedMaterial!.id,
