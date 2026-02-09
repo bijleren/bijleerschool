@@ -346,7 +346,6 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         .from('behavior_incidents')
         .select('id')
         .eq('school_id', selectedSchoolId)
-        .in('id', Array.from(allIncidentIds))
         .in('status', ['pending', 'in_progress']);
 
       // Count incidents with follow-up actions added in the last day

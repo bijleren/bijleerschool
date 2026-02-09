@@ -106,11 +106,15 @@ export function ImageCropper({
     const containerRect = containerRef.current.getBoundingClientRect();
     const size = Math.min(containerRect.width, containerRect.height) * 0.7;
 
+    // For square crops (aspectRatio = 1), ensure perfect square
+    const width = size;
+    const height = aspectRatio === 1 ? size : size / aspectRatio;
+
     return {
-      x: (containerRect.width - size) / 2,
-      y: (containerRect.height - size) / 2,
-      width: size,
-      height: size / aspectRatio
+      x: (containerRect.width - width) / 2,
+      y: (containerRect.height - height) / 2,
+      width,
+      height
     };
   };
 
@@ -212,20 +216,34 @@ export function ImageCropper({
                 />
 
                 <div
-                  className="absolute border-2 border-white shadow-lg pointer-events-none"
+                  className="absolute border-4 border-white shadow-lg pointer-events-none"
                   style={{
                     left: cropArea.x,
                     top: cropArea.y,
                     width: cropArea.width,
                     height: cropArea.height,
-                    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)'
+                    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.6)'
                   }}
                 >
+                  {/* Grid lines */}
                   <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
                     {[...Array(9)].map((_, i) => (
                       <div key={i} className="border border-white border-opacity-30" />
                     ))}
                   </div>
+
+                  {/* Corner handles */}
+                  <div className="absolute -top-2 -left-2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full"></div>
+                  <div className="absolute -top-2 -right-2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full"></div>
+                  <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full"></div>
+                  <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full"></div>
+
+                  {/* Aspect ratio label */}
+                  {aspectRatio === 1 && (
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-full shadow-lg">
+                      Vierkant (1:1)
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -233,6 +251,13 @@ export function ImageCropper({
         </div>
 
         <div className="p-4 border-t border-gray-200 flex-shrink-0 space-y-4">
+          {/* Instructions */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="text-sm text-blue-800 text-center">
+              <span className="font-medium">Sleep de afbeelding</span> om te positioneren binnen het vierkante gebied
+            </p>
+          </div>
+
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 flex-1">
               <ZoomOut className="w-4 h-4 text-gray-600 flex-shrink-0" />
@@ -254,7 +279,7 @@ export function ImageCropper({
             <button
               onClick={() => setRotation((prev) => (prev + 90) % 360)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
-              title="Rotate 90°"
+              title="Draai 90°"
             >
               <RotateCw className="w-5 h-5 text-gray-600" />
             </button>
