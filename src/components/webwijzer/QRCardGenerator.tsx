@@ -18,7 +18,12 @@ interface Student {
   symbol_url: string | null;
   student_display_number: number | null;
   access_hash: string | null;
-  group_id: string | null;
+  student_groups?: {
+    group_id: string;
+    groups: {
+      name: string;
+    };
+  }[];
 }
 
 interface Group {
@@ -63,10 +68,24 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
       const [studentsResult, groupsResult] = await Promise.all([
         supabase
           .from('students')
-          .select('id, first_name, last_name, student_number, grade_level, profile_picture_url, color, symbol_url, student_display_number, access_hash, group_id')
+          .select(`
+            id,
+            first_name,
+            last_name,
+            student_number,
+            grade_level,
+            profile_picture_url,
+            color,
+            symbol_url,
+            student_display_number,
+            access_hash,
+            student_groups(
+              group_id,
+              groups(name)
+            )
+          `)
           .in('school_id', schoolIds)
           .eq('is_active', true)
-          .order('grade_level', { ascending: true })
           .order('first_name', { ascending: true }),
         supabase
           .from('groups')
@@ -111,7 +130,8 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
 
-    const matchesGroup = selectedGroupId === 'all' || s.group_id === selectedGroupId;
+    const matchesGroup = selectedGroupId === 'all' ||
+      (s.student_groups && s.student_groups.some(sg => sg.group_id === selectedGroupId));
 
     return matchesSearch && matchesGroup;
   });
@@ -538,7 +558,13 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
                       {student.first_name} {student.last_name}
                     </p>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      {student.grade_level && <span>{student.grade_level}</span>}
+                      {student.student_groups && student.student_groups.length > 0 ? (
+                        <span>{student.student_groups.map(sg => sg.groups.name).join(', ')}</span>
+                      ) : student.grade_level ? (
+                        <span>{student.grade_level}</span>
+                      ) : (
+                        <span className="text-gray-400">Geen klas</span>
+                      )}
                       {student.student_number && (
                         <span className="text-gray-400">#{student.student_number}</span>
                       )}
