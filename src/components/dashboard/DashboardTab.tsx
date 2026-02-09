@@ -333,47 +333,11 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
           .eq('is_active', true)
       ]);
 
-      // Fetch teacher-connected incidents (via notifications table)
-      // First get the teacher's ID from the teachers table
-      const { data: teacherRecord } = await supabase
-        .from('teachers')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      // Get the groups this teacher is connected to
-      const { data: teacherGroupsData } = await supabase
-        .from('teacher_groups')
-        .select('group_id')
-        .eq('teacher_id', teacherRecord?.id || '');
-
-      const teacherGroupIds = teacherGroupsData?.map(tg => tg.group_id) || [];
-
-      // Get all incidents where teacher is directly notified
-      const { data: teacherNotifications } = await supabase
-        .from('behavior_incident_notifications')
-        .select('incident_id')
-        .eq('teacher_id', user.id);
-
-      // Get notifications for groups this teacher is connected to
-      const { data: groupNotifications } = teacherGroupIds.length > 0
-        ? await supabase
-            .from('behavior_incident_notifications')
-            .select('incident_id, group_id')
-            .in('group_id', teacherGroupIds)
-        : { data: [] };
-
-      // Get unique incident IDs connected to this teacher
-      const directIncidentIds = new Set(teacherNotifications?.map(n => n.incident_id) || []);
-      const groupIncidentIds = new Set(groupNotifications?.map(n => n.incident_id) || []);
-      const allIncidentIds = new Set([...directIncidentIds, ...groupIncidentIds]);
-
-      // Count incidents for today
+      // Count incidents for today (simplified - show all school incidents)
       const { data: todayIncidents } = await supabase
         .from('behavior_incidents')
         .select('id')
         .eq('school_id', selectedSchoolId)
-        .in('id', Array.from(allIncidentIds))
         .gte('incident_date', startOfDay.toISOString())
         .lt('incident_date', endOfDay.toISOString());
 

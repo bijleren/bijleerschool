@@ -235,7 +235,7 @@ export function ImageCropper({
         <div className="p-4 border-t border-gray-200 flex-shrink-0 space-y-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 flex-1">
-              <ZoomOut className="w-4 h-4 text-gray-600" />
+              <ZoomOut className="w-4 h-4 text-gray-600 flex-shrink-0" />
               <input
                 type="range"
                 min="0.1"
@@ -243,14 +243,17 @@ export function ImageCropper({
                 step="0.1"
                 value={zoom}
                 onChange={(e) => setZoom(parseFloat(e.target.value))}
-                className="flex-1"
+                className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                style={{
+                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((zoom - 0.1) / 2.9) * 100}%, #e5e7eb ${((zoom - 0.1) / 2.9) * 100}%, #e5e7eb 100%)`
+                }}
               />
-              <ZoomIn className="w-4 h-4 text-gray-600" />
+              <ZoomIn className="w-4 h-4 text-gray-600 flex-shrink-0" />
             </div>
 
             <button
               onClick={() => setRotation((prev) => (prev + 90) % 360)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
               title="Rotate 90°"
             >
               <RotateCw className="w-5 h-5 text-gray-600" />
