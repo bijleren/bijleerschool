@@ -18,6 +18,13 @@ interface Student {
   symbol_url: string | null;
   student_display_number: number | null;
   access_hash: string | null;
+  group_id: string | null;
+}
+
+interface Group {
+  id: string;
+  name: string;
+  grade_level: string | null;
 }
 
 interface QRCardGeneratorProps {
@@ -27,6 +34,8 @@ interface QRCardGeneratorProps {
 export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
   const { user } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('all');
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -35,11 +44,11 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
 
   useEffect(() => {
     if (user) {
-      fetchStudents();
+      fetchData();
     }
   }, [user]);
 
-  const fetchStudents = async () => {
+  const fetchData = async () => {
     if (!user) return;
 
     setLoading(true);
@@ -51,18 +60,29 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
 
       const schoolIds = userSchools?.map(us => us.school_id) || [];
 
-      const { data, error } = await supabase
-        .from('students')
-        .select('id, first_name, last_name, student_number, grade_level, profile_picture_url, color, symbol_url, student_display_number, access_hash')
-        .in('school_id', schoolIds)
-        .eq('is_active', true)
-        .order('grade_level', { ascending: true })
-        .order('first_name', { ascending: true });
+      const [studentsResult, groupsResult] = await Promise.all([
+        supabase
+          .from('students')
+          .select('id, first_name, last_name, student_number, grade_level, profile_picture_url, color, symbol_url, student_display_number, access_hash, group_id')
+          .in('school_id', schoolIds)
+          .eq('is_active', true)
+          .order('grade_level', { ascending: true })
+          .order('first_name', { ascending: true }),
+        supabase
+          .from('groups')
+          .select('id, name, grade_level')
+          .in('school_id', schoolIds)
+          .eq('is_active', true)
+          .order('name', { ascending: true })
+      ]);
 
-      if (error) throw error;
-      setStudents(data || []);
+      if (studentsResult.error) throw studentsResult.error;
+      if (groupsResult.error) throw groupsResult.error;
+
+      setStudents(studentsResult.data || []);
+      setGroups(groupsResult.data || []);
     } catch (error) {
-      console.error('Error fetching students:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
@@ -79,17 +99,22 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
   };
 
   const selectAll = () => {
-    const filtered = students.filter(s =>
-      `${s.first_name} ${s.last_name} ${s.student_number || ''} ${s.grade_level || ''}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    );
-    setSelectedStudents(new Set(filtered.map(s => s.id)));
+    setSelectedStudents(new Set(filteredStudents.map(s => s.id)));
   };
 
   const deselectAll = () => {
     setSelectedStudents(new Set());
   };
+
+  const filteredStudents = students.filter(s => {
+    const matchesSearch = `${s.first_name} ${s.last_name} ${s.student_number || ''} ${s.grade_level || ''}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    const matchesGroup = selectedGroupId === 'all' || s.group_id === selectedGroupId;
+
+    return matchesSearch && matchesGroup;
+  });
 
   const generateQRCode = async (student: Student): Promise<string> => {
     if (!student.access_hash) {
@@ -439,12 +464,6 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
     ctx.stroke();
   };
 
-  const filteredStudents = students.filter(s =>
-    `${s.first_name} ${s.last_name} ${s.student_number || ''} ${s.grade_level || ''}`
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <Card className="max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -462,20 +481,34 @@ export function QRCardGenerator({ onClose }: QRCardGeneratorProps) {
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
-          <div className="mb-4 flex gap-3">
-            <input
-              type="text"
-              placeholder="Zoek leerlingen..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <Button variant="secondary" onClick={selectAll}>
-              Alles Selecteren
-            </Button>
-            <Button variant="secondary" onClick={deselectAll}>
-              Alles Deselecteren
-            </Button>
+          <div className="mb-4 space-y-3">
+            <div className="flex gap-3">
+              <select
+                value={selectedGroupId}
+                onChange={(e) => setSelectedGroupId(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="all">Alle klassen</option>
+                {groups.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name} {group.grade_level && `(${group.grade_level})`}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                placeholder="Zoek leerlingen..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <Button variant="secondary" onClick={selectAll}>
+                Alles Selecteren
+              </Button>
+              <Button variant="secondary" onClick={deselectAll}>
+                Alles Deselecteren
+              </Button>
+            </div>
           </div>
 
           {loading ? (
