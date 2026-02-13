@@ -202,32 +202,45 @@ export function PublicWebWijzerAccess() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+        <header className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">WebWijzer</h1>
           <p className="text-gray-600">Toegang tot je leerinhoud</p>
-        </div>
+        </header>
 
         <Link
           to="/"
-          className="fixed top-4 left-4 flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow text-sm font-medium"
+          className="fixed top-4 left-4 flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow text-sm font-medium focus:ring-4 focus:ring-blue-300 focus:outline-none"
+          aria-label="Terug naar homepagina"
         >
-          <GraduationCap className="w-4 h-4" />
+          <GraduationCap className="w-4 h-4" aria-hidden="true" />
           <span>Terug naar home</span>
         </Link>
 
         {!accessMethod ? (
-          <div className="space-y-4">
-            <Card className="p-8 text-center hover:shadow-xl transition-shadow cursor-pointer" onClick={() => setAccessMethod('qr')}>
-              <QrCode className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Scan QR-code</h2>
-              <p className="text-gray-600">Gebruik je camera om je persoonlijke QR-code te scannen</p>
-            </Card>
+          <div className="space-y-4" role="main">
+            <button
+              onClick={() => setAccessMethod('qr')}
+              className="w-full text-left focus:ring-4 focus:ring-blue-300 focus:outline-none rounded-lg"
+              aria-label="Kies voor QR-code scannen"
+            >
+              <Card className="p-8 text-center hover:shadow-xl transition-shadow">
+                <QrCode className="w-16 h-16 text-blue-600 mx-auto mb-4" aria-hidden="true" />
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Scan QR-code</h2>
+                <p className="text-gray-600">Gebruik je camera om je persoonlijke QR-code te scannen</p>
+              </Card>
+            </button>
 
-            <Card className="p-8 text-center hover:shadow-xl transition-shadow cursor-pointer" onClick={() => setAccessMethod('code')}>
-              <KeyRound className="w-16 h-16 text-green-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Voer code in</h2>
-              <p className="text-gray-600">Typ je studentcode en pincode</p>
-            </Card>
+            <button
+              onClick={() => setAccessMethod('code')}
+              className="w-full text-left focus:ring-4 focus:ring-blue-300 focus:outline-none rounded-lg"
+              aria-label="Kies voor handmatig code invoeren"
+            >
+              <Card className="p-8 text-center hover:shadow-xl transition-shadow">
+                <KeyRound className="w-16 h-16 text-green-600 mx-auto mb-4" aria-hidden="true" />
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Voer code in</h2>
+                <p className="text-gray-600">Typ je studentcode en pincode</p>
+              </Card>
+            </button>
 
             <Card className="p-6 bg-blue-50 border-blue-200">
               <h3 className="font-semibold text-gray-900 mb-4 text-lg">Praktische informatie</h3>
@@ -268,17 +281,26 @@ export function PublicWebWijzerAccess() {
             </Card>
           </div>
         ) : accessMethod === 'qr' ? (
-          <Card>
+          <Card role="main">
             <div className="text-center mb-6">
-              <Camera className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+              <Camera className="w-16 h-16 text-blue-600 mx-auto mb-4" aria-hidden="true" />
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Scan je QR-code</h2>
               <p className="text-gray-600 mb-4">Plaats je QR-code voor de camera</p>
             </div>
 
-            <div id="qr-reader" className="mb-6 rounded-lg overflow-hidden"></div>
+            <div
+              id="qr-reader"
+              className="mb-6 rounded-lg overflow-hidden"
+              role="region"
+              aria-label="QR-code scanner"
+            ></div>
 
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4">
+              <div
+                className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4"
+                role="alert"
+                aria-live="polite"
+              >
                 <p className="text-red-700">{error}</p>
               </div>
             )}
@@ -295,18 +317,19 @@ export function PublicWebWijzerAccess() {
                 setError('');
               }}
               className="w-full"
+              aria-label="Terug naar toegangsmethode keuze"
             >
               Terug
             </Button>
           </Card>
         ) : (
-          <Card>
+          <Card role="main">
             <div className="text-center mb-6">
-              <KeyRound className="w-16 h-16 text-green-600 mx-auto mb-4" />
+              <KeyRound className="w-16 h-16 text-green-600 mx-auto mb-4" aria-hidden="true" />
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Voer je code in</h2>
             </div>
 
-            <form onSubmit={handleCodeSubmit} className="space-y-4">
+            <form onSubmit={handleCodeSubmit} className="space-y-4" aria-label="Inlogformulier met studentcode en pincode">
               <Input
                 label="Studentcode"
                 value={studentCode}
@@ -318,7 +341,12 @@ export function PublicWebWijzerAccess() {
                 maxLength={8}
                 required
                 className="text-center text-2xl font-mono tracking-wider"
+                aria-describedby="student-code-help"
+                autoComplete="username"
               />
+              <span id="student-code-help" className="sr-only">
+                Voer je 8-cijferige studentcode in
+              </span>
 
               <Input
                 label="Pincode"
@@ -332,19 +360,39 @@ export function PublicWebWijzerAccess() {
                 maxLength={4}
                 required
                 className="text-center text-2xl font-mono tracking-wider"
+                aria-describedby="pin-code-help"
+                autoComplete="current-password"
               />
+              <span id="pin-code-help" className="sr-only">
+                Voer je 4-cijferige pincode in
+              </span>
 
               {error && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                <div
+                  className="bg-red-50 border-l-4 border-red-500 p-4 rounded"
+                  role="alert"
+                  aria-live="polite"
+                >
                   <p className="text-red-700">{error}</p>
                 </div>
               )}
 
               <div className="space-y-2">
-                <Button type="submit" disabled={loading} className="w-full">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full"
+                  aria-label={loading ? 'Code wordt gecontroleerd' : 'Inloggen met studentcode en pincode'}
+                >
                   {loading ? 'Controleren...' : 'Toegang tot WebWijzer'}
                 </Button>
-                <Button type="button" variant="secondary" onClick={() => setAccessMethod(null)} className="w-full">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setAccessMethod(null)}
+                  className="w-full"
+                  aria-label="Terug naar toegangsmethode keuze"
+                >
                   Terug
                 </Button>
               </div>

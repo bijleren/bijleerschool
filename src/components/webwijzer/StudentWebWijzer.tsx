@@ -3,13 +3,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid, Search } from 'lucide-react';
+import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid, Search, Clock } from 'lucide-react';
 import { WebWijzerContentViewer } from './WebWijzerContentViewer';
 import { StudentBibliotheekModal } from './StudentBibliotheekModal';
 import { StudentActiviTijdModal } from './StudentActiviTijdModal';
 import { StudentZoekerModal } from '../zoeker/StudentZoekerModal';
 import { BoardSelectionModal } from '../activityboard/BoardSelectionModal';
 import { SwitchBoardModal } from '../activityboard/SwitchBoardModal';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface ContentAssignment {
   id: string;
@@ -496,62 +497,116 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
     );
   }
 
+  const timeoutModalRef = useFocusTrap(showTimeoutWarning);
+  const pushModalRef = useFocusTrap(showPushModal);
+  const archiveModalRef = useFocusTrap(showArchive);
+  const deactivationModalRef = useFocusTrap(showDeactivationNotice);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4">
       {showTimeoutWarning && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-md w-full">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Sessie verloopt bijna
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Je sessie verloopt over 10 seconden. Wil je doorgaan?
-              </p>
-              <div className="flex gap-4">
-                <Button onClick={handleLogout} variant="secondary" className="flex-1">
-                  Stoppen
-                </Button>
-                <Button onClick={handleExtendSession} className="flex-1">
-                  Doorgaan
-                </Button>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="timeout-modal-title"
+          aria-describedby="timeout-modal-description"
+        >
+          <div ref={timeoutModalRef}>
+            <Card className="max-w-md w-full">
+              <div className="text-center">
+                <h2 id="timeout-modal-title" className="text-2xl font-bold text-gray-900 mb-4">
+                  Sessie verloopt bijna
+                </h2>
+                <p id="timeout-modal-description" className="text-gray-600 mb-6">
+                  Je sessie verloopt over 10 seconden. Wil je doorgaan?
+                </p>
+                <div className="flex gap-4">
+                  <Button
+                    onClick={handleLogout}
+                    variant="secondary"
+                    className="flex-1"
+                    aria-label="Sessie stoppen"
+                  >
+                    Stoppen
+                  </Button>
+                  <Button
+                    onClick={handleExtendSession}
+                    className="flex-1"
+                    aria-label="Sessie verlengen met 30 minuten"
+                  >
+                    Doorgaan
+                  </Button>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
       )}
 
       {showPushModal && pushQueue.length > 0 && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-md w-full">
-            <div className="text-center">
-              <div
-                className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center text-5xl"
-                style={{ backgroundColor: pushQueue[0].webwijzer_content.color + '20' }}
-              >
-                {pushQueue[0].webwijzer_content.symbol}
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="push-modal-title"
+          aria-describedby="push-modal-description"
+        >
+          <div ref={pushModalRef}>
+            <Card className="max-w-md w-full">
+              <div className="text-center">
+                <div
+                  className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center text-5xl"
+                  style={{ backgroundColor: pushQueue[0].webwijzer_content.color + '20' }}
+                  role="img"
+                  aria-label={`Icoon voor ${pushQueue[0].webwijzer_content.title}`}
+                >
+                  {pushQueue[0].webwijzer_content.symbol}
+                </div>
+                <h2 id="push-modal-title" className="text-2xl font-bold text-gray-900 mb-2">
+                  {pushQueue[0].webwijzer_content.title}
+                </h2>
+                <p id="push-modal-description" className="text-gray-600 mb-6" aria-live="polite" aria-atomic="true">
+                  Opent over {pushCountdown} seconden
+                </p>
+                <Button
+                  onClick={handlePushCancel}
+                  variant="secondary"
+                  className="w-full"
+                  data-close-modal="true"
+                  aria-label="Push inhoud annuleren"
+                >
+                  Annuleren
+                </Button>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                {pushQueue[0].webwijzer_content.title}
-              </h2>
-              <p className="text-gray-600 mb-6">Opent over {pushCountdown} seconden...</p>
-              <Button onClick={handlePushCancel} variant="secondary" className="w-full">
-                Annuleren
-              </Button>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
       )}
 
       {showArchive && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-4xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Gearchiveerde inhoud</h2>
-              <Button variant="secondary" onClick={() => setShowArchive(false)}>
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="archive-modal-title"
+        >
+          <div ref={archiveModalRef}>
+            <Card className="max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h2 id="archive-modal-title" className="text-2xl font-bold text-gray-900">
+                  Gearchiveerde inhoud
+                </h2>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowArchive(false)}
+                  data-close-modal="true"
+                  aria-label="Archief sluiten"
+                >
+                  <X className="w-4 h-4" aria-hidden="true" />
+                  <span className="sr-only">Sluiten</span>
+                </Button>
+              </div>
             {archivedAssignments.length === 0 ? (
               <p className="text-center text-gray-500 py-8">Geen gearchiveerde inhoud</p>
             ) : (
@@ -581,28 +636,31 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
               </div>
             )}
           </Card>
+          </div>
         </div>
       )}
 
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex gap-2">
+        <nav aria-label="Hoofdnavigatie" className="flex justify-between items-center mb-4">
+          <div className="flex gap-2" role="group" aria-label="Aanvullende functies">
             {schoolId && (
               <>
                 <Button
                   onClick={() => setShowBibliotheek(true)}
                   variant="secondary"
                   className="flex items-center gap-2"
+                  aria-label="Open bibliotheek voor boeken en materialen"
                 >
-                  <BookOpen className="w-4 h-4" />
+                  <BookOpen className="w-4 h-4" aria-hidden="true" />
                   Bibliotheek
                 </Button>
                 <Button
                   onClick={() => setShowZoeker(true)}
                   variant="secondary"
                   className="flex items-center gap-2"
+                  aria-label="Open zoeker voor informatie zoeken"
                 >
-                  <Search className="w-4 h-4" />
+                  <Search className="w-4 h-4" aria-hidden="true" />
                   Zoeker
                 </Button>
               </>
@@ -612,8 +670,9 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
                 onClick={handleActiviTijdClick}
                 variant="secondary"
                 className="flex items-center gap-2"
+                aria-label="Open Activi-tijd om activiteiten te kiezen"
               >
-                <Grid className="w-4 h-4" />
+                <Grid className="w-4 h-4" aria-hidden="true" />
                 Activi-tijd
               </Button>
             )}
@@ -622,11 +681,12 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
             onClick={handleLogout}
             variant="secondary"
             className="flex items-center gap-2"
+            aria-label="WebWijzer stoppen en uitloggen"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4" aria-hidden="true" />
             Stop
           </Button>
-        </div>
+        </nav>
 
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
@@ -642,25 +702,30 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
         ) : (
           <div className="space-y-8">
             {pushAssignments.length > 0 && (
-              <div>
+              <section aria-labelledby="push-content-heading">
                 <div className="flex items-center gap-2 mb-4">
-                  <Zap className="w-6 h-6 text-orange-500" />
-                  <h2 className="text-2xl font-bold text-gray-900">Push inhoud</h2>
-                  <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  <Zap className="w-6 h-6 text-orange-500" aria-hidden="true" />
+                  <h2 id="push-content-heading" className="text-2xl font-bold text-gray-900">
+                    Push inhoud
+                  </h2>
+                  <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium" aria-label={`${pushAssignments.length} push items`}>
                     {pushAssignments.length}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" role="list">
                   {pushAssignments.map((assignment) => (
                     <button
                       key={assignment.id}
                       onClick={() => handleContentClick(assignment)}
-                      className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                      className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 focus:ring-4 focus:ring-orange-300 focus:outline-none"
                       style={{ borderTop: `6px solid ${assignment.webwijzer_content.color}` }}
+                      aria-label={`Open ${assignment.webwijzer_content.title}`}
+                      role="listitem"
                     >
                       <div
                         className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-5xl"
                         style={{ backgroundColor: assignment.webwijzer_content.color + '20' }}
+                        aria-hidden="true"
                       >
                         {assignment.webwijzer_content.symbol}
                       </div>
@@ -670,28 +735,33 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
                     </button>
                   ))}
                 </div>
-              </div>
+              </section>
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Actieve inhoud</h2>
+              <section aria-labelledby="active-content-heading">
+                <h2 id="active-content-heading" className="text-2xl font-bold text-gray-900 mb-4">
+                  Actieve inhoud
+                </h2>
                 {activeContent.length === 0 ? (
                   <Card className="text-center py-12">
                     <p className="text-xl text-gray-600">Geen inhoud beschikbaar</p>
                   </Card>
                 ) : (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4" role="list">
                     {activeContent.map((assignment) => (
                       <button
                         key={assignment.id}
                         onClick={() => handleContentClick(assignment)}
-                        className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                        className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 focus:ring-4 focus:ring-blue-300 focus:outline-none"
                         style={{ borderTop: `6px solid ${assignment.webwijzer_content.color}` }}
+                        aria-label={`Open ${assignment.webwijzer_content.title}`}
+                        role="listitem"
                       >
                         <div
                           className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-5xl"
                           style={{ backgroundColor: assignment.webwijzer_content.color + '20' }}
+                          aria-hidden="true"
                         >
                           {assignment.webwijzer_content.symbol}
                         </div>
@@ -702,30 +772,35 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
                     ))}
                   </div>
                 )}
-              </div>
+              </section>
 
-              <div>
+              <section aria-labelledby="favorites-heading">
                 <div className="flex items-center gap-2 mb-4">
-                  <Star className="w-6 h-6 text-yellow-500" />
-                  <h2 className="text-2xl font-bold text-gray-900">Favorieten</h2>
+                  <Star className="w-6 h-6 text-yellow-500" aria-hidden="true" />
+                  <h2 id="favorites-heading" className="text-2xl font-bold text-gray-900">
+                    Favorieten
+                  </h2>
                 </div>
                 {favoriteAssignments.length === 0 ? (
                   <Card className="text-center py-12">
                     <p className="text-xl text-gray-600">Geen favoriete inhoud</p>
                   </Card>
                 ) : (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4" role="list">
                     {favoriteAssignments.map((assignment) => (
                       <button
                         key={assignment.id}
                         onClick={() => handleContentClick(assignment)}
-                        className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 relative"
+                        className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 relative focus:ring-4 focus:ring-yellow-300 focus:outline-none"
                         style={{ borderTop: `6px solid ${assignment.webwijzer_content.color}` }}
+                        aria-label={`Open favoriet ${assignment.webwijzer_content.title}`}
+                        role="listitem"
                       >
-                        <Star className="w-5 h-5 text-yellow-500 absolute top-2 right-2 fill-yellow-500" />
+                        <Star className="w-5 h-5 text-yellow-500 absolute top-2 right-2 fill-yellow-500" aria-hidden="true" />
                         <div
                           className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-5xl"
                           style={{ backgroundColor: assignment.webwijzer_content.color + '20' }}
+                          aria-hidden="true"
                         >
                           {assignment.webwijzer_content.symbol}
                         </div>
@@ -736,7 +811,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
                     ))}
                   </div>
                 )}
-              </div>
+              </section>
             </div>
           </div>
         )}
@@ -747,8 +822,9 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
               onClick={() => setShowArchive(true)}
               variant="secondary"
               className="flex items-center gap-2 shadow-lg"
+              aria-label={`Open archief met ${archivedAssignments.length} gearchiveerde items`}
             >
-              <Archive className="w-4 h-4" />
+              <Archive className="w-4 h-4" aria-hidden="true" />
               Archief ({archivedAssignments.length})
             </Button>
           </div>
@@ -756,8 +832,12 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
 
         {user && onBackToDashboard && (
           <div className="fixed bottom-6 left-6">
-            <Button onClick={onBackToDashboard} variant="secondary">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+            <Button
+              onClick={onBackToDashboard}
+              variant="secondary"
+              aria-label="Terug naar leerkracht dashboard"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" />
               Terug naar Dashboard
             </Button>
           </div>
@@ -798,36 +878,45 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
       )}
 
       {showDeactivationNotice && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-md w-full">
-            <div className="p-6 text-center space-y-4">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto">
-                <Clock className="w-8 h-8 text-orange-600" />
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="deactivation-modal-title"
+          aria-describedby="deactivation-modal-description"
+        >
+          <div ref={deactivationModalRef}>
+            <Card className="max-w-md w-full">
+              <div className="p-6 text-center space-y-4">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto">
+                  <Clock className="w-8 h-8 text-orange-600" aria-hidden="true" />
+                </div>
+                <div>
+                  <h2 id="deactivation-modal-title" className="text-2xl font-bold text-gray-900 mb-2">
+                    Les Beëindigd
+                  </h2>
+                  <p id="deactivation-modal-description" className="text-gray-600">
+                    Dit activiteitenbord is beëindigd door je leerkracht
+                  </p>
+                </div>
+                <div className="text-4xl font-bold text-blue-600" aria-live="polite" aria-atomic="true">
+                  {deactivationCountdown}
+                </div>
+                <Button
+                  onClick={() => {
+                    setShowDeactivationNotice(false);
+                    setActiveBoard(null);
+                    setShowActiviTijd(false);
+                    checkActiveBoard();
+                  }}
+                  className="w-full"
+                  aria-label="Terug naar overzicht gaan"
+                >
+                  Terug naar Overzicht
+                </Button>
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Les Beëindigd
-                </h2>
-                <p className="text-gray-600">
-                  Dit activiteitenbord is beëindigd door je leerkracht
-                </p>
-              </div>
-              <div className="text-4xl font-bold text-blue-600">
-                {deactivationCountdown}
-              </div>
-              <Button
-                onClick={() => {
-                  setShowDeactivationNotice(false);
-                  setActiveBoard(null);
-                  setShowActiviTijd(false);
-                  checkActiveBoard();
-                }}
-                className="w-full"
-              >
-                Terug naar Overzicht
-              </Button>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
       )}
 

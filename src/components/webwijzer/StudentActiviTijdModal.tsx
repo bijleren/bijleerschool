@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { X, Clock, Grid } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface ActivityOption {
   id: string;
@@ -191,12 +192,20 @@ export function StudentActiviTijdModal({ studentId, boardId, onClose }: StudentA
     return Icon;
   };
 
+  const modalRef = useFocusTrap(!loading);
+
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="loading-message"
+      >
         <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" role="status"></div>
+            <span id="loading-message" className="sr-only">Laden...</span>
           </div>
         </div>
       </div>
@@ -204,41 +213,58 @@ export function StudentActiviTijdModal({ studentId, boardId, onClose }: StudentA
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Activi-tijd</h2>
-          <button
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="activitijd-modal-title"
+    >
+      <div ref={modalRef} className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
+        <header className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 id="activitijd-modal-title" className="text-2xl font-bold text-gray-900">
+            Activi-tijd
+          </h2>
+          <Button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            variant="ghost"
+            className="p-2"
+            data-close-modal="true"
+            aria-label="Activi-tijd sluiten"
           >
-            <X className="w-6 h-6 text-gray-600" />
-          </button>
-        </div>
+            <X className="w-6 h-6 text-gray-600" aria-hidden="true" />
+            <span className="sr-only">Sluiten</span>
+          </Button>
+        </header>
 
         <div className="overflow-y-auto max-h-[calc(90vh-180px)] p-6">
           {currentActivity && (
-            <div
+            <section
               className="mb-6 p-6 rounded-lg"
               style={{ backgroundColor: currentActivity.activity_color + '20' }}
+              aria-labelledby="current-activity-heading"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
                   <div
                     className="w-16 h-16 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: currentActivity.activity_color }}
+                    role="img"
+                    aria-label={`Icoon voor ${currentActivity.activity_name}`}
                   >
                     {React.createElement(getIcon(currentActivity.activity_icon), {
-                      className: 'w-8 h-8 text-white'
+                      className: 'w-8 h-8 text-white',
+                      'aria-hidden': 'true'
                     })}
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900">
+                    <h3 id="current-activity-heading" className="text-xl font-bold text-gray-900">
                       {currentActivity.activity_name}
                     </h3>
                     <div className="flex items-center gap-2 text-gray-600 mt-1">
-                      <Clock className="w-4 h-4" />
-                      <span className="text-lg font-mono">{formatDuration(duration)}</span>
+                      <Clock className="w-4 h-4" aria-hidden="true" />
+                      <time className="text-lg font-mono" aria-label={`Verstreken tijd: ${formatDuration(duration)}`}>
+                        {formatDuration(duration)}
+                      </time>
                     </div>
                   </div>
                 </div>
@@ -246,18 +272,19 @@ export function StudentActiviTijdModal({ studentId, boardId, onClose }: StudentA
                   variant="secondary"
                   onClick={handleStopActivity}
                   className="bg-red-500 text-white hover:bg-red-600"
+                  aria-label={`Stop huidige activiteit ${currentActivity.activity_name}`}
                 >
                   Stop activiteit
                 </Button>
               </div>
-            </div>
+            </section>
           )}
 
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <section aria-labelledby="activity-selection-heading">
+            <h3 id="activity-selection-heading" className="text-lg font-semibold text-gray-900 mb-4">
               {currentActivity ? 'Wissel van activiteit' : 'Kies een activiteit'}
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4" role="list">
               {activities.map((activity) => {
                 const Icon = getIcon(activity.icon);
                 const isFull = activity.max_students && activity.current_students >= activity.max_students;
@@ -268,13 +295,16 @@ export function StudentActiviTijdModal({ studentId, boardId, onClose }: StudentA
                     key={activity.id}
                     onClick={() => !isFull && !isCurrentActivity && handleStartActivity(activity.id)}
                     disabled={isFull || isCurrentActivity}
-                    className={`p-6 rounded-lg border-2 transition-all ${
+                    className={`p-6 rounded-lg border-2 transition-all focus:ring-4 focus:outline-none ${
                       isCurrentActivity
-                        ? 'border-blue-500 bg-blue-50 cursor-default'
+                        ? 'border-blue-500 bg-blue-50 cursor-default focus:ring-blue-300'
                         : isFull
                         ? 'border-gray-300 bg-gray-100 cursor-not-allowed opacity-60'
-                        : 'border-gray-300 hover:border-blue-500 hover:shadow-lg cursor-pointer'
+                        : 'border-gray-300 hover:border-blue-500 hover:shadow-lg cursor-pointer focus:ring-blue-300'
                     }`}
+                    aria-label={`${activity.name}${activity.description ? `, ${activity.description}` : ''}. ${activity.current_students} van ${activity.max_students || 'onbeperkt'} studenten${isFull ? ', vol' : ''}${isCurrentActivity ? ', huidige activiteit' : ''}`}
+                    aria-disabled={isFull || isCurrentActivity}
+                    role="listitem"
                   >
                     <div className="flex flex-col items-center text-center">
                       <div
@@ -303,7 +333,7 @@ export function StudentActiviTijdModal({ studentId, boardId, onClose }: StudentA
                 );
               })}
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </div>

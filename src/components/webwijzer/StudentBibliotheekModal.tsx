@@ -5,6 +5,7 @@ import { UniversalScanner } from '../ui/UniversalScanner';
 import { ReadingSessionModal } from './ReadingSessionModal';
 import { ReturnItemModal } from './ReturnItemModal';
 import { X, BookOpen, Package, Scan, AlertCircle } from 'lucide-react';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface Book {
   id: string;
@@ -310,18 +311,31 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
     fetchBibliotheek();
   };
 
+  const modalRef = useFocusTrap(true);
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-2xl font-bold text-gray-900">Mijn Bibliotheek</h2>
-          <button
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="bibliotheek-modal-title"
+    >
+      <div ref={modalRef} className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+        <header className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
+          <h2 id="bibliotheek-modal-title" className="text-2xl font-bold text-gray-900">
+            Mijn Bibliotheek
+          </h2>
+          <Button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            variant="ghost"
+            className="p-2"
+            data-close-modal="true"
+            aria-label="Bibliotheek sluiten"
           >
-            <X className="w-6 h-6 text-gray-600" />
-          </button>
-        </div>
+            <X className="w-6 h-6 text-gray-600" aria-hidden="true" />
+            <span className="sr-only">Sluiten</span>
+          </Button>
+        </header>
 
         {showScanner ? (
           <div className="flex-1 overflow-y-auto">
@@ -408,38 +422,44 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                 </div>
               ) : (
                 <>
-                  <div>
+                  <section aria-labelledby="my-books-heading">
                     <div className="flex items-center mb-3">
-                      <BookOpen className="w-5 h-5 text-blue-600 mr-2" />
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <BookOpen className="w-5 h-5 text-blue-600 mr-2" aria-hidden="true" />
+                      <h3 id="my-books-heading" className="text-lg font-semibold text-gray-900">
                         Mijn Boeken ({books.length})
                       </h3>
                     </div>
                     {books.length === 0 ? (
                       <p className="text-gray-500 text-center py-6">Geen geleende boeken</p>
                     ) : (
-                      <div className="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                      <div
+                        className="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                        role="list"
+                        aria-label="Geleende boeken"
+                      >
                         {books.map((book) => (
                           <div
                             key={book.id}
-                            className={`flex-shrink-0 bg-white border-2 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer ${
+                            className={`flex-shrink-0 bg-white border-2 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all ${
                               selectedBook?.id === book.id ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200'
                             }`}
                             style={{ width: '140px' }}
+                            role="listitem"
                           >
                             <button
                               onClick={() => handleBookClick(book)}
-                              className="w-full text-left"
+                              className="w-full text-left focus:ring-4 focus:ring-blue-300 focus:outline-none"
+                              aria-label={`Selecteer boek ${book.title} door ${book.author}${selectedBook?.id === book.id ? ', geselecteerd' : ''}`}
                             >
                               {(book.custom_cover_url || book.cover_image_url) ? (
                                 <img
                                   src={book.custom_cover_url || book.cover_image_url}
-                                  alt={book.title}
+                                  alt={`Kaft van ${book.title}`}
                                   className="w-full h-36 object-cover"
                                 />
                               ) : (
                                 <div className="w-full h-36 bg-gray-100 flex items-center justify-center">
-                                  <BookOpen className="w-10 h-10 text-gray-400" />
+                                  <BookOpen className="w-10 h-10 text-gray-400" aria-hidden="true" />
                                 </div>
                               )}
                               <div className="p-2">
@@ -453,40 +473,46 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                         ))}
                       </div>
                     )}
-                  </div>
+                  </section>
 
-                  <div className="border-t border-gray-200 pt-4">
+                  <section className="border-t border-gray-200 pt-4" aria-labelledby="my-materials-heading">
                     <div className="flex items-center mb-3">
-                      <Package className="w-5 h-5 text-green-600 mr-2" />
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <Package className="w-5 h-5 text-green-600 mr-2" aria-hidden="true" />
+                      <h3 id="my-materials-heading" className="text-lg font-semibold text-gray-900">
                         Mijn Materialen ({materials.length})
                       </h3>
                     </div>
                     {materials.length === 0 ? (
                       <p className="text-gray-500 text-center py-6">Geen geleende materialen</p>
                     ) : (
-                      <div className="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                      <div
+                        className="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                        role="list"
+                        aria-label="Geleende materialen"
+                      >
                         {materials.map((material) => (
                           <div
                             key={material.id}
-                            className={`flex-shrink-0 bg-white border-2 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer ${
+                            className={`flex-shrink-0 bg-white border-2 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all ${
                               selectedMaterial?.id === material.id ? 'border-green-500 ring-2 ring-green-200' : 'border-gray-200'
                             }`}
                             style={{ width: '140px' }}
+                            role="listitem"
                           >
                             <button
                               onClick={() => handleMaterialClick(material)}
-                              className="w-full text-left"
+                              className="w-full text-left focus:ring-4 focus:ring-green-300 focus:outline-none"
+                              aria-label={`Selecteer materiaal ${material.title}${material.description ? `, ${material.description}` : ''}${selectedMaterial?.id === material.id ? ', geselecteerd' : ''}`}
                             >
                               {material.photo_url ? (
                                 <img
                                   src={material.photo_url}
-                                  alt={material.title}
+                                  alt={`Foto van ${material.title}`}
                                   className="w-full h-36 object-cover"
                                 />
                               ) : (
                                 <div className="w-full h-36 bg-gray-100 flex items-center justify-center">
-                                  <Package className="w-10 h-10 text-gray-400" />
+                                  <Package className="w-10 h-10 text-gray-400" aria-hidden="true" />
                                 </div>
                               )}
                               <div className="p-2">
@@ -504,7 +530,7 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                         ))}
                       </div>
                     )}
-                  </div>
+                  </section>
                 </>
               )}
             </div>
@@ -512,31 +538,34 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
         )}
 
         {!showScanner && !selectedBook && !selectedMaterial && (
-          <div className="p-6 border-t border-gray-200 flex-shrink-0">
+          <footer className="p-6 border-t border-gray-200 flex-shrink-0">
             <Button
               onClick={() => setShowScanner(true)}
               className="w-full"
+              aria-label="Scan nieuw boek of materiaal"
             >
-              <Scan className="w-5 h-5 mr-2" />
+              <Scan className="w-5 h-5 mr-2" aria-hidden="true" />
               Nieuw item scannen
             </Button>
-          </div>
+          </footer>
         )}
 
         {selectedBook && !showScanner && (
-          <div className="p-6 border-t border-gray-200 space-y-3 flex-shrink-0">
+          <footer className="p-6 border-t border-gray-200 space-y-3 flex-shrink-0" role="group" aria-label="Boek acties">
             <div className="flex gap-3">
               <Button
                 onClick={handleStartReading}
                 className="flex-1 bg-green-600 hover:bg-green-700"
+                aria-label={`Begin met lezen van ${selectedBook.title}`}
               >
-                <BookOpen className="w-5 h-5 mr-2" />
+                <BookOpen className="w-5 h-5 mr-2" aria-hidden="true" />
                 Ik lees
               </Button>
               <Button
                 onClick={handleReturnBook}
                 variant="secondary"
                 className="flex-1"
+                aria-label={`Lever ${selectedBook.title} in`}
               >
                 Inleveren
               </Button>
@@ -545,17 +574,19 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
               onClick={() => setSelectedBook(null)}
               variant="secondary"
               className="w-full"
+              aria-label="Boek selectie annuleren"
             >
               Annuleren
             </Button>
-          </div>
+          </footer>
         )}
 
         {selectedMaterial && !showScanner && (
-          <div className="p-6 border-t border-gray-200 space-y-3 flex-shrink-0">
+          <footer className="p-6 border-t border-gray-200 space-y-3 flex-shrink-0" role="group" aria-label="Materiaal acties">
             <Button
               onClick={handleReturnMaterial}
               className="w-full"
+              aria-label={`Lever ${selectedMaterial.title} in`}
             >
               Inleveren
             </Button>
@@ -563,10 +594,11 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
               onClick={() => setMaterial(null)}
               variant="secondary"
               className="w-full"
+              aria-label="Materiaal selectie annuleren"
             >
               Annuleren
             </Button>
-          </div>
+          </footer>
         )}
       </div>
 
