@@ -12,6 +12,7 @@ interface Student {
   first_name: string;
   last_name: string;
   student_number: string | null;
+  student_code: string | null;
   grade_level: string | null;
   profile_picture_url: string | null;
   color: string | null;
@@ -72,6 +73,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
             first_name,
             last_name,
             student_number,
+            student_code,
             grade_level,
             profile_picture_url,
             color,
@@ -366,7 +368,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     ctx.fillStyle = 'white';
     let footerFontSize = 4 * CM_TO_PX / 10;
     ctx.font = `300 ${footerFontSize}px "Open Sans", sans-serif`;
-    const studentCode = student.student_number || '';
+    const studentCode = student.student_code || '';
     let footerWidth = ctx.measureText(studentCode).width;
     while (footerWidth > width - (0.4 * CM_TO_PX) && footerFontSize > (2 * CM_TO_PX / 10)) {
       footerFontSize -= 0.5;
@@ -375,12 +377,6 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     }
     ctx.fillText(studentCode, x + width / 2, y + height - (0.5 * CM_TO_PX));
 
-    const studentNumberY = y + height - (7.5 * CM_TO_PX);
-    const studentNumberX = x + width - (7 * CM_TO_PX);
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'left';
-    ctx.font = `300 ${footerFontSize}px "Open Sans", sans-serif`;
-    ctx.fillText(studentCode, studentNumberX, studentNumberY);
 
     const photoSize = 3 * CM_TO_PX;
     const photoCenterY = y + height - (7 * CM_TO_PX);
