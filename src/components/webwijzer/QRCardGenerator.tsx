@@ -349,7 +349,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
       ctx.font = `800 ${headerFontSize}px "Fira Sans", sans-serif`;
       headerWidth = ctx.measureText('bijleren.school').width;
     }
-    ctx.fillText('bijleren.school', x + width / 2, y + 0.9 * CM_TO_PX);
+    ctx.fillText('bijleren.school', x + width / 2, y + 0.35 * CM_TO_PX);
 
     const bottomHeight = 0.8 * CM_TO_PX;
     const bottomY = y + height - bottomHeight;
