@@ -409,7 +409,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     }
     ctx.restore();
 
-    const qrSize = 2.3 * CM_TO_PX;
+    const qrSize = 2.7 * CM_TO_PX;
     const qrY = y + height - (1.3 * CM_TO_PX) - qrSize;
     const qrX = x + (width - qrSize) / 2;
     const qrDataUrl = await generateQRCode(student);
@@ -420,7 +420,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     });
     ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
 
-    const lastNameY = y + height - (3.9 * CM_TO_PX);
+    const lastNameY = y + height - (4.3 * CM_TO_PX);
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -434,7 +434,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     }
     ctx.fillText(student.last_name, x + width / 2, lastNameY);
 
-    const firstNameY = y + height / 2;
+    const firstNameY = y + height / 2 - (0.2 * CM_TO_PX);
     let firstNameFontSize = 8.5 * CM_TO_PX / 10;
     ctx.font = `${firstNameFontSize}px "Noteworthy", "Comic Sans MS", cursive`;
     let firstNameWidth = ctx.measureText(student.first_name).width;
@@ -456,8 +456,8 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
           symbolImg.src = student.symbol_url!;
         });
 
-        const symbolX = x + width - (0.3 * CM_TO_PX) - symbolSize;
-        const symbolY = y + height - (1.5 * CM_TO_PX) - symbolSize;
+        const symbolX = photoCenterX + hexRadius + (0.3 * CM_TO_PX);
+        const symbolY = photoCenterY - (symbolSize / 2);
 
         ctx.save();
         ctx.beginPath();
