@@ -351,7 +351,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     }
     ctx.fillText('bijleren.school', x + width / 2, y + 0.25 * CM_TO_PX);
 
-    const bottomHeight = 0.5 * CM_TO_PX;
+    const bottomHeight = 0.8 * CM_TO_PX;
     const bottomY = y + height - bottomHeight;
     ctx.fillStyle = color;
     ctx.beginPath();
@@ -366,7 +366,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     ctx.fill();
 
     ctx.fillStyle = 'white';
-    let footerFontSize = 4 * CM_TO_PX / 10;
+    let footerFontSize = 5 * CM_TO_PX / 10;
     ctx.font = `300 ${footerFontSize}px "Open Sans", sans-serif`;
     const studentCode = student.student_code || '';
     let footerWidth = ctx.measureText(studentCode).width;
@@ -375,7 +375,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
       ctx.font = `300 ${footerFontSize}px "Open Sans", sans-serif`;
       footerWidth = ctx.measureText(studentCode).width;
     }
-    ctx.fillText(studentCode, x + width / 2, y + height - (0.5 * CM_TO_PX));
+    ctx.fillText(studentCode, x + width / 2, y + height - (bottomHeight / 2));
 
 
     const photoSize = 3 * CM_TO_PX;
@@ -409,8 +409,8 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     }
     ctx.restore();
 
-    const qrSize = 2 * CM_TO_PX;
-    const qrY = y + height - (1 * CM_TO_PX) - qrSize;
+    const qrSize = 2.3 * CM_TO_PX;
+    const qrY = y + height - (1.3 * CM_TO_PX) - qrSize;
     const qrX = x + (width - qrSize) / 2;
     const qrDataUrl = await generateQRCode(student);
     const qrImg = new Image();
@@ -420,7 +420,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     });
     ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
 
-    const lastNameY = y + height - (3.5 * CM_TO_PX);
+    const lastNameY = y + height - (3.9 * CM_TO_PX);
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -435,7 +435,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     ctx.fillText(student.last_name, x + width / 2, lastNameY);
 
     const firstNameY = y + height / 2;
-    let firstNameFontSize = 10 * CM_TO_PX / 10;
+    let firstNameFontSize = 8.5 * CM_TO_PX / 10;
     ctx.font = `${firstNameFontSize}px "Noteworthy", "Comic Sans MS", cursive`;
     let firstNameWidth = ctx.measureText(student.first_name).width;
     while (firstNameWidth > width - (0.4 * CM_TO_PX) && firstNameFontSize > (4 * CM_TO_PX / 10)) {
