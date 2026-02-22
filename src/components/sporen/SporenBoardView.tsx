@@ -94,7 +94,6 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
     const { data, error } = await supabase
       .from('student_groups')
       .select(`
-        student_id,
         students!inner (
           id,
           first_name,
@@ -109,7 +108,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
       .eq('is_active', true);
 
     if (error) throw error;
-    const studentsList = data?.map(sg => sg.students).filter(Boolean) as Student[];
+    const studentsList = data?.map((sg: any) => sg.students).filter(Boolean) as Student[];
     setStudents(studentsList);
   };
 
