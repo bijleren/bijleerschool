@@ -92,24 +92,24 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
 
   const fetchStudents = async () => {
     const { data, error } = await supabase
-      .from('student_groups')
+      .from('students')
       .select(`
-        students!inner (
-          id,
-          first_name,
-          last_name,
-          student_number,
-          profile_picture_url,
-          background_color,
-          profile_symbol
-        )
+        id,
+        first_name,
+        last_name,
+        student_number,
+        profile_picture_url,
+        background_color,
+        profile_symbol,
+        student_groups!inner(group_id, is_active)
       `)
-      .eq('group_id', groupId)
-      .eq('is_active', true);
+      .eq('student_groups.group_id', groupId)
+      .eq('student_groups.is_active', true)
+      .eq('is_active', true)
+      .order('first_name');
 
     if (error) throw error;
-    const studentsList = data?.map((sg: any) => sg.students).filter(Boolean) as Student[];
-    setStudents(studentsList);
+    setStudents(data || []);
   };
 
   const fetchSporen = async () => {
