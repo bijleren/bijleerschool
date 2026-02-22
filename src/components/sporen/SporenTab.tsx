@@ -70,13 +70,21 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
     try {
       const { data, error } = await supabase
         .from('school_subjects')
-        .select('id, name, color')
+        .select('id, title, color')
         .eq('school_id', focusSchool.id)
         .eq('is_active', true)
         .order('sort_order');
 
       if (error) throw error;
-      setSubjects(data || []);
+
+      // Map title to name for consistent interface
+      const mappedData = data?.map(s => ({
+        id: s.id,
+        name: s.title,
+        color: s.color
+      })) || [];
+
+      setSubjects(mappedData);
     } catch (error) {
       console.error('Error fetching subjects:', error);
     }
