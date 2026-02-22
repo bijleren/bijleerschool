@@ -48,6 +48,8 @@ interface SporenBoardViewProps {
 }
 
 export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subjectName }: SporenBoardViewProps) {
+  console.log('SporenBoardView render - props:', { schoolId, groupId, subjectId, groupName, subjectName });
+
   const { user } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
   const [sporen, setSporen] = useState<Spoor[]>([]);
@@ -91,6 +93,8 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
   };
 
   const fetchStudents = async () => {
+    console.log('SporenBoardView - fetchStudents called with groupId:', groupId);
+
     // First get student IDs from the group
     const { data: groupData, error: groupError } = await supabase
       .from('student_groups')
@@ -98,11 +102,15 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
       .eq('group_id', groupId)
       .eq('is_active', true);
 
+    console.log('SporenBoardView - student_groups query result:', { groupData, groupError });
+
     if (groupError) throw groupError;
 
     const studentIds = groupData?.map(sg => sg.student_id) || [];
+    console.log('SporenBoardView - studentIds:', studentIds);
 
     if (studentIds.length === 0) {
+      console.log('SporenBoardView - No students found in group');
       setStudents([]);
       return;
     }
@@ -115,8 +123,11 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
       .eq('is_active', true)
       .order('first_name');
 
+    console.log('SporenBoardView - students query result:', { data, error });
+
     if (error) throw error;
     setStudents(data || []);
+    console.log('SporenBoardView - Students set to state:', data?.length);
   };
 
   const fetchSporen = async () => {
@@ -243,7 +254,14 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
     const assignedStudentIds = assignments
       .filter(a => a.spoor_id === spoorId)
       .map(a => a.student_id);
-    return students.filter(s => assignedStudentIds.includes(s.id));
+    const studentsForSpoor = students.filter(s => assignedStudentIds.includes(s.id));
+    console.log(`SporenBoardView - getStudentsForSpoor(${spoorId}):`, {
+      totalStudents: students.length,
+      totalAssignments: assignments.length,
+      assignedStudentIds,
+      studentsForSpoor: studentsForSpoor.length
+    });
+    return studentsForSpoor;
   };
 
   const activeStudent = students.find(s => s.id === activeId);

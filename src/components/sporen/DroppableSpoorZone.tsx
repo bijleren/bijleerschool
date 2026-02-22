@@ -11,8 +11,8 @@ interface Student {
   last_name: string;
   student_number: string | null;
   profile_picture_url: string | null;
-  background_color: string | null;
-  profile_symbol: string | null;
+  color: string | null;
+  symbol_url: string | null;
 }
 
 interface DroppableSpoorZoneProps {
@@ -92,9 +92,10 @@ export function DroppableSpoorZone({
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              {students.map((student) => (
-                <DraggableStudentCard key={student.id} student={student} isDragging={false} />
-              ))}
+              {students.map((student) => {
+                console.log('DroppableSpoorZone - rendering student:', student);
+                return <DraggableStudentCard key={student.id} student={student} isDragging={false} />;
+              })}
             </div>
           )}
         </div>
