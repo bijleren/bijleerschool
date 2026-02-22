@@ -25,6 +25,7 @@ interface Spoor {
   name: string;
   color: string;
   icon: string;
+  custom_icon_url?: string | null;
   sort_order: number;
 }
 
@@ -93,7 +94,8 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
     const { data, error } = await supabase
       .from('student_groups')
       .select(`
-        students (
+        student_id,
+        students!inner (
           id,
           first_name,
           last_name,
@@ -369,6 +371,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
                 students={getStudentsForSpoor(spoor.id)}
                 color={spoor.color}
                 icon={spoor.icon}
+                customIconUrl={spoor.custom_icon_url}
                 showNotes={true}
                 onOpenNotes={() => handleOpenNotes(spoor.id)}
                 hasNotes={!!spoorNotes?.notes_text}

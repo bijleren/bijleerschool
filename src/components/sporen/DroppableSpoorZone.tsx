@@ -21,6 +21,7 @@ interface DroppableSpoorZoneProps {
   students: Student[];
   color: string;
   icon?: string;
+  customIconUrl?: string | null;
   showNotes: boolean;
   onOpenNotes: () => void;
   hasNotes: boolean;
@@ -32,6 +33,7 @@ export function DroppableSpoorZone({
   students,
   color,
   icon,
+  customIconUrl,
   showNotes,
   onOpenNotes,
   hasNotes
@@ -53,10 +55,14 @@ export function DroppableSpoorZone({
       >
         <div className="flex items-center space-x-3">
           <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: color + '20' }}
+            className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden"
+            style={{ backgroundColor: customIconUrl ? 'transparent' : color + '20' }}
           >
-            <IconComponent className="w-5 h-5" style={{ color }} />
+            {customIconUrl ? (
+              <img src={customIconUrl} alt={title} className="w-full h-full object-cover" />
+            ) : (
+              <IconComponent className="w-5 h-5" style={{ color }} />
+            )}
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">{title}</h3>

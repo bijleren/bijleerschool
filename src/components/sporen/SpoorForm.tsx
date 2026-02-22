@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
-import { X, GitBranch, Check } from 'lucide-react';
+import { X, GitBranch, Check, Upload, Trash2 } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
 interface Spoor {
@@ -9,6 +9,7 @@ interface Spoor {
   name: string;
   color: string;
   icon: string;
+  custom_icon_url?: string | null;
   sort_order: number;
   is_active: boolean;
   linked_subjects: string[];
@@ -41,17 +42,79 @@ export function SpoorForm({ schoolId, subjects, editingSpoor, onClose }: SpoorFo
   const [name, setName] = useState('');
   const [color, setColor] = useState('#3b82f6');
   const [icon, setIcon] = useState('GraduationCap');
+  const [customIconUrl, setCustomIconUrl] = useState<string | null>(null);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (editingSpoor) {
       setName(editingSpoor.name);
       setColor(editingSpoor.color);
       setIcon(editingSpoor.icon);
+      setCustomIconUrl(editingSpoor.custom_icon_url || null);
       setSelectedSubjects(editingSpoor.linked_subjects);
     }
   }, [editingSpoor]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Selecteer een geldig afbeeldingsbestand');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Bestand is te groot. Maximaal 2MB toegestaan.');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${schoolId}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('spoor-icons')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('spoor-icons')
+        .getPublicUrl(fileName);
+
+      setCustomIconUrl(publicUrl);
+    } catch (error) {
+      console.error('Error uploading icon:', error);
+      alert('Er is een fout opgetreden bij het uploaden van het icoon.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveCustomIcon = async () => {
+    if (customIconUrl) {
+      try {
+        const urlParts = customIconUrl.split('/spoor-icons/');
+        if (urlParts.length > 1) {
+          const filePath = urlParts[1];
+          await supabase.storage
+            .from('spoor-icons')
+            .remove([filePath]);
+        }
+      } catch (error) {
+        console.error('Error removing icon:', error);
+      }
+    }
+    setCustomIconUrl(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +129,7 @@ export function SpoorForm({ schoolId, subjects, editingSpoor, onClose }: SpoorFo
             name: name.trim(),
             color,
             icon,
+            custom_icon_url: customIconUrl,
             updated_at: new Date().toISOString()
           })
           .eq('id', editingSpoor.id);
@@ -107,6 +171,7 @@ export function SpoorForm({ schoolId, subjects, editingSpoor, onClose }: SpoorFo
             name: name.trim(),
             color,
             icon,
+            custom_icon_url: customIconUrl,
             sort_order: nextOrder,
             is_active: true
           })
@@ -184,10 +249,14 @@ export function SpoorForm({ schoolId, subjects, editingSpoor, onClose }: SpoorFo
             </label>
             <div className="flex items-center space-x-4">
               <div
-                className="w-16 h-16 rounded-lg border-2 border-gray-200 flex items-center justify-center"
+                className="w-16 h-16 rounded-lg border-2 border-gray-200 flex items-center justify-center overflow-hidden"
                 style={{ backgroundColor: color }}
               >
-                <IconComponent className="w-8 h-8 text-white" />
+                {customIconUrl ? (
+                  <img src={customIconUrl} alt="Custom icon" className="w-full h-full object-cover" />
+                ) : (
+                  <IconComponent className="w-8 h-8 text-white" />
+                )}
               </div>
               <div className="flex-1">
                 <div className="grid grid-cols-9 gap-2 mb-3">
@@ -217,25 +286,70 @@ export function SpoorForm({ schoolId, subjects, editingSpoor, onClose }: SpoorFo
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Icoon
             </label>
-            <div className="grid grid-cols-6 gap-2">
-              {AVAILABLE_ICONS.map((iconName) => {
-                const Icon = (Icons as any)[iconName];
-                return (
-                  <button
-                    key={iconName}
+
+            {customIconUrl ? (
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <img src={customIconUrl} alt="Custom icon" className="w-12 h-12 object-cover rounded" />
+                    <span className="text-sm text-gray-600">Aangepast icoon</span>
+                  </div>
+                  <Button
                     type="button"
-                    onClick={() => setIcon(iconName)}
-                    className={`p-3 rounded-lg border-2 transition-all flex items-center justify-center ${
-                      icon === iconName
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    variant="secondary"
+                    onClick={handleRemoveCustomIcon}
                   >
-                    <Icon className="w-6 h-6 text-gray-700" />
-                  </button>
-                );
-              })}
-            </div>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Verwijderen
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="mb-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="w-full"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploading ? 'Uploaden...' : 'Aangepast icoon uploaden'}
+                  </Button>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Of kies een vooraf ingesteld icoon hieronder
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-6 gap-2">
+                  {AVAILABLE_ICONS.map((iconName) => {
+                    const Icon = (Icons as any)[iconName];
+                    return (
+                      <button
+                        key={iconName}
+                        type="button"
+                        onClick={() => setIcon(iconName)}
+                        className={`p-3 rounded-lg border-2 transition-all flex items-center justify-center ${
+                          icon === iconName
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <Icon className="w-6 h-6 text-gray-700" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
 
           <div>
