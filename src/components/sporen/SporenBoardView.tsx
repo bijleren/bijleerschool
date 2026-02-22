@@ -91,6 +91,23 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
   };
 
   const fetchStudents = async () => {
+    // First get student IDs from the group
+    const { data: groupData, error: groupError } = await supabase
+      .from('student_groups')
+      .select('student_id')
+      .eq('group_id', groupId)
+      .eq('is_active', true);
+
+    if (groupError) throw groupError;
+
+    const studentIds = groupData?.map(sg => sg.student_id) || [];
+
+    if (studentIds.length === 0) {
+      setStudents([]);
+      return;
+    }
+
+    // Then fetch the full student data
     const { data, error } = await supabase
       .from('students')
       .select(`
@@ -100,11 +117,9 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
         student_number,
         profile_picture_url,
         background_color,
-        profile_symbol,
-        student_groups!inner(group_id, is_active)
+        profile_symbol
       `)
-      .eq('student_groups.group_id', groupId)
-      .eq('student_groups.is_active', true)
+      .in('id', studentIds)
       .eq('is_active', true)
       .order('first_name');
 
