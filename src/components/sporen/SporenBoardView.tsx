@@ -16,8 +16,8 @@ interface Student {
   last_name: string;
   student_number: string | null;
   profile_picture_url: string | null;
-  background_color: string | null;
-  profile_symbol: string | null;
+  color: string | null;
+  symbol_url: string | null;
 }
 
 interface Spoor {
@@ -110,15 +110,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
     // Then fetch the full student data
     const { data, error } = await supabase
       .from('students')
-      .select(`
-        id,
-        first_name,
-        last_name,
-        student_number,
-        profile_picture_url,
-        background_color,
-        profile_symbol
-      `)
+      .select('id, first_name, last_name, student_number, profile_picture_url, color, symbol_url')
       .in('id', studentIds)
       .eq('is_active', true)
       .order('first_name');

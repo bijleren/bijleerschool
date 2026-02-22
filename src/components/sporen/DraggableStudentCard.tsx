@@ -8,8 +8,8 @@ interface Student {
   last_name: string;
   student_number: string | null;
   profile_picture_url: string | null;
-  background_color: string | null;
-  profile_symbol: string | null;
+  color: string | null;
+  symbol_url: string | null;
 }
 
 interface DraggableStudentCardProps {
@@ -33,7 +33,7 @@ export function DraggableStudentCard({ student, isDragging }: DraggableStudentCa
     opacity: isSortableDragging ? 0.5 : 1,
   };
 
-  const backgroundColor = student.background_color || '#e5e7eb';
+  const backgroundColor = student.color || '#e5e7eb';
 
   return (
     <div
@@ -51,12 +51,19 @@ export function DraggableStudentCard({ student, isDragging }: DraggableStudentCa
               alt={`${student.first_name} ${student.last_name}`}
               className="w-16 h-16 rounded-full object-cover"
             />
+          ) : student.symbol_url ? (
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden"
+              style={{ backgroundColor }}
+            >
+              <img src={student.symbol_url} alt="" className="w-10 h-10 object-contain" />
+            </div>
           ) : (
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white"
               style={{ backgroundColor }}
             >
-              {student.profile_symbol || student.first_name.charAt(0).toUpperCase()}
+              {student.first_name.charAt(0).toUpperCase()}
             </div>
           )}
           <div className="text-center">
