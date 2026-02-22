@@ -251,6 +251,20 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
   const hasChanges = JSON.stringify(assignments) !== JSON.stringify(originalAssignments);
 
   const getStudentsForSpoor = (spoorId: string | null) => {
+    if (spoorId === null) {
+      // For unassigned section, show students that don't have any assignment
+      const assignedStudentIds = assignments.map(a => a.student_id);
+      const unassignedStudents = students.filter(s => !assignedStudentIds.includes(s.id));
+      console.log(`SporenBoardView - getStudentsForSpoor(null):`, {
+        totalStudents: students.length,
+        totalAssignments: assignments.length,
+        assignedStudentIds,
+        unassignedStudents: unassignedStudents.length
+      });
+      return unassignedStudents;
+    }
+
+    // For specific spoor, show students assigned to it
     const assignedStudentIds = assignments
       .filter(a => a.spoor_id === spoorId)
       .map(a => a.student_id);
