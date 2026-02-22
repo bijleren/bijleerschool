@@ -25,6 +25,7 @@ interface DroppableSpoorZoneProps {
   showNotes: boolean;
   onOpenNotes: () => void;
   hasNotes: boolean;
+  onStudentClick?: (studentId: string) => void;
 }
 
 export function DroppableSpoorZone({
@@ -36,7 +37,8 @@ export function DroppableSpoorZone({
   customIconUrl,
   showNotes,
   onOpenNotes,
-  hasNotes
+  hasNotes,
+  onStudentClick
 }: DroppableSpoorZoneProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
@@ -94,7 +96,14 @@ export function DroppableSpoorZone({
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {students.map((student) => {
                 console.log('DroppableSpoorZone - rendering student:', student);
-                return <DraggableStudentCard key={student.id} student={student} isDragging={false} />;
+                return (
+                  <DraggableStudentCard
+                    key={student.id}
+                    student={student}
+                    isDragging={false}
+                    onClick={onStudentClick ? () => onStudentClick(student.id) : undefined}
+                  />
+                );
               })}
             </div>
           )}

@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 import { SpoorNotesModal } from './SpoorNotesModal';
+import { SpoorSelectionModal } from './SpoorSelectionModal';
 import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors, DragStartEvent, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { DroppableSpoorZone } from './DroppableSpoorZone';
@@ -61,6 +62,8 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [selectedSpoorId, setSelectedSpoorId] = useState<string | null>(null);
+  const [showSelectionModal, setShowSelectionModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -329,6 +332,29 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
     });
   };
 
+  const handleStudentClick = (studentId: string) => {
+    const student = students.find(s => s.id === studentId);
+    if (student) {
+      setSelectedStudent(student);
+      setShowSelectionModal(true);
+    }
+  };
+
+  const handleSpoorSelection = (spoorId: string | null) => {
+    if (!selectedStudent) return;
+
+    setAssignments(prev => {
+      const existing = prev.find(a => a.student_id === selectedStudent.id);
+      if (existing) {
+        return prev.map(a =>
+          a.student_id === selectedStudent.id ? { ...a, spoor_id: spoorId } : a
+        );
+      } else {
+        return [...prev, { student_id: selectedStudent.id, spoor_id: spoorId }];
+      }
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -397,6 +423,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
             showNotes={false}
             onOpenNotes={() => {}}
             hasNotes={false}
+            onStudentClick={handleStudentClick}
           />
 
           {sporen.map(spoor => {
@@ -413,6 +440,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
                 showNotes={true}
                 onOpenNotes={() => handleOpenNotes(spoor.id)}
                 hasNotes={!!spoorNotes?.notes_text}
+                onStudentClick={handleStudentClick}
               />
             );
           })}
@@ -440,6 +468,19 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
             setSelectedSpoorId(null);
           }}
           onSave={handleNoteSaved}
+        />
+      )}
+
+      {showSelectionModal && selectedStudent && (
+        <SpoorSelectionModal
+          student={selectedStudent}
+          sporen={sporen}
+          currentSpoorId={assignments.find(a => a.student_id === selectedStudent.id)?.spoor_id || null}
+          onSelect={handleSpoorSelection}
+          onClose={() => {
+            setShowSelectionModal(false);
+            setSelectedStudent(null);
+          }}
         />
       )}
     </div>

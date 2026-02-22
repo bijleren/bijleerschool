@@ -15,9 +15,10 @@ interface Student {
 interface DraggableStudentCardProps {
   student: Student;
   isDragging: boolean;
+  onClick?: () => void;
 }
 
-export function DraggableStudentCard({ student, isDragging }: DraggableStudentCardProps) {
+export function DraggableStudentCard({ student, isDragging, onClick }: DraggableStudentCardProps) {
   const {
     attributes,
     listeners,
@@ -35,6 +36,13 @@ export function DraggableStudentCard({ student, isDragging }: DraggableStudentCa
 
   const backgroundColor = student.color || '#e5e7eb';
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      e.stopPropagation();
+      onClick();
+    }
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -42,6 +50,7 @@ export function DraggableStudentCard({ student, isDragging }: DraggableStudentCa
       {...attributes}
       {...listeners}
       className="cursor-grab active:cursor-grabbing"
+      onClick={handleClick}
     >
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow p-3">
         <div className="flex flex-col items-center space-y-2">
