@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateToDashboard: () => void;
@@ -43,10 +43,11 @@ interface HeaderProps {
   onNavigateToEDI: () => void;
   onNavigateToDigiTools: () => void;
   onNavigateToBlinkQR: () => void;
+  onNavigateToSporen: () => void;
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToZoeker, onNavigateToEDI, onNavigateToDigiTools, onNavigateToBlinkQR, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToZoeker, onNavigateToEDI, onNavigateToDigiTools, onNavigateToBlinkQR, onNavigateToSporen, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -244,6 +245,16 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     >
                       <QrCode className="w-4 h-4 mr-2" />
                       BlinkQR
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToSporen();
+                        setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <GitBranch className="w-4 h-4 mr-2" />
+                      Sporen
                     </button>
                     <button
                       onClick={() => {

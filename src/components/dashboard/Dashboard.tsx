@@ -17,6 +17,7 @@ import { EDITab } from '../edi/EDITab';
 import { DigiToolsTab } from '../digitools/DigiToolsTab';
 import { ZoekerTab } from '../zoeker/ZoekerTab';
 import { BlinkQRTab } from '../blinkqr/BlinkQRTab';
+import { SporenTab } from '../sporen/SporenTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
@@ -57,7 +58,7 @@ export function Dashboard() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr' | 'sporen'>('dashboard');
   const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -83,7 +84,7 @@ export function Dashboard() {
     const studentIdParam = queryParams.get('studentId');
 
     if (tabParam) {
-      const validTabs = ['dashboard', 'profile', 'schools', 'behavior', 'teaching', 'schoolday', 'webwijzer', 'activityboards', 'boeker', 'zoeker', 'edi', 'digitools', 'newsletter', 'blinkqr'];
+      const validTabs = ['dashboard', 'profile', 'schools', 'behavior', 'teaching', 'schoolday', 'webwijzer', 'activityboards', 'boeker', 'zoeker', 'edi', 'digitools', 'newsletter', 'blinkqr', 'sporen'];
       if (validTabs.includes(tabParam)) {
         setActiveTab(tabParam as typeof activeTab);
 
@@ -360,6 +361,13 @@ export function Dashboard() {
     setSelectedStudent(null);
     setSelectedGroup(null);
     setActiveTab('blinkqr');
+  };
+
+  const handleNavigateToSporen = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('sporen');
   };
 
   const handleNavigateToNewsletter = () => {
@@ -695,6 +703,7 @@ export function Dashboard() {
         onNavigateToEDI={handleNavigateToEDI}
         onNavigateToDigiTools={handleNavigateToDigiTools}
         onNavigateToBlinkQR={handleNavigateToBlinkQR}
+        onNavigateToSporen={handleNavigateToSporen}
         focusSchool={focusSchool}
       />
       )}
@@ -741,6 +750,7 @@ export function Dashboard() {
         {activeTab === 'edi' && <EDITab />}
         {activeTab === 'digitools' && <DigiToolsTab />}
         {activeTab === 'blinkqr' && <BlinkQRTab />}
+        {activeTab === 'sporen' && <SporenTab />}
         {activeTab === 'activityboards' && <ActivityBoardsTab onFullscreenChange={setIsFullscreen} />}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail
