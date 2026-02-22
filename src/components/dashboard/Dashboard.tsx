@@ -750,7 +750,7 @@ export function Dashboard() {
         {activeTab === 'edi' && <EDITab />}
         {activeTab === 'digitools' && <DigiToolsTab />}
         {activeTab === 'blinkqr' && <BlinkQRTab />}
-        {activeTab === 'sporen' && <SporenTab />}
+        {activeTab === 'sporen' && <SporenTab focusSchool={focusSchool} />}
         {activeTab === 'activityboards' && <ActivityBoardsTab onFullscreenChange={setIsFullscreen} />}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail

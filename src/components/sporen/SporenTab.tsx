@@ -23,10 +23,12 @@ interface Subject {
   color: string;
 }
 
-export function SporenTab() {
+interface SporenTabProps {
+  focusSchool: School | null;
+}
+
+export function SporenTab({ focusSchool }: SporenTabProps) {
   const { user } = useAuth();
-  const [schools, setSchools] = useState<School[]>([]);
-  const [selectedSchoolId, setSelectedSchoolId] = useState<string>('');
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -35,55 +37,23 @@ export function SporenTab() {
   const [showManagement, setShowManagement] = useState(false);
 
   useEffect(() => {
-    fetchSchools();
-  }, [user]);
-
-  useEffect(() => {
-    if (selectedSchoolId) {
+    if (focusSchool?.id) {
       fetchGroups();
       fetchSubjects();
-    }
-  }, [selectedSchoolId]);
-
-  const fetchSchools = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('user_schools')
-        .select(`
-          schools (
-            id,
-            name
-          )
-        `)
-        .eq('user_id', user.id)
-        .eq('is_active', true)
-        .eq('status', 'approved');
-
-      if (error) throw error;
-
-      const schoolsList = data?.map(us => us.schools).filter(Boolean) as School[];
-      setSchools(schoolsList);
-
-      if (schoolsList.length === 1) {
-        setSelectedSchoolId(schoolsList[0].id);
-      }
-    } catch (error) {
-      console.error('Error fetching schools:', error);
-    } finally {
+      setLoading(false);
+    } else {
       setLoading(false);
     }
-  };
+  }, [focusSchool]);
 
   const fetchGroups = async () => {
-    if (!selectedSchoolId) return;
+    if (!focusSchool?.id) return;
 
     try {
       const { data, error } = await supabase
         .from('groups')
         .select('id, name, grade_level')
-        .eq('school_id', selectedSchoolId)
+        .eq('school_id', focusSchool.id)
         .eq('is_active', true)
         .order('name');
 
@@ -95,15 +65,15 @@ export function SporenTab() {
   };
 
   const fetchSubjects = async () => {
-    if (!selectedSchoolId) return;
+    if (!focusSchool?.id) return;
 
     try {
       const { data, error } = await supabase
         .from('school_subjects')
         .select('id, name, color')
-        .eq('school_id', selectedSchoolId)
+        .eq('school_id', focusSchool.id)
         .eq('is_active', true)
-        .order('name');
+        .order('sort_order');
 
       if (error) throw error;
       setSubjects(data || []);
@@ -123,14 +93,14 @@ export function SporenTab() {
     );
   }
 
-  if (schools.length === 0) {
+  if (!focusSchool) {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
           <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Geen scholen beschikbaar</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Geen school geselecteerd</h2>
           <p className="text-gray-600">
-            Je hebt geen toegang tot scholen. Verbind eerst een school om sporen te beheren.
+            Selecteer een focusschool in het dashboard om sporen te beheren.
           </p>
         </div>
       </div>
@@ -148,7 +118,7 @@ export function SporenTab() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Sporen</h1>
               <p className="text-sm text-gray-600">
-                Organiseer leerlingen in niveaugroepen per vak
+                {focusSchool.name} - Organiseer leerlingen in niveaugroepen per vak
               </p>
             </div>
           </div>
@@ -165,29 +135,7 @@ export function SporenTab() {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              School
-            </label>
-            <select
-              value={selectedSchoolId}
-              onChange={(e) => {
-                setSelectedSchoolId(e.target.value);
-                setSelectedGroupId('');
-                setSelectedSubjectId('');
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Selecteer een school</option>
-              {schools.map((school) => (
-                <option key={school.id} value={school.id}>
-                  {school.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Klas
@@ -195,8 +143,7 @@ export function SporenTab() {
             <select
               value={selectedGroupId}
               onChange={(e) => setSelectedGroupId(e.target.value)}
-              disabled={!selectedSchoolId}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Selecteer een klas</option>
               {groups.map((group) => (
@@ -214,8 +161,7 @@ export function SporenTab() {
             <select
               value={selectedSubjectId}
               onChange={(e) => setSelectedSubjectId(e.target.value)}
-              disabled={!selectedSchoolId}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Selecteer een vak</option>
               {subjects.map((subject) => (
@@ -227,26 +173,26 @@ export function SporenTab() {
           </div>
         </div>
 
-        {showManagement && selectedSchoolId ? (
+        {showManagement ? (
           <div className="mt-6">
-            <SporenManagement schoolId={selectedSchoolId} subjects={subjects} />
+            <SporenManagement schoolId={focusSchool.id} subjects={subjects} />
           </div>
-        ) : selectedSchoolId && selectedGroupId && selectedSubjectId ? (
+        ) : selectedGroupId && selectedSubjectId ? (
           <div className="mt-6">
             <SporenBoardView
-              schoolId={selectedSchoolId}
+              schoolId={focusSchool.id}
               groupId={selectedGroupId}
               subjectId={selectedSubjectId}
               groupName={groups.find(g => g.id === selectedGroupId)?.name || ''}
               subjectName={subjects.find(s => s.id === selectedSubjectId)?.name || ''}
             />
           </div>
-        ) : !showManagement ? (
+        ) : (
           <div className="text-center py-12 text-gray-400">
             <AlertCircle className="w-12 h-12 mx-auto mb-4" />
-            <p>Selecteer een school, klas en vak om te beginnen</p>
+            <p>Selecteer een klas en vak om te beginnen</p>
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   );
