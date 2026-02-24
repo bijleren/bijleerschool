@@ -384,7 +384,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
 
 
     const photoSize = 3 * CM_TO_PX;
-    const photoCenterY = y + topHeight + (0.4 * CM_TO_PX) + (photoSize / 2);
+    const photoCenterY = y + topHeight;
     const photoCenterX = x + width / 2;
     const hexRadius = photoSize / 2;
     const hexCornerRadius = 0.5 * CM_TO_PX;
@@ -413,6 +413,11 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
       }
     }
     ctx.restore();
+
+    drawRoundedHexagon(ctx, photoCenterX, photoCenterY, hexRadius, hexCornerRadius);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 0.15 * CM_TO_PX;
+    ctx.stroke();
 
     const qrSize = 2.7 * CM_TO_PX;
     const qrY = y + height - (1.0 * CM_TO_PX) - qrSize;
