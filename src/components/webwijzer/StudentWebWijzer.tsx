@@ -309,6 +309,8 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
 
   const fetchAssignments = async () => {
     try {
+      console.log('Fetching assignments for student:', studentId);
+
       const { data: directAssignments, error: directError } = await supabase
         .from('webwijzer_assignments')
         .select(`
@@ -335,6 +337,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
         .eq('assignable_id', studentId);
 
       if (directError) throw directError;
+      console.log('Direct assignments:', directAssignments);
 
       const { data: studentGroups, error: groupsError } = await supabase
         .from('student_groups')
@@ -342,8 +345,10 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
         .eq('student_id', studentId);
 
       if (groupsError) throw groupsError;
+      console.log('Student groups:', studentGroups);
 
       const groupIds = studentGroups?.map(sg => sg.group_id) || [];
+      console.log('Group IDs:', groupIds);
 
       let groupAssignments: any[] = [];
       if (groupIds.length > 0) {
@@ -374,9 +379,11 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
 
         if (error) throw error;
         groupAssignments = data || [];
+        console.log('Group assignments:', groupAssignments);
       }
 
       const allAssignments = [...(directAssignments || []), ...groupAssignments];
+      console.log('All assignments combined:', allAssignments);
 
       const contentMap = new Map<string, ContentAssignment>();
       allAssignments.forEach(assignment => {
@@ -392,6 +399,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
       });
 
       const uniqueAssignments = Array.from(contentMap.values());
+      console.log('Unique assignments:', uniqueAssignments);
 
       const activeAssignments = uniqueAssignments.filter(a => {
         if (a.is_archived) return false;
@@ -406,6 +414,9 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
         const hasReachedLimit = a.click_limit && a.clicks_used >= a.click_limit;
         return !isAvailable || hasReachedLimit;
       });
+
+      console.log('Active assignments:', activeAssignments);
+      console.log('Archived assignments:', archived);
 
       setAssignments(activeAssignments);
       setArchivedAssignments(archived);
