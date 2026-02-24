@@ -5,7 +5,6 @@ import { Button } from '../ui/Button';
 import { SpoorNotesModal } from './SpoorNotesModal';
 import { SpoorSelectionModal } from './SpoorSelectionModal';
 import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors, DragStartEvent, DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { DroppableSpoorZone } from './DroppableSpoorZone';
 import { DraggableStudentCard } from './DraggableStudentCard';
 import { Save, X, FileSpreadsheet, StickyNote, AlertCircle } from 'lucide-react';
@@ -49,8 +48,6 @@ interface SporenBoardViewProps {
 }
 
 export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subjectName }: SporenBoardViewProps) {
-  console.log('SporenBoardView render - props:', { schoolId, groupId, subjectId, groupName, subjectName });
-
   const { user } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
   const [sporen, setSporen] = useState<Spoor[]>([]);
@@ -96,29 +93,21 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
   };
 
   const fetchStudents = async () => {
-    console.log('SporenBoardView - fetchStudents called with groupId:', groupId);
-
-    // First get student IDs from the group
     const { data: groupData, error: groupError } = await supabase
       .from('student_groups')
       .select('student_id')
       .eq('group_id', groupId)
       .eq('is_active', true);
 
-    console.log('SporenBoardView - student_groups query result:', { groupData, groupError });
-
     if (groupError) throw groupError;
 
     const studentIds = groupData?.map(sg => sg.student_id) || [];
-    console.log('SporenBoardView - studentIds:', studentIds);
 
     if (studentIds.length === 0) {
-      console.log('SporenBoardView - No students found in group');
       setStudents([]);
       return;
     }
 
-    // Then fetch the full student data
     const { data, error } = await supabase
       .from('students')
       .select('id, first_name, last_name, student_number, profile_picture_url, color, symbol_url')
@@ -126,11 +115,8 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
       .eq('is_active', true)
       .order('first_name');
 
-    console.log('SporenBoardView - students query result:', { data, error });
-
     if (error) throw error;
     setStudents(data || []);
-    console.log('SporenBoardView - Students set to state:', data?.length);
   };
 
   const fetchSporen = async () => {
@@ -255,30 +241,14 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
 
   const getStudentsForSpoor = (spoorId: string | null) => {
     if (spoorId === null) {
-      // For unassigned section, show students that don't have any assignment
       const assignedStudentIds = assignments.map(a => a.student_id);
-      const unassignedStudents = students.filter(s => !assignedStudentIds.includes(s.id));
-      console.log(`SporenBoardView - getStudentsForSpoor(null):`, {
-        totalStudents: students.length,
-        totalAssignments: assignments.length,
-        assignedStudentIds,
-        unassignedStudents: unassignedStudents.length
-      });
-      return unassignedStudents;
+      return students.filter(s => !assignedStudentIds.includes(s.id));
     }
 
-    // For specific spoor, show students assigned to it
     const assignedStudentIds = assignments
       .filter(a => a.spoor_id === spoorId)
       .map(a => a.student_id);
-    const studentsForSpoor = students.filter(s => assignedStudentIds.includes(s.id));
-    console.log(`SporenBoardView - getStudentsForSpoor(${spoorId}):`, {
-      totalStudents: students.length,
-      totalAssignments: assignments.length,
-      assignedStudentIds,
-      studentsForSpoor: studentsForSpoor.length
-    });
-    return studentsForSpoor;
+    return students.filter(s => assignedStudentIds.includes(s.id));
   };
 
   const activeStudent = students.find(s => s.id === activeId);

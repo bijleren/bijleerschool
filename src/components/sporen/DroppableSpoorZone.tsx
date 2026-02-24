@@ -1,6 +1,5 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
-import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { DraggableStudentCard } from './DraggableStudentCard';
 import { StickyNote, AlertCircle } from 'lucide-react';
 import * as Icons from 'lucide-react';
@@ -86,29 +85,24 @@ export function DroppableSpoorZone({
         )}
       </div>
 
-      <SortableContext items={students.map(s => s.id)} strategy={rectSortingStrategy}>
-        <div className="p-4">
-          {students.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <p className="text-sm">Sleep leerlingen hierheen</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              {students.map((student) => {
-                console.log('DroppableSpoorZone - rendering student:', student);
-                return (
-                  <DraggableStudentCard
-                    key={student.id}
-                    student={student}
-                    isDragging={false}
-                    onClick={onStudentClick ? () => onStudentClick(student.id) : undefined}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </SortableContext>
+      <div className="p-4">
+        {students.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <p className="text-sm">Sleep leerlingen hierheen</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {students.map((student) => (
+              <DraggableStudentCard
+                key={student.id}
+                student={student}
+                isDragging={false}
+                onClick={onStudentClick ? () => onStudentClick(student.id) : undefined}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
