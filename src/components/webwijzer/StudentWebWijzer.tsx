@@ -509,6 +509,11 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
       return new Date(b.webwijzer_content.id).getTime() - new Date(a.webwijzer_content.id).getTime();
     });
 
+  const timeoutModalRef = useFocusTrap(showTimeoutWarning);
+  const pushModalRef = useFocusTrap(showPushModal);
+  const archiveModalRef = useFocusTrap(showArchive);
+  const deactivationModalRef = useFocusTrap(showDeactivationNotice);
+
   if (selectedContent) {
     return (
       <WebWijzerContentViewer
@@ -517,11 +522,6 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
       />
     );
   }
-
-  const timeoutModalRef = useFocusTrap(showTimeoutWarning);
-  const pushModalRef = useFocusTrap(showPushModal);
-  const archiveModalRef = useFocusTrap(showArchive);
-  const deactivationModalRef = useFocusTrap(showDeactivationNotice);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4">
