@@ -384,7 +384,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
 
 
     const photoSize = 3 * CM_TO_PX;
-    const photoCenterY = y + height - (7 * CM_TO_PX);
+    const photoCenterY = y + topHeight + (0.7 * CM_TO_PX) + (photoSize / 2);
     const photoCenterX = x + width / 2;
     const hexRadius = photoSize / 2;
     const hexCornerRadius = 0.5 * CM_TO_PX;
