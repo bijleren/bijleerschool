@@ -115,12 +115,22 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
     try {
       const { data: student, error: studentError } = await supabase
         .from('students')
-        .select('id, group_id')
+        .select('id')
         .eq('id', studentId)
         .maybeSingle();
 
       if (studentError) throw studentError;
       if (!student) return;
+
+      const { data: studentGroups, error: groupsError } = await supabase
+        .from('student_groups')
+        .select('group_id')
+        .eq('student_id', studentId)
+        .eq('is_active', true);
+
+      if (groupsError) throw groupsError;
+
+      const studentGroupIds = studentGroups?.map(sg => sg.group_id) || [];
 
       const { data: currentSession, error: sessionError } = await supabase
         .from('activity_sessions')
@@ -154,9 +164,9 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
       if (boardsError) throw boardsError;
 
       const accessibleBoards = (boards || []).filter(board => {
-        const hasGroupAccess = student.group_id &&
+        const hasGroupAccess = studentGroupIds.length > 0 &&
           board.student_group_ids &&
-          board.student_group_ids.includes(student.group_id);
+          board.student_group_ids.some(groupId => studentGroupIds.includes(groupId));
 
         const hasDirectAccess = board.student_ids &&
           board.student_ids.includes(studentId);
