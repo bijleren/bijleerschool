@@ -167,19 +167,22 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
       if (!ctx) return;
 
       const selectedStudentsList = students.filter(s => selectedStudents.has(s.id));
-      const totalPages = Math.ceil(selectedStudentsList.length / 9);
+      const CARDS_PER_PAGE = 10;
+      const totalPages = Math.ceil(selectedStudentsList.length / CARDS_PER_PAGE);
 
       const SCALE = 3;
       const A4_WIDTH_PX = 793.7 * SCALE;
       const A4_HEIGHT_PX = 1122.5 * SCALE;
-      const CARD_WIDTH_CM = 5.2;
-      const CARD_HEIGHT_CM = 9;
+      const CARD_WIDTH_CM = 8.5;
+      const CARD_HEIGHT_CM = 5.4;
       const CM_TO_PX = 37.795 * SCALE;
       const CARD_WIDTH = CARD_WIDTH_CM * CM_TO_PX;
       const CARD_HEIGHT = CARD_HEIGHT_CM * CM_TO_PX;
 
-      const CELL_WIDTH = A4_WIDTH_PX / 3;
-      const CELL_HEIGHT = A4_HEIGHT_PX / 3;
+      const COLS = 2;
+      const ROWS = 5;
+      const CELL_WIDTH = A4_WIDTH_PX / COLS;
+      const CELL_HEIGHT = A4_HEIGHT_PX / ROWS;
 
       canvas.width = A4_WIDTH_PX;
       canvas.height = A4_HEIGHT_PX * totalPages;
@@ -189,10 +192,10 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
 
       for (let i = 0; i < selectedStudentsList.length; i++) {
         const student = selectedStudentsList[i];
-        const page = Math.floor(i / 9);
-        const cardIndex = i % 9;
-        const row = Math.floor(cardIndex / 3);
-        const col = cardIndex % 3;
+        const page = Math.floor(i / CARDS_PER_PAGE);
+        const cardIndex = i % CARDS_PER_PAGE;
+        const row = Math.floor(cardIndex / COLS);
+        const col = cardIndex % COLS;
 
         const cellX = col * CELL_WIDTH;
         const cellY = (page * A4_HEIGHT_PX) + (row * CELL_HEIGHT);
@@ -319,70 +322,36 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
   ) => {
     const color = student.color || '#6B7280';
     const CM_TO_PX = 37.795 * 3;
-    const radius = 0.5 * CM_TO_PX;
+    const BLEED_MM = 0.3 * CM_TO_PX;
+    const radius = 0.2 * CM_TO_PX;
+
+    ctx.fillStyle = color;
+    roundRect(ctx, x - BLEED_MM, y - BLEED_MM, width + (BLEED_MM * 2), height + (BLEED_MM * 2), radius);
+    ctx.fill();
 
     ctx.fillStyle = 'white';
     roundRect(ctx, x, y, width, height, radius);
     ctx.fill();
 
-    const topHeight = 2 * CM_TO_PX;
+    const leftWidth = height;
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + topHeight);
-    ctx.lineTo(x, y + topHeight);
+    ctx.lineTo(x + leftWidth, y);
+    ctx.lineTo(x + leftWidth, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
     ctx.lineTo(x, y + radius);
     ctx.quadraticCurveTo(x, y, x + radius, y);
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    let headerFontSize = 4 * CM_TO_PX / 10;
-    ctx.font = `800 ${headerFontSize}px "Fira Sans", sans-serif`;
-    let headerWidth = ctx.measureText('bijleren.school').width;
-    while (headerWidth > width - (0.4 * CM_TO_PX) && headerFontSize > (2 * CM_TO_PX / 10)) {
-      headerFontSize -= 0.5;
-      ctx.font = `800 ${headerFontSize}px "Fira Sans", sans-serif`;
-      headerWidth = ctx.measureText('bijleren.school').width;
-    }
-    ctx.fillText('bijleren.school', x + width / 2, y + 0.35 * CM_TO_PX);
 
-    const bottomHeight = 0.8 * CM_TO_PX;
-    const bottomY = y + height - bottomHeight;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(x, bottomY);
-    ctx.lineTo(x + width, bottomY);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, bottomY);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = 'white';
-    let footerFontSize = 5 * CM_TO_PX / 10;
-    ctx.font = `800 ${footerFontSize}px "Fira Sans", sans-serif`;
-    const studentCode = student.student_code || '';
-    let footerWidth = ctx.measureText(studentCode).width;
-    while (footerWidth > width - (0.4 * CM_TO_PX) && footerFontSize > (2 * CM_TO_PX / 10)) {
-      footerFontSize -= 0.5;
-      ctx.font = `800 ${footerFontSize}px "Fira Sans", sans-serif`;
-      footerWidth = ctx.measureText(studentCode).width;
-    }
-    ctx.fillText(studentCode, x + width / 2, y + height - (bottomHeight / 2));
-
-
-    const photoSize = 3 * CM_TO_PX;
-    const photoCenterY = y + height - (7 * CM_TO_PX);
-    const photoCenterX = x + width / 2;
+    const photoSize = 3.5 * CM_TO_PX;
+    const photoCenterY = y + height / 2;
+    const photoCenterX = x + (leftWidth / 2);
     const hexRadius = photoSize / 2;
-    const hexCornerRadius = 0.5 * CM_TO_PX;
+    const hexCornerRadius = 0.3 * CM_TO_PX;
 
     ctx.save();
     drawRoundedHexagon(ctx, photoCenterX, photoCenterY, hexRadius, hexCornerRadius);
@@ -409,9 +378,9 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     }
     ctx.restore();
 
-    const qrSize = 2.7 * CM_TO_PX;
-    const qrY = y + height - (1.0 * CM_TO_PX) - qrSize;
-    const qrX = x + (width - qrSize) / 2;
+    const qrSize = 3.5 * CM_TO_PX;
+    const qrY = y + (height - qrSize) / 2;
+    const qrX = x + width - qrSize - (0.8 * CM_TO_PX);
     const qrDataUrl = await generateQRCode(student);
     const qrImg = new Image();
     await new Promise((resolve) => {
@@ -420,34 +389,54 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     });
     ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
 
-    const lastNameY = y + height - (4.0 * CM_TO_PX);
+    const centerX = x + leftWidth + ((width - leftWidth - qrSize - (0.8 * CM_TO_PX)) / 2);
+    const availableWidth = width - leftWidth - qrSize - (1.6 * CM_TO_PX);
+
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    let lastNameFontSize = 5 * CM_TO_PX / 10;
-    ctx.font = `${lastNameFontSize}px "Noteworthy", "Comic Sans MS", cursive`;
-    let lastNameWidth = ctx.measureText(student.last_name).width;
-    while (lastNameWidth > width - (0.4 * CM_TO_PX) && lastNameFontSize > (2 * CM_TO_PX / 10)) {
-      lastNameFontSize -= 0.5;
-      ctx.font = `${lastNameFontSize}px "Noteworthy", "Comic Sans MS", cursive`;
-      lastNameWidth = ctx.measureText(student.last_name).width;
-    }
-    ctx.fillText(student.last_name, x + width / 2, lastNameY);
 
-    const firstNameY = y + height / 2 - (0.4 * CM_TO_PX);
-    let firstNameFontSize = 8.5 * CM_TO_PX / 10;
+    let firstNameFontSize = 9 * CM_TO_PX / 10;
     ctx.font = `${firstNameFontSize}px "Noteworthy", "Comic Sans MS", cursive`;
     let firstNameWidth = ctx.measureText(student.first_name).width;
-    while (firstNameWidth > width - (0.4 * CM_TO_PX) && firstNameFontSize > (4 * CM_TO_PX / 10)) {
+    while (firstNameWidth > availableWidth && firstNameFontSize > (4 * CM_TO_PX / 10)) {
       firstNameFontSize -= 0.5;
       ctx.font = `${firstNameFontSize}px "Noteworthy", "Comic Sans MS", cursive`;
       firstNameWidth = ctx.measureText(student.first_name).width;
     }
-    ctx.fillText(student.first_name, x + width / 2, firstNameY);
+    const firstNameY = y + height / 2 - (0.6 * CM_TO_PX);
+    ctx.fillText(student.first_name, centerX, firstNameY);
+
+    let lastNameFontSize = 6 * CM_TO_PX / 10;
+    ctx.font = `${lastNameFontSize}px "Noteworthy", "Comic Sans MS", cursive`;
+    let lastNameWidth = ctx.measureText(student.last_name).width;
+    while (lastNameWidth > availableWidth && lastNameFontSize > (2 * CM_TO_PX / 10)) {
+      lastNameFontSize -= 0.5;
+      ctx.font = `${lastNameFontSize}px "Noteworthy", "Comic Sans MS", cursive`;
+      lastNameWidth = ctx.measureText(student.last_name).width;
+    }
+    const lastNameY = y + height / 2 + (0.6 * CM_TO_PX);
+    ctx.fillText(student.last_name, centerX, lastNameY);
+
+    ctx.fillStyle = '#666666';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    let brandingFontSize = 3.5 * CM_TO_PX / 10;
+    ctx.font = `800 ${brandingFontSize}px "Fira Sans", sans-serif`;
+    ctx.fillText('bijleren.school', centerX, y + 0.3 * CM_TO_PX);
+
+    if (student.student_code) {
+      ctx.fillStyle = '#666666';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      let codeFontSize = 3.5 * CM_TO_PX / 10;
+      ctx.font = `700 ${codeFontSize}px "Fira Sans", sans-serif`;
+      ctx.fillText(student.student_code, centerX, y + height - (0.3 * CM_TO_PX));
+    }
 
     if (student.symbol_url) {
       try {
-        const symbolSize = 1 * CM_TO_PX;
+        const symbolSize = 1.2 * CM_TO_PX;
         const symbolImg = new Image();
         symbolImg.crossOrigin = 'anonymous';
         await new Promise((resolve, reject) => {
@@ -456,12 +445,12 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
           symbolImg.src = student.symbol_url!;
         });
 
-        const symbolX = photoCenterX + hexRadius - (0.1 * CM_TO_PX);
-        const symbolY = photoCenterY - (symbolSize / 2);
+        const symbolX = photoCenterX + hexRadius - (0.2 * CM_TO_PX);
+        const symbolY = photoCenterY - hexRadius + (0.2 * CM_TO_PX);
 
         ctx.save();
         ctx.beginPath();
-        ctx.arc(symbolX + symbolSize / 2, symbolY + symbolSize / 2, symbolSize / 2, 0, Math.PI * 2);
+        ctx.arc(symbolX + symbolSize / 2, symbolY + symbolSize / 2, (symbolSize / 2) + (0.1 * CM_TO_PX), 0, Math.PI * 2);
         ctx.fillStyle = 'white';
         ctx.fill();
         ctx.closePath();
@@ -473,10 +462,12 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
       }
     }
 
-    ctx.strokeStyle = '#D1D5DB';
-    ctx.lineWidth = 6;
+    ctx.setLineDash([10, 5]);
+    ctx.strokeStyle = '#999999';
+    ctx.lineWidth = 2;
     roundRect(ctx, x, y, width, height, radius);
     ctx.stroke();
+    ctx.setLineDash([]);
   };
 
   if (!focusSchool) {
@@ -507,7 +498,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">QR-kaarten Generator</h2>
-            <p className="text-gray-600 mt-1">Selecteer leerlingen om QR-kaarten te genereren (3x3 per pagina)</p>
+            <p className="text-gray-600 mt-1">Selecteer leerlingen om QR-kaarten te genereren (10 kaarten per A4)</p>
             <p className="text-sm text-gray-500 mt-1">School: {focusSchool.name}</p>
           </div>
           <button
@@ -599,7 +590,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
             {selectedStudents.size} leerling{selectedStudents.size !== 1 ? 'en' : ''} geselecteerd
             {selectedStudents.size > 0 && (
               <span className="ml-2 text-gray-500">
-                ({Math.ceil(selectedStudents.size / 9)} pagina{Math.ceil(selectedStudents.size / 9) !== 1 ? "'s" : ''})
+                ({Math.ceil(selectedStudents.size / 10)} pagina{Math.ceil(selectedStudents.size / 10) !== 1 ? "'s" : ''})
               </span>
             )}
           </p>
