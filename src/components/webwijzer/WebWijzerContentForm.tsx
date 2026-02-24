@@ -18,9 +18,15 @@ interface WebWijzerContent {
   color: string;
 }
 
+interface School {
+  id: string;
+  name: string;
+}
+
 interface WebWijzerContentFormProps {
   content: WebWijzerContent | null;
   onClose: () => void;
+  focusSchool: School | null;
 }
 
 interface Student {
@@ -67,7 +73,7 @@ const PRESET_COLORS = [
   '#EC4899', '#DB2777', '#BE185D', // Pinks
 ];
 
-export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormProps) {
+export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijzerContentFormProps) {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: content?.title || '',
@@ -104,14 +110,14 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
   const [uploadingFile, setUploadingFile] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && focusSchool) {
       if (content) {
         fetchAssignedStudents();
       } else {
         fetchStudentsAndGroups();
       }
     }
-  }, [user, content]);
+  }, [user, focusSchool, content]);
 
   const fetchAssignedStudents = async () => {
     if (!user || !content) return;
@@ -161,29 +167,20 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
   };
 
   const fetchStudentsAndGroups = async () => {
-    if (!user) return;
+    if (!user || !focusSchool) return;
 
     try {
-      const { data: userSchools } = await supabase
-        .from('user_schools')
-        .select('school_id')
-        .eq('user_id', user.id)
-        .eq('is_active', true)
-        .eq('status', 'approved');
-
-      const schoolIds = userSchools?.map(us => us.school_id) || [];
-
       const [studentsData, groupsData] = await Promise.all([
         supabase
           .from('students')
           .select('id, first_name, last_name, student_number, grade_level')
-          .in('school_id', schoolIds)
+          .eq('school_id', focusSchool.id)
           .eq('is_active', true)
           .order('first_name'),
         supabase
           .from('groups')
           .select('id, name, grade_level')
-          .in('school_id', schoolIds)
+          .eq('school_id', focusSchool.id)
           .eq('is_active', true)
           .order('name'),
       ]);
@@ -211,7 +208,7 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !focusSchool) return;
 
     if (formData.content_type === 'file' && !selectedFile && !content?.content_url) {
       setMessage({ type: 'error', text: 'Selecteer een bestand om te uploaden.' });
@@ -227,19 +224,6 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
       if (formData.content_type === 'file' && selectedFile) {
         setUploadingFile(true);
 
-        const { data: userSchools } = await supabase
-          .from('user_schools')
-          .select('school_id')
-          .eq('user_id', user.id)
-          .eq('is_active', true)
-          .eq('status', 'approved')
-          .limit(1)
-          .single();
-
-        if (!userSchools?.school_id) {
-          throw new Error('Je hebt geen actieve school. Neem contact op met je schoolbeheerder.');
-        }
-
         if (content?.content_url) {
           try {
             const oldUrl = new URL(content.content_url);
@@ -249,7 +233,7 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
                 .from('webwijzer-files')
                 .remove([oldPath]);
 
-              await trackFileDelete(userSchools.school_id, oldPath);
+              await trackFileDelete(focusSchool.id, oldPath);
             }
           } catch (error) {
             console.error('Error removing old file:', error);
@@ -258,7 +242,7 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
 
         const fileExt = selectedFile.name.split('.').pop();
         const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `${userSchools.school_id}/${fileName}`;
+        const filePath = `${focusSchool.id}/${fileName}`;
 
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('webwijzer-files')
@@ -286,7 +270,7 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
         const adjustedFileSize = selectedFile.size * (totalStudents / 2);
 
         await trackFileUpload(
-          userSchools.school_id,
+          focusSchool.id,
           'other',
           filePath,
           adjustedFileSize,
@@ -320,6 +304,7 @@ export function WebWijzerContentForm({ content, onClose }: WebWijzerContentFormP
             ...formData,
             content_url: fileUrl,
             user_id: user.id,
+            school_id: focusSchool.id,
             has_date_limit: hasDateLimit,
             available_from: hasDateLimit && dateFrom ? new Date(dateFrom).toISOString() : null,
             available_until: hasDateLimit && dateUntil ? new Date(dateUntil).toISOString() : null,

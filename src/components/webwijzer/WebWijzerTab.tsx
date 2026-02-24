@@ -58,11 +58,11 @@ export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
   const [showStudentManager, setShowStudentManager] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && focusSchool) {
       fetchContents();
       fetchStudents();
     }
-  }, [user]);
+  }, [user, focusSchool]);
 
   useEffect(() => {
     const handleCreate = () => setShowForm(true);
@@ -86,20 +86,13 @@ export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
   }, [selectedStudent, allContents]);
 
   const fetchStudents = async () => {
-    if (!user) return;
+    if (!user || !focusSchool) return;
 
     try {
-      const { data: userSchools } = await supabase
-        .from('user_schools')
-        .select('school_id')
-        .eq('user_id', user.id);
-
-      const schoolIds = userSchools?.map(us => us.school_id) || [];
-
       const { data, error } = await supabase
         .from('students')
         .select('id, first_name, last_name, student_number')
-        .in('school_id', schoolIds)
+        .eq('school_id', focusSchool.id)
         .eq('is_active', true)
         .order('first_name');
 
@@ -152,31 +145,17 @@ export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
   };
 
   const fetchContents = async () => {
-    if (!user) return;
+    if (!user || !focusSchool) return;
 
     setLoading(true);
     try {
-      const { data: userSchools } = await supabase
-        .from('user_schools')
-        .select('school_id')
-        .eq('user_id', user.id);
-
-      const schoolIds = userSchools?.map(us => us.school_id) || [];
-
       let query = supabase
         .from('webwijzer_content')
-        .select('*');
+        .select('*')
+        .eq('school_id', focusSchool.id);
 
       if (showOnlyMyContent) {
         query = query.eq('user_id', user.id);
-      } else if (schoolIds.length > 0) {
-        const { data: schoolUsers } = await supabase
-          .from('user_schools')
-          .select('user_id')
-          .in('school_id', schoolIds);
-
-        const userIds = schoolUsers?.map(su => su.user_id) || [];
-        query = query.in('user_id', userIds);
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
@@ -281,6 +260,7 @@ export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
       <WebWijzerContentForm
         content={editingContent}
         onClose={handleFormClose}
+        focusSchool={focusSchool}
       />
     );
   }
