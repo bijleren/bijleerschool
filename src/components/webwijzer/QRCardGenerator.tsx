@@ -320,7 +320,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     const color = student.color || '#6B7280';
     const CM_TO_PX = 37.795 * 3;
     const BLEED_MM = 0.3 * CM_TO_PX;
-    const radius = 0.2 * CM_TO_PX;
+    const radius = 0.25 * CM_TO_PX;
 
     ctx.fillStyle = color;
     roundRect(ctx, x - BLEED_MM, y - BLEED_MM, width + (BLEED_MM * 2), height + (BLEED_MM * 2), radius);
@@ -384,7 +384,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
 
 
     const photoSize = 3 * CM_TO_PX;
-    const photoCenterY = y + topHeight + (0.7 * CM_TO_PX) + (photoSize / 2);
+    const photoCenterY = y + topHeight + (0.4 * CM_TO_PX) + (photoSize / 2);
     const photoCenterX = x + width / 2;
     const hexRadius = photoSize / 2;
     const hexCornerRadius = 0.5 * CM_TO_PX;
@@ -479,7 +479,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
     }
 
     ctx.setLineDash([10, 5]);
-    ctx.strokeStyle = '#999999';
+    ctx.strokeStyle = 'white';
     ctx.lineWidth = 2;
     roundRect(ctx, x, y, width, height, radius);
     ctx.stroke();
