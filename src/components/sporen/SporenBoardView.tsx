@@ -4,11 +4,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 import { SpoorNotesModal } from './SpoorNotesModal';
 import { SpoorSelectionModal } from './SpoorSelectionModal';
+import { StudentSpoorDetailsModal } from './StudentSpoorDetailsModal';
 import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors, DragStartEvent, DragEndEvent } from '@dnd-kit/core';
 import { DroppableSpoorZone } from './DroppableSpoorZone';
 import { DraggableStudentCard } from './DraggableStudentCard';
-import { Save, X, FileSpreadsheet, StickyNote, AlertCircle } from 'lucide-react';
+import { Save, X, Download, Maximize2, Minimize2, AlertCircle } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
 
 interface Student {
   id: string;
@@ -34,6 +36,15 @@ interface Assignment {
   spoor_id: string | null;
 }
 
+interface StudentDetail {
+  student_id: string;
+  needs_attention: boolean;
+  begeleiding_klas?: string;
+  begeleiding_thuis?: string;
+  evaluatie?: string;
+  team_member_id?: string | null;
+}
+
 interface Note {
   spoor_id: string;
   notes_text: string;
@@ -53,6 +64,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
   const [sporen, setSporen] = useState<Spoor[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [originalAssignments, setOriginalAssignments] = useState<Assignment[]>([]);
+  const [studentDetails, setStudentDetails] = useState<StudentDetail[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -60,7 +72,9 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [selectedSpoorId, setSelectedSpoorId] = useState<string | null>(null);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [expandedAll, setExpandedAll] = useState(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -83,6 +97,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
         fetchStudents(),
         fetchSporen(),
         fetchAssignments(),
+        fetchStudentDetails(),
         fetchNotes()
       ]);
     } catch (error) {
@@ -153,6 +168,18 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
     const assignmentsList = data || [];
     setAssignments(assignmentsList);
     setOriginalAssignments(JSON.parse(JSON.stringify(assignmentsList)));
+  };
+
+  const fetchStudentDetails = async () => {
+    const { data, error } = await supabase
+      .from('student_spoor_assignments')
+      .select('student_id, needs_attention, begeleiding_klas, begeleiding_thuis, evaluatie, team_member_id')
+      .eq('group_id', groupId)
+      .eq('school_subject_id', subjectId)
+      .eq('is_current', true);
+
+    if (error) throw error;
+    setStudentDetails(data || []);
   };
 
   const fetchNotes = async () => {
@@ -256,12 +283,17 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
   const handleExportToExcel = () => {
     const exportData = students.map(student => {
       const assignment = assignments.find(a => a.student_id === student.id);
+      const detail = studentDetails.find(d => d.student_id === student.id);
       const spoor = assignment?.spoor_id ? sporen.find(s => s.id === assignment.spoor_id) : null;
       return {
         'Leerlingnummer': student.student_number || '',
         'Voornaam': student.first_name,
         'Achternaam': student.last_name,
         'Spoor': spoor?.name || 'Niet toegewezen',
+        'Aandacht nodig': detail?.needs_attention ? 'Ja' : 'Nee',
+        'Begeleiding klas': detail?.begeleiding_klas || '',
+        'Begeleiding thuis': detail?.begeleiding_thuis || '',
+        'Evaluatie': detail?.evaluatie || ''
       };
     });
 
@@ -286,6 +318,91 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
     XLSX.writeFile(wb, `Sporen_${groupName}_${subjectName}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
+  const handleExportToPDF = () => {
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 10;
+    const contentWidth = pageWidth - (margin * 2);
+    let yPosition = margin;
+
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(`Sporen Overzicht - ${groupName} - ${subjectName}`, margin, yPosition);
+    yPosition += 10;
+
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Geëxporteerd op: ${new Date().toLocaleDateString('nl-NL')}`, margin, yPosition);
+    yPosition += 10;
+
+    sporen.forEach((spoor) => {
+      const spoorStudents = getStudentsForSpoor(spoor.id);
+      if (spoorStudents.length === 0) return;
+
+      if (yPosition > 180) {
+        pdf.addPage();
+        yPosition = margin;
+      }
+
+      pdf.setFillColor(parseInt(spoor.color.slice(1, 3), 16), parseInt(spoor.color.slice(3, 5), 16), parseInt(spoor.color.slice(5, 7), 16));
+      pdf.rect(margin, yPosition, contentWidth, 8, 'F');
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(spoor.name, margin + 2, yPosition + 5.5);
+      yPosition += 10;
+
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Naam', margin, yPosition);
+      pdf.text('Klas', margin + 50, yPosition);
+      pdf.text('Thuis', margin + 100, yPosition);
+      pdf.text('Evaluatie', margin + 150, yPosition);
+      yPosition += 5;
+
+      pdf.setFont('helvetica', 'normal');
+      spoorStudents.forEach((student) => {
+        const detail = studentDetails.find(d => d.student_id === student.id);
+
+        if (yPosition > 185) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+
+        const studentName = `${student.first_name} ${student.last_name}`;
+        const klas = detail?.begeleiding_klas || '-';
+        const thuis = detail?.begeleiding_thuis || '-';
+        const eval_text = detail?.evaluatie || '-';
+
+        pdf.text(studentName.substring(0, 30), margin, yPosition);
+        const klasLines = pdf.splitTextToSize(klas.substring(0, 100), 45);
+        pdf.text(klasLines[0] || '-', margin + 50, yPosition);
+        const thuisLines = pdf.splitTextToSize(thuis.substring(0, 100), 45);
+        pdf.text(thuisLines[0] || '-', margin + 100, yPosition);
+        const evalLines = pdf.splitTextToSize(eval_text.substring(0, 100), 45);
+        pdf.text(evalLines[0] || '-', margin + 150, yPosition);
+
+        if (detail?.needs_attention) {
+          pdf.setFillColor(239, 68, 68);
+          pdf.circle(margin + 45, yPosition - 1.5, 1.5, 'F');
+        }
+
+        yPosition += 5;
+      });
+
+      yPosition += 5;
+    });
+
+    pdf.save(`Sporen_${groupName}_${subjectName}_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   const handleOpenNotes = (spoorId: string) => {
     setSelectedSpoorId(spoorId);
     setShowNotesModal(true);
@@ -306,7 +423,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
     const student = students.find(s => s.id === studentId);
     if (student) {
       setSelectedStudent(student);
-      setShowSelectionModal(true);
+      setShowDetailsModal(true);
     }
   };
 
@@ -371,11 +488,33 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
         </div>
       )}
 
-      <div className="mb-4 flex justify-end">
-        <Button variant="secondary" onClick={handleExportToExcel}>
-          <FileSpreadsheet className="w-4 h-4 mr-2" />
-          Exporteer naar Excel
+      <div className="mb-4 flex justify-between items-center">
+        <Button
+          variant="secondary"
+          onClick={() => setExpandedAll(!expandedAll)}
+        >
+          {expandedAll ? (
+            <>
+              <Minimize2 className="w-4 h-4 mr-2" />
+              Alles inklappen
+            </>
+          ) : (
+            <>
+              <Maximize2 className="w-4 h-4 mr-2" />
+              Alles uitklappen
+            </>
+          )}
         </Button>
+        <div className="flex space-x-2">
+          <Button variant="secondary" onClick={handleExportToExcel}>
+            <Download className="w-4 h-4 mr-2" />
+            Excel
+          </Button>
+          <Button variant="secondary" onClick={handleExportToPDF}>
+            <Download className="w-4 h-4 mr-2" />
+            PDF
+          </Button>
+        </div>
       </div>
 
       <DndContext
@@ -389,11 +528,13 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
             id="unassigned"
             title="Niet toegewezen"
             students={getStudentsForSpoor(null)}
+            studentDetails={studentDetails}
             color="#6b7280"
             showNotes={false}
             onOpenNotes={() => {}}
             hasNotes={false}
             onStudentClick={handleStudentClick}
+            isExpanded={expandedAll}
           />
 
           {sporen.map(spoor => {
@@ -404,6 +545,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
                 id={spoor.id}
                 title={spoor.name}
                 students={getStudentsForSpoor(spoor.id)}
+                studentDetails={studentDetails}
                 color={spoor.color}
                 icon={spoor.icon}
                 customIconUrl={spoor.custom_icon_url}
@@ -411,6 +553,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
                 onOpenNotes={() => handleOpenNotes(spoor.id)}
                 hasNotes={!!spoorNotes?.notes_text}
                 onStudentClick={handleStudentClick}
+                isExpanded={expandedAll}
               />
             );
           })}
@@ -441,15 +584,19 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
         />
       )}
 
-      {showSelectionModal && selectedStudent && (
-        <SpoorSelectionModal
+      {showDetailsModal && selectedStudent && (
+        <StudentSpoorDetailsModal
           student={selectedStudent}
+          groupId={groupId}
+          subjectId={subjectId}
           sporen={sporen}
           currentSpoorId={assignments.find(a => a.student_id === selectedStudent.id)?.spoor_id || null}
-          onSelect={handleSpoorSelection}
           onClose={() => {
-            setShowSelectionModal(false);
+            setShowDetailsModal(false);
             setSelectedStudent(null);
+          }}
+          onSave={() => {
+            fetchData();
           }}
         />
       )}
