@@ -18,6 +18,7 @@ import { DigiToolsTab } from '../digitools/DigiToolsTab';
 import { ZoekerTab } from '../zoeker/ZoekerTab';
 import { BlinkQRTab } from '../blinkqr/BlinkQRTab';
 import { SporenTab } from '../sporen/SporenTab';
+import { LeescoachTab } from '../leescoach/LeescoachTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
@@ -58,7 +59,7 @@ export function Dashboard() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr' | 'sporen'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr' | 'sporen' | 'leescoach'>('dashboard');
   const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -84,7 +85,7 @@ export function Dashboard() {
     const studentIdParam = queryParams.get('studentId');
 
     if (tabParam) {
-      const validTabs = ['dashboard', 'profile', 'schools', 'behavior', 'teaching', 'schoolday', 'webwijzer', 'activityboards', 'boeker', 'zoeker', 'edi', 'digitools', 'newsletter', 'blinkqr', 'sporen'];
+      const validTabs = ['dashboard', 'profile', 'schools', 'behavior', 'teaching', 'schoolday', 'webwijzer', 'activityboards', 'boeker', 'zoeker', 'edi', 'digitools', 'newsletter', 'blinkqr', 'sporen', 'leescoach'];
       if (validTabs.includes(tabParam)) {
         setActiveTab(tabParam as typeof activeTab);
 
@@ -333,6 +334,13 @@ export function Dashboard() {
     setSelectedStudent(null);
     setSelectedGroup(null);
     setActiveTab('boeker');
+  };
+
+  const handleNavigateToLeescoach = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('leescoach');
   };
 
   const handleNavigateToZoeker = () => {
@@ -699,6 +707,7 @@ export function Dashboard() {
         onNavigateToWebWijzer={handleNavigateToWebWijzer}
         onNavigateToActivityBoards={handleNavigateToActivityBoards}
         onNavigateToBoeker={handleNavigateToBoeker}
+        onNavigateToLeescoach={handleNavigateToLeescoach}
         onNavigateToZoeker={handleNavigateToZoeker}
         onNavigateToEDI={handleNavigateToEDI}
         onNavigateToDigiTools={handleNavigateToDigiTools}
@@ -751,6 +760,7 @@ export function Dashboard() {
         {activeTab === 'digitools' && <DigiToolsTab />}
         {activeTab === 'blinkqr' && <BlinkQRTab />}
         {activeTab === 'sporen' && <SporenTab focusSchool={focusSchool} />}
+        {activeTab === 'leescoach' && <LeescoachTab focusSchool={focusSchool} />}
         {activeTab === 'activityboards' && <ActivityBoardsTab onFullscreenChange={setIsFullscreen} />}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail
