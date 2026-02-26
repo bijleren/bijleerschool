@@ -39,10 +39,6 @@ interface Assignment {
 interface StudentDetail {
   student_id: string;
   needs_attention: boolean;
-  begeleiding_klas?: string;
-  begeleiding_thuis?: string;
-  evaluatie?: string;
-  team_member_id?: string | null;
 }
 
 interface Note {
@@ -173,7 +169,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
   const fetchStudentDetails = async () => {
     const { data, error } = await supabase
       .from('student_spoor_assignments')
-      .select('student_id, needs_attention, begeleiding_klas, begeleiding_thuis, evaluatie, team_member_id')
+      .select('student_id, needs_attention')
       .eq('group_id', groupId)
       .eq('school_subject_id', subjectId)
       .eq('is_current', true);
@@ -290,18 +286,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
         'Voornaam': student.first_name,
         'Achternaam': student.last_name,
         'Spoor': spoor?.name || 'Niet toegewezen',
-        'Aandacht nodig': detail?.needs_attention ? 'Ja' : 'Nee',
-        'Begeleiding klas': detail?.begeleiding_klas || '',
-        'Begeleiding thuis': detail?.begeleiding_thuis || '',
-        'Evaluatie': detail?.evaluatie || ''
-      };
-    });
-
-    const notesData = notes.map(note => {
-      const spoor = sporen.find(s => s.id === note.spoor_id);
-      return {
-        'Spoor': spoor?.name || '',
-        'Notities': note.notes_text
+        'Aandacht nodig': detail?.needs_attention ? 'Ja' : 'Nee'
       };
     });
 
@@ -310,15 +295,20 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
     const ws1 = XLSX.utils.json_to_sheet(exportData);
     XLSX.utils.book_append_sheet(wb, ws1, 'Toewijzingen');
 
-    if (notesData.length > 0) {
-      const ws2 = XLSX.utils.json_to_sheet(notesData);
-      XLSX.utils.book_append_sheet(wb, ws2, 'Notities');
-    }
-
     XLSX.writeFile(wb, `Sporen_${groupName}_${subjectName}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
-  const handleExportToPDF = () => {
+  const handleExportToPDF = async () => {
+    const spoorNotesData = await supabase
+      .from('spoor_notes')
+      .select('spoor_id, begeleiding_klas, begeleiding_thuis, evaluatie, notes_text')
+      .eq('group_id', groupId)
+      .eq('school_subject_id', subjectId);
+
+    const spoorNotesMap = new Map(
+      spoorNotesData.data?.map(n => [n.spoor_id, n]) || []
+    );
+
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'mm',
@@ -344,10 +334,12 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
       const spoorStudents = getStudentsForSpoor(spoor.id);
       if (spoorStudents.length === 0) return;
 
-      if (yPosition > 180) {
+      if (yPosition > 160) {
         pdf.addPage();
         yPosition = margin;
       }
+
+      const spoorNote = spoorNotesMap.get(spoor.id);
 
       pdf.setFillColor(parseInt(spoor.color.slice(1, 3), 16), parseInt(spoor.color.slice(3, 5), 16), parseInt(spoor.color.slice(5, 7), 16));
       pdf.rect(margin, yPosition, contentWidth, 8, 'F');
@@ -358,44 +350,85 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
       pdf.text(spoor.name, margin + 2, yPosition + 5.5);
       yPosition += 10;
 
+      if (spoorNote) {
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'bold');
+
+        if (spoorNote.begeleiding_klas) {
+          pdf.text('Begeleiding klas:', margin, yPosition);
+          yPosition += 4;
+          pdf.setFont('helvetica', 'normal');
+          const klasLines = pdf.splitTextToSize(spoorNote.begeleiding_klas, contentWidth);
+          pdf.text(klasLines.slice(0, 2), margin, yPosition);
+          yPosition += 4 * Math.min(klasLines.length, 2) + 2;
+        }
+
+        if (spoorNote.begeleiding_thuis) {
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('Begeleiding thuis:', margin, yPosition);
+          yPosition += 4;
+          pdf.setFont('helvetica', 'normal');
+          const thuisLines = pdf.splitTextToSize(spoorNote.begeleiding_thuis, contentWidth);
+          pdf.text(thuisLines.slice(0, 2), margin, yPosition);
+          yPosition += 4 * Math.min(thuisLines.length, 2) + 2;
+        }
+
+        if (spoorNote.evaluatie) {
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('Evaluatie:', margin, yPosition);
+          yPosition += 4;
+          pdf.setFont('helvetica', 'normal');
+          const evalLines = pdf.splitTextToSize(spoorNote.evaluatie, contentWidth);
+          pdf.text(evalLines.slice(0, 2), margin, yPosition);
+          yPosition += 4 * Math.min(evalLines.length, 2) + 2;
+        }
+
+        yPosition += 2;
+      }
+
       pdf.setTextColor(0, 0, 0);
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Naam', margin, yPosition);
-      pdf.text('Klas', margin + 50, yPosition);
-      pdf.text('Thuis', margin + 100, yPosition);
-      pdf.text('Evaluatie', margin + 150, yPosition);
+      pdf.text('Leerlingen:', margin, yPosition);
       yPosition += 5;
 
       pdf.setFont('helvetica', 'normal');
-      spoorStudents.forEach((student) => {
-        const detail = studentDetails.find(d => d.student_id === student.id);
-
-        if (yPosition > 185) {
-          pdf.addPage();
-          yPosition = margin;
-        }
-
-        const studentName = `${student.first_name} ${student.last_name}`;
-        const klas = detail?.begeleiding_klas || '-';
-        const thuis = detail?.begeleiding_thuis || '-';
-        const eval_text = detail?.evaluatie || '-';
-
-        pdf.text(studentName.substring(0, 30), margin, yPosition);
-        const klasLines = pdf.splitTextToSize(klas.substring(0, 100), 45);
-        pdf.text(klasLines[0] || '-', margin + 50, yPosition);
-        const thuisLines = pdf.splitTextToSize(thuis.substring(0, 100), 45);
-        pdf.text(thuisLines[0] || '-', margin + 100, yPosition);
-        const evalLines = pdf.splitTextToSize(eval_text.substring(0, 100), 45);
-        pdf.text(evalLines[0] || '-', margin + 150, yPosition);
-
-        if (detail?.needs_attention) {
-          pdf.setFillColor(239, 68, 68);
-          pdf.circle(margin + 45, yPosition - 1.5, 1.5, 'F');
-        }
-
-        yPosition += 5;
+      const attentionStudents = spoorStudents.filter(s => {
+        const detail = studentDetails.find(d => d.student_id === s.id);
+        return detail?.needs_attention;
       });
+
+      const regularStudents = spoorStudents.filter(s => {
+        const detail = studentDetails.find(d => d.student_id === s.id);
+        return !detail?.needs_attention;
+      });
+
+      if (attentionStudents.length > 0) {
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(239, 68, 68);
+        attentionStudents.forEach((student) => {
+          if (yPosition > 185) {
+            pdf.addPage();
+            yPosition = margin;
+          }
+          pdf.text(`${student.first_name} ${student.last_name} (!)`, margin + 2, yPosition);
+          yPosition += 4;
+        });
+      }
+
+      if (regularStudents.length > 0) {
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(0, 0, 0);
+        regularStudents.forEach((student) => {
+          if (yPosition > 185) {
+            pdf.addPage();
+            yPosition = margin;
+          }
+          pdf.text(`${student.first_name} ${student.last_name}`, margin + 2, yPosition);
+          yPosition += 4;
+        });
+      }
 
       yPosition += 5;
     });
@@ -576,6 +609,7 @@ export function SporenBoardView({ schoolId, groupId, subjectId, groupName, subje
           spoorName={sporen.find(s => s.id === selectedSpoorId)?.name || ''}
           groupName={groupName}
           subjectName={subjectName}
+          schoolId={schoolId}
           onClose={() => {
             setShowNotesModal(false);
             setSelectedSpoorId(null);
