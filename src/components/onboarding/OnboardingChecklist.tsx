@@ -61,7 +61,7 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools }: Onboar
         supabase.from('students').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true),
         supabase.from('groups').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true),
         supabase.from('school_subjects').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true),
-        supabase.from('grade_levels').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id),
+        supabase.from('school_grades').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true),
         supabase.from('user_schools').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('status', 'approved').eq('is_active', true),
         supabase.from('schools').select('school_code').eq('id', focusSchool.id).maybeSingle(),
       ]);
