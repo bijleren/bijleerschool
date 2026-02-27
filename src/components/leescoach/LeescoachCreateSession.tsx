@@ -5,9 +5,15 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ScaleSelector } from './ScaleSelector';
-import { ArrowLeft, Save, Search, Book, Info } from 'lucide-react';
+import { ArrowLeft, Save, Users, ChevronDown } from 'lucide-react';
 
 type ScaleValue = 'very_poor' | 'poor' | 'good' | 'excellent' | null;
+
+interface Group {
+  id: string;
+  name: string;
+  grade_level: string | null;
+}
 
 interface Student {
   id: string;
@@ -42,12 +48,15 @@ interface LeescoachCreateSessionProps {
 export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }: LeescoachCreateSessionProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [students, setStudents] = useState<Student[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [allStudents, setAllStudents] = useState<Student[]>([]);
+  const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const [techniques, setTechniques] = useState<ReadingTechnique[]>([]);
   const [interventions, setInterventions] = useState<ReadingIntervention[]>([]);
   const [message, setMessage] = useState('');
 
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [sessionDate, setSessionDate] = useState(new Date().toISOString().split('T')[0]);
   const [sessionTime, setSessionTime] = useState(new Date().toTimeString().slice(0, 5));
@@ -77,7 +86,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
   const [showBookDropdown, setShowBookDropdown] = useState(false);
 
   useEffect(() => {
-    loadData();
+    loadInitialData();
   }, [schoolId]);
 
   useEffect(() => {
@@ -95,8 +104,24 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const loadData = async () => {
-    const [studentsRes, booksRes, techniquesRes, interventionsRes] = await Promise.all([
+  useEffect(() => {
+    if (selectedGroupId) {
+      loadStudentsForGroup(selectedGroupId);
+    } else {
+      setFilteredStudents(allStudents);
+    }
+    setSelectedStudentId('');
+    setStudentSearch('');
+  }, [selectedGroupId, allStudents]);
+
+  const loadInitialData = async () => {
+    const [groupsRes, studentsRes, booksRes, techniquesRes, interventionsRes, prefsRes] = await Promise.all([
+      supabase
+        .from('groups')
+        .select('id, name, grade_level')
+        .eq('school_id', schoolId)
+        .eq('is_active', true)
+        .order('name'),
       supabase
         .from('students')
         .select('id, first_name, last_name')
@@ -120,12 +145,63 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
         .or(`is_default.eq.true,school_id.eq.${schoolId}`)
         .eq('is_active', true)
         .order('sort_order'),
+      user
+        ? supabase
+            .from('user_preferences')
+            .select('last_group_id')
+            .eq('user_id', user.id)
+            .eq('school_id', schoolId)
+            .maybeSingle()
+        : Promise.resolve({ data: null, error: null }),
     ]);
 
-    if (studentsRes.data) setStudents(studentsRes.data);
+    if (groupsRes.data) setGroups(groupsRes.data);
+    if (studentsRes.data) {
+      setAllStudents(studentsRes.data);
+      setFilteredStudents(studentsRes.data);
+    }
     if (booksRes.data) setBooks(booksRes.data);
     if (techniquesRes.data) setTechniques(techniquesRes.data);
     if (interventionsRes.data) setInterventions(interventionsRes.data);
+
+    if (prefsRes.data?.last_group_id) {
+      const savedGroupId = prefsRes.data.last_group_id;
+      const groupExists = groupsRes.data?.some(g => g.id === savedGroupId);
+      if (groupExists) {
+        setSelectedGroupId(savedGroupId);
+      }
+    }
+  };
+
+  const loadStudentsForGroup = async (groupId: string) => {
+    const { data } = await supabase
+      .from('student_groups')
+      .select('students(id, first_name, last_name)')
+      .eq('group_id', groupId)
+      .eq('is_active', true);
+
+    if (data) {
+      const students = data
+        .map((sg: any) => sg.students)
+        .filter(Boolean)
+        .sort((a: Student, b: Student) => a.last_name.localeCompare(b.last_name));
+      setFilteredStudents(students);
+    }
+  };
+
+  const saveGroupPreference = async (groupId: string) => {
+    if (!user) return;
+    await supabase
+      .from('user_preferences')
+      .upsert(
+        { user_id: user.id, school_id: schoolId, last_group_id: groupId || null, updated_at: new Date().toISOString() },
+        { onConflict: 'user_id,school_id' }
+      );
+  };
+
+  const handleGroupChange = (groupId: string) => {
+    setSelectedGroupId(groupId);
+    saveGroupPreference(groupId);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -212,7 +288,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
     );
   };
 
-  const filteredStudents = students.filter(s =>
+  const displayedStudents = filteredStudents.filter(s =>
     `${s.first_name} ${s.last_name}`.toLowerCase().includes(studentSearch.toLowerCase())
   );
 
@@ -220,6 +296,11 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
     b.title.toLowerCase().includes(bookSearch.toLowerCase()) ||
     (b.author && b.author.toLowerCase().includes(bookSearch.toLowerCase()))
   );
+
+  const selectedStudent = filteredStudents.find(s => s.id === selectedStudentId)
+    ?? allStudents.find(s => s.id === selectedStudentId);
+
+  const selectedGroup = groups.find(g => g.id === selectedGroupId);
 
   return (
     <div className="h-full overflow-y-auto p-6">
@@ -236,6 +317,35 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
             <h2 className="text-lg font-semibold mb-4">Leerling en Timing</h2>
 
             <div className="space-y-4">
+              {groups.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Klas
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={selectedGroupId}
+                      onChange={(e) => handleGroupChange(e.target.value)}
+                      className="w-full appearance-none px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                    >
+                      <option value="">Alle leerlingen</option>
+                      {groups.map(group => (
+                        <option key={group.id} value={group.id}>
+                          {group.name}{group.grade_level ? ` (${group.grade_level})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+                  {selectedGroup && (
+                    <p className="mt-1.5 text-sm text-blue-600 flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5" />
+                      {filteredStudents.length} leerling{filteredStudents.length !== 1 ? 'en' : ''} in {selectedGroup.name}
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div className="student-dropdown-container">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Leerling
@@ -243,8 +353,8 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
                 <div className="relative">
                   <Input
                     type="text"
-                    placeholder="Selecteer een leerling..."
-                    value={selectedStudentId ? students.find(s => s.id === selectedStudentId)?.first_name + ' ' + students.find(s => s.id === selectedStudentId)?.last_name : studentSearch}
+                    placeholder={selectedGroupId ? `Zoek in ${selectedGroup?.name ?? 'klas'}...` : 'Selecteer een leerling...'}
+                    value={selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : studentSearch}
                     onChange={(e) => {
                       setStudentSearch(e.target.value);
                       setSelectedStudentId('');
@@ -255,10 +365,10 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
                   />
                   {showStudentDropdown && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                      {filteredStudents.length === 0 ? (
+                      {displayedStudents.length === 0 ? (
                         <div className="px-4 py-3 text-gray-500 text-sm">Geen leerlingen gevonden</div>
                       ) : (
-                        filteredStudents.map(student => (
+                        displayedStudents.map(student => (
                           <button
                             key={student.id}
                             type="button"
