@@ -72,15 +72,24 @@ export function StudentSporenAnalytics({ schoolId, groups }: StudentSporenAnalyt
     try {
       const groupIds = groups.map((g) => g.id);
       const { data, error } = await supabase
-        .from('students')
-        .select('id, first_name, last_name, student_number')
+        .from('student_groups')
+        .select('students!inner(id, first_name, last_name, student_number, is_active)')
         .in('group_id', groupIds)
-        .eq('is_active', true)
-        .order('last_name')
-        .order('first_name');
+        .eq('students.is_active', true);
 
       if (error) throw error;
-      setStudents(data || []);
+
+      const seen = new Set<string>();
+      const unique: Student[] = [];
+      for (const row of data || []) {
+        const s = (row as any).students;
+        if (s && !seen.has(s.id)) {
+          seen.add(s.id);
+          unique.push({ id: s.id, first_name: s.first_name, last_name: s.last_name, student_number: s.student_number });
+        }
+      }
+      unique.sort((a, b) => a.last_name.localeCompare(b.last_name, 'nl') || a.first_name.localeCompare(b.first_name, 'nl'));
+      setStudents(unique);
     } catch (err) {
       console.error('Error loading students:', err);
     } finally {
