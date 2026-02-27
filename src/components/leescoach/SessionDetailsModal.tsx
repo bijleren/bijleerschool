@@ -21,7 +21,7 @@ interface SessionDetails {
   students: {
     first_name: string;
     last_name: string;
-    photo_url: string | null;
+    profile_picture_url: string | null;
   };
   books: {
     title: string;
@@ -58,7 +58,7 @@ export function SessionDetailsModal({ sessionId, onClose }: SessionDetailsModalP
       .from('reading_coach_sessions')
       .select(`
         *,
-        students (first_name, last_name, photo_url),
+        students (first_name, last_name, profile_picture_url),
         books (title, author),
         reading_session_techniques (
           reading_techniques (title, description)
@@ -132,8 +132,8 @@ export function SessionDetailsModal({ sessionId, onClose }: SessionDetailsModalP
         <div className="p-6 space-y-6">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-              {session.students.photo_url ? (
-                <img src={session.students.photo_url} alt="" className="w-full h-full object-cover" />
+              {session.students.profile_picture_url ? (
+                <img src={session.students.profile_picture_url} alt="" className="w-full h-full object-cover" />
               ) : (
                 <User className="w-8 h-8 text-gray-400" />
               )}

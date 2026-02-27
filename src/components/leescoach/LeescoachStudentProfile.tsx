@@ -11,7 +11,7 @@ interface Student {
   last_name: string;
   student_number: string | null;
   grade_level: string | null;
-  photo_url: string | null;
+  profile_picture_url: string | null;
 }
 
 interface Session {
@@ -129,8 +129,8 @@ export function LeescoachStudentProfile({
         <Card className="p-6 mb-6">
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-              {student.photo_url ? (
-                <img src={student.photo_url} alt="" className="w-full h-full object-cover" />
+              {student.profile_picture_url ? (
+                <img src={student.profile_picture_url} alt="" className="w-full h-full object-cover" />
               ) : (
                 <User className="w-12 h-12 text-gray-400" />
               )}

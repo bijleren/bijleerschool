@@ -31,7 +31,7 @@ interface Session {
     id: string;
     first_name: string;
     last_name: string;
-    photo_url: string | null;
+    profile_picture_url: string | null;
   };
   books: {
     title: string;
@@ -53,7 +53,7 @@ interface StudentWithLastSession {
   id: string;
   first_name: string;
   last_name: string;
-  photo_url: string | null;
+  profile_picture_url: string | null;
   grade_level: string | null;
   last_session_date: string | null;
   next_session_date: string | null;
@@ -109,7 +109,7 @@ export function LeescoachOverview({
       .from('reading_coach_sessions')
       .select(`
         *,
-        students!inner (id, first_name, last_name, photo_url),
+        students!inner (id, first_name, last_name, profile_picture_url),
         books (title, author),
         reading_session_techniques (
           reading_techniques (title)
@@ -140,7 +140,7 @@ export function LeescoachOverview({
   const loadStudentsWithSessions = async () => {
     const { data: students, error } = await supabase
       .from('students')
-      .select('id, first_name, last_name, photo_url, grade_level')
+      .select('id, first_name, last_name, profile_picture_url, grade_level')
       .eq('school_id', schoolId)
       .order('last_name');
 
@@ -286,8 +286,8 @@ export function LeescoachOverview({
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-                      {session.students.photo_url ? (
-                        <img src={session.students.photo_url} alt="" className="w-full h-full object-cover" />
+                      {session.students.profile_picture_url ? (
+                        <img src={session.students.profile_picture_url} alt="" className="w-full h-full object-cover" />
                       ) : (
                         <User className="w-6 h-6 text-gray-400" />
                       )}
@@ -372,8 +372,8 @@ export function LeescoachOverview({
                 >
                   <div className="flex flex-col items-center text-center">
                     <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mb-3">
-                      {student.photo_url ? (
-                        <img src={student.photo_url} alt="" className="w-full h-full object-cover" />
+                      {student.profile_picture_url ? (
+                        <img src={student.profile_picture_url} alt="" className="w-full h-full object-cover" />
                       ) : (
                         <User className="w-10 h-10 text-gray-400" />
                       )}

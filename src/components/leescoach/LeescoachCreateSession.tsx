@@ -13,7 +13,7 @@ interface Student {
   id: string;
   first_name: string;
   last_name: string;
-  photo_url: string | null;
+  profile_picture_url: string | null;
 }
 
 interface Book {
@@ -100,7 +100,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
     const [studentsRes, booksRes, techniquesRes, interventionsRes] = await Promise.all([
       supabase
         .from('students')
-        .select('id, first_name, last_name, photo_url')
+        .select('id, first_name, last_name, profile_picture_url')
         .eq('school_id', schoolId)
         .order('last_name'),
       supabase
@@ -270,8 +270,8 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
                             className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-3"
                           >
                             <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-                              {student.photo_url ? (
-                                <img src={student.photo_url} alt="" className="w-full h-full object-cover" />
+                              {student.profile_picture_url ? (
+                                <img src={student.profile_picture_url} alt="" className="w-full h-full object-cover" />
                               ) : (
                                 <User className="w-4 h-4 text-gray-400" />
                               )}
