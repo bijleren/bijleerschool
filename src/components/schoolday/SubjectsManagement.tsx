@@ -27,6 +27,7 @@ interface SubjectsManagementProps {
   schoolId: string;
   onClose: () => void;
   inline?: boolean;
+  onCountChange?: (count: number) => void;
 }
 
 const COMMON_ICONS = [
@@ -40,7 +41,7 @@ const DEFAULT_COLORS = [
   '#84CC16', '#F97316', '#EC4899', '#6366F1', '#6B7280', '#14B8A6'
 ];
 
-export function SubjectsManagement({ schoolId, onClose, inline = false }: SubjectsManagementProps) {
+export function SubjectsManagement({ schoolId, onClose, inline = false, onCountChange }: SubjectsManagementProps) {
   const [subjects, setSubjects] = useState<SchoolSubject[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -80,6 +81,7 @@ export function SubjectsManagement({ schoolId, onClose, inline = false }: Subjec
 
       if (error) throw error;
       setSubjects(data || []);
+      onCountChange?.((data || []).length);
     } catch (error) {
       console.error('Error fetching subjects:', error);
     }

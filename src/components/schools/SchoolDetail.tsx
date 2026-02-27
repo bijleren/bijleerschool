@@ -8,7 +8,7 @@ import { StudentImport } from './StudentImport';
 import { GradeManagement } from '../schoolday/GradeManagement';
 import { SubjectsManagement } from '../schoolday/SubjectsManagement';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Settings, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive } from 'lucide-react';
 import { DataGebruikTab } from '../storage/DataGebruikTab';
 
 interface School {
@@ -100,7 +100,8 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [showAddStudent, setShowAddStudent] = useState(false);
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [showImportStudents, setShowImportStudents] = useState(false);
-  const [showGradeManagement, setShowGradeManagement] = useState(false);
+  const [gradesCount, setGradesCount] = useState(0);
+  const [subjectsCount, setSubjectsCount] = useState(0);
   const [userSearch, setUserSearch] = useState('');
   const [studentSearch, setStudentSearch] = useState('');
   const [groupSearch, setGroupSearch] = useState('');
@@ -550,7 +551,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             }`}
           >
             <GraduationCap className="w-4 h-4 mr-2" />
-            Leerjaren
+            Leerjaren ({gradesCount})
           </button>
           <button
             onClick={() => setActiveTab('subjects')}
@@ -561,7 +562,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             }`}
           >
             <BookOpen className="w-4 h-4 mr-2" />
-            Vakken
+            Vakken ({subjectsCount})
           </button>
           <button
             onClick={() => setActiveTab('teamleden')}
@@ -886,27 +887,12 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       )}
 
       {activeTab === 'grades' && (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">Leerjaren en Niveaus</h3>
-            <Button onClick={() => setShowGradeManagement(true)}>
-              <Settings className="w-4 h-4 mr-2" />
-              Leerjaren beheren
-            </Button>
-          </div>
-
-          <Card className="text-center py-12">
-            <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Leerjaar beheer</h3>
-            <p className="text-gray-600 mb-6">
-              Beheer de leerjaren en niveaus voor je school. Deze worden gebruikt bij het maken van schema's en het registreren van technieken.
-            </p>
-            <Button onClick={() => setShowGradeManagement(true)}>
-              <Settings className="w-4 h-4 mr-2" />
-              Leerjaren beheren
-            </Button>
-          </Card>
-        </div>
+        <GradeManagement
+          schoolId={school.id}
+          onClose={() => {}}
+          inline
+          onCountChange={setGradesCount}
+        />
       )}
 
       {activeTab === 'subjects' && (
@@ -914,6 +900,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
           schoolId={school.id}
           onClose={() => {}}
           inline
+          onCountChange={setSubjectsCount}
         />
       )}
 
@@ -990,14 +977,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
           schoolId={school.id}
           onImportComplete={fetchStudents}
           onClose={() => setShowImportStudents(false)}
-        />
-      )}
-
-      {/* Grade Management Modal */}
-      {showGradeManagement && (
-        <GradeManagement
-          schoolId={school.id}
-          onClose={() => setShowGradeManagement(false)}
         />
       )}
 
