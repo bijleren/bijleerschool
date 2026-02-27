@@ -107,10 +107,10 @@ export function ContactPage() {
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-6">
                 <div className="flex items-center gap-2 mb-2">
                   <MessageSquare className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-semibold text-blue-700">Wij luisteren → prototype → gebruik</span>
+                  <span className="text-sm font-semibold text-blue-700">Vorming op maat en of live demolessen in de klas.</span>
                 </div>
                 <p className="text-sm text-blue-700 leading-relaxed">
-                  Elke app in bijleer.school is gebouwd op vraag van een school. Jouw idee kan de volgende zijn die uitgerold wordt voor alle gebruikers.
+                 Zet ons in voor een unieke vorming op maat.
                 </p>
               </div>
             </div>
