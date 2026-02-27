@@ -77,12 +77,12 @@ const APPS = [
     title: 'BlinkQR',
     tag: 'Communicatie',
     tagColor: 'bg-cyan-100 text-cyan-700',
-    description: 'Genereer gepersonaliseerde QR-kaartjes per leerling. Elke leerling krijgt een kaartje met QR-code die toegang geeft tot zijn of haar webwijzer, activiteiten of profiel.',
+    description: 'Breng je favoriete digitale leermiddelen tot bij de leerlingen via QR-codes. Steeds aanpasbaar en multisensorieel.',
     features: [
       'QR-kaartjes afdrukken',
-      'Koppeling met WebWijzer',
+      'Koppel met websites, todos, audio en meer.',
       'Snel scannen in de klas',
-      'Exporteerbaar als PDF',
+      'Druk de stickervellen af.',
     ],
   },
   {
@@ -182,12 +182,12 @@ const APPS = [
     title: 'woordenschat.be',
     tag: 'Didactiek',
     tagColor: 'bg-lime-100 text-lime-700',
-    description: 'Woordenschatonderwijs onderbouwd en praktisch. Vind werkvormen, strategieën en oefeningen om woordenschat doelgericht te ontwikkelen bij leerlingen van alle niveaus.',
+    description: 'Woordenschatonderwijs onderbouwd en praktisch. Van klanken tot woorden tot texten.',
     features: [
       'Werkvormen per leeftijdsgroep',
-      'Strategieën voor betekenisoverdracht',
-      'Inzetbaar voor NT2 en taalzwakke leerlingen',
-      'Direct beschikbaar in het platform',
+      'Vlaamse stem',
+      'Adaptief en slimme differentiatie',
+      'Eenvoudig in gebruik.',
     ],
   },
   {
@@ -197,9 +197,9 @@ const APPS = [
     title: 'Basis ICT-geletterdheid',
     tag: 'Digitale vaardigheden',
     tagColor: 'bg-sky-100 text-sky-700',
-    description: 'Een verzameling curated apps en oefenomgevingen om leerlingen basisvaardigheden in ICT bij te brengen. Van toetsenbordgebruik tot digitale veiligheid, overzichtelijk gebundeld.',
+    description: 'Oefen op basisvaardigheden als kopiëren en plakken, typen en tekstverwerkervaardigheden.',
     features: [
-      'Apps per vaardigheid geselecteerd',
+      'Controleer ICT-vaardigheid',
       'Geschikt voor lager en secundair',
       'Digitale veiligheid en mediawijsheid',
       'Drempelvrij voor elke leerling',
@@ -212,12 +212,11 @@ const APPS = [
     title: 'DigiTools',
     tag: 'Digitale vaardigheden',
     tagColor: 'bg-stone-100 text-stone-700',
-    description: 'Een zorgvuldig samengestelde toolkit van digitale hulpmiddelen voor in de klas. Van interactieve oefenplatformen tot creatieve tools — allemaal getest en goedgekeurd voor schoolgebruik.',
+    description: 'Eenvoudige webapps, prototypes en slimme digitools.',
     features: [
-      'Gecureerde selectie per doelgroep',
+      'Fysiek materiaal zoals de letterdoos digitaal gemaakt',
       'Beta- en nieuwe tools gemarkeerd',
-      'Zoeken en filteren op categorie',
-      'Direct doorlinken naar de tool',
+     
     ],
   },
 ];
