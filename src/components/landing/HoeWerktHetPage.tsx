@@ -13,7 +13,7 @@ const STEPS = [
     number: '01',
     icon: <UserPlus className="w-6 h-6 text-blue-600" />,
     title: 'Maak een gratis account',
-    description: 'Registreer je via de aanmeldpagina. Geen kredietkaart nodig. Je hebt meteen toegang tot het volledige platform om alles te verkennen.',
+    description: 'Registreer je via de aanmeldpagina. Maak een school aan of koppel je aan een bestaand team. Je hebt meteen toegang tot het volledige platform om alles te verkennen.',
     details: [
       'Registreer met je schoolmailadres',
       'Bevestig je account via e-mail',
@@ -23,7 +23,7 @@ const STEPS = [
   {
     number: '02',
     icon: <School className="w-6 h-6 text-blue-600" />,
-    title: 'Stel je school in',
+    title: 'Beheer je school',
     description: 'Maak je school aan en nodig collega\'s uit. Alle leerkrachten van dezelfde school werken samen in één gedeelde omgeving.',
     details: [
       'Voeg je schoolnaam en gegevens toe',
@@ -64,7 +64,7 @@ const ROLES = [
       'Gebruik didactische technieken in de les',
       'Volg leesvoortgang op per leerling',
       'Maak gepersonaliseerde webwijzers',
-      'Exporteer nieuwsbrieven voor ouders',
+      'Gebruik ICT optimaal',
     ],
   },
   {
@@ -177,7 +177,7 @@ export function HoeWerktHetPage() {
           <div className="max-w-2xl mx-auto text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Gebouwd op vraag van scholen</h2>
             <p className="text-gray-500 text-lg leading-relaxed">
-              Elke app in bijleer.school is ontstaan vanuit een concrete nood in de klas. Scholen vragen, wij bouwen.
+              Elke app in bijleer.school is ontstaan vanuit een concrete nood in de klas. Scholen vragen, wij bouwen en tonen hoe je het gebruikt. Samen zoeken we naar uniforme oplossingen die in vele scholen het verschil kunnen maken.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
@@ -282,7 +282,7 @@ export function HoeWerktHetPage() {
           <div className="bg-blue-600 rounded-2xl p-12 text-center text-white">
             <h2 className="text-3xl font-bold mb-4">Klaar om te starten?</h2>
             <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">
-              Maak vandaag nog een gratis account aan. Geen kredietkaart, geen verplichtingen.
+              Maak vandaag nog een gratis account aan en maak een nieuwe school of koppel je aan een bestaande. geen verplichtingen.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
