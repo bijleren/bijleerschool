@@ -276,6 +276,10 @@ export function LeescoachStudentProfile({
         <SessionDetailsModal
           sessionId={selectedSessionId}
           onClose={() => setSelectedSessionId(null)}
+          onDeleted={() => {
+            setSelectedSessionId(null);
+            loadData();
+          }}
         />
       )}
     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { X, Calendar, Book, User, Tag } from 'lucide-react';
+import { X, Calendar, Book, User, Tag, Trash2, AlertTriangle } from 'lucide-react';
 
 interface SessionDetails {
   id: string;
@@ -43,11 +43,14 @@ interface SessionDetails {
 interface SessionDetailsModalProps {
   sessionId: string;
   onClose: () => void;
+  onDeleted?: () => void;
 }
 
-export function SessionDetailsModal({ sessionId, onClose }: SessionDetailsModalProps) {
+export function SessionDetailsModal({ sessionId, onClose, onDeleted }: SessionDetailsModalProps) {
   const [session, setSession] = useState<SessionDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadSession();
@@ -78,6 +81,22 @@ export function SessionDetailsModal({ sessionId, onClose }: SessionDetailsModalP
 
     setSession(data);
     setLoading(false);
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await supabase.from('reading_session_techniques').delete().eq('session_id', sessionId);
+      await supabase.from('reading_session_interventions').delete().eq('session_id', sessionId);
+      const { error } = await supabase.from('reading_coach_sessions').delete().eq('id', sessionId);
+      if (error) throw error;
+      onDeleted?.();
+      onClose();
+    } catch (err) {
+      console.error('Error deleting session:', err);
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
   };
 
   const getScaleLabel = (scale: string | null) => {
@@ -121,13 +140,51 @@ export function SessionDetailsModal({ sessionId, onClose }: SessionDetailsModalP
       <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold">Sessiedetails</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              title="Sessie verwijderen"
+            >
+              <Trash2 className="w-4 h-4" />
+              Verwijderen
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
         </div>
+
+        {confirmDelete && (
+          <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-red-800">Sessie verwijderen?</p>
+              <p className="text-sm text-red-700 mt-0.5">
+                Deze actie kan niet ongedaan worden gemaakt. Alle gegevens van deze sessie worden permanent verwijderd.
+              </p>
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="px-4 py-1.5 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-60 transition-colors"
+                >
+                  {deleting ? 'Verwijderen...' : 'Ja, verwijder'}
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  disabled={deleting}
+                  className="px-4 py-1.5 text-sm font-medium border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Annuleren
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="p-6 space-y-6">
           <div className="flex items-center gap-4">

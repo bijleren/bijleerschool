@@ -413,6 +413,10 @@ export function LeescoachOverview({
         <SessionDetailsModal
           sessionId={selectedSessionId}
           onClose={() => setSelectedSessionId(null)}
+          onDeleted={() => {
+            setSelectedSessionId(null);
+            loadSessions();
+          }}
         />
       )}
     </div>
