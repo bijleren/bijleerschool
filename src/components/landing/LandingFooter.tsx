@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, ExternalLink } from 'lucide-react';
 
 export function LandingFooter() {
   return (
@@ -15,9 +15,18 @@ export function LandingFooter() {
               </div>
               <span className="font-bold text-white">BijleerSchool</span>
             </div>
-            <p className="text-sm leading-relaxed text-gray-400">
+            <p className="text-sm leading-relaxed text-gray-400 mb-4">
               Digitale leerapps voor leerkrachten en schoolteams. Gebouwd op vraag van scholen, voor scholen.
             </p>
+            <a
+              href="https://bijleren.eu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+            >
+              <ExternalLink className="w-3 h-3" />
+              een app van bijleren.eu
+            </a>
           </div>
 
           {/* Platform */}
@@ -26,6 +35,7 @@ export function LandingFooter() {
             <ul className="space-y-3 text-sm">
               <li><Link to="/apps" className="hover:text-white transition-colors">Alle apps</Link></li>
               <li><Link to="/hoe-werkt-het" className="hover:text-white transition-colors">Hoe werkt het?</Link></li>
+              <li><Link to="/ons-doel" className="hover:text-white transition-colors">Ons doel</Link></li>
               <li><a href="/#pricing" className="hover:text-white transition-colors">Prijzen</a></li>
               <li><Link to="/contact" className="hover:text-white transition-colors">Aanvraag nieuwe app</Link></li>
             </ul>
@@ -48,13 +58,24 @@ export function LandingFooter() {
             <ul className="space-y-3 text-sm">
               <li><Link to="/algemene-voorwaarden" className="hover:text-white transition-colors">Algemene voorwaarden</Link></li>
               <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacybeleid</Link></li>
-              <li><a href="mailto:info@bijleerschool.be" className="hover:text-white transition-colors">info@bijleerschool.be</a></li>
+              <li><a href="mailto:info@bijleren.eu" className="hover:text-white transition-colors">info@bijleren.eu</a></li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-gray-500">© {new Date().getFullYear()} BijleerSchool. Alle rechten voorbehouden.</p>
+          <div className="flex flex-col sm:flex-row items-center gap-3 text-sm text-gray-500">
+            <p>© {new Date().getFullYear()} BijleerSchool. Alle rechten voorbehouden.</p>
+            <span className="hidden sm:inline text-gray-700">·</span>
+            <a
+              href="https://bijleren.eu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-300 transition-colors"
+            >
+              een app van bijleren.eu
+            </a>
+          </div>
           <div className="flex items-center gap-6 text-sm">
             <Link to="/algemene-voorwaarden" className="hover:text-white transition-colors">Algemene voorwaarden</Link>
             <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacybeleid</Link>

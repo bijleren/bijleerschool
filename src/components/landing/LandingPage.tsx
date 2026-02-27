@@ -244,7 +244,7 @@ function HowItBuilt() {
         </div>
         <div className="mt-12 text-center">
           <a
-            href="mailto:info@bijleerschool.be"
+            href="mailto:info@bijleren.eu"
             className="inline-flex items-center gap-2 text-blue-600 font-medium hover:underline"
           >
             <MapPin className="w-4 h-4" />
@@ -463,7 +463,7 @@ function CTASection({ navigate }: { navigate: (path: string) => void }) {
               <ArrowRight className="w-5 h-5" />
             </button>
             <a
-              href="mailto:info@bijleerschool.be"
+              href="mailto:info@bijleren.eu"
               className="inline-flex items-center justify-center gap-2 border border-blue-400 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
               Contact opnemen

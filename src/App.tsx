@@ -12,6 +12,10 @@ import { LandingPage } from './components/landing/LandingPage';
 import { HoeWerktHetPage } from './components/landing/HoeWerktHetPage';
 import { ContactPage } from './components/landing/ContactPage';
 import { AppsPage } from './components/landing/AppsPage';
+import { AlgemeneVoorwaardenPage } from './components/landing/AlgemeneVoorwaardenPage';
+import { PrivacyPolicyPage } from './components/landing/PrivacyPolicyPage';
+import { OnsDoel } from './components/landing/OnsDoel';
+import { CookieBanner } from './components/landing/CookieBanner';
 import { GraduationCap, ArrowLeft, Globe } from 'lucide-react';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -211,6 +215,9 @@ function App() {
           <Route path="/hoe-werkt-het" element={<HoeWerktHetPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/apps" element={<AppsPage />} />
+          <Route path="/ons-doel" element={<OnsDoel />} />
+          <Route path="/algemene-voorwaarden" element={<AlgemeneVoorwaardenPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/webwijzer" element={<PublicWebWijzerAccess />} />
           <Route path="/technique" element={<PublicTechniqueView />} />
           <Route path="/faq" element={<PublicFAQView />} />
@@ -243,6 +250,7 @@ function App() {
             }
           />
         </Routes>
+        <CookieBanner />
       </AuthProvider>
     </Router>
   );

@@ -29,7 +29,7 @@ export function ContactPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const mailto = `mailto:info@bijleerschool.be?subject=${encodeURIComponent(`BijleerSchool contact: ${formState.reason}`)}&body=${encodeURIComponent(
+    const mailto = `mailto:info@bijleren.eu?subject=${encodeURIComponent(`BijleerSchool contact: ${formState.reason}`)}&body=${encodeURIComponent(
       `Naam: ${formState.name}\nSchool: ${formState.school}\nE-mail: ${formState.email}\n\n${formState.message}`
     )}`;
     window.location.href = mailto;
@@ -79,8 +79,8 @@ export function ContactPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900 text-sm mb-0.5">E-mail</p>
-                    <a href="mailto:info@bijleerschool.be" className="text-blue-600 hover:underline text-sm">
-                      info@bijleerschool.be
+                    <a href="mailto:info@bijleren.eu" className="text-blue-600 hover:underline text-sm">
+                      info@bijleren.eu
                     </a>
                   </div>
                 </div>
@@ -210,7 +210,7 @@ export function ContactPage() {
                   </button>
                   <p className="text-xs text-gray-400 text-center">
                     Dit opent je e-mailprogramma. Je kunt ook rechtstreeks mailen naar{' '}
-                    <a href="mailto:info@bijleerschool.be" className="text-blue-500 hover:underline">info@bijleerschool.be</a>.
+                    <a href="mailto:info@bijleren.eu" className="text-blue-500 hover:underline">info@bijleren.eu</a>.
                   </p>
                 </form>
               )}
