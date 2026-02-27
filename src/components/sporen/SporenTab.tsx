@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 import { SporenManagement } from './SporenManagement';
 import { SporenBoardView } from './SporenBoardView';
+import { SporenAnalytics } from './SporenAnalytics';
 import { GitBranch, Settings, BarChart3, Save, X, AlertCircle } from 'lucide-react';
 
 interface School {
@@ -35,6 +36,7 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [showManagement, setShowManagement] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   useEffect(() => {
     if (focusSchool?.id) {
@@ -115,6 +117,21 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
     );
   }
 
+  if (showAnalytics) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <SporenAnalytics
+          schoolId={focusSchool.id}
+          groups={groups}
+          subjects={subjects}
+          initialGroupId={selectedGroupId}
+          initialSubjectId={selectedSubjectId}
+          onNavigateBack={() => setShowAnalytics(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-6">
@@ -130,7 +147,14 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowAnalytics(true)}
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Analyse
+            </Button>
             <Button
               variant="secondary"
               onClick={() => setShowManagement(!showManagement)}
