@@ -178,19 +178,21 @@ function AuthLayout({ children }: { children: React.ReactNode }) {
           <p className="text-lg text-gray-600">Didactische toolkit voor leerkracht en leerling</p>
         </div>
 
-        {children}
+        <div className="relative">
+          {children}
 
-        <div className="mt-6 text-center">
-          <a
-            href="/webwijzer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:shadow-md transition-all"
-          >
-            <Globe className="w-4 h-4 text-orange-500" />
-            WebWijzer voor leerlingen
-          </a>
+          <div className="absolute -bottom-5 left-0 right-0 flex justify-center">
+            <a
+              href="/webwijzer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-full shadow-md text-sm font-semibold text-gray-700 hover:shadow-lg hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700 transition-all"
+            >
+              <Globe className="w-4 h-4 text-orange-500" />
+              WebWijzer voor leerlingen
+            </a>
+          </div>
         </div>
 
-        <div className="mt-6 text-center">
+        <div className="mt-12 text-center">
           <p className="text-xs text-gray-500">
             © 2025 BijleerSchool. Alle rechten voorbehouden.
           </p>
