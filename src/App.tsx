@@ -9,7 +9,10 @@ import { PublicWebWijzerAccess } from './components/webwijzer/PublicWebWijzerAcc
 import { PublicTechniqueView } from './components/teaching/PublicTechniqueView';
 import { PublicFAQView } from './components/teaching/PublicFAQView';
 import { LandingPage } from './components/landing/LandingPage';
-import { GraduationCap, ArrowLeft } from 'lucide-react';
+import { HoeWerktHetPage } from './components/landing/HoeWerktHetPage';
+import { ContactPage } from './components/landing/ContactPage';
+import { AppsPage } from './components/landing/AppsPage';
+import { GraduationCap, ArrowLeft, Globe } from 'lucide-react';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -177,7 +180,17 @@ function AuthLayout({ children }: { children: React.ReactNode }) {
 
         {children}
 
-        <div className="mt-8 text-center">
+        <div className="mt-6 text-center">
+          <a
+            href="/webwijzer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:shadow-md transition-all"
+          >
+            <Globe className="w-4 h-4 text-orange-500" />
+            WebWijzer voor leerlingen
+          </a>
+        </div>
+
+        <div className="mt-6 text-center">
           <p className="text-xs text-gray-500">
             © 2025 BijleerSchool. Alle rechten voorbehouden.
           </p>
@@ -193,6 +206,9 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<RootRedirect />} />
+          <Route path="/hoe-werkt-het" element={<HoeWerktHetPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/apps" element={<AppsPage />} />
           <Route path="/webwijzer" element={<PublicWebWijzerAccess />} />
           <Route path="/technique" element={<PublicTechniqueView />} />
           <Route path="/faq" element={<PublicFAQView />} />

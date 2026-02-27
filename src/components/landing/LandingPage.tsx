@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
-  GraduationCap, BookOpen, Users, BarChart3, Globe, ArrowRight, Grid,
+  Users, BarChart3, Globe, ArrowRight, Grid,
   BookMarked, Search, QrCode, Newspaper, ChevronDown, ChevronUp,
   CheckCircle, MessageSquare, Lightbulb, Rocket, MapPin, Star,
   BookCheck, Layers, Clock
 } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { LandingNav } from './LandingNav';
+import { LandingFooter } from './LandingFooter';
 
 const APPS = [
   {
@@ -113,7 +115,7 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Nav navigate={navigate} />
+      <LandingNav navigate={navigate} />
       <Hero navigate={navigate} />
       <AppsSection />
       <HowItBuilt />
@@ -121,36 +123,8 @@ export function LandingPage() {
       <PricingSection navigate={navigate} />
       <FAQSection />
       <CTASection navigate={navigate} />
-      <Footer />
+      <LandingFooter />
     </div>
-  );
-}
-
-function Nav({ navigate }: { navigate: (path: string) => void }) {
-  return (
-    <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">BijleerSchool</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link to="/webwijzer" className="text-gray-600 hover:text-gray-900 font-medium transition-colors text-sm hidden sm:block">
-              WebWijzer
-            </Link>
-            <a href="#pricing" className="text-gray-600 hover:text-gray-900 font-medium transition-colors text-sm hidden sm:block">
-              Prijzen
-            </a>
-            <Button onClick={() => navigate('/login')} variant="primary" size="sm">
-              Leerkracht Login
-            </Button>
-          </div>
-        </div>
-      </div>
-    </nav>
   );
 }
 
@@ -501,23 +475,3 @@ function CTASection({ navigate }: { navigate: (path: string) => void }) {
   );
 }
 
-function Footer() {
-  return (
-    <footer className="border-t border-gray-200 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center">
-              <GraduationCap className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-gray-900">BijleerSchool</span>
-          </div>
-          <p className="text-sm text-gray-500">© 2025 BijleerSchool. Alle rechten voorbehouden.</p>
-          <a href="mailto:info@bijleerschool.be" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
-            info@bijleerschool.be
-          </a>
-        </div>
-      </div>
-    </footer>
-  );
-}
