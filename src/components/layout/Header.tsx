@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Calendar, Plus, List, Settings, Info, Link, Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateToDashboard: () => void;
@@ -45,10 +45,11 @@ interface HeaderProps {
   onNavigateToDigiTools: () => void;
   onNavigateToBlinkQR: () => void;
   onNavigateToSporen: () => void;
+  onNavigateToOnboarding?: () => void;
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToLeescoach, onNavigateToZoeker, onNavigateToEDI, onNavigateToDigiTools, onNavigateToBlinkQR, onNavigateToSporen, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToSchoolDay, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToLeescoach, onNavigateToZoeker, onNavigateToEDI, onNavigateToDigiTools, onNavigateToBlinkQR, onNavigateToSporen, onNavigateToOnboarding, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -433,7 +434,22 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     <User className="w-4 h-4 mr-3" />
                     Mijn Profiel
                   </button>
-                  
+
+                  {onNavigateToOnboarding && (
+                    <button
+                      onClick={() => {
+                        onNavigateToOnboarding();
+                        setShowProfileDropdown(false);
+                      }}
+                      className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <Sparkles className="w-4 h-4 mr-3" />
+                      Aan de slag
+                    </button>
+                  )}
+
+                  <div className="border-t border-gray-100 my-1" />
+
                   <button
                     onClick={() => {
                       signOut();

@@ -718,6 +718,7 @@ export function Dashboard() {
         onNavigateToDigiTools={handleNavigateToDigiTools}
         onNavigateToBlinkQR={handleNavigateToBlinkQR}
         onNavigateToSporen={handleNavigateToSporen}
+        onNavigateToOnboarding={handleNavigateToOnboarding}
         focusSchool={focusSchool}
       />
       )}
