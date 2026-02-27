@@ -25,12 +25,8 @@ export function OnboardingBanner({ onOpenOnboarding }: OnboardingBannerProps) {
   if (!visible) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-6 py-4 mb-6">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-8 -right-8 w-40 h-40 bg-white/5 rounded-full" />
-        <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-white/5 rounded-full" />
-      </div>
-      <div className="relative flex items-center justify-between gap-4">
+    <div className="rounded-xl bg-blue-600 px-6 py-4 mb-6">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-center space-x-3 min-w-0">
           <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center flex-shrink-0">
             <Sparkles className="w-5 h-5 text-white" />

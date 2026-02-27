@@ -153,10 +153,8 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools }: Onboar
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Welcome hero */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 px-8 py-10 text-white">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-        <div className="relative">
+      <div className="rounded-2xl bg-blue-600 px-8 py-10 text-white">
+        <div>
           <div className="flex items-center space-x-2 mb-3">
             <Sparkles className="w-5 h-5 text-blue-200" />
             <span className="text-blue-200 text-sm font-medium uppercase tracking-wide">Welkom bij BijleerSchool</span>
