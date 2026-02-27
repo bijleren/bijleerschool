@@ -23,7 +23,7 @@ export function AuthPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl mb-4 shadow-lg">
             <GraduationCap className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">BijleerSchool</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">bijleer.school</h1>
           <p className="text-lg text-gray-600">Didactische toolkit voor leerkracht en leerling</p>
         </div>
 
@@ -37,7 +37,7 @@ export function AuthPage() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-xs text-gray-500">
-            © 2025 BijleerSchool. Alle rechten voorbehouden.{' '}
+            © 2025 bijleer.school. Alle rechten voorbehouden.{' '}
             <a
               href="https://bijleren.eu"
               target="_blank"

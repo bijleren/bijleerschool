@@ -41,7 +41,7 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
     <Card className="w-full max-w-md">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Welkom terug</h1>
-        <p className="text-gray-600">Log in op je BijleerSchool account</p>
+        <p className="text-gray-600">Log in op je bijleer.school account</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

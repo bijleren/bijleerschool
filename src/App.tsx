@@ -26,7 +26,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">BijleerSchool wordt geladen...</p>
+          <p className="text-gray-600">bijleer.school wordt geladen...</p>
         </div>
       </div>
     );
@@ -100,7 +100,7 @@ function RootRedirect() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">BijleerSchool wordt geladen...</p>
+          <p className="text-gray-600">bijleer.school wordt geladen...</p>
         </div>
       </div>
     );
@@ -153,7 +153,7 @@ function DirectTabRedirect({ tab }: { tab: string }) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">BijleerSchool wordt geladen...</p>
+          <p className="text-gray-600">bijleer.school wordt geladen...</p>
         </div>
       </div>
     );
@@ -178,7 +178,7 @@ function AuthLayout({ children }: { children: React.ReactNode }) {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg">
             <GraduationCap className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">BijleerSchool</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">bijleer.school</h1>
           <p className="text-lg text-gray-600">Didactische toolkit voor leerkracht en leerling</p>
         </div>
 
@@ -198,7 +198,7 @@ function AuthLayout({ children }: { children: React.ReactNode }) {
 
         <div className="mt-12 text-center">
           <p className="text-xs text-gray-500">
-            © 2025 BijleerSchool. Alle rechten voorbehouden.
+            © 2025 bijleer.school. Alle rechten voorbehouden.
           </p>
         </div>
       </div>

@@ -81,7 +81,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
     <Card className="w-full max-w-md">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Account aanmaken</h1>
-        <p className="text-gray-600">Maak je BijleerSchool account aan</p>
+        <p className="text-gray-600">Maak je bijleer.school account aan</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -159,7 +159,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
             >
               privacybeleid
             </Link>{' '}
-            van BijleerSchool.
+            van bijleer.school.
           </label>
         </div>
 

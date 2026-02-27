@@ -82,7 +82,7 @@ const APPS = [
 const FAQS = [
   {
     question: 'Hoe werkt de gratis proefperiode?',
-    answer: 'Je kunt BijleerSchool volledig gratis uitproberen zonder kredietkaart. Maak een account aan, voeg je school toe en ontdek alle leerapps. Na de proefperiode kies je welk abonnement het beste bij je school past.',
+    answer: 'Je kunt bijleer.school volledig gratis uitproberen zonder kredietkaart. Maak een account aan, voeg je school toe en ontdek alle leerapps. Na de proefperiode kies je welk abonnement het beste bij je school past.',
   },
   {
     question: 'Wat is het verschil tussen "Vrij aantal leerlingen" en "Volledige school"?',
@@ -94,7 +94,7 @@ const FAQS = [
   },
   {
     question: 'Kan onze school een specifieke app laten maken?',
-    answer: 'Absoluut. BijleerSchool is gebouwd op vraag van scholen. Elke school kan een aanvraag indienen voor nieuwe functionaliteiten of tools. We bespreken de nood, bouwen een prototype en rollen het uit voor alle gebruikers.',
+    answer: 'Absoluut. bijleer.school is gebouwd op vraag van scholen. Elke school kan een aanvraag indienen voor nieuwe functionaliteiten of tools. We bespreken de nood, bouwen een prototype en rollen het uit voor alle gebruikers.',
   },
   {
     question: 'Hoe werkt ondersteuning op school?',
@@ -140,7 +140,7 @@ function Hero({ navigate }: { navigate: (path: string) => void }) {
             Digitale leerapps die echt werken in de klas
           </h1>
           <p className="text-xl text-gray-500 mb-10 leading-relaxed">
-            BijleerSchool bundelt alle tools die een leerkracht nodig heeft in één platform.
+            bijleer.school bundelt alle tools die een leerkracht nodig heeft in één platform.
             Van gedragsmanagement tot leesbegeleiding — gebouwd op vraag van scholen, voor scholen.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -227,7 +227,7 @@ function HowItBuilt() {
             Apps gemaakt door en voor scholen
           </h2>
           <p className="text-lg text-gray-500">
-            BijleerSchool is geen generiek softwarepakket. Elke app is ontstaan vanuit een concrete vraag van een leerkracht of schoolteam.
+            bijleer.school is geen generiek softwarepakket. Elke app is ontstaan vanuit een concrete vraag van een leerkracht of schoolteam.
             Jouw school kan ook nieuwe functionaliteiten aanvragen.
           </p>
         </div>
@@ -452,7 +452,7 @@ function CTASection({ navigate }: { navigate: (path: string) => void }) {
             Klaar om te starten?
           </h2>
           <p className="text-lg mb-8 text-blue-100 max-w-xl mx-auto">
-            Sluit je aan bij de scholen die BijleerSchool gebruiken. Maak vandaag nog een gratis account aan en ontdek alle leerapps.
+            Sluit je aan bij de scholen die bijleer.school gebruiken. Maak vandaag nog een gratis account aan en ontdek alle leerapps.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button

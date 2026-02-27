@@ -35,7 +35,7 @@ export function CookieBanner() {
             <Cookie className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-white mb-1 text-sm">Cookies op BijleerSchool</h3>
+            <h3 className="font-bold text-white mb-1 text-sm">Cookies op bijleer.school</h3>
             <p className="text-gray-400 text-xs leading-relaxed mb-4">
               Wij gebruiken functionele cookies die noodzakelijk zijn voor de werking van het platform (sessiebeheer, authenticatie). We plaatsen geen tracking- of advertentiecookies zonder uw toestemming. Lees meer in ons{' '}
               <Link to="/privacy-policy" className="text-blue-400 hover:underline">privacybeleid</Link>.

@@ -27,7 +27,7 @@ export function PrivacyPolicyPage() {
           <div className="bg-white rounded-2xl border border-gray-200 p-10 prose prose-gray max-w-none">
 
             <Section title="1. Verwerkingsverantwoordelijke">
-              <p><strong>bijleren.eu</strong> is de verwerkingsverantwoordelijke voor de persoonsgegevens die via het platform BijleerSchool worden verwerkt.</p>
+              <p><strong>bijleren.eu</strong> is de verwerkingsverantwoordelijke voor de persoonsgegevens die via het platform bijleer.school worden verwerkt.</p>
               <p>Contactadres: <a href="mailto:info@bijleren.eu" className="text-blue-600 hover:underline">info@bijleren.eu</a></p>
             </Section>
 
@@ -63,7 +63,7 @@ export function PrivacyPolicyPage() {
             </Section>
 
             <Section title="5. Leerlinggegevens en GDPR">
-              <p>BijleerSchool verwerkt gegevens van minderjarigen uitsluitend op instructie van de school (de feitelijke verwerkingsverantwoordelijke voor leerlinggegevens). De school draagt de verantwoordelijkheid voor het informeren van ouders en leerlingen conform de AVG/GDPR.</p>
+              <p>bijleer.school verwerkt gegevens van minderjarigen uitsluitend op instructie van de school (de feitelijke verwerkingsverantwoordelijke voor leerlinggegevens). De school draagt de verantwoordelijkheid voor het informeren van ouders en leerlingen conform de AVG/GDPR.</p>
               <p>Leerlinggegevens worden nooit gebruikt voor marketing, profilering of gedeeld met derden buiten de schoolcontext.</p>
             </Section>
 
@@ -93,7 +93,7 @@ export function PrivacyPolicyPage() {
             </Section>
 
             <Section title="10. Cookies">
-              <p>BijleerSchool maakt gebruik van functionele cookies die noodzakelijk zijn voor de werking van het Platform (sessiebeheer, authenticatie). Wij gebruiken geen analytische of advertentiecookies zonder uw toestemming. Zie ook ons cookiebanner bij uw eerste bezoek.</p>
+              <p>bijleer.school maakt gebruik van functionele cookies die noodzakelijk zijn voor de werking van het Platform (sessiebeheer, authenticatie). Wij gebruiken geen analytische of advertentiecookies zonder uw toestemming. Zie ook ons cookiebanner bij uw eerste bezoek.</p>
             </Section>
 
             <Section title="11. Klachten">

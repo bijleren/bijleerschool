@@ -142,7 +142,7 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
       id: 'team',
       title: 'Collega\'s uitnodigen',
       description: 'Laat collega\'s aansluiten bij jouw school door hen de schoolcode te geven. Zij kunnen die code gebruiken bij het aanmelden om toegang te krijgen.',
-      tip: `Deel de schoolcode met je collega's. Ze kunnen inloggen op BijleerSchool en de code invoeren om te koppelen.`,
+      tip: `Deel de schoolcode met je collega's. Ze kunnen inloggen op bijleer.school en de code invoeren om te koppelen.`,
       icon: <UserPlus className="w-5 h-5" />,
       actionLabel: 'Schoolcode bekijken',
       onAction: onNavigateToSchools,
@@ -201,9 +201,9 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
         <div>
           <div className="flex items-center space-x-2 mb-3">
             <Sparkles className="w-5 h-5 text-blue-200" />
-            <span className="text-blue-200 text-sm font-medium uppercase tracking-wide">Welkom bij BijleerSchool</span>
+            <span className="text-blue-200 text-sm font-medium uppercase tracking-wide">Welkom bij bijleer.school</span>
           </div>
-          <h1 className="text-3xl font-bold mb-2">Ontdek BijleerSchool</h1>
+          <h1 className="text-3xl font-bold mb-2">Ontdek bijleer.school</h1>
           <p className="text-blue-100 text-lg leading-relaxed max-w-lg">
             Laten we samen jouw school klaarzetten. Volg de stappen hieronder om alles in te stellen — het duurt maar een paar minuten.
           </p>
@@ -228,7 +228,7 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
         {progressPercent === 100 && (
           <div className="mt-4 flex items-center space-x-2 text-green-700 bg-green-50 rounded-lg px-4 py-3">
             <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-            <span className="text-sm font-medium">Geweldig! Je school is volledig ingesteld. Je kunt nu optimaal gebruik maken van BijleerSchool.</span>
+            <span className="text-sm font-medium">Geweldig! Je school is volledig ingesteld. Je kunt nu optimaal gebruik maken van bijleer.school.</span>
           </div>
         )}
       </Card>

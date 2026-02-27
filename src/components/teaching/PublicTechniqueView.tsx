@@ -155,7 +155,7 @@ export function PublicTechniqueView() {
                 <GraduationCap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">BijleerSchool</h1>
+                <h1 className="text-xl font-bold text-gray-900">bijleer.school</h1>
                 <p className="text-sm text-gray-600">Didactische Techniek</p>
               </div>
             </div>
@@ -355,7 +355,7 @@ export function PublicTechniqueView() {
       <footer className="mt-12 py-6 border-t border-gray-200 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-sm text-gray-500">
-            © 2025 BijleerSchool. Alle rechten voorbehouden.
+            © 2025 bijleer.school. Alle rechten voorbehouden.
           </p>
         </div>
       </footer>

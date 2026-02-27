@@ -33,7 +33,7 @@ export function OnboardingBanner({ onOpenOnboarding }: OnboardingBannerProps) {
           </div>
           <div className="min-w-0">
             <p className="text-white font-semibold text-sm">
-              Ontdek de BijleerSchool en hoe je best start
+              Ontdek de bijleer.school en hoe je best start
             </p>
             <p className="text-blue-200 text-xs mt-0.5">
               Volg onze stap-voor-stap gids om alles snel in te stellen

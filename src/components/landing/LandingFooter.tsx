@@ -13,7 +13,7 @@ export function LandingFooter() {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-white">BijleerSchool</span>
+              <span className="font-bold text-white">bijleer.school</span>
             </div>
             <p className="text-sm leading-relaxed text-gray-400 mb-4">
               Digitale leerapps voor leerkrachten en schoolteams. Gebouwd op vraag van scholen, voor scholen.
@@ -65,7 +65,7 @@ export function LandingFooter() {
 
         <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-3 text-sm text-gray-500">
-            <p>© {new Date().getFullYear()} BijleerSchool. Alle rechten voorbehouden.</p>
+            <p>© {new Date().getFullYear()} bijleer.school. Alle rechten voorbehouden.</p>
             <span className="hidden sm:inline text-gray-700">·</span>
             <a
               href="https://bijleren.eu"

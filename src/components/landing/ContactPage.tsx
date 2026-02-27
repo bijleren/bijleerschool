@@ -29,7 +29,7 @@ export function ContactPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const mailto = `mailto:info@bijleren.eu?subject=${encodeURIComponent(`BijleerSchool contact: ${formState.reason}`)}&body=${encodeURIComponent(
+    const mailto = `mailto:info@bijleren.eu?subject=${encodeURIComponent(`bijleer.school contact: ${formState.reason}`)}&body=${encodeURIComponent(
       `Naam: ${formState.name}\nSchool: ${formState.school}\nE-mail: ${formState.email}\n\n${formState.message}`
     )}`;
     window.location.href = mailto;
@@ -110,7 +110,7 @@ export function ContactPage() {
                   <span className="text-sm font-semibold text-blue-700">Wij luisteren → prototype → gebruik</span>
                 </div>
                 <p className="text-sm text-blue-700 leading-relaxed">
-                  Elke app in BijleerSchool is gebouwd op vraag van een school. Jouw idee kan de volgende zijn die uitgerold wordt voor alle gebruikers.
+                  Elke app in bijleer.school is gebouwd op vraag van een school. Jouw idee kan de volgende zijn die uitgerold wordt voor alle gebruikers.
                 </p>
               </div>
             </div>

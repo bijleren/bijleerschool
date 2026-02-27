@@ -26,7 +26,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
             <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">BijleerSchool</span>
+            <span className="text-xl font-bold text-gray-900">bijleer.school</span>
           </Link>
 
           {/* Desktop nav */}

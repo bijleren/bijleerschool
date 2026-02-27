@@ -14,7 +14,7 @@ const GOALS = [
     title: 'ICT didactisch gebruiken',
     subtitle: 'Technologie als middel, niet als doel',
     description:
-      'Digitale tools hebben pas echte waarde als ze het leerproces verdiepen. BijleerSchool is ontworpen vanuit didactische principes: elke app ondersteunt een concrete onderwijsdoelstelling en helpt leerkrachten bewuste keuzes te maken over wanneer en hoe ze technologie inzetten.',
+      'Digitale tools hebben pas echte waarde als ze het leerproces verdiepen. bijleer.school is ontworpen vanuit didactische principes: elke app ondersteunt een concrete onderwijsdoelstelling en helpt leerkrachten bewuste keuzes te maken over wanneer en hoe ze technologie inzetten.',
     points: [
       'Apps zijn gebouwd rond bewezen didactische methoden',
       'Technologie versterkt de leerkracht, vervangt hem niet',
@@ -31,7 +31,7 @@ const GOALS = [
     title: 'Verticale leerlijnen',
     subtitle: 'Apps die de hele school verbinden',
     description:
-      'Leren stopt niet aan de klasdeur of bij de jaarovergang. BijleerSchool groeit mee met elke leerling doorheen de school: van de eerste klas tot de laatste. Leerkrachten zien de volledige ontwikkeling van een leerling en kunnen naadloos verderbouwen op wat voorgaande jaren is opgebouwd.',
+      'Leren stopt niet aan de klasdeur of bij de jaarovergang. bijleer.school groeit mee met elke leerling doorheen de school: van de eerste klas tot de laatste. Leerkrachten zien de volledige ontwikkeling van een leerling en kunnen naadloos verderbouwen op wat voorgaande jaren is opgebouwd.',
     points: [
       'Leerlingprofielen groeien mee doorheen de schoolloopbaan',
       'Leescoach, Sporen en gedragsdata zijn zichtbaar over jaren',
@@ -48,7 +48,7 @@ const GOALS = [
     title: 'Didactische routines',
     subtitle: 'Tijd besparen door slim werken',
     description:
-      'Leerkrachten besteden kostbare tijd aan administratie, registraties en opvolgingswerk. BijleerSchool automatiseert en stroomlijnt de routines die nu veel tijd in beslag nemen, zodat de leerkracht zich kan focussen op wat echt telt: lesgeven en contact met leerlingen.',
+      'Leerkrachten besteden kostbare tijd aan administratie, registraties en opvolgingswerk. bijleer.school automatiseert en stroomlijnt de routines die nu veel tijd in beslag nemen, zodat de leerkracht zich kan focussen op wat echt telt: lesgeven en contact met leerlingen.',
     points: [
       'Snelle registratie van leesgesprekken, gedrag en activiteiten',
       'Templates en presets voor terugkerende taken',
@@ -81,7 +81,7 @@ export function OnsDoel() {
               Ons doel
             </h1>
             <p className="text-xl text-gray-500 leading-relaxed mb-10">
-              BijleerSchool is niet zomaar een verzameling apps. Elk product is gebouwd rond drie fundamentele overtuigingen over goed onderwijs en slimme schoolorganisatie.
+              bijleer.school is niet zomaar een verzameling apps. Elk product is gebouwd rond drie fundamentele overtuigingen over goed onderwijs en slimme schoolorganisatie.
             </p>
             <div className="flex flex-wrap justify-center gap-6">
               {STATS.map((s) => (
@@ -140,7 +140,7 @@ export function OnsDoel() {
           <div className="bg-blue-600 rounded-2xl p-12 text-center text-white">
             <h2 className="text-3xl font-bold mb-4">Deel onze overtuiging?</h2>
             <p className="text-blue-100 text-lg max-w-xl mx-auto mb-8">
-              BijleerSchool groeit samen met de scholen die het gebruiken. Jouw input, noden en ideen maken het platform beter voor iedereen.
+              bijleer.school groeit samen met de scholen die het gebruiken. Jouw input, noden en ideen maken het platform beter voor iedereen.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button

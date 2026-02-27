@@ -131,7 +131,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h1 className="text-xl font-bold text-gray-900">BijleerSchool</h1>
+                <h1 className="text-xl font-bold text-gray-900">bijleer.school</h1>
                 <button
                   onClick={() => setShowVersionModal(true)}
                   className="flex items-center space-x-1 px-2 py-0.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-full hover:bg-indigo-100 transition-colors"

@@ -94,7 +94,7 @@ const ROLES = [
 const FAQS = [
   {
     question: 'Heb ik technische kennis nodig om te starten?',
-    answer: 'Neen. BijleerSchool is ontworpen voor leerkrachten, niet voor IT-specialisten. Het platform is intuïtief en elke app bevat een korte uitleg bij de eerste gebruik.',
+    answer: 'Neen. bijleer.school is ontworpen voor leerkrachten, niet voor IT-specialisten. Het platform is intuïtief en elke app bevat een korte uitleg bij de eerste gebruik.',
   },
   {
     question: 'Kunnen meerdere leerkrachten tegelijk inloggen?',
@@ -105,7 +105,7 @@ const FAQS = [
     answer: 'Je kunt op elk moment stoppen. We bieden geen jaarcontracten — je betaalt per schooljaar. Je gegevens kunnen worden geëxporteerd en worden daarna veilig verwijderd.',
   },
   {
-    question: 'Werkt BijleerSchool ook op tablet of smartphone?',
+    question: 'Werkt bijleer.school ook op tablet of smartphone?',
     answer: 'Ja. Het platform is volledig responsief en werkt op desktop, tablet en smartphone. Sommige apps, zoals ActiviTijd en WebWijzer, zijn specifiek ontworpen voor gebruik op een klassenscherm of tablet.',
   },
   {
@@ -133,7 +133,7 @@ export function HoeWerktHetPage() {
               Van aanmelding tot les in vier stappen
             </h1>
             <p className="text-lg text-gray-500 leading-relaxed">
-              BijleerSchool is zo eenvoudig mogelijk opgezet. Geen ingewikkelde configuratie, geen lange handleidingen. Je bent snel klaar om te starten.
+              bijleer.school is zo eenvoudig mogelijk opgezet. Geen ingewikkelde configuratie, geen lange handleidingen. Je bent snel klaar om te starten.
             </p>
           </div>
         </div>
@@ -177,7 +177,7 @@ export function HoeWerktHetPage() {
           <div className="max-w-2xl mx-auto text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Gebouwd op vraag van scholen</h2>
             <p className="text-gray-500 text-lg leading-relaxed">
-              Elke app in BijleerSchool is ontstaan vanuit een concrete nood in de klas. Scholen vragen, wij bouwen.
+              Elke app in bijleer.school is ontstaan vanuit een concrete nood in de klas. Scholen vragen, wij bouwen.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
@@ -203,7 +203,7 @@ export function HoeWerktHetPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Voor iedereen in de school</h2>
-            <p className="text-gray-500 text-lg">BijleerSchool ondersteunt leerkrachten, teams én directies.</p>
+            <p className="text-gray-500 text-lg">bijleer.school ondersteunt leerkrachten, teams én directies.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {ROLES.map((role, i) => (
@@ -237,7 +237,7 @@ export function HoeWerktHetPage() {
               <h3 className="text-lg font-bold text-gray-900 mb-2">Privacy en veiligheid</h3>
               <p className="text-gray-500 leading-relaxed">
                 Alle leerlinggegevens worden opgeslagen binnen de EU en zijn volledig afgeschermd per school.
-                Geen enkele andere school heeft toegang tot jouw gegevens. BijleerSchool voldoet aan de geldende GDPR-wetgeving.
+                Geen enkele andere school heeft toegang tot jouw gegevens. bijleer.school voldoet aan de geldende GDPR-wetgeving.
                 Leerlingprofielen bevatten geen onnodige persoonlijke informatie en worden nooit gedeeld met derden.
               </p>
             </div>
