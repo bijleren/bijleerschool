@@ -161,7 +161,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                 className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
               >
                 <Grid className="w-5 h-5" />
-                <span>Apps</span>
+                <span>Leerapps</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${showAppsDropdown ? 'rotate-180' : ''}`} />
               </button>
 
