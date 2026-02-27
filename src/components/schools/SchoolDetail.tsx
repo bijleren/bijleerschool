@@ -79,7 +79,7 @@ interface SchoolDetailProps {
 
 export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStudent, onNavigateToGroup }: SchoolDetailProps) {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'grades' | 'teamleden' | 'datagebruik'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'grades' | 'subjects' | 'teamleden' | 'datagebruik'>('students');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -101,7 +101,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [showImportStudents, setShowImportStudents] = useState(false);
   const [showGradeManagement, setShowGradeManagement] = useState(false);
-  const [showSubjectsManagement, setShowSubjectsManagement] = useState(false);
   const [userSearch, setUserSearch] = useState('');
   const [studentSearch, setStudentSearch] = useState('');
   const [groupSearch, setGroupSearch] = useState('');
@@ -546,12 +545,23 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             onClick={() => setActiveTab('grades')}
             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'grades'
-                ? 'border-indigo-500 text-indigo-600'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <GraduationCap className="w-4 h-4 mr-2" />
+            Leerjaren
+          </button>
+          <button
+            onClick={() => setActiveTab('subjects')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
+              activeTab === 'subjects'
+                ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
             <BookOpen className="w-4 h-4 mr-2" />
-            Leerjaren (13)
+            Vakken
           </button>
           <button
             onClick={() => setActiveTab('teamleden')}
@@ -879,39 +889,32 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold text-gray-900">Leerjaren en Niveaus</h3>
-            <div className="flex space-x-3">
-              <Button
-                variant="secondary"
-                onClick={() => setShowSubjectsManagement(true)}
-              >
-                <BookOpen className="w-4 h-4 mr-2" />
-                Vakken beheren
-              </Button>
-              <Button onClick={() => setShowGradeManagement(true)}>
-                <Settings className="w-4 h-4 mr-2" />
-                Leerjaren beheren
-              </Button>
-            </div>
+            <Button onClick={() => setShowGradeManagement(true)}>
+              <Settings className="w-4 h-4 mr-2" />
+              Leerjaren beheren
+            </Button>
           </div>
 
           <Card className="text-center py-12">
             <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Leerjaar beheer</h3>
             <p className="text-gray-600 mb-6">
-              Beheer de leerjaren en vakken voor je school. Deze worden gebruikt bij het maken van schema's en het registreren van technieken.
+              Beheer de leerjaren en niveaus voor je school. Deze worden gebruikt bij het maken van schema's en het registreren van technieken.
             </p>
-            <div className="flex justify-center space-x-3">
-              <Button onClick={() => setShowGradeManagement(true)}>
-                <Settings className="w-4 h-4 mr-2" />
-                Leerjaren beheren
-              </Button>
-              <Button variant="secondary" onClick={() => setShowSubjectsManagement(true)}>
-                <BookOpen className="w-4 h-4 mr-2" />
-                Vakken beheren
-              </Button>
-            </div>
+            <Button onClick={() => setShowGradeManagement(true)}>
+              <Settings className="w-4 h-4 mr-2" />
+              Leerjaren beheren
+            </Button>
           </Card>
         </div>
+      )}
+
+      {activeTab === 'subjects' && (
+        <SubjectsManagement
+          schoolId={school.id}
+          onClose={() => {}}
+          inline
+        />
       )}
 
       {activeTab === 'teamleden' && (
@@ -995,14 +998,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
         <GradeManagement
           schoolId={school.id}
           onClose={() => setShowGradeManagement(false)}
-        />
-      )}
-
-      {/* Subjects Management Modal */}
-      {showSubjectsManagement && (
-        <SubjectsManagement
-          schoolId={school.id}
-          onClose={() => setShowSubjectsManagement(false)}
         />
       )}
 
