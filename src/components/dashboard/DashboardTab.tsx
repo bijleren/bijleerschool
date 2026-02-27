@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { OnboardingBanner } from '../onboarding/OnboardingBanner';
 import {
   Heart,
   Users,
@@ -115,12 +116,13 @@ interface DashboardTabProps {
   onNavigateToBoeker?: () => void;
   onNavigateToZoeker?: () => void;
   onNavigateToBlinkQR?: () => void;
+  onNavigateToOnboarding?: () => void;
   userSchools: { id: string; name: string }[];
   focusSchool: { id: string; name: string } | null;
   onFocusSchoolChange: (school: { id: string; name: string }) => void;
 }
 
-export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigateToSchools, onNavigateToBehaviorWithStudent, onNavigateToBehavior, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToEDI, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToZoeker, onNavigateToBlinkQR, userSchools, focusSchool, onFocusSchoolChange }: DashboardTabProps) {
+export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigateToSchools, onNavigateToBehaviorWithStudent, onNavigateToBehavior, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToEDI, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToZoeker, onNavigateToBlinkQR, onNavigateToOnboarding, userSchools, focusSchool, onFocusSchoolChange }: DashboardTabProps) {
   const { user } = useAuth();
   const [favoriteStudents, setFavoriteStudents] = useState<FavoriteStudent[]>([]);
   const [favoriteGroups, setFavoriteGroups] = useState<FavoriteGroup[]>([]);
@@ -690,6 +692,9 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
 
   return (
     <div className="max-w-6xl mx-auto">
+      {onNavigateToOnboarding && (
+        <OnboardingBanner onOpenOnboarding={onNavigateToOnboarding} />
+      )}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>

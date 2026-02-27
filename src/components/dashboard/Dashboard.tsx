@@ -22,6 +22,7 @@ import { LeescoachTab } from '../leescoach/LeescoachTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
+import { OnboardingChecklist } from '../onboarding/OnboardingChecklist';
 
 interface School {
   id: string;
@@ -59,7 +60,7 @@ export function Dashboard() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr' | 'sporen' | 'leescoach'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr' | 'sporen' | 'leescoach' | 'onboarding'>('dashboard');
   const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -263,6 +264,10 @@ export function Dashboard() {
 
   const handleNavigateToDashboard = () => {
     setActiveTab('dashboard');
+  };
+
+  const handleNavigateToOnboarding = () => {
+    setActiveTab('onboarding');
   };
 
   const handleNavigateToProfile = () => {
@@ -734,6 +739,7 @@ export function Dashboard() {
             onNavigateToBoeker={handleNavigateToBoeker}
             onNavigateToZoeker={handleNavigateToZoeker}
             onNavigateToBlinkQR={handleNavigateToBlinkQR}
+            onNavigateToOnboarding={handleNavigateToOnboarding}
             userSchools={userSchools}
             focusSchool={focusSchool}
             onFocusSchoolChange={setFocusSchool}
@@ -762,6 +768,12 @@ export function Dashboard() {
         {activeTab === 'sporen' && <SporenTab focusSchool={focusSchool} />}
         {activeTab === 'leescoach' && <LeescoachTab focusSchool={focusSchool} />}
         {activeTab === 'activityboards' && <ActivityBoardsTab onFullscreenChange={setIsFullscreen} />}
+        {activeTab === 'onboarding' && (
+          <OnboardingChecklist
+            focusSchool={focusSchool}
+            onNavigateToSchools={handleNavigateToSchools}
+          />
+        )}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail
             school={selectedSchool}
