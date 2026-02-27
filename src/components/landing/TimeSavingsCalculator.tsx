@@ -1,0 +1,295 @@
+import React, { useState, useMemo } from 'react';
+import { Clock, TrendingUp, Zap, BookOpen, CheckCircle } from 'lucide-react';
+
+const APP_SAVINGS = [
+  {
+    id: 'webwijzer',
+    name: 'WebWijzer',
+    color: 'bg-orange-500',
+    lightColor: 'bg-orange-100',
+    textColor: 'text-orange-700',
+    borderColor: 'border-orange-200',
+    minutesPerWeek: 20,
+    learningBenefit: 'Leerlingen vinden sneller de juiste bronnen',
+    description: 'Geen tijd meer verliezen aan links dicteren of foutieve websites',
+  },
+  {
+    id: 'activitijd',
+    name: 'ActiviTijd',
+    color: 'bg-teal-500',
+    lightColor: 'bg-teal-100',
+    textColor: 'text-teal-700',
+    borderColor: 'border-teal-200',
+    minutesPerWeek: 30,
+    learningBenefit: 'Meer zelfstandig werken door leerlingen',
+    description: 'Minder herhalingsvragen over wat leerlingen moeten doen',
+  },
+  {
+    id: 'boeker',
+    name: 'Boeker',
+    color: 'bg-pink-500',
+    lightColor: 'bg-pink-100',
+    textColor: 'text-pink-700',
+    borderColor: 'border-pink-200',
+    minutesPerWeek: 25,
+    learningBenefit: 'Leesbewustzijn stijgt door digitaal bijhouden',
+    description: 'Manuele uitleenregistratie en zoeken in kaartenbak verdwijnt',
+  },
+  {
+    id: 'gedrag',
+    name: 'Gedragsmanagement',
+    color: 'bg-green-500',
+    lightColor: 'bg-green-100',
+    textColor: 'text-green-700',
+    borderColor: 'border-green-200',
+    minutesPerWeek: 40,
+    learningBenefit: 'Betere inzichten leiden tot gerichte aanpak',
+    description: 'Papieren incidentrapporten en zoeken in dossiers verdwijnt',
+  },
+  {
+    id: 'leescoach',
+    name: 'Leescoach',
+    color: 'bg-rose-500',
+    lightColor: 'bg-rose-100',
+    textColor: 'text-rose-700',
+    borderColor: 'border-rose-200',
+    minutesPerWeek: 35,
+    learningBenefit: 'Gerichte leesinterventies op basis van data',
+    description: 'Geen manuele notities meer nodig na leessessies',
+  },
+  {
+    id: 'sporen',
+    name: 'Sporen',
+    color: 'bg-blue-500',
+    lightColor: 'bg-blue-100',
+    textColor: 'text-blue-700',
+    borderColor: 'border-blue-200',
+    minutesPerWeek: 30,
+    learningBenefit: 'Differentiatie wordt inzichtelijk en beheersbaar',
+    description: 'Overzicht van leertrajecten altijd beschikbaar, geen losse notities',
+  },
+  {
+    id: 'nieuwsbrief',
+    name: 'Nieuwsbrief',
+    color: 'bg-amber-500',
+    lightColor: 'bg-amber-100',
+    textColor: 'text-amber-700',
+    borderColor: 'border-amber-200',
+    minutesPerWeek: 45,
+    learningBenefit: 'Meer betrokken ouders door professionele communicatie',
+    description: 'Opmaak en layout nemen geen uren meer in beslag',
+  },
+  {
+    id: 'schooldag',
+    name: 'Schooldag Planner',
+    color: 'bg-slate-500',
+    lightColor: 'bg-slate-100',
+    textColor: 'text-slate-700',
+    borderColor: 'border-slate-200',
+    minutesPerWeek: 25,
+    learningBenefit: 'Helder dagritme vermindert stress bij leerlingen',
+    description: 'Planningen hoeven niet langer opnieuw gemaakt te worden',
+  },
+];
+
+const SCHOOL_WEEKS_PER_YEAR = 36;
+
+function formatTime(totalMinutes: number): { value: string; unit: string } {
+  if (totalMinutes < 60) return { value: String(Math.round(totalMinutes)), unit: 'min' };
+  const hours = totalMinutes / 60;
+  if (hours < 100) return { value: hours.toFixed(1).replace('.0', ''), unit: 'uur' };
+  return { value: Math.round(hours).toLocaleString('nl-BE'), unit: 'uur' };
+}
+
+export function TimeSavingsCalculator() {
+  const [selected, setSelected] = useState<Set<string>>(new Set(['webwijzer', 'activitijd', 'leescoach']));
+  const [years, setYears] = useState(3);
+
+  const toggleApp = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const { weeklyMinutes, yearlyMinutes, totalMinutes, yearlyBreakdown } = useMemo(() => {
+    const activeApps = APP_SAVINGS.filter((a) => selected.has(a.id));
+    const weekly = activeApps.reduce((sum, a) => sum + a.minutesPerWeek, 0);
+    const yearly = weekly * SCHOOL_WEEKS_PER_YEAR;
+    const total = yearly * years;
+    const breakdown = Array.from({ length: years }, (_, i) => ({
+      year: i + 1,
+      cumulative: yearly * (i + 1),
+    }));
+    return { weeklyMinutes: weekly, yearlyMinutes: yearly, totalMinutes: total, yearlyBreakdown: breakdown };
+  }, [selected, years]);
+
+  const weeklyFmt = formatTime(weeklyMinutes);
+  const yearlyFmt = formatTime(yearlyMinutes);
+  const totalFmt = formatTime(totalMinutes);
+  const maxCumulative = yearlyBreakdown.length > 0 ? yearlyBreakdown[yearlyBreakdown.length - 1].cumulative : 1;
+
+  return (
+    <div className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="max-w-2xl mx-auto text-center mb-14">
+          <span className="inline-block bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-5 border border-blue-100">
+            Leer- &amp; tijdswinst
+          </span>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Elke app wint tijd. Samen winnen ze de dag.
+          </h2>
+          <p className="text-gray-500 text-lg leading-relaxed">
+            Elke bijleer.school-app elimineert repetitief werk. Selecteer de apps die jij gebruikt en zie hoeveel tijd je uitspaart — per week, per jaar en over meerdere jaren.
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-5 gap-8 items-start">
+          {/* Left: app selector */}
+          <div className="lg:col-span-2 space-y-3">
+            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Selecteer jouw apps</p>
+            {APP_SAVINGS.map((app) => {
+              const active = selected.has(app.id);
+              return (
+                <button
+                  key={app.id}
+                  onClick={() => toggleApp(app.id)}
+                  className={`w-full text-left rounded-xl border-2 px-4 py-3.5 transition-all duration-150 ${
+                    active
+                      ? `${app.borderColor} ${app.lightColor}`
+                      : 'border-gray-200 bg-white hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className={`text-sm font-semibold ${active ? app.textColor : 'text-gray-700'}`}>
+                          {app.name}
+                        </span>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${active ? `${app.lightColor} ${app.textColor}` : 'bg-gray-100 text-gray-500'}`}>
+                          ~{app.minutesPerWeek} min/week
+                        </span>
+                      </div>
+                      {active && (
+                        <p className="text-xs text-gray-500 leading-snug mt-1">{app.description}</p>
+                      )}
+                    </div>
+                    <div className={`flex-shrink-0 w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center transition-colors ${
+                      active ? `${app.color} border-transparent` : 'border-gray-300'
+                    }`}>
+                      {active && <CheckCircle className="w-3.5 h-3.5 text-white" />}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Right: results */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Stat cards */}
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { icon: <Zap className="w-5 h-5 text-blue-600" />, bg: 'bg-blue-50', label: 'Per week', fmt: weeklyFmt },
+                { icon: <Clock className="w-5 h-5 text-emerald-600" />, bg: 'bg-emerald-50', label: 'Per schooljaar', fmt: yearlyFmt },
+                { icon: <TrendingUp className="w-5 h-5 text-orange-600" />, bg: 'bg-orange-50', label: `Over ${years} jaar`, fmt: totalFmt },
+              ].map((s) => (
+                <div key={s.label} className="bg-white rounded-2xl border border-gray-200 p-5 text-center">
+                  <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl ${s.bg} mb-3`}>
+                    {s.icon}
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900 leading-none">
+                    {selected.size === 0 ? '—' : s.fmt.value}
+                    <span className="text-sm font-medium text-gray-400 ml-1">{selected.size > 0 ? s.fmt.unit : ''}</span>
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1">{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Year slider */}
+            <div className="bg-gray-50 rounded-2xl border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-semibold text-gray-700">Tijdshorizon</span>
+                <span className="text-sm font-bold text-blue-600">{years} {years === 1 ? 'jaar' : 'jaar'}</span>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={10}
+                value={years}
+                onChange={(e) => setYears(Number(e.target.value))}
+                className="w-full h-2 bg-blue-200 rounded-full appearance-none cursor-pointer accent-blue-600"
+              />
+              <div className="flex justify-between text-xs text-gray-400 mt-2">
+                <span>1 jaar</span>
+                <span>5 jaar</span>
+                <span>10 jaar</span>
+              </div>
+            </div>
+
+            {/* Bar chart */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <div className="flex items-center gap-2 mb-5">
+                <TrendingUp className="w-4 h-4 text-gray-400" />
+                <span className="text-sm font-semibold text-gray-700">Cumulatieve tijdswinst per jaar</span>
+              </div>
+              {selected.size === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 text-gray-400">
+                  <BookOpen className="w-8 h-8 mb-2 opacity-40" />
+                  <span className="text-sm">Selecteer apps om de tijdswinst te berekenen</span>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {yearlyBreakdown.map((item) => {
+                    const pct = maxCumulative > 0 ? (item.cumulative / maxCumulative) * 100 : 0;
+                    const fmt = formatTime(item.cumulative);
+                    return (
+                      <div key={item.year} className="flex items-center gap-3">
+                        <span className="text-xs font-medium text-gray-500 w-12 flex-shrink-0">Jaar {item.year}</span>
+                        <div className="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-end pr-3 transition-all duration-500"
+                            style={{ width: `${Math.max(pct, 8)}%` }}
+                          >
+                            <span className="text-xs font-bold text-white whitespace-nowrap">
+                              {fmt.value} {fmt.unit}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Learning benefits */}
+            {selected.size > 0 && (
+              <div className="bg-emerald-50 rounded-2xl border border-emerald-100 p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <BookOpen className="w-4 h-4 text-emerald-600" />
+                  <span className="text-sm font-semibold text-emerald-800">Leerwinst per geselecteerde app</span>
+                </div>
+                <ul className="space-y-2">
+                  {APP_SAVINGS.filter((a) => selected.has(a.id)).map((a) => (
+                    <li key={a.id} className="flex items-start gap-2.5">
+                      <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <span className="text-sm font-semibold text-emerald-800">{a.name}: </span>
+                        <span className="text-sm text-emerald-700">{a.learningBenefit}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

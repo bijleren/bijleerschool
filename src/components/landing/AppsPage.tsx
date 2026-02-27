@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
+import { TimeSavingsCalculator } from './TimeSavingsCalculator';
 
 const APPS = [
   {
@@ -281,6 +282,9 @@ export function AppsPage() {
           </div>
         </div>
       </div>
+
+      {/* Time savings calculator */}
+      <TimeSavingsCalculator />
 
       {/* CTA */}
       <div className="py-20 bg-white">
