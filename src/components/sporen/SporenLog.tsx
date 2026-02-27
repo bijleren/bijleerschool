@@ -60,8 +60,7 @@ export function SporenLog({ schoolId, groupId, subjectId, groupName, subjectName
           needs_attention,
           change_notes,
           students!student_spoor_assignments_student_id_fkey(first_name, last_name),
-          sporen!student_spoor_assignments_spoor_id_fkey(name, color),
-          assigned_by_profile:profiles!student_spoor_assignments_assigned_by_fkey(full_name)
+          sporen!student_spoor_assignments_spoor_id_fkey(name, color)
         `)
         .eq('group_id', groupId)
         .eq('school_subject_id', subjectId)
@@ -80,7 +79,7 @@ export function SporenLog({ schoolId, groupId, subjectId, groupName, subjectName
         spoor_color: row.sporen?.color || '#6b7280',
         is_current: row.is_current,
         assigned_at: row.assigned_at,
-        assigned_by_name: row.assigned_by_profile?.full_name || null,
+        assigned_by_name: null,
         needs_attention: row.needs_attention,
         change_notes: row.change_notes,
       }));
