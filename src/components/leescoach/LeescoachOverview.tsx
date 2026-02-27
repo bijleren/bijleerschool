@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -12,7 +13,8 @@ import {
   Search,
   Calendar,
   Book,
-  User
+  User,
+  Download
 } from 'lucide-react';
 import { SessionDetailsModal } from './SessionDetailsModal';
 
@@ -181,6 +183,67 @@ export function LeescoachOverview({
     }
   };
 
+  const getScaleText = (scale: string | null) => {
+    if (!scale) return '';
+    switch (scale) {
+      case 'very_poor': return 'Zeer zwak';
+      case 'poor': return 'Zwak';
+      case 'good': return 'Goed';
+      case 'excellent': return 'Uitstekend';
+      default: return '';
+    }
+  };
+
+  const exportToExcel = async () => {
+    let allSessions = sessions;
+
+    if (dateRange !== 'all' && allSessions.length === 0) {
+      return;
+    }
+
+    if (allSessions.length === 0) return;
+
+    const rows = allSessions.map(session => ({
+      'Datum': new Date(session.session_date).toLocaleDateString('nl-NL', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      }),
+      'Leerling': `${session.students.first_name} ${session.students.last_name}`,
+      'Boek': session.books?.title || session.manual_book_title || '',
+      'Auteur': session.books?.author || session.manual_book_author || '',
+      'Leesniveau': getScaleText(session.leesniveau_scale),
+      'Begrip': getScaleText(session.begrip_scale),
+      'Motivatie': getScaleText(session.motivatie_scale),
+      'Smaakontwikkeling': getScaleText(session.smaakontwikkeling_scale),
+      'Algemene observaties': session.general_observations || '',
+      'Leestechnieken': session.reading_session_techniques
+        .map(t => t.reading_techniques.title)
+        .join(', '),
+      'Interventies': session.reading_session_interventions
+        .map(i => i.reading_interventions.title)
+        .join(', '),
+      'Volgende sessie': session.next_session_date
+        ? new Date(session.next_session_date).toLocaleDateString('nl-NL', {
+            day: '2-digit', month: '2-digit', year: 'numeric'
+          })
+        : '',
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const colWidths = [
+      { wch: 18 }, { wch: 24 }, { wch: 30 }, { wch: 20 },
+      { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 18 },
+      { wch: 40 }, { wch: 30 }, { wch: 30 }, { wch: 16 },
+    ];
+    worksheet['!cols'] = colWidths;
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Leessessies');
+
+    const dateStr = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(workbook, `leessessies_${dateStr}.xlsx`);
+  };
+
   const getDaysSinceSession = (date: string | null) => {
     if (!date) return null;
     const sessionDate = new Date(date);
@@ -215,6 +278,15 @@ export function LeescoachOverview({
           <Button variant="outline" onClick={onNavigateToAnalytics}>
             <BarChart3 className="w-5 h-5 mr-2" />
             Analytics
+          </Button>
+          <Button
+            variant="outline"
+            onClick={exportToExcel}
+            disabled={sessions.length === 0}
+            title="Exporteer sessies naar Excel"
+          >
+            <Download className="w-5 h-5 mr-2" />
+            Exporteer
           </Button>
           <Button onClick={onNavigateToCreate}>
             <Plus className="w-5 h-5 mr-2" />
