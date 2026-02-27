@@ -145,6 +145,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   const [incidents, setIncidents] = useState<BehaviorIncident[]>([]);
   const [statusFilters, setStatusFilters] = useState<string[]>(['pending', 'in_progress']);
   const [incidentsLoading, setIncidentsLoading] = useState(false);
+  const [hasAnyIncidents, setHasAnyIncidents] = useState(false);
   const [studentSearchQuery, setStudentSearchQuery] = useState('');
   const [allStudents, setAllStudents] = useState<Array<{ id: string; first_name: string; last_name: string; school_id: string }>>([]);
   const [showStudentModal, setShowStudentModal] = useState(false);
@@ -283,16 +284,20 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
 
       // Fetch basic stats
       const statsResult = await fetchBasicStats();
+      const schoolHasIncidents = statsResult.hasAnyIncidents ?? false;
+      setHasAnyIncidents(schoolHasIncidents);
       setStats({
         ...statsResult,
         favoriteStudents: favoriteStudentsData.length,
         favoriteGroups: favoriteGroupsData.length
       });
 
-      // Fetch incident counts for favorites
-      await fetchStudentIncidentCounts(favoriteStudentsData.map(f => f.students.id));
-      await fetchGroupIncidentCounts(favoriteGroupsData.map(f => f.groups.id));
-      await fetchSchoolOverview();
+      // Fetch incident counts for favorites only when incidents exist
+      if (schoolHasIncidents) {
+        await fetchStudentIncidentCounts(favoriteStudentsData.map(f => f.students.id));
+        await fetchGroupIncidentCounts(favoriteGroupsData.map(f => f.groups.id));
+        await fetchSchoolOverview();
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -335,6 +340,28 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
           .eq('is_active', true)
       ]);
 
+      // Count all incidents (to determine if behavior section should be shown)
+      const { count: totalIncidentCount } = await supabase
+        .from('behavior_incidents')
+        .select('id', { count: 'exact', head: true })
+        .eq('school_id', selectedSchoolId);
+
+      const schoolHasIncidents = (totalIncidentCount ?? 0) > 0;
+
+      if (!schoolHasIncidents) {
+        return {
+          totalSchools: 1,
+          totalStudents: studentCount || 0,
+          totalGroups: groupCount || 0,
+          favoriteStudents: 0,
+          favoriteGroups: 0,
+          reportsToday: 0,
+          openReports: 0,
+          notifications: 0,
+          hasAnyIncidents: false,
+        };
+      }
+
       // Count incidents for today (simplified - show all school incidents)
       const { data: todayIncidents } = await supabase
         .from('behavior_incidents')
@@ -376,6 +403,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         reportsToday: todayIncidents?.length || 0,
         openReports: openIncidents?.length || 0,
         notifications: schoolIncidentsWithFollowups?.length || 0,
+        hasAnyIncidents: true,
       };
     } catch (error) {
       console.error('Error fetching basic stats:', error);
@@ -388,6 +416,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         reportsToday: 0,
         openReports: 0,
         notifications: 0,
+        hasAnyIncidents: false,
       };
     }
   };
@@ -533,16 +562,16 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   };
 
   useEffect(() => {
-    if (selectedSchoolId) {
+    if (selectedSchoolId && hasAnyIncidents) {
       fetchSchoolOverview();
     }
-  }, [schoolOverviewPeriod, selectedSchoolId]);
+  }, [schoolOverviewPeriod, selectedSchoolId, hasAnyIncidents]);
 
   useEffect(() => {
-    if (selectedSchoolId && statusFilters.length > 0) {
+    if (selectedSchoolId && statusFilters.length > 0 && hasAnyIncidents) {
       fetchIncidents();
     }
-  }, [selectedSchoolId, statusFilters]);
+  }, [selectedSchoolId, statusFilters, hasAnyIncidents]);
 
   const fetchIncidents = async () => {
     if (!selectedSchoolId) return;
@@ -836,6 +865,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Behavior Statistics Row */}
+        {hasAnyIncidents && (
         <div className="lg:col-span-2 mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900 flex items-center">
@@ -886,6 +916,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             </Card>
           </div>
         </div>
+        )}
         {/* Favorite Students */}
         <div>
           <div className="mb-6">
@@ -1145,7 +1176,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       </div>
 
       {/* School Overview Section */}
-      <div className="mt-8">
+      {hasAnyIncidents && <div className="mt-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center">
             <School className="w-5 h-5 text-blue-600 mr-2" />
@@ -1203,10 +1234,10 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             </div>
           </Card>
         </div>
-      </div>
+      </div>}
 
       {/* Behavior Incidents List */}
-      <div className="mt-8">
+      {hasAnyIncidents && <div className="mt-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center">
             <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
@@ -1349,7 +1380,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             </div>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 }
