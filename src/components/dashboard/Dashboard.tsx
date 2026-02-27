@@ -772,6 +772,7 @@ export function Dashboard() {
           <OnboardingChecklist
             focusSchool={focusSchool}
             onNavigateToSchools={handleNavigateToSchools}
+            onNavigateToWebWijzer={handleNavigateToWebWijzer}
           />
         )}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (

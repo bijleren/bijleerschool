@@ -17,11 +17,14 @@ import {
   School,
   ChevronRight,
   Hash,
+  ImagePlus,
+  Link,
 } from 'lucide-react';
 
 interface OnboardingChecklistProps {
   focusSchool: { id: string; name: string; school_code?: string } | null;
   onNavigateToSchools: () => void;
+  onNavigateToWebWijzer?: () => void;
 }
 
 interface ChecklistItem {
@@ -35,13 +38,15 @@ interface ChecklistItem {
   done: boolean;
 }
 
-export function OnboardingChecklist({ focusSchool, onNavigateToSchools }: OnboardingChecklistProps) {
+export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNavigateToWebWijzer }: OnboardingChecklistProps) {
   const { user } = useAuth();
   const [hasStudents, setHasStudents] = useState(false);
   const [hasGroups, setHasGroups] = useState(false);
   const [hasSubjects, setHasSubjects] = useState(false);
   const [hasGrades, setHasGrades] = useState(false);
   const [hasTeamMembers, setHasTeamMembers] = useState(false);
+  const [hasEnrichedProfiles, setHasEnrichedProfiles] = useState(false);
+  const [hasWebWijzerCards, setHasWebWijzerCards] = useState(false);
   const [schoolCode, setSchoolCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [expandedItem, setExpandedItem] = useState<string | null>('students');
@@ -57,13 +62,15 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools }: Onboar
     setLoading(true);
 
     try {
-      const [studentsRes, groupsRes, subjectsRes, gradesRes, teamRes, schoolRes] = await Promise.all([
+      const [studentsRes, groupsRes, subjectsRes, gradesRes, teamRes, schoolRes, enrichedRes, webwijzerRes] = await Promise.all([
         supabase.from('students').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true),
         supabase.from('groups').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true),
         supabase.from('school_subjects').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true),
         supabase.from('school_grades').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true),
         supabase.from('user_schools').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('status', 'approved').eq('is_active', true),
         supabase.from('schools').select('school_code').eq('id', focusSchool.id).maybeSingle(),
+        supabase.from('students').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true).not('profile_picture_url', 'is', null),
+        supabase.from('webwijzer_content').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id),
       ]);
 
       setHasStudents((studentsRes.count ?? 0) > 0);
@@ -72,6 +79,8 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools }: Onboar
       setHasGrades((gradesRes.count ?? 0) > 0);
       setHasTeamMembers((teamRes.count ?? 0) > 1);
       setSchoolCode(schoolRes.data?.school_code ?? focusSchool.school_code ?? '');
+      setHasEnrichedProfiles((enrichedRes.count ?? 0) > 0);
+      setHasWebWijzerCards((webwijzerRes.count ?? 0) > 0);
     } catch (err) {
       console.error('Error fetching checklist status:', err);
     } finally {
@@ -79,8 +88,8 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools }: Onboar
     }
   };
 
-  const completedCount = [hasStudents, hasSubjects, hasGrades, hasGroups, hasTeamMembers].filter(Boolean).length;
-  const totalCount = 5;
+  const completedCount = [hasStudents, hasSubjects, hasGrades, hasGroups, hasTeamMembers, hasEnrichedProfiles, hasWebWijzerCards].filter(Boolean).length;
+  const totalCount = 7;
   const progressPercent = Math.round((completedCount / totalCount) * 100);
 
   const items: ChecklistItem[] = [
@@ -133,6 +142,26 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools }: Onboar
       actionLabel: 'Schoolcode bekijken',
       onAction: onNavigateToSchools,
       done: hasTeamMembers,
+    },
+    {
+      id: 'profiles',
+      title: 'Leerlingprofielen verrijken',
+      description: 'Maak leerlingprofielen persoonlijker door een profielfoto of een herkenbaar pictogram toe te voegen. Dit maakt het makkelijker om leerlingen snel te herkennen in overzichten, op het activiteitenbord en in andere modules.',
+      tip: 'Open een leerlingprofiel via Scholen > jouw school > klik op een leerling. Daar vind je de opties voor foto en pictogram bovenaan de profielpagina.',
+      icon: <ImagePlus className="w-5 h-5" />,
+      actionLabel: 'Ga naar leerlingen',
+      onAction: onNavigateToSchools,
+      done: hasEnrichedProfiles,
+    },
+    {
+      id: 'webwijzer',
+      title: 'WebWijzer-kaarten aanmaken',
+      description: 'Met WebWijzer geef je leerlingen veilige toegang tot goedgekeurde websites en digitale tools. Maak kaarten aan met een naam, link en pictogram. Leerlingen scannen een QR-code om meteen naar de juiste pagina te gaan — zonder zelf te hoeven typen.',
+      tip: 'Ga naar de WebWijzer-module en klik op "Nieuwe kaart". Voeg een titel, URL en een icoon toe. Je kunt kaarten per klas of groep zichtbaar maken.',
+      icon: <Link className="w-5 h-5" />,
+      actionLabel: 'Ga naar WebWijzer',
+      onAction: onNavigateToWebWijzer ?? onNavigateToSchools,
+      done: hasWebWijzerCards,
     },
   ];
 
