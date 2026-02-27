@@ -16,7 +16,7 @@ export function LandingFooter() {
               <span className="font-bold text-white">bijleer.school</span>
             </div>
             <p className="text-sm leading-relaxed text-gray-400 mb-4">
-              Digitale leerapps voor leerkrachten en schoolteams. Gebouwd op vraag van scholen, voor scholen.
+             Gebouwd op vraag van scholen, voor scholen.
             </p>
             <a
               href="https://bijleren.eu"
