@@ -217,16 +217,6 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     </button>
                     <button
                       onClick={() => {
-                        onNavigateToActivityBoards();
-                        setShowAppsDropdown(false);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <Grid className="w-4 h-4 mr-2" />
-                      Activi-Tijd
-                    </button>
-                    <button
-                      onClick={() => {
                         onNavigateToBoeker();
                         setShowAppsDropdown(false);
                       }}
@@ -328,6 +318,16 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     >
                       <Search className="w-4 h-4 mr-2" />
                       Zoeker
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToActivityBoards();
+                        setShowSlimmeICTDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Grid className="w-4 h-4 mr-2" />
+                      Activi-Tijd
                     </button>
                     <button
                       onClick={() => {
