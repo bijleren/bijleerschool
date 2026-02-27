@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { GraduationCap, Menu, X } from 'lucide-react';
+import { GraduationCap, Menu, X, Globe } from 'lucide-react';
 
 interface LandingNavProps {
   navigate: (path: string) => void;
@@ -56,12 +56,21 @@ export function LandingNav({ navigate }: LandingNavProps) {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <button
-              onClick={() => navigate('/login')}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Leerkracht Login
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => navigate('/login')}
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Leerkracht Login
+              </button>
+              <a
+                href="/webwijzer"
+                className="absolute top-full left-1/2 -translate-x-1/2 mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-md text-xs font-semibold text-gray-600 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700 transition-all whitespace-nowrap z-50"
+              >
+                <Globe className="w-3.5 h-3.5 text-orange-500" />
+                WebWijzer voor leerlingen
+              </a>
+            </div>
           </div>
 
           {/* Mobile hamburger */}
