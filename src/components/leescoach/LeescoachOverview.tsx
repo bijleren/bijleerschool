@@ -37,6 +37,16 @@ interface Session {
     title: string;
     author: string | null;
   } | null;
+  reading_session_techniques: Array<{
+    reading_techniques: {
+      title: string;
+    };
+  }>;
+  reading_session_interventions: Array<{
+    reading_interventions: {
+      title: string;
+    };
+  }>;
 }
 
 interface StudentWithLastSession {
@@ -99,8 +109,14 @@ export function LeescoachOverview({
       .from('reading_coach_sessions')
       .select(`
         *,
-        students (id, first_name, last_name, photo_url),
-        books (title, author)
+        students!inner (id, first_name, last_name, photo_url),
+        books (title, author),
+        reading_session_techniques (
+          reading_techniques (title)
+        ),
+        reading_session_interventions (
+          reading_interventions (title)
+        )
       `)
       .eq('school_id', schoolId)
       .order('session_date', { ascending: false });
@@ -108,7 +124,7 @@ export function LeescoachOverview({
     if (dateRange !== 'all') {
       const daysAgo = new Date();
       daysAgo.setDate(daysAgo.getDate() - parseInt(dateRange));
-      query = query.gte('session_date', daysAgo.toISOString());
+      query = query.gte('session_date', daysAgo.toISOString().split('T')[0]);
     }
 
     const { data, error } = await query;

@@ -73,11 +73,28 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
   const [nextSessionDate, setNextSessionDate] = useState('');
 
   const [studentSearch, setStudentSearch] = useState('');
+  const [showStudentDropdown, setShowStudentDropdown] = useState(false);
   const [bookSearch, setBookSearch] = useState('');
+  const [showBookDropdown, setShowBookDropdown] = useState(false);
 
   useEffect(() => {
     loadData();
   }, [schoolId]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.student-dropdown-container')) {
+        setShowStudentDropdown(false);
+      }
+      if (!target.closest('.book-dropdown-container')) {
+        setShowBookDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const loadData = async () => {
     const [studentsRes, booksRes, techniquesRes, interventionsRes] = await Promise.all([
@@ -219,30 +236,53 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
             <h2 className="text-lg font-semibold mb-4">Leerling en Timing</h2>
 
             <div className="space-y-4">
-              <div>
+              <div className="student-dropdown-container">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Leerling
                 </label>
-                <Input
-                  type="text"
-                  placeholder="Zoek leerling..."
-                  value={studentSearch}
-                  onChange={(e) => setStudentSearch(e.target.value)}
-                  className="mb-2"
-                />
-                <select
-                  value={selectedStudentId}
-                  onChange={(e) => setSelectedStudentId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                >
-                  <option value="">Selecteer een leerling</option>
-                  {filteredStudents.map(student => (
-                    <option key={student.id} value={student.id}>
-                      {student.first_name} {student.last_name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <Input
+                    type="text"
+                    placeholder="Selecteer een leerling..."
+                    value={selectedStudentId ? students.find(s => s.id === selectedStudentId)?.first_name + ' ' + students.find(s => s.id === selectedStudentId)?.last_name : studentSearch}
+                    onChange={(e) => {
+                      setStudentSearch(e.target.value);
+                      setSelectedStudentId('');
+                      setShowStudentDropdown(true);
+                    }}
+                    onFocus={() => setShowStudentDropdown(true)}
+                    required
+                  />
+                  {showStudentDropdown && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {filteredStudents.length === 0 ? (
+                        <div className="px-4 py-3 text-gray-500 text-sm">Geen leerlingen gevonden</div>
+                      ) : (
+                        filteredStudents.map(student => (
+                          <button
+                            key={student.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedStudentId(student.id);
+                              setStudentSearch('');
+                              setShowStudentDropdown(false);
+                            }}
+                            className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-3"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                              {student.photo_url ? (
+                                <img src={student.photo_url} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <User className="w-4 h-4 text-gray-400" />
+                              )}
+                            </div>
+                            <span>{student.first_name} {student.last_name}</span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -300,26 +340,41 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
               </div>
 
               {bookSource === 'library' ? (
-                <div>
+                <div className="relative book-dropdown-container">
                   <Input
                     type="text"
-                    placeholder="Zoek boek..."
-                    value={bookSearch}
-                    onChange={(e) => setBookSearch(e.target.value)}
-                    className="mb-2"
+                    placeholder="Selecteer een boek (optioneel)..."
+                    value={selectedBookId ? books.find(b => b.id === selectedBookId)?.title : bookSearch}
+                    onChange={(e) => {
+                      setBookSearch(e.target.value);
+                      setSelectedBookId('');
+                      setShowBookDropdown(true);
+                    }}
+                    onFocus={() => setShowBookDropdown(true)}
                   />
-                  <select
-                    value={selectedBookId}
-                    onChange={(e) => setSelectedBookId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Selecteer een boek (optioneel)</option>
-                    {filteredBooks.map(book => (
-                      <option key={book.id} value={book.id}>
-                        {book.title} {book.author ? `- ${book.author}` : ''}
-                      </option>
-                    ))}
-                  </select>
+                  {showBookDropdown && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {filteredBooks.length === 0 ? (
+                        <div className="px-4 py-3 text-gray-500 text-sm">Geen boeken gevonden</div>
+                      ) : (
+                        filteredBooks.map(book => (
+                          <button
+                            key={book.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedBookId(book.id);
+                              setBookSearch('');
+                              setShowBookDropdown(false);
+                            }}
+                            className="w-full px-4 py-2 text-left hover:bg-gray-50"
+                          >
+                            <div className="font-medium">{book.title}</div>
+                            {book.author && <div className="text-sm text-gray-600">{book.author}</div>}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3">
