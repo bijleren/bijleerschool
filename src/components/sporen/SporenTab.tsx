@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 import { SporenManagement } from './SporenManagement';
 import { SporenBoardView } from './SporenBoardView';
 import { SporenAnalytics } from './SporenAnalytics';
-import { GitBranch, Settings, BarChart3, Save, X, AlertCircle } from 'lucide-react';
+import { GitBranch, Settings, BarChart3, X, AlertCircle } from 'lucide-react';
 
 interface School {
   id: string;
@@ -157,10 +157,10 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
             </Button>
             <Button
               variant="secondary"
-              onClick={() => setShowManagement(!showManagement)}
+              onClick={() => setShowManagement(true)}
             >
               <Settings className="w-4 h-4 mr-2" />
-              {showManagement ? 'Toewijzingen' : 'Beheer Sporen'}
+              Beheer Sporen
             </Button>
           </div>
         </div>
@@ -205,11 +205,7 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
           </div>
         </div>
 
-        {showManagement ? (
-          <div className="mt-6">
-            <SporenManagement schoolId={focusSchool.id} subjects={subjects} />
-          </div>
-        ) : selectedGroupId && selectedSubjectId ? (
+        {selectedGroupId && selectedSubjectId ? (
           <div className="mt-6">
             <SporenBoardView
               schoolId={focusSchool.id}
@@ -226,6 +222,33 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
           </div>
         )}
       </div>
+
+      {showManagement && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center space-x-3">
+                <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Settings className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">Beheer Sporen</h2>
+                  <p className="text-sm text-gray-500">Organiseer en beheer de sporen voor deze school</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowManagement(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              <SporenManagement schoolId={focusSchool.id} subjects={subjects} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
