@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ArrowRight, CheckCircle, Users, BookOpen, Brain, Heart,
-  Building2, Shuffle, Star, Quote
+  Building2, Shuffle, Star, Quote, GraduationCap
 } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
@@ -74,6 +74,23 @@ const SCHOOL_TYPES = [
       'Leescoach voor differentiatie',
       'ActiviTijd voor gestructureerde dagplanning',
       'Gedragsopvolging per leerling',
+    ],
+  },
+  {
+    icon: <GraduationCap className="w-7 h-7 text-green-600" />,
+    bg: 'bg-green-50',
+    border: 'border-green-100',
+    badge: 'bg-green-100 text-green-700',
+    badgeLabel: 'Volwassenenonderwijs',
+    title: 'Volwassenenonderwijs',
+    subtitle: 'CVO, CBE en basiseducatie',
+    description:
+      'Ook in het volwassenenonderwijs staan leerkrachten voor unieke uitdagingen: heterogene groepen, uiteenlopende voorkennis en een grote nood aan individuele begeleiding. bijleer.school biedt tools om cursisten op te volgen, leertrajecten te visualiseren en communicatie te stroomlijnen.',
+    features: [
+      'Sporen voor individuele leertrajecten',
+      'Leescoach voor NT2 en laaggeletterdheid',
+      'Nieuwsbrief voor cursistcommunicatie',
+      'Analyse & inzichten per cursist',
     ],
   },
 ];
