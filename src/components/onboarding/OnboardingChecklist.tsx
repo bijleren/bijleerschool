@@ -19,12 +19,14 @@ import {
   Hash,
   ImagePlus,
   Link,
+  Clock,
 } from 'lucide-react';
 
 interface OnboardingChecklistProps {
   focusSchool: { id: string; name: string; school_code?: string } | null;
   onNavigateToSchools: () => void;
   onNavigateToWebWijzer?: () => void;
+  onNavigateToSchoolDay?: () => void;
 }
 
 interface ChecklistItem {
@@ -38,7 +40,7 @@ interface ChecklistItem {
   done: boolean;
 }
 
-export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNavigateToWebWijzer }: OnboardingChecklistProps) {
+export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNavigateToWebWijzer, onNavigateToSchoolDay }: OnboardingChecklistProps) {
   const { user } = useAuth();
   const [hasStudents, setHasStudents] = useState(false);
   const [hasGroups, setHasGroups] = useState(false);
@@ -47,6 +49,7 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
   const [hasTeamMembers, setHasTeamMembers] = useState(false);
   const [hasEnrichedProfiles, setHasEnrichedProfiles] = useState(false);
   const [hasWebWijzerCards, setHasWebWijzerCards] = useState(false);
+  const [hasActiveTemplate, setHasActiveTemplate] = useState(false);
   const [schoolCode, setSchoolCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [expandedItem, setExpandedItem] = useState<string | null>('students');
@@ -62,7 +65,7 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
     setLoading(true);
 
     try {
-      const [studentsRes, groupsRes, subjectsRes, gradesRes, teamRes, schoolRes, enrichedRes, webwijzerRes] = await Promise.all([
+      const [studentsRes, groupsRes, subjectsRes, gradesRes, teamRes, schoolRes, enrichedRes, webwijzerRes, templateRes] = await Promise.all([
         supabase.from('students').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true),
         supabase.from('groups').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true),
         supabase.from('school_subjects').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true),
@@ -71,6 +74,7 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
         supabase.from('schools').select('school_code').eq('id', focusSchool.id).maybeSingle(),
         supabase.from('students').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id).eq('is_active', true).not('profile_picture_url', 'is', null),
         supabase.from('webwijzer_content').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id),
+        supabase.from('school_day_templates').select('id', { count: 'exact', head: true }).eq('school_id', focusSchool.id),
       ]);
 
       setHasStudents((studentsRes.count ?? 0) > 0);
@@ -81,6 +85,7 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
       setSchoolCode(schoolRes.data?.school_code ?? focusSchool.school_code ?? '');
       setHasEnrichedProfiles((enrichedRes.count ?? 0) > 0);
       setHasWebWijzerCards((webwijzerRes.count ?? 0) > 0);
+      setHasActiveTemplate((templateRes.count ?? 0) > 0);
     } catch (err) {
       console.error('Error fetching checklist status:', err);
     } finally {
@@ -88,8 +93,8 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
     }
   };
 
-  const completedCount = [hasStudents, hasSubjects, hasGrades, hasGroups, hasTeamMembers, hasEnrichedProfiles, hasWebWijzerCards].filter(Boolean).length;
-  const totalCount = 7;
+  const completedCount = [hasStudents, hasSubjects, hasGrades, hasGroups, hasTeamMembers, hasEnrichedProfiles, hasWebWijzerCards, hasActiveTemplate].filter(Boolean).length;
+  const totalCount = 8;
   const progressPercent = Math.round((completedCount / totalCount) * 100);
 
   const items: ChecklistItem[] = [
@@ -162,6 +167,16 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
       actionLabel: 'Ga naar WebWijzer',
       onAction: onNavigateToWebWijzer ?? onNavigateToSchools,
       done: hasWebWijzerCards,
+    },
+    {
+      id: 'schooluren',
+      title: 'Schooluren aanmaken',
+      description: 'Stel een dagindeling in voor jouw school door een uurrooster-template aan te maken en te koppelen. Zo weet iedereen wanneer welk vak of welke activiteit plaatsvindt, en kunnen roosters automatisch worden toegepast.',
+      tip: 'Ga naar Instellingen > Schooldag, maak een template aan via "Sjablonen" en koppel het daarna via "Koppelingen" aan je school of een klas.',
+      icon: <Clock className="w-5 h-5" />,
+      actionLabel: 'Ga naar Schooldag',
+      onAction: onNavigateToSchoolDay ?? onNavigateToSchools,
+      done: hasActiveTemplate,
     },
   ];
 

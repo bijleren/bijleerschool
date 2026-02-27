@@ -773,6 +773,7 @@ export function Dashboard() {
             focusSchool={focusSchool}
             onNavigateToSchools={handleNavigateToSchools}
             onNavigateToWebWijzer={handleNavigateToWebWijzer}
+            onNavigateToSchoolDay={handleNavigateToSchoolDay}
           />
         )}
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
