@@ -42,11 +42,13 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
   const [showDidactiekDropdown, setShowDidactiekDropdown] = useState(false);
+  const [showSlimmeICTDropdown, setShowSlimmeICTDropdown] = useState(false);
   const [showVersionModal, setShowVersionModal] = useState(false);
   const [hasPremiumSchool, setHasPremiumSchool] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const appsDropdownRef = useRef<HTMLDivElement>(null);
   const didactiekDropdownRef = useRef<HTMLDivElement>(null);
+  const slimmeICTDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchUserSchools();
@@ -62,6 +64,9 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
       }
       if (didactiekDropdownRef.current && !didactiekDropdownRef.current.contains(event.target as Node)) {
         setShowDidactiekDropdown(false);
+      }
+      if (slimmeICTDropdownRef.current && !slimmeICTDropdownRef.current.contains(event.target as Node)) {
+        setShowSlimmeICTDropdown(false);
       }
     }
 
@@ -200,41 +205,6 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                         <Plus className="w-4 h-4 text-gray-600" />
                       </button>
                     </div>
-                    <div className="relative flex items-center group">
-                      <button
-                        onClick={() => {
-                          onNavigateToWebWijzer();
-                          setShowAppsDropdown(false);
-                        }}
-                        className="flex-1 flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                      >
-                        <Link className="w-4 h-4 mr-2" />
-                        WebWijzer
-                      </button>
-                      <button
-                        onClick={() => {
-                          onNavigateToWebWijzer();
-                          setShowAppsDropdown(false);
-                          setTimeout(() => {
-                            window.dispatchEvent(new CustomEvent('navigateToWebWijzerCreate'));
-                          }, 100);
-                        }}
-                        className="mr-2 w-6 h-6 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
-                        title="Nieuwe content"
-                      >
-                        <Plus className="w-4 h-4 text-gray-600" />
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => {
-                        onNavigateToBlinkQR();
-                        setShowAppsDropdown(false);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <QrCode className="w-4 h-4 mr-2" />
-                      BlinkQR
-                    </button>
                     <button
                       onClick={() => {
                         onNavigateToSporen();
@@ -277,16 +247,6 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     </button>
                     <button
                       onClick={() => {
-                        onNavigateToZoeker();
-                        setShowAppsDropdown(false);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <Search className="w-4 h-4 mr-2" />
-                      Zoeker
-                    </button>
-                    <button
-                      onClick={() => {
                         onNavigateToEDI();
                         setShowAppsDropdown(false);
                       }}
@@ -299,6 +259,80 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                       onClick={() => {
                         onNavigateToDigiTools();
                         setShowAppsDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Wrench className="w-4 h-4 mr-2" />
+                      DigiTools
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Slimme ICT Dropdown */}
+            <div className="relative" ref={slimmeICTDropdownRef}>
+              <button
+                onClick={() => setShowSlimmeICTDropdown(!showSlimmeICTDropdown)}
+                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+              >
+                <Sparkles className="w-5 h-5" />
+                <span>Slimme ICT</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showSlimmeICTDropdown ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showSlimmeICTDropdown && (
+                <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  <div className="px-3 py-2">
+                    <div className="relative flex items-center">
+                      <button
+                        onClick={() => {
+                          onNavigateToWebWijzer();
+                          setShowSlimmeICTDropdown(false);
+                        }}
+                        className="flex-1 flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                      >
+                        <Link className="w-4 h-4 mr-2" />
+                        WebWijzer
+                      </button>
+                      <button
+                        onClick={() => {
+                          onNavigateToWebWijzer();
+                          setShowSlimmeICTDropdown(false);
+                          setTimeout(() => {
+                            window.dispatchEvent(new CustomEvent('navigateToWebWijzerCreate'));
+                          }, 100);
+                        }}
+                        className="mr-2 w-6 h-6 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                        title="Nieuwe content"
+                      >
+                        <Plus className="w-4 h-4 text-gray-600" />
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => {
+                        onNavigateToBlinkQR();
+                        setShowSlimmeICTDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <QrCode className="w-4 h-4 mr-2" />
+                      BlinkQR
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToZoeker();
+                        setShowSlimmeICTDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Search className="w-4 h-4 mr-2" />
+                      Zoeker
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToDigiTools();
+                        setShowSlimmeICTDropdown(false);
                       }}
                       className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
                     >
