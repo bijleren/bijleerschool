@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ScaleSelector } from './ScaleSelector';
-import { ArrowLeft, Save, Search, Book, Info, User } from 'lucide-react';
+import { ArrowLeft, Save, Search, Book, Info } from 'lucide-react';
 
 type ScaleValue = 'very_poor' | 'poor' | 'good' | 'excellent' | null;
 
@@ -13,7 +13,6 @@ interface Student {
   id: string;
   first_name: string;
   last_name: string;
-  profile_picture_url: string | null;
 }
 
 interface Book {
@@ -100,7 +99,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
     const [studentsRes, booksRes, techniquesRes, interventionsRes] = await Promise.all([
       supabase
         .from('students')
-        .select('id, first_name, last_name, profile_picture_url')
+        .select('id, first_name, last_name')
         .eq('school_id', schoolId)
         .order('last_name'),
       supabase
@@ -267,16 +266,9 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
                               setStudentSearch('');
                               setShowStudentDropdown(false);
                             }}
-                            className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-3"
+                            className="w-full px-4 py-2 text-left hover:bg-gray-50"
                           >
-                            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-                              {student.profile_picture_url ? (
-                                <img src={student.profile_picture_url} alt="" className="w-full h-full object-cover" />
-                              ) : (
-                                <User className="w-4 h-4 text-gray-400" />
-                              )}
-                            </div>
-                            <span>{student.first_name} {student.last_name}</span>
+                            {student.first_name} {student.last_name}
                           </button>
                         ))
                       )}
