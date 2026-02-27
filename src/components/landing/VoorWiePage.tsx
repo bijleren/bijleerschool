@@ -51,11 +51,11 @@ const SCHOOL_TYPES = [
     title: 'Secundaire school',
     subtitle: 'Van 12 tot 18 jaar',
     description:
-      'In het secundair onderwijs ligt de focus op zelfstandigheid en vakinhoud. bijleer.school ondersteunt leerkrachten met didactische tools, een nieuwsbriefsysteem voor ouders en leerlingcommunicatie, en een overzicht van leertrajecten via Sporen.',
+      'In het secundair onderwijs ligt de focus op zelfstandigheid en vakinhoud. bijleer.school ondersteunt leerkrachten met didactische tools, een overzicht van leertrajecten via Sporen en diepgaande analyses.',
     features: [
       'Sporen voor individuele leertrajecten',
       'Didactiekplatform met onderwijstechnieken',
-      'Nieuwsbrief voor oudercommunicatie',
+      'Gedragsopvolging en incidentbeheer',
       'Analyse & inzichten per leerling',
     ],
   },
@@ -85,11 +85,11 @@ const SCHOOL_TYPES = [
     title: 'Volwassenenonderwijs',
     subtitle: 'CVO, CBE en basiseducatie',
     description:
-      'Ook in het volwassenenonderwijs staan leerkrachten voor unieke uitdagingen: heterogene groepen, uiteenlopende voorkennis en een grote nood aan individuele begeleiding. bijleer.school biedt tools om cursisten op te volgen, leertrajecten te visualiseren en communicatie te stroomlijnen.',
+      'Ook in het volwassenenonderwijs staan leerkrachten voor unieke uitdagingen: heterogene groepen, uiteenlopende voorkennis en een grote nood aan individuele begeleiding. bijleer.school biedt tools om cursisten op te volgen en leertrajecten te visualiseren.',
     features: [
       'Sporen voor individuele leertrajecten',
       'Leescoach voor NT2 en laaggeletterdheid',
-      'Nieuwsbrief voor cursistcommunicatie',
+      'WebWijzer met cursistspecifieke bronnen',
       'Analyse & inzichten per cursist',
     ],
   },

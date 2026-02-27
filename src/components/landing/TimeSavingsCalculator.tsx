@@ -69,17 +69,6 @@ const APP_SAVINGS = [
     description: 'Overzicht van leertrajecten altijd beschikbaar, geen losse notities',
   },
   {
-    id: 'nieuwsbrief',
-    name: 'Nieuwsbrief',
-    color: 'bg-amber-500',
-    lightColor: 'bg-amber-100',
-    textColor: 'text-amber-700',
-    borderColor: 'border-amber-200',
-    minutesPerWeek: 45,
-    learningBenefit: 'Meer betrokken ouders door professionele communicatie',
-    description: 'Opmaak en layout nemen geen uren meer in beslag',
-  },
-  {
     id: 'schooldag',
     name: 'Schooldag Planner',
     color: 'bg-slate-500',

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users, BarChart3, Globe, ArrowRight, Grid,
-  BookMarked, Search, QrCode, Newspaper, ChevronDown, ChevronUp,
+  BookMarked, Search, QrCode, ChevronDown, ChevronUp,
   CheckCircle, MessageSquare, Lightbulb, Rocket, MapPin, Star,
   BookCheck, Layers, Clock
 } from 'lucide-react';
@@ -40,12 +40,6 @@ const APPS = [
     bg: 'bg-cyan-50',
     title: 'BlinkQR',
     description: 'Gepersonaliseerde QR-codes voor snelle toegang tot leerlingprofielen en webwijzers.',
-  },
-  {
-    icon: <Newspaper className="w-6 h-6 text-amber-600" />,
-    bg: 'bg-amber-50',
-    title: 'Nieuwsbrief',
-    description: 'Maak en verstuur visueel aantrekkelijke nieuwsbrieven naar ouders en leerlingen.',
   },
   {
     icon: <Users className="w-6 h-6 text-green-600" />,

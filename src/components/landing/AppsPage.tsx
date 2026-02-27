@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Globe, Grid, BookMarked, Search, QrCode, Newspaper, Users,
+  Globe, Grid, BookMarked, Search, QrCode, Users,
   BookCheck, Layers, Clock, BarChart3, Lightbulb, ArrowRight, CheckCircle
 } from 'lucide-react';
 import { LandingNav } from './LandingNav';
@@ -82,21 +82,6 @@ const APPS = [
       'Koppeling met WebWijzer',
       'Snel scannen in de klas',
       'Exporteerbaar als PDF',
-    ],
-  },
-  {
-    icon: <Newspaper className="w-7 h-7 text-amber-600" />,
-    bg: 'bg-amber-50',
-    accent: 'border-amber-200',
-    title: 'Nieuwsbrief',
-    tag: 'Communicatie',
-    tagColor: 'bg-amber-100 text-amber-700',
-    description: 'Maak en exporteer professionele nieuwsbrieven. Gebruik de ingebouwde editor om een visueel aantrekkelijke nieuwsbrief te maken en exporteer naar PDF of e-mail.',
-    features: [
-      'Rijke teksteditor',
-      'Exporteer als PDF',
-      'Schoolbranding toepassen',
-      'Archief van vorige nieuwsbrieven',
     ],
   },
   {
