@@ -34,6 +34,7 @@ export function LandingFooter() {
             <h4 className="text-sm font-semibold text-white mb-4">Platform</h4>
             <ul className="space-y-3 text-sm">
               <li><Link to="/apps" className="hover:text-white transition-colors">Alle apps</Link></li>
+              <li><Link to="/voor-wie" className="hover:text-white transition-colors">Voor wie?</Link></li>
               <li><Link to="/hoe-werkt-het" className="hover:text-white transition-colors">Hoe werkt het?</Link></li>
               <li><Link to="/ons-doel" className="hover:text-white transition-colors">Ons doel</Link></li>
               <li><a href="/#pricing" className="hover:text-white transition-colors">Prijzen</a></li>

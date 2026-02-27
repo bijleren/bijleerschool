@@ -8,6 +8,7 @@ interface LandingNavProps {
 
 const NAV_LINKS = [
   { label: 'Apps', to: '/apps' },
+  { label: 'Voor wie?', to: '/voor-wie' },
   { label: 'Hoe werkt het?', to: '/hoe-werkt-het' },
   { label: 'Ons doel', to: '/ons-doel' },
   { label: 'Prijzen', to: '/#pricing' },
