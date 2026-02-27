@@ -1017,7 +1017,10 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
           {schooldagView === 'templates' && (
             <TemplateBuilder
               schoolId={school.id}
-              onBack={() => setSchooldagView('timeline')}
+              onBack={() => {
+                setSelectedTemplate(null);
+                setSchooldagView('timeline');
+              }}
               onTemplateCreated={() => {
                 fetchSchooldagTemplates();
                 setSchooldagView('timeline');
@@ -1071,6 +1074,36 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                   Nieuwe Template
                 </Button>
               </div>
+
+              {schooldagTemplates.length > 0 && (
+                <Card className="mb-6">
+                  <h3 className="text-base font-semibold text-gray-900 mb-3">Alle templates</h3>
+                  <div className="divide-y divide-gray-100">
+                    {schooldagTemplates.map((template) => (
+                      <div key={template.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                        <div>
+                          <p className="font-medium text-gray-900">{template.name}</p>
+                          {template.description && (
+                            <p className="text-sm text-gray-500">{template.description}</p>
+                          )}
+                        </div>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedTemplate(template);
+                            setSchooldagView('templates');
+                          }}
+                        >
+                          <Edit className="w-3 h-3 mr-1" />
+                          Bewerken
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
               <DayTimeline
                 schoolId={school.id}
                 templates={schooldagTemplates}
