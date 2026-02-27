@@ -312,9 +312,9 @@ export function AppsPage() {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gray-50 mb-4">
                   <Lightbulb className="w-6 h-6 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-700 mb-2">Mis je een app?</h3>
+                <h3 className="text-lg font-bold text-gray-700 mb-2">Klagen en vragen, zo vinden we snel wat je team kan ondersteunen.</h3>
                 <p className="text-sm text-gray-500 leading-relaxed mb-5">
-                  Elke app is gebouwd op vraag van een school. Neem contact op en beschrijf wat je mist — we luisteren.
+                  Elke app is gebouwd op vraag van een school. Neem contact op en beschrijf wat je mist — we luisteren. Zo vroeg een school om de digitale versie van een oud leermateriaal, dit maken wij waar.
                 </p>
                 <button
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
@@ -337,7 +337,7 @@ export function AppsPage() {
           <div className="bg-blue-600 rounded-2xl p-12 text-center text-white">
             <h2 className="text-3xl font-bold mb-4">Probeer alle apps gratis</h2>
             <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">
-              Maak een gratis account aan en ontdek elke app. Geen verplichtingen, geen kredietkaart.
+              Maak een gratis account aan en ontdek elke app. Geen verplichtingen, maar we raden je wel aan je te laten ondersteunen zodat je de app echt volledig leer kennen.
             </p>
             <button
               onClick={() => navigate('/login')}
