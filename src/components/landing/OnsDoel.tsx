@@ -138,9 +138,9 @@ export function OnsDoel() {
       <div className="py-20 bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-blue-600 rounded-2xl p-12 text-center text-white">
-            <h2 className="text-3xl font-bold mb-4">Deel onze overtuiging?</h2>
+            <h2 className="text-3xl font-bold mb-4">Kom bij de community!</h2>
             <p className="text-blue-100 text-lg max-w-xl mx-auto mb-8">
-              bijleer.school groeit samen met de scholen die het gebruiken. Jouw input, noden en ideen maken het platform beter voor iedereen.
+              bijleer.school groeit samen met de scholen die het gebruiken. Jouw input, noden en ideeën maken het platform beter voor iedereen.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
