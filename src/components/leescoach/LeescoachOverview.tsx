@@ -111,7 +111,7 @@ export function LeescoachOverview({
       .from('reading_coach_sessions')
       .select(`
         *,
-        students!inner (id, first_name, last_name, profile_picture_url),
+        students!inner (id, first_name, last_name, profile_picture_url, is_active),
         books (title, author),
         reading_session_techniques (
           reading_techniques (title)
@@ -121,6 +121,7 @@ export function LeescoachOverview({
         )
       `)
       .eq('school_id', schoolId)
+      .eq('students.is_active', true)
       .order('session_date', { ascending: false });
 
     if (dateRange !== 'all') {
@@ -144,6 +145,7 @@ export function LeescoachOverview({
       .from('students')
       .select('id, first_name, last_name, profile_picture_url, grade_level')
       .eq('school_id', schoolId)
+      .eq('is_active', true)
       .order('last_name');
 
     if (error || !students) {

@@ -101,6 +101,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
         .from('students')
         .select('id, first_name, last_name')
         .eq('school_id', schoolId)
+        .eq('is_active', true)
         .order('last_name'),
       supabase
         .from('books')

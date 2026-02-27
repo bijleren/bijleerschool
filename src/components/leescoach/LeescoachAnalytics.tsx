@@ -32,8 +32,9 @@ export function LeescoachAnalytics({ schoolId, onNavigateBack }: LeescoachAnalyt
   const loadAnalytics = async () => {
     const { data: sessions, error } = await supabase
       .from('reading_coach_sessions')
-      .select('*')
-      .eq('school_id', schoolId);
+      .select('*, students!inner(is_active)')
+      .eq('school_id', schoolId)
+      .eq('students.is_active', true);
 
     if (error || !sessions) {
       console.error('Error loading analytics:', error);
