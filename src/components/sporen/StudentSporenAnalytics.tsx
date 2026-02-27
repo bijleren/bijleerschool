@@ -75,6 +75,7 @@ export function StudentSporenAnalytics({ schoolId, groups }: StudentSporenAnalyt
         .from('student_groups')
         .select('students!inner(id, first_name, last_name, student_number, is_active)')
         .in('group_id', groupIds)
+        .eq('is_active', true)
         .eq('students.is_active', true);
 
       if (error) throw error;
