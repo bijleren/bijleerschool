@@ -5,7 +5,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ScaleSelector } from './ScaleSelector';
-import { ArrowLeft, Save, Search, Book, Info } from 'lucide-react';
+import { ArrowLeft, Save, Search, Book, Info, User } from 'lucide-react';
 
 type ScaleValue = 'very_poor' | 'poor' | 'good' | 'excellent' | null;
 
