@@ -33,7 +33,7 @@ export function CookieBanner() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center gap-x-6 gap-y-2">
           <Cookie className="w-4 h-4 text-blue-400 flex-shrink-0" />
           <p className="text-gray-400 text-xs leading-relaxed flex-1 min-w-0">
-            Wij gebruiken functionele cookies voor sessiebeheer en authenticatie — geen tracking of advertenties.{' '}
+            Wij gebruiken functionele cookies voor sessiebeheer en authenticatie.{' '}
             <Link to="/privacy-policy" className="text-blue-400 hover:underline">Privacybeleid</Link>.
           </p>
           <div className="flex items-center gap-2 flex-shrink-0">
