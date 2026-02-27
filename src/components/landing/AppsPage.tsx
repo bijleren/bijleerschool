@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Globe, Grid, BookMarked, Search, QrCode, Users,
-  BookCheck, Layers, Clock, BarChart3, Lightbulb, ArrowRight, CheckCircle
+  BookCheck, Layers, Clock, BarChart3, Lightbulb, ArrowRight, CheckCircle,
+  Baby, AlignLeft, Monitor, Wrench
 } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
@@ -157,6 +158,66 @@ const APPS = [
       'Trends over tijd',
       'Exporteerbare rapporten',
       'Per leerling of klas filteren',
+    ],
+  },
+  {
+    icon: <Baby className="w-7 h-7 text-yellow-600" />,
+    bg: 'bg-yellow-50',
+    accent: 'border-yellow-200',
+    title: 'kleuterdidactiek.be',
+    tag: 'Didactiek',
+    tagColor: 'bg-yellow-100 text-yellow-700',
+    description: 'Een rijke bibliotheek van didactische tips, activiteiten en werkvormen specifiek voor het kleuteronderwijs. Geïntegreerd in het platform als directe inspiratiebron voor kleuterleerkrachten.',
+    features: [
+      'Activiteiten per ontwikkelingsdomein',
+      'Visuele werkvormen voor kleuters',
+      'Inspiratie voor thematisch werken',
+      'Direct beschikbaar in het platform',
+    ],
+  },
+  {
+    icon: <AlignLeft className="w-7 h-7 text-lime-600" />,
+    bg: 'bg-lime-50',
+    accent: 'border-lime-200',
+    title: 'woordenschat.be',
+    tag: 'Didactiek',
+    tagColor: 'bg-lime-100 text-lime-700',
+    description: 'Woordenschatonderwijs onderbouwd en praktisch. Vind werkvormen, strategieën en oefeningen om woordenschat doelgericht te ontwikkelen bij leerlingen van alle niveaus.',
+    features: [
+      'Werkvormen per leeftijdsgroep',
+      'Strategieën voor betekenisoverdracht',
+      'Inzetbaar voor NT2 en taalzwakke leerlingen',
+      'Direct beschikbaar in het platform',
+    ],
+  },
+  {
+    icon: <Monitor className="w-7 h-7 text-sky-600" />,
+    bg: 'bg-sky-50',
+    accent: 'border-sky-200',
+    title: 'Basis ICT-geletterdheid',
+    tag: 'Digitale vaardigheden',
+    tagColor: 'bg-sky-100 text-sky-700',
+    description: 'Een verzameling curated apps en oefenomgevingen om leerlingen basisvaardigheden in ICT bij te brengen. Van toetsenbordgebruik tot digitale veiligheid, overzichtelijk gebundeld.',
+    features: [
+      'Apps per vaardigheid geselecteerd',
+      'Geschikt voor lager en secundair',
+      'Digitale veiligheid en mediawijsheid',
+      'Drempelvrij voor elke leerling',
+    ],
+  },
+  {
+    icon: <Wrench className="w-7 h-7 text-stone-600" />,
+    bg: 'bg-stone-50',
+    accent: 'border-stone-200',
+    title: 'DigiTools',
+    tag: 'Digitale vaardigheden',
+    tagColor: 'bg-stone-100 text-stone-700',
+    description: 'Een zorgvuldig samengestelde toolkit van digitale hulpmiddelen voor in de klas. Van interactieve oefenplatformen tot creatieve tools — allemaal getest en goedgekeurd voor schoolgebruik.',
+    features: [
+      'Gecureerde selectie per doelgroep',
+      'Beta- en nieuwe tools gemarkeerd',
+      'Zoeken en filteren op categorie',
+      'Direct doorlinken naar de tool',
     ],
   },
 ];
