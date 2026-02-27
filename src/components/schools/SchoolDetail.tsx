@@ -8,8 +8,12 @@ import { StudentImport } from './StudentImport';
 import { GradeManagement } from '../schoolday/GradeManagement';
 import { SubjectsManagement } from '../schoolday/SubjectsManagement';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive, Calendar } from 'lucide-react';
 import { DataGebruikTab } from '../storage/DataGebruikTab';
+import { DayTimeline } from '../schoolday/DayTimeline';
+import { TemplateBuilder } from '../schoolday/TemplateBuilder';
+import { TemplateConnections } from '../schoolday/TemplateConnections';
+import { LessonTimingSettings } from '../schoolday/LessonTimingSettings';
 
 interface School {
   id: string;
@@ -79,7 +83,7 @@ interface SchoolDetailProps {
 
 export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStudent, onNavigateToGroup }: SchoolDetailProps) {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'grades' | 'subjects' | 'teamleden' | 'datagebruik'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'grades' | 'subjects' | 'teamleden' | 'datagebruik' | 'schooldag'>('students');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -118,6 +122,11 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [newGroupDescription, setNewGroupDescription] = useState('');
   const [newGroupGradeLevel, setNewGroupGradeLevel] = useState('');
   const [newGroupSchoolYear, setNewGroupSchoolYear] = useState('');
+
+  // Schooldag state
+  const [schooldagView, setSchooldagView] = useState<'timeline' | 'templates' | 'connections' | 'timing'>('timeline');
+  const [schooldagTemplates, setSchooldagTemplates] = useState<any[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<any | null>(null);
 
   // Confirmation modal
   const [confirmModal, setConfirmModal] = useState<{
@@ -344,6 +353,22 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     } catch (error) {
       console.error('Error deleting group:', error);
       setMessage('Er is een fout opgetreden bij het verwijderen van de groep.');
+    }
+  };
+
+  const fetchSchooldagTemplates = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('day_templates')
+        .select('*')
+        .eq('school_id', school.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setSchooldagTemplates(data || []);
+    } catch (error) {
+      console.error('Error fetching day templates:', error);
     }
   };
 
@@ -576,7 +601,9 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             Teamleden ({schoolUsers.length})
           </button>
           <button
-            onClick={() => setActiveTab('datagebruik')}
+            onClick={() => {
+              setActiveTab('datagebruik');
+            }}
             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'datagebruik'
                 ? 'border-indigo-500 text-indigo-600'
@@ -585,6 +612,20 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
           >
             <HardDrive className="w-4 h-4 mr-2" />
             Data-gebruik
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('schooldag');
+              fetchSchooldagTemplates();
+            }}
+            className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
+              activeTab === 'schooldag'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            Schooldag
           </button>
         </nav>
       </div>
@@ -969,6 +1010,78 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
 
       {activeTab === 'datagebruik' && (
         <DataGebruikTab schoolId={school.id} />
+      )}
+
+      {activeTab === 'schooldag' && (
+        <>
+          {schooldagView === 'templates' && (
+            <TemplateBuilder
+              schoolId={school.id}
+              onBack={() => setSchooldagView('timeline')}
+              onTemplateCreated={() => {
+                fetchSchooldagTemplates();
+                setSchooldagView('timeline');
+              }}
+              editingTemplate={selectedTemplate}
+              onTemplateUpdated={() => {
+                fetchSchooldagTemplates();
+                setSelectedTemplate(null);
+                setSchooldagView('timeline');
+              }}
+            />
+          )}
+          {schooldagView === 'connections' && (
+            <TemplateConnections
+              schoolId={school.id}
+              onBack={() => setSchooldagView('timeline')}
+              templates={schooldagTemplates}
+            />
+          )}
+          {schooldagView === 'timing' && (
+            <LessonTimingSettings
+              schoolId={school.id}
+              onClose={() => setSchooldagView('timeline')}
+              onSettingsUpdated={() => setSchooldagView('timeline')}
+            />
+          )}
+          {schooldagView === 'timeline' && (
+            <div>
+              <div className="flex justify-end space-x-3 mb-6">
+                <Button
+                  variant="secondary"
+                  onClick={() => setSchooldagView('connections')}
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Verbindingen
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => setSchooldagView('timing')}
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  Timing
+                </Button>
+                <Button
+                  onClick={() => {
+                    setSelectedTemplate(null);
+                    setSchooldagView('templates');
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nieuwe Template
+                </Button>
+              </div>
+              <DayTimeline
+                schoolId={school.id}
+                templates={schooldagTemplates}
+                onEditTemplate={(template) => {
+                  setSelectedTemplate(template);
+                  setSchooldagView('templates');
+                }}
+              />
+            </div>
+          )}
+        </>
       )}
 
       {/* Import Students Modal */}

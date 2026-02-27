@@ -708,7 +708,6 @@ export function Dashboard() {
         onNavigateToTeachingFAQ={handleNavigateToTeachingFAQ}
         onNavigateToTeachingVormingen={handleNavigateToTeachingVormingen}
         onNavigateToNieuwsbrief={handleNavigateToNewsletter}
-        onNavigateToSchoolDay={handleNavigateToSchoolDay}
         onNavigateToWebWijzer={handleNavigateToWebWijzer}
         onNavigateToActivityBoards={handleNavigateToActivityBoards}
         onNavigateToBoeker={handleNavigateToBoeker}
