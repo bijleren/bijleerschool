@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library } from 'lucide-react';
 
 interface UserSchool {
   id: string;
@@ -232,7 +232,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                       }}
                       className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
                     >
-                      <GraduationCap className="w-4 h-4 mr-2" />
+                      <Library className="w-4 h-4 mr-2" />
                       Leescoach
                     </button>
                     <button
