@@ -162,7 +162,7 @@ function AppsSection() {
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Alle leerapps inbegrepen</h2>
           <p className="text-lg text-gray-500 max-w-2xl mx-auto">
             Eén abonnement geeft toegang tot alle huidige en toekomstige leerapps.
-            Geen verborgen kosten, geen extra modules.
+            De tools die we maken groeien uit jullie noden.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
