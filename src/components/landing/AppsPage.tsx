@@ -17,6 +17,7 @@ const APPS = [
     title: 'WebWijzer',
     tag: 'Leerlingen',
     tagColor: 'bg-orange-100 text-orange-700',
+    problem: 'Hoe krijg je ICT-zwakke leerlingen snel naar de juiste website?',
     description: 'Een slimme inlogkaart die leerling gebruiken tijdens het oefenen. Ze kunnen deze ook scannen met een webcam en zo hun favoriete websites vinden, boeken uitlenen, een zoekmachine raadplegen en meer.',
     features: [
       'Unieke QR-code per leerling',
@@ -32,6 +33,7 @@ const APPS = [
     title: 'ActiviTijd',
     tag: 'Klas',
     tagColor: 'bg-teal-100 text-teal-700',
+    problem: 'Hoe hou je overzicht over wie wat doet tijdens vrije activiteitsmomenten?',
     description: 'Real-time activiteitenborden voor de klas. Wijs activiteiten toe aan leerlingen of groepen en projecteer het bord op je klassenscherm. Ideaal voor contractwerk. Zo weet iedereen wat ze moeten doen.',
     features: [
       'Activiteiten toewijzen per leerling',
@@ -47,6 +49,7 @@ const APPS = [
     title: 'Boeker',
     tag: 'Bibliotheek',
     tagColor: 'bg-pink-100 text-pink-700',
+    problem: 'Wie heeft welk boek, en is het al teruggebracht?',
     description: 'Digitaal bibliotheeksysteem voor de school. Beheer je boekencollectie, registreer uitleen en volg op wie welk boek heeft. Snel scannen via barcode of handmatig toevoegen.',
     features: [
       'Barcode scanner via webcam voor snelle uitleen',
@@ -62,6 +65,7 @@ const APPS = [
     title: 'Zoeker',
     tag: 'Leerlingen',
     tagColor: 'bg-blue-100 text-blue-700',
+    problem: 'Hoe zorg je dat leerlingen veilig en gericht online opzoeken?',
     description: 'Een veilige start om online te zoeken op leerlingen-niveau. Jij als leerkracht kan zoekopdrachten bijsturen. Leerlingen kiezen eenvoudig welke bron ze raadplegen. Hou eenvoudig zicht op wat leerlingen zoeken.',
     features: [
       'Leer prompten',
@@ -77,6 +81,7 @@ const APPS = [
     title: 'BlinkQR',
     tag: 'Communicatie',
     tagColor: 'bg-cyan-100 text-cyan-700',
+    problem: 'Hoe geef je elke leerling in seconden toegang tot zijn eigen tools?',
     description: 'Breng je favoriete digitale leermiddelen tot bij de leerlingen via QR-codes. Steeds aanpasbaar en multisensorieel.',
     features: [
       'QR-kaartjes afdrukken',
@@ -92,6 +97,7 @@ const APPS = [
     title: 'Gedragsmanagement',
     tag: 'Leerlingbegeleiding',
     tagColor: 'bg-green-100 text-green-700',
+    problem: 'Hoe registreer en opvolg je gedragsincidenten zonder papierwerk?',
     description: 'Registreer en opvolg gedragsincidenten structureel. Dit ter vervangen of aanvulling van het typische .',
     features: [
       'Incidenten registreren',
@@ -107,6 +113,7 @@ const APPS = [
     title: 'Leescoach',
     tag: 'Leesontwikkeling',
     tagColor: 'bg-rose-100 text-rose-700',
+    problem: 'Hoe houd je de leesontwikkeling van elke leerling systematisch bij?',
     description: 'Begeleide leesgesprekken en leesontwikkeling bijhouden per leerling. Log leessessies, registreer het niveau en volg de voortgang op met overzichtelijke grafieken.',
     features: [
       'Leessessies registreren',
@@ -122,6 +129,7 @@ const APPS = [
     title: 'Sporen',
     tag: 'Leerlingbegeleiding',
     tagColor: 'bg-violet-100 text-violet-700',
+    problem: 'Hoe maak je leertrajecten zichtbaar voor leerkracht en leerling?',
     description: 'Visueel overzicht van leertrajecten. Wijs leerlingen toe aan groeisporen en volg hun individueel pad op. Handig voor differentiatie en zorgniveaus.',
     features: [
       'Drag-and-drop interface',
@@ -137,6 +145,7 @@ const APPS = [
     title: 'Schooldag Planner',
     tag: 'Planning',
     tagColor: 'bg-slate-100 text-slate-700',
+    problem: 'Hoe plan je lessen en dagschema\'s efficiënt voor de hele school?',
     description: 'Plan en beheer de schooldag van A tot Z. Maak uurroosterschema\'s, koppel vakken aan klassen en visualiseer de dagindeling voor je team.',
     features: [
       'Dagschema per klas',
@@ -152,6 +161,7 @@ const APPS = [
     title: 'Analyse & Inzichten',
     tag: 'Rapportage',
     tagColor: 'bg-emerald-100 text-emerald-700',
+    problem: 'Hoe weet je of je aanpak effectief is voor al je leerlingen?',
     description: 'Krijg inzicht in hoe het platform gebruikt wordt. Welke technieken werken? Wat zijn gedragspatronen? Data helpt je betere beslissingen nemen voor de klas.',
     features: [
       'Dashboards per app',
@@ -167,6 +177,7 @@ const APPS = [
     title: 'kleuterdidactiek.be',
     tag: 'Didactiek',
     tagColor: 'bg-yellow-100 text-yellow-700',
+    problem: 'Waar vind je snel kwalitatieve activiteiten voor kleuters?',
     description: 'Een rijke bibliotheek van didactische tips, activiteiten en werkvormen specifiek voor het kleuteronderwijs. Geïntegreerd in het platform als directe inspiratiebron voor kleuterleerkrachten.',
     features: [
       'Activiteiten per ontwikkelingsdomein',
@@ -182,6 +193,7 @@ const APPS = [
     title: 'woordenschat.be',
     tag: 'Didactiek',
     tagColor: 'bg-lime-100 text-lime-700',
+    problem: 'Hoe maak je woordenschatonderwijs boeiend en meetbaar?',
     description: 'Woordenschatonderwijs onderbouwd en praktisch. Van klanken tot woorden tot texten.',
     features: [
       'Werkvormen per leeftijdsgroep',
@@ -197,6 +209,7 @@ const APPS = [
     title: 'Basis ICT-geletterdheid',
     tag: 'Digitale vaardigheden',
     tagColor: 'bg-sky-100 text-sky-700',
+    problem: 'Hoe leer je leerlingen stap voor stap digitaal vaardig te worden?',
     description: 'Oefen op basisvaardigheden als kopiëren en plakken, typen en tekstverwerkervaardigheden.',
     features: [
       'Controleer ICT-vaardigheid',
@@ -212,11 +225,11 @@ const APPS = [
     title: 'DigiTools',
     tag: 'Digitale vaardigheden',
     tagColor: 'bg-stone-100 text-stone-700',
+    problem: 'Welke digitale tools zijn echt geschikt voor gebruik in de klas?',
     description: 'Eenvoudige webapps, prototypes en slimme digitools.',
     features: [
       'Fysiek materiaal zoals de letterdoos digitaal gemaakt',
       'Beta- en nieuwe tools gemarkeerd',
-     
     ],
   },
 ];
@@ -294,6 +307,9 @@ export function AppsPage() {
                   </span>
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{app.title}</h3>
+                <p className="text-sm italic text-gray-700 bg-gray-50 rounded-lg px-3 py-2 mb-3 leading-snug border-l-2 border-gray-300">
+                  {app.problem}
+                </p>
                 <p className="text-sm text-gray-500 leading-relaxed mb-5 flex-1">{app.description}</p>
                 <ul className="space-y-2">
                   {app.features.map((f) => (
