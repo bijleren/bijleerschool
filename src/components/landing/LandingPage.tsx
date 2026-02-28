@@ -116,7 +116,7 @@ const FAQS = [
   },
   {
     question: 'Kan onze school een specifieke app laten maken?',
-    answer: 'Absoluut. bijleer.school is gebouwd op vraag van scholen. Elke school kan een aanvraag indienen voor nieuwe functionaliteiten of tools. We bespreken de nood, bouwen een prototype en rollen het uit voor alle gebruikers. Zo kan je samen met scholen laagdrempelig een app bouwen. De bijleer.school is momenteel op deze manier gebouwd. Scholen die samen beter ICT willen inzetten en vooral didactisch sterker willen staan',
+    answer: 'Absoluut. bijleer.school is gebouwd op vraag van scholen. Elke school kan een aanvraag indienen voor nieuwe functionaliteiten of tools. We bespreken de nood, bouwen een prototype en rollen het uit voor alle gebruikers. Zo kan je samen met scholen laagdrempelig een app bouwen.',
   },
   {
     question: 'Hoe werkt ondersteuning op school?',
