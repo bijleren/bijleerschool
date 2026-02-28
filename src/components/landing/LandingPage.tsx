@@ -124,11 +124,11 @@ const FAQS = [
   },
   {
     question: 'Is er een minimum aantal leerlingen?',
-    answer: 'Neen, er is geen minimum. Je betaalt exact voor het aantal leerlingen dat je toevoegt aan het platform, aan 4,5 euro per leerling per jaar.',
+    answer: 'Neen, er is geen minimum. Je betaalt exact voor het aantal leerlingen dat je toevoegt aan het platform voor 4,5 euro per leerling per jaar.',
   }, 
   {
     question: 'Als ik voor het leerlingpakket kies, kan ik dan doorheen het jaar van leerlingen-aantal veranderen?',
-    answer: 'Je kan altijd meer leerlingen opstarten. Elke nieuwe leerling telt mee voor je licentie. We kijken dus naar het aantal unieke leerlingen die voor een app zijn gebruikt. ',
+    answer: 'Je kan altijd meer leerlingen opstarten. Elke nieuwe leerling telt mee voor je licentie en vraagt een meerprijs van 4,5 euro. We kijken dus naar het aantal unieke leerlingen van een school binnen een schooljaar. ',
   },
   {
     question: 'Hoe veilig zijn de leerlinggegevens?',
