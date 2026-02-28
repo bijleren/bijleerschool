@@ -11,13 +11,27 @@ const NAV_LINKS = [
   { label: 'Voor wie?', to: '/voor-wie' },
   { label: 'Hoe werkt het?', to: '/hoe-werkt-het' },
   { label: 'Ons doel', to: '/ons-doel' },
-  { label: 'Prijzen', to: '/#pricing' },
+  { label: 'Prijzen', to: '/#pricing', anchor: 'pricing' },
   { label: 'Contact', to: '/contact' },
 ];
 
 export function LandingNav({ navigate }: LandingNavProps) {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleAnchorClick = (e: React.MouseEvent, anchor: string) => {
+    e.preventDefault();
+    const scrollToAnchor = () => {
+      const el = document.getElementById(anchor);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    };
+    if (location.pathname === '/') {
+      scrollToAnchor();
+    } else {
+      navigate('/');
+      setTimeout(scrollToAnchor, 100);
+    }
+  };
 
   return (
     <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
@@ -33,11 +47,12 @@ export function LandingNav({ navigate }: LandingNavProps) {
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((link) => (
-              link.to.startsWith('/#') ? (
+              link.anchor ? (
                 <a
                   key={link.label}
                   href={link.to}
-                  className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={(e) => handleAnchorClick(e, link.anchor!)}
+                  className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   {link.label}
                 </a>
@@ -89,12 +104,12 @@ export function LandingNav({ navigate }: LandingNavProps) {
       {menuOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white px-4 pb-4 pt-2 space-y-1">
           {NAV_LINKS.map((link) => (
-            link.to.startsWith('/#') ? (
+            link.anchor ? (
               <a
                 key={link.label}
                 href={link.to}
-                className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                onClick={() => setMenuOpen(false)}
+                className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                onClick={(e) => { handleAnchorClick(e, link.anchor!); setMenuOpen(false); }}
               >
                 {link.label}
               </a>
