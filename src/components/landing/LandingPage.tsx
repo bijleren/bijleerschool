@@ -130,7 +130,7 @@ const FAQS = [
   },
   {
     question: 'Hoe veilig zijn de leerlinggegevens?',
-    answer: 'Alle gegevens worden opgeslagen binnen de EU en zijn volledig afgeschermd per school. Leerlinggegevens zijn nooit zichtbaar voor andere scholen of derden. We voldoen aan de geldende privacy- en GDPR-wetgeving.',
+    answer: 'Alle gegevens worden opgeslagen binnen de EU en zijn volledig afgeschermd per school. Leerlinggegevens zijn nooit zichtbaar voor andere scholen of derden. We voldoen aan de geldende privacy- en GDPR-wetgeving.'
   },
 ];
 
