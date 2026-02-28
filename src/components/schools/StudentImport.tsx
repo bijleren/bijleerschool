@@ -50,10 +50,14 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
     setImporting(true);
 
     try {
+      // Auto-detect delimiter: tab (Excel copy-paste), semicolon, or comma
+      const delimiter = csvData.includes('\t') ? '\t' : csvData.includes(';') ? ';' : ',';
+
       // Parse CSV data
       const parseResult = Papa.parse(csvData, {
         header: true,
         skipEmptyLines: true,
+        delimiter,
       });
 
       const rows = parseResult.data as any[];
@@ -297,6 +301,7 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
                   <ul className="space-y-1">
                     <li>• Selecteer je data in Excel inclusief headers</li>
                     <li>• Kopieer (Ctrl+C) en plak (Ctrl+V) in het tekstveld hieronder</li>
+                    <li>• Scheidingsteken wordt automatisch herkend (komma, puntkomma of tab)</li>
                     <li>• Verplichte kolommen: Voornaam, Achternaam</li>
                     <li>• Optionele kolommen: Leerlingnummer, Klas, Geboortedatum</li>
                   </ul>
@@ -311,12 +316,12 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
               </label>
               <textarea
                 className="w-full h-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none font-mono text-sm"
-                placeholder="Plak hier je Excel data...
+                placeholder="Plak hier je Excel data (komma, puntkomma of tab gescheiden)...
 
 Voorbeeld:
-Voornaam,Achternaam,Leerlingnummer,Klas,Geboortedatum
-Jan,Jansen,12345,3A,01-01-2010
-Marie,Pietersen,12346,3A,15-03-2010"
+Voornaam	Achternaam	Leerlingnummer	Klas	Geboortedatum
+Jan	Jansen	12345	3A	01-01-2010
+Marie	Pietersen	12346	3A	15-03-2010"
                 value={csvData}
                 onChange={(e) => setCsvData(e.target.value)}
               />

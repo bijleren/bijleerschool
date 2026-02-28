@@ -47,8 +47,8 @@ export function GroupStudentImport({ schoolId, groupId, onImportComplete, onClos
     try {
       const text = csvData;
 
-      // Auto-detect delimiter (tab for Excel/Sheets copy-paste, comma for CSV)
-      const delimiter = text.includes('\t') ? '\t' : ',';
+      // Auto-detect delimiter: tab (Excel copy-paste), semicolon, or comma
+      const delimiter = text.includes('\t') ? '\t' : text.includes(';') ? ';' : ',';
 
       const parseResult = Papa.parse(text, {
         header: true,
@@ -221,7 +221,7 @@ export function GroupStudentImport({ schoolId, groupId, onImportComplete, onClos
                   <div className="text-sm text-blue-800">
                     <p className="font-medium mb-2">Let op:</p>
                     <ul className="list-disc ml-4 space-y-1">
-                      <li>Plak CSV data met kolommen "voornaam" en "achternaam" (of kopieer direct vanuit Excel/Google Sheets)</li>
+                      <li>Plak data met kolommen "voornaam" en "achternaam" - komma, puntkomma en tab worden automatisch herkend</li>
                       <li>Alleen bestaande studenten in de school worden gematcht</li>
                       <li>Studenten die al in de groep zitten worden overgeslagen</li>
                       <li>Bij meerdere studenten met dezelfde naam wordt geen match gemaakt</li>
