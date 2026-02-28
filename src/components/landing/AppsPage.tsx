@@ -265,7 +265,7 @@ export function AppsPage() {
               Eén abonnement. Alle apps.
             </h1>
             <p className="text-lg text-gray-500 leading-relaxed mb-8">
-              Alle huidige leerapps zijn inbegrepen in elk abonnement. En elke nieuwe app die we dankzij jullie mogen bouwen, krijg alle andere scholen er automatisch bij — zonder meerprijs.
+              Alle huidige leerapps zijn inbegrepen in elk abonnement. En elke nieuwe app die we dankzij jullie mogen bouwen, krijgen alle andere scholen er automatisch bij — zonder meerprijs.
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
               <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-1.5">
