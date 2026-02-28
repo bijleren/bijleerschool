@@ -130,7 +130,7 @@ export function HoeWerktHetPage() {
               Hoe werkt het?
             </span>
             <h1 className="text-4xl font-bold text-gray-900 mb-5">
-              Van aanmelding tot les in vier stappen
+              Van aanmelding tot gebruiksklaar in vier stappen
             </h1>
             <p className="text-lg text-gray-500 leading-relaxed">
               bijleer.school is zo eenvoudig mogelijk opgezet. Geen ingewikkelde configuratie, geen lange handleidingen. Je bent snel klaar om te starten.
@@ -203,7 +203,7 @@ export function HoeWerktHetPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Voor iedereen in de school</h2>
-            <p className="text-gray-500 text-lg">bijleer.school ondersteunt leerkrachten, teams én directies.</p>
+            <p className="text-gray-500 text-lg">bijleer.school ondersteunt leerkrachten, teams én directies. Leerlingen leren bij.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {ROLES.map((role, i) => (
@@ -282,7 +282,7 @@ export function HoeWerktHetPage() {
           <div className="bg-blue-600 rounded-2xl p-12 text-center text-white">
             <h2 className="text-3xl font-bold mb-4">Klaar om te starten?</h2>
             <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">
-              Maak vandaag nog een gratis account aan en maak een nieuwe school of koppel je aan een bestaande. geen verplichtingen.
+              Maak vandaag nog een gratis account aan en maak een nieuwe school of koppel je aan een bestaande. Geen verplichtingen.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
