@@ -132,6 +132,9 @@ const FAQS = [
   {
     question: 'Hoe veilig zijn de leerlinggegevens?',
     answer: 'Alle gegevens worden opgeslagen binnen de EU en zijn volledig afgeschermd per school. Leerlinggegevens zijn nooit zichtbaar voor andere scholen of derden. We voldoen aan de geldende privacy- en GDPR-wetgeving.',
+  },{
+    question: 'Is er korting als we later in het jaar starten?',
+    answer: 'Voor leerling-pakketten is er een vaste prijs. Van zodra je bestelt loopt de licentie tot 31 augustus van dat schooljaar. Wil je als bijleer.school starten dan voorzien we een korting. Neem hiervoor contact op via info@bijleren.eu',
   },
 ];
 
