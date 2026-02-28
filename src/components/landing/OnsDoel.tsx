@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Monitor, TrendingUp, Clock, ArrowRight, CheckCircle, Users, BookOpen, Layers } from 'lucide-react';
+import { Monitor, TrendingUp, Clock, ArrowRight, CheckCircle, Users, BookOpen, Layers, Heart, Share2, Target } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
 
@@ -135,7 +135,61 @@ export function OnsDoel() {
         </div>
       </div>
 
+      {/* Bijleren.eu founder section */}
       <div className="py-20 bg-white border-t border-gray-100">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <span className="inline-block bg-amber-50 text-amber-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-amber-100">
+              Bijleren.eu
+            </span>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Doel voor tool
+            </h2>
+            <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+              bijleer.school is een initiatief van Bijleren.eu. Niet zomaar een toolkit, maar een missie: elk instrument wordt gebouwd vanuit een helder didactisch doel. Eerst nadenken waarom, dan pas hoe.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <div className="bg-gray-50 rounded-2xl border border-gray-200 p-8 flex flex-col items-start">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 mb-5">
+                <Heart className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-3">Scholen samenbrengen</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                We geloven dat scholen sterker worden wanneer ze samenwerken. Door noden te delen en samen tools te bouwen, besparen we tijd — zodat elke leerkracht meer ruimte krijgt om echt les te geven op de manier die bij hem of haar past.
+              </p>
+            </div>
+            <div className="bg-gray-50 rounded-2xl border border-gray-200 p-8 flex flex-col items-start">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-teal-100 mb-5">
+                <Share2 className="w-6 h-6 text-teal-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-3">Samen bouwen, samen groeien</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Elke app begint bij een echte vraag van een echte school. Wat we samen bouwen, delen we met iedereen. Zo maakt elk nieuw inzicht, elke nieuwe nood, het platform beter voor alle scholen tegelijk.
+              </p>
+            </div>
+            <div className="bg-gray-50 rounded-2xl border border-gray-200 p-8 flex flex-col items-start">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-amber-100 mb-5">
+                <Target className="w-6 h-6 text-amber-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-3">Doel voor tool</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Bijleren.eu brengt niet enkel een tool, maar de didactische visie erachter. Wat wil je bereiken met je leerlingen? Dát is het vertrekpunt. De technologie volgt de pedagogie, niet andersom.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-10 text-center">
+            <p className="text-2xl font-bold text-gray-900 mb-2 italic">"Doel voor tool"</p>
+            <p className="text-gray-600 text-sm max-w-xl mx-auto">
+              De tagline van Bijleren.eu vat samen waar bijleer.school voor staat: technologie die ten dienste staat van een helder didactisch doel. Geen tool omwille van de tool.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="py-20 bg-gray-50 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-blue-600 rounded-2xl p-12 text-center text-white">
             <h2 className="text-3xl font-bold mb-4">Kom bij de community!</h2>
