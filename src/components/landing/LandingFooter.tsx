@@ -1,27 +1,10 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { GraduationCap, ExternalLink } from 'lucide-react';
 
 export function LandingFooter() {
-  const location = useLocation();
-  const navigate = useNavigate();
-
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleAnchorClick = (e: React.MouseEvent, anchor: string) => {
-    e.preventDefault();
-    const scrollToAnchor = () => {
-      const el = document.getElementById(anchor);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    };
-    if (location.pathname === '/') {
-      scrollToAnchor();
-    } else {
-      navigate('/');
-      setTimeout(scrollToAnchor, 100);
-    }
   };
 
   return (
@@ -58,7 +41,7 @@ export function LandingFooter() {
               <li><Link to="/voor-wie" onClick={scrollToTop} className="hover:text-white transition-colors">Voor wie?</Link></li>
               <li><Link to="/hoe-werkt-het" onClick={scrollToTop} className="hover:text-white transition-colors">Hoe werkt het?</Link></li>
               <li><Link to="/ons-doel" onClick={scrollToTop} className="hover:text-white transition-colors">Ons doel</Link></li>
-              <li><a href="/#pricing" onClick={(e) => handleAnchorClick(e, 'pricing')} className="hover:text-white transition-colors cursor-pointer">Prijzen</a></li>
+              <li><Link to="/prijzen" onClick={scrollToTop} className="hover:text-white transition-colors">Prijzen</Link></li>
               <li><Link to="/contact" onClick={scrollToTop} className="hover:text-white transition-colors">Aanvraag nieuwe app</Link></li>
             </ul>
           </div>

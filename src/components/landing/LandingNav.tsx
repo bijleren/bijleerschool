@@ -11,7 +11,7 @@ const NAV_LINKS = [
   { label: 'Voor wie?', to: '/voor-wie' },
   { label: 'Hoe werkt het?', to: '/hoe-werkt-het' },
   { label: 'Ons doel', to: '/ons-doel' },
-  { label: 'Prijzen', to: '/#pricing', anchor: 'pricing' },
+  { label: 'Prijzen', to: '/prijzen' },
   { label: 'Contact', to: '/contact' },
 ];
 

@@ -16,6 +16,7 @@ import { AlgemeneVoorwaardenPage } from './components/landing/AlgemeneVoorwaarde
 import { PrivacyPolicyPage } from './components/landing/PrivacyPolicyPage';
 import { OnsDoel } from './components/landing/OnsDoel';
 import { VoorWiePage } from './components/landing/VoorWiePage';
+import { PrijzenPage } from './components/landing/PrijzenPage';
 import { CookieBanner } from './components/landing/CookieBanner';
 import { GraduationCap, ArrowLeft, Globe } from 'lucide-react';
 
@@ -218,6 +219,7 @@ function App() {
           <Route path="/apps" element={<AppsPage />} />
           <Route path="/ons-doel" element={<OnsDoel />} />
           <Route path="/voor-wie" element={<VoorWiePage />} />
+          <Route path="/prijzen" element={<PrijzenPage />} />
           <Route path="/algemene-voorwaarden" element={<AlgemeneVoorwaardenPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/webwijzer" element={<PublicWebWijzerAccess />} />
