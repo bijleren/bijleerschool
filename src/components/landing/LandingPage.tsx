@@ -427,9 +427,9 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
     <div id="pricing" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Eenvoudige, eerlijke prijzen</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Eenvoudige, transparante prijzen</h2>
           <p className="text-lg text-gray-500 max-w-xl mx-auto">
-           Alle apps inbegrepen. De enige kost die er nog bij komt is de opslagruimte die je zelf gebruikt.
+           Alle apps inbegrepen. De enige kost die er nog bij komt, is de opslagruimte die je zelf gebruikt.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-8 items-stretch">
