@@ -260,14 +260,14 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
               )}
             </div>
 
-            {/* Slimme ICT Dropdown */}
+            {/* Slim delen Dropdown */}
             <div className="relative" ref={slimmeICTDropdownRef}>
               <button
                 onClick={() => setShowSlimmeICTDropdown(!showSlimmeICTDropdown)}
                 className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
               >
                 <Sparkles className="w-5 h-5" />
-                <span>Slimme ICT</span>
+                <span>Slim delen</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${showSlimmeICTDropdown ? 'rotate-180' : ''}`} />
               </button>
 
