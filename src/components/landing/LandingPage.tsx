@@ -15,84 +15,98 @@ const APPS = [
     icon: <Globe className="w-6 h-6 text-orange-600" />,
     bg: 'bg-orange-50',
     title: 'WebWijzer',
+    problem: 'Hoe krijg je ICT-zwakke leerlingen snel naar de juiste website?',
     description: 'Gepersonaliseerde webwijzers per leerling met educatieve links en afgeschermde bronnen.',
   },
   {
     icon: <Grid className="w-6 h-6 text-teal-600" />,
     bg: 'bg-teal-50',
     title: 'ActiviTijd',
+    problem: 'Hoe hou je overzicht over wie wat doet tijdens vrije activiteitsmomenten?',
     description: 'Activiteitenborden voor het organiseren en beheren van klasactiviteiten in real-time.',
   },
   {
     icon: <BookMarked className="w-6 h-6 text-pink-600" />,
     bg: 'bg-pink-50',
     title: 'Boeker',
+    problem: 'Wie heeft welk boek, en is het al teruggebracht?',
     description: 'Digitaal bibliotheeksysteem voor het beheren van schoolboeken en leenregistraties.',
   },
   {
     icon: <Search className="w-6 h-6 text-blue-600" />,
     bg: 'bg-blue-50',
     title: 'Zoeker',
+    problem: 'Hoe zorg je dat leerlingen veilig en gericht online opzoeken?',
     description: 'Krachtige zoekomgeving die leerlingen begeleidt naar goedgekeurde online bronnen.',
   },
   {
     icon: <QrCode className="w-6 h-6 text-cyan-600" />,
     bg: 'bg-cyan-50',
     title: 'BlinkQR',
+    problem: 'Hoe geef je elke leerling in seconden toegang tot zijn eigen tools?',
     description: 'Gepersonaliseerde QR-codes voor snelle toegang tot leerlingprofielen en webwijzers.',
   },
   {
     icon: <Users className="w-6 h-6 text-green-600" />,
     bg: 'bg-green-50',
     title: 'Gedragsmanagement',
+    problem: 'Hoe registreer en opvolg je gedragsincidenten zonder papierwerk?',
     description: 'Registreer en analyseer gedragsincidenten met opvolging, consequenties en inzichten.',
   },
   {
     icon: <BookCheck className="w-6 h-6 text-rose-600" />,
     bg: 'bg-rose-50',
     title: 'Leescoach',
+    problem: 'Hoe houd je de leesontwikkeling van elke leerling systematisch bij?',
     description: 'Begeleide leesgesprekken en leesregistraties om de leesontwikkeling van leerlingen te ondersteunen.',
   },
   {
     icon: <Layers className="w-6 h-6 text-violet-600" />,
     bg: 'bg-violet-50',
     title: 'Sporen',
+    problem: 'Hoe maak je leertrajecten zichtbaar voor leerkracht en leerling?',
     description: 'Visueel overzicht van leertrajecten en individuele groeipaden per leerling.',
   },
   {
     icon: <Clock className="w-6 h-6 text-slate-600" />,
     bg: 'bg-slate-50',
     title: 'Schooldag Planner',
+    problem: 'Hoe plan je lessen en dagschema\'s efficiënt voor de hele school?',
     description: 'Plan en beheer lessen, vakken en dagschema\'s voor je hele school.',
   },
   {
     icon: <BarChart3 className="w-6 h-6 text-emerald-600" />,
     bg: 'bg-emerald-50',
     title: 'Analyse & Inzichten',
+    problem: 'Hoe weet je of je aanpak effectief is voor al je leerlingen?',
     description: 'Krijg inzicht in trends, effectiviteit van technieken en leerlingontwikkeling doorheen het jaar.',
   },
   {
     icon: <Wrench className="w-6 h-6 text-gray-600" />,
     bg: 'bg-gray-50',
     title: 'DigiTools',
+    problem: 'Welke digitale tools zijn echt geschikt voor gebruik in de klas?',
     description: 'Gecureerde collectie digitale tools en apps geselecteerd voor gebruik in de klas.',
   },
   {
     icon: <BookOpen className="w-6 h-6 text-lime-600" />,
     bg: 'bg-lime-50',
     title: 'kleuterdidactiek.be',
+    problem: 'Waar vind je snel kwalitatieve activiteiten voor kleuters?',
     description: 'Praktijkgerichte didactische bronnen en activiteiten speciaal voor het kleuteronderwijs.',
   },
   {
     icon: <Type className="w-6 h-6 text-yellow-600" />,
     bg: 'bg-yellow-50',
     title: 'woordenschat.be',
+    problem: 'Hoe maak je woordenschatonderwijs boeiend en meetbaar?',
     description: 'Interactieve woordenschatoefeningen en tools voor woordenschatontwikkeling in de klas.',
   },
   {
     icon: <MonitorSmartphone className="w-6 h-6 text-sky-600" />,
     bg: 'bg-sky-50',
     title: 'Basis ICT-geletterdheid',
+    problem: 'Hoe leer je leerlingen stap voor stap digitaal vaardig te worden?',
     description: 'Apps en oefeningen om leerlingen stap voor stap digitaal vaardig te maken.',
   },
 ];
@@ -256,6 +270,11 @@ function AppsSection() {
                 <h3 className={`font-semibold mb-1.5 ${(app as any).dashed ? 'text-gray-700' : 'text-gray-900'}`}>
                   {app.title}
                 </h3>
+                {(app as any).problem && (
+                  <p className="text-sm italic text-gray-700 bg-gray-50 rounded-lg px-3 py-2 mb-2.5 leading-snug border-l-2 border-gray-300">
+                    {(app as any).problem}
+                  </p>
+                )}
                 <p className={`text-sm leading-relaxed ${(app as any).dashed ? 'text-gray-400' : 'text-gray-500'}`}>
                   {app.description}
                 </p>
