@@ -362,7 +362,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
       name: 'Leerlingpakket',
       price: '4,5',
       unit: 'euro / leerling / jaar',
-      description: 'Voor klassen of groepen die zelf de schaal bepalen.',
+      description: 'Kies zelf de groepsgrootte.',
       highlight: false,
       features: [
         'Alle huidige leerapps',
@@ -380,7 +380,11 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
       description: 'Krijg met het schoolteam toegang tot alle apps + didactische ondersteuning.',
       highlight: true,
       features: [
-        'Alles van het leerling-pakket',
+        'Alle huidige leerapps',
+        'Alle toekomstige leerapps',
+        'Leerlingbeheer en groepen',
+        'Analyse en rapportage',
+        'Updates inbegrepen',
         'Didactische nieuwsbrief',
         'Online Vormingen',
         'Ondersteuning',
