@@ -484,6 +484,12 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
                     Bestel nu
                   </a>
                 )}
+                <button
+                  onClick={() => navigate('/prijzen')}
+                  className="w-full text-center py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                >
+                  Meer info
+                </button>
               </div>
             </div>
           ))}
