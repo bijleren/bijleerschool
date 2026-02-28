@@ -20,7 +20,10 @@ const plans = [
       'Updates inbegrepen',
     ],
     notIncluded: [
-      'Didactische nieuwsbrief',
+    'Didactische nieuwsbrief',
+      'Ondersteuning via online Q&A-sessies',
+      'Online Vormingen',
+      'Ondersteuning op school',
     ],
     cta: 'Start gratis',
     bestelUrl: 'https://www.bijleren.eu/shop/bijleer-school-123#attribute_values=60',
