@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, MapPin, MessageSquare, School, Lightbulb, CheckCircle, ArrowRight } from 'lucide-react';
+import { Mail, MessageSquare, School, Lightbulb, CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
+import { supabase } from '../../lib/supabase';
 
 const CONTACT_REASONS = [
   { value: 'demo', label: 'Ik wil een demo of meer informatie' },
@@ -22,17 +23,37 @@ export function ContactPage() {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setFormState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const mailto = `mailto:info@bijleren.eu?subject=${encodeURIComponent(`bijleer.school contact: ${formState.reason}`)}&body=${encodeURIComponent(
-      `Naam: ${formState.name}\nSchool: ${formState.school}\nE-mail: ${formState.email}\n\n${formState.message}`
-    )}`;
-    window.location.href = mailto;
+    setLoading(true);
+    setError(null);
+
+    const reasonLabel = CONTACT_REASONS.find((r) => r.value === formState.reason)?.label ?? formState.reason;
+    const subject = `${reasonLabel}${formState.school ? ` — ${formState.school}` : ''}`;
+
+    const { error: dbError } = await supabase.from('contact_messages').insert({
+      name: formState.name,
+      email: formState.email,
+      type: formState.reason,
+      subject,
+      message: `School: ${formState.school || '—'}\n\n${formState.message}`,
+      platform: 'bijleer.school',
+    });
+
+    setLoading(false);
+
+    if (dbError) {
+      setError('Er ging iets mis. Probeer opnieuw of mail ons rechtstreeks.');
+      return;
+    }
+
     setSubmitted(true);
   }
 
@@ -123,7 +144,7 @@ export function ContactPage() {
                     <CheckCircle className="w-7 h-7 text-green-600" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Bericht verstuurd!</h3>
-                  <p className="text-gray-500 mb-6">Je e-mailprogramma werd geopend. We reageren zo snel mogelijk.</p>
+                  <p className="text-gray-500 mb-6">We hebben je bericht goed ontvangen en reageren zo snel mogelijk.</p>
                   <button
                     onClick={() => navigate('/')}
                     className="inline-flex items-center gap-2 text-blue-600 font-medium hover:underline"
@@ -201,15 +222,28 @@ export function ContactPage() {
                     />
                   </div>
 
+                  {error && (
+                    <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>
+                  )}
                   <button
                     type="submit"
-                    className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                    disabled={loading}
+                    className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Bericht versturen
-                    <ArrowRight className="w-5 h-5" />
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Versturen...
+                      </>
+                    ) : (
+                      <>
+                        Bericht versturen
+                        <ArrowRight className="w-5 h-5" />
+                      </>
+                    )}
                   </button>
                   <p className="text-xs text-gray-400 text-center">
-                    Dit opent je e-mailprogramma. Je kunt ook rechtstreeks mailen naar{' '}
+                    Je kunt ook rechtstreeks mailen naar{' '}
                     <a href="mailto:info@bijleren.eu" className="text-blue-500 hover:underline">info@bijleren.eu</a>.
                   </p>
                 </form>
