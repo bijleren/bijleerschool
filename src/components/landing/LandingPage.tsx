@@ -298,7 +298,7 @@ function HowItBuilt() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Apps gemaakt door en voor scholen
+            Apps gemaakt voor scholen
           </h2>
           <p className="text-lg text-gray-500">
             bijleer.school is geen generiek softwarepakket. Elke app is ontstaan vanuit een concrete vraag van een leerkracht of schoolteam.
