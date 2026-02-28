@@ -398,7 +398,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
         'Ondersteuning',
       ],
       cta: 'Start gratis',
-      bestelUrl: 'https://www.bijleren.eu/shop/bijleer-school-123#attribute_values=60',
+      bestelUrl: 'https://www.bijleren.eu/shop/bijleer-school-123#attribute_values=63',
     },
     {
       name: 'Extra ondersteuning',
