@@ -63,7 +63,7 @@ const APPS = [
     icon: <Users className="w-6 h-6 text-green-600" />,
     bg: 'bg-green-50',
     title: 'Gedragsmanagement',
-    problem: 'Hoe registreer en opvolg je gedragsincidenten zonder papierwerk?',
+    problem: 'Hoe registreer en volg je gedragsincidenten op zonder papierwerk?',
     description: 'Registreer en analyseer gedragsincidenten met opvolging, consequenties en inzichten.',
   },
   {
