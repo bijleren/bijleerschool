@@ -135,6 +135,9 @@ const FAQS = [
   },{
     question: 'Is er korting als we later in het jaar starten?',
     answer: 'Voor leerling-pakketten is er geen korting mogelijk. Van zodra je bestelt loopt de licentie tot 31 augustus van dat schooljaar. Wil je later in het schooljaar starten als bijleer.school? Dan voorzien we een korting afhankelijk van de maand waarin je start. Neem hiervoor contact op via info@bijleren.eu',
+  },{
+    question: 'Is dit een abonnement?',
+    answer: 'Neen, per schooljaar kies je of je verder deelneemt.',
   },
 ];
 
