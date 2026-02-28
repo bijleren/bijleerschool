@@ -376,7 +376,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
     {
       name: 'Leerlingpakket',
       price: '4,5',
-      unit: 'euro / leerling / jaar',
+      unit: 'euro / leerling / schooljaar',
       description: 'Kies zelf de groepsgrootte.',
       highlight: false,
       features: [
@@ -398,7 +398,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
     {
       name: 'Bijleer-school',
       price: '4,5',
-      unit: 'euro / leerling / jaar',
+      unit: 'euro / leerling / schooljaar',
       description: 'Krijg met het schoolteam toegang tot alle apps + didactische ondersteuning.',
       highlight: true,
       features: [
