@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users, BarChart3, Globe, ArrowRight, Grid,
   BookMarked, Search, QrCode, ChevronDown, ChevronUp,
   CheckCircle, MessageSquare, Lightbulb, Rocket, MapPin, Star,
-  BookCheck, Layers, Clock
+  BookCheck, Layers, Clock, Wrench, MonitorSmartphone, BookOpen, Type, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { LandingNav } from './LandingNav';
@@ -70,6 +70,30 @@ const APPS = [
     bg: 'bg-emerald-50',
     title: 'Analyse & Inzichten',
     description: 'Krijg inzicht in trends, effectiviteit van technieken en leerlingontwikkeling doorheen het jaar.',
+  },
+  {
+    icon: <Wrench className="w-6 h-6 text-gray-600" />,
+    bg: 'bg-gray-50',
+    title: 'DigiTools',
+    description: 'Gecureerde collectie digitale tools en apps geselecteerd voor gebruik in de klas.',
+  },
+  {
+    icon: <BookOpen className="w-6 h-6 text-lime-600" />,
+    bg: 'bg-lime-50',
+    title: 'kleuterdidactiek.be',
+    description: 'Praktijkgerichte didactische bronnen en activiteiten speciaal voor het kleuteronderwijs.',
+  },
+  {
+    icon: <Type className="w-6 h-6 text-yellow-600" />,
+    bg: 'bg-yellow-50',
+    title: 'woordenschat.be',
+    description: 'Interactieve woordenschatoefeningen en tools voor woordenschatontwikkeling in de klas.',
+  },
+  {
+    icon: <MonitorSmartphone className="w-6 h-6 text-sky-600" />,
+    bg: 'bg-sky-50',
+    title: 'Basis ICT-geletterdheid',
+    description: 'Apps en oefeningen om leerlingen stap voor stap digitaal vaardig te maken.',
   },
 ];
 
@@ -155,8 +179,28 @@ function Hero({ navigate }: { navigate: (path: string) => void }) {
 }
 
 function AppsSection() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const CARD_WIDTH = 260;
+  const GAP = 20;
+
+  const scroll = (dir: 'left' | 'right') => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollBy({ left: dir === 'right' ? (CARD_WIDTH + GAP) * 2 : -(CARD_WIDTH + GAP) * 2, behavior: 'smooth' });
+  };
+
+  const allItems = [
+    ...APPS,
+    {
+      icon: <Lightbulb className="w-6 h-6 text-gray-400" />,
+      bg: 'bg-gray-50',
+      title: 'Jouw app hier?',
+      description: 'Scholen kunnen nieuwe apps aanvragen. Wij luisteren, bouwen een prototype en rollen het uit.',
+      dashed: true,
+    },
+  ];
+
   return (
-    <div className="py-24 bg-gray-50">
+    <div className="py-24 bg-gray-50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Alle leerapps inbegrepen</h2>
@@ -165,27 +209,45 @@ function AppsSection() {
             De tools die we maken groeien uit jullie noden.
           </p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {APPS.map((app) => (
-            <div
-              key={app.title}
-              className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow"
-            >
-              <div className={`inline-flex items-center justify-center w-11 h-11 rounded-lg mb-4 ${app.bg}`}>
-                {app.icon}
+        <div className="relative">
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+            aria-label="Scroll links"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+            aria-label="Scroll rechts"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-600" />
+          </button>
+          <div
+            ref={scrollRef}
+            className="flex gap-5 overflow-x-auto pb-4 scroll-smooth"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {allItems.map((app) => (
+              <div
+                key={app.title}
+                className={`flex-shrink-0 bg-white rounded-xl border p-5 hover:shadow-md transition-shadow ${
+                  (app as any).dashed ? 'border-dashed border-gray-300' : 'border-gray-200'
+                }`}
+                style={{ width: CARD_WIDTH }}
+              >
+                <div className={`inline-flex items-center justify-center w-11 h-11 rounded-lg mb-4 ${app.bg}`}>
+                  {app.icon}
+                </div>
+                <h3 className={`font-semibold mb-1.5 ${(app as any).dashed ? 'text-gray-700' : 'text-gray-900'}`}>
+                  {app.title}
+                </h3>
+                <p className={`text-sm leading-relaxed ${(app as any).dashed ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {app.description}
+                </p>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-1.5">{app.title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{app.description}</p>
-            </div>
-          ))}
-          <div className="bg-white rounded-xl border border-dashed border-gray-300 p-5 flex flex-col items-start justify-center">
-            <div className="inline-flex items-center justify-center w-11 h-11 rounded-lg bg-gray-50 mb-4">
-              <Lightbulb className="w-6 h-6 text-gray-400" />
-            </div>
-            <h3 className="font-semibold text-gray-700 mb-1.5">Jouw app hier?</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              Scholen kunnen nieuwe apps aanvragen. Wij luisteren, bouwen een prototype en rollen het uit.
-            </p>
+            ))}
           </div>
         </div>
       </div>
