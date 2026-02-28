@@ -134,8 +134,7 @@ function Hero({ navigate }: { navigate: (path: string) => void }) {
             Leerwinst en tijdswinst via slimme didactiek en handige ICT-tools
           </h1>
           <p className="text-xl text-gray-500 mb-10 leading-relaxed">
-            bijleer.school bundelt alle tools die een leerkracht nodig heeft in één platform.
-            Van gedragsmanagement tot leesbegeleiding — gebouwd op vraag van scholen, voor scholen.
+           Met de bijleer.school zetten we bijleren centraal. Met onze apps en platformen zet je ICT didactisch in. - Gebouwd op vraag van scholen, voor scholen.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button onClick={() => navigate('/login')} size="lg">
@@ -162,7 +161,7 @@ function AppsSection() {
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Alle leerapps inbegrepen</h2>
           <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-            Eén abonnement geeft toegang tot alle huidige en toekomstige leerapps.
+            Eén abonnement geeft toegang tot alle huidige en toekomstige leerapps.<br>
             Geen verborgen kosten, geen extra modules.
           </p>
         </div>
