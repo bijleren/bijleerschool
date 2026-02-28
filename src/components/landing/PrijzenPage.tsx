@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Star, HardDrive, ArrowRight, MessageSquare, CalendarCheck, ShieldCheck, Rocket, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle, XCircle, Star, HardDrive, ArrowRight, MessageSquare, CalendarCheck, ShieldCheck, Rocket, ChevronDown, ChevronUp } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
 import { Button } from '../ui/Button';
@@ -18,6 +18,9 @@ const plans = [
       'Leerlingbeheer en groepen',
       'Analyse en rapportage',
       'Updates inbegrepen',
+    ],
+    notIncluded: [
+      'Didactische nieuwsbrief',
     ],
     cta: 'Start gratis',
     bestelUrl: 'https://www.bijleren.eu/shop/bijleer-school-123#attribute_values=60',
@@ -39,6 +42,7 @@ const plans = [
       'Online Vormingen',
       'Ondersteuning',
     ],
+    notIncluded: [] as string[],
     cta: 'Start gratis',
     bestelUrl: 'https://www.bijleren.eu/shop/bijleer-school-123#attribute_values=63',
   },
@@ -54,6 +58,7 @@ const plans = [
       'Implementatiebegeleiding',
       'Apps op maat',
     ],
+    notIncluded: [] as string[],
     cta: 'Neem contact op',
     bestelUrl: null,
   },
@@ -201,6 +206,12 @@ export function PrijzenPage() {
                     {plan.features.map((f) => (
                       <li key={f} className="flex items-start gap-3 text-sm text-gray-700">
                         <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        {f}
+                      </li>
+                    ))}
+                    {plan.notIncluded.map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-sm text-gray-400">
+                        <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                         {f}
                       </li>
                     ))}

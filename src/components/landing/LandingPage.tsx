@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Users, BarChart3, Globe, ArrowRight, Grid,
   BookMarked, Search, QrCode, ChevronDown, ChevronUp,
-  CheckCircle, MessageSquare, Lightbulb, Rocket, MapPin, Star,
+  CheckCircle, XCircle, MessageSquare, Lightbulb, Rocket, MapPin, Star,
   BookCheck, Layers, Clock, Wrench, MonitorSmartphone, BookOpen, Type, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -386,6 +386,9 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
         'Analyse en rapportage',
         'Updates inbegrepen',
       ],
+      notIncluded: [
+        'Didactische nieuwsbrief',
+      ],
       cta: 'Start gratis',
       bestelUrl: 'https://www.bijleren.eu/shop/bijleer-school-123#attribute_values=60',
     },
@@ -406,6 +409,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
         'Online Vormingen',
         'Ondersteuning',
       ],
+      notIncluded: [] as string[],
       cta: 'Start gratis',
       bestelUrl: 'https://www.bijleren.eu/shop/bijleer-school-123#attribute_values=63',
     },
@@ -421,6 +425,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
         'Implementatiebegeleiding',
         'Apps op maat'
       ],
+      notIncluded: [] as string[],
       cta: 'Neem contact op',
       bestelUrl: null,
     },
@@ -462,6 +467,12 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm text-gray-700">
                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    {f}
+                  </li>
+                ))}
+                {plan.notIncluded.map((f) => (
+                  <li key={f} className="flex items-start gap-3 text-sm text-gray-400">
+                    <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                     {f}
                   </li>
                 ))}
