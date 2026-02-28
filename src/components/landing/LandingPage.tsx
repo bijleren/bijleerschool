@@ -378,6 +378,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
         'Updates inbegrepen',
       ],
       cta: 'Start gratis',
+      bestelUrl: 'https://www.bijleren.eu/shop/bijleer-school-123#attribute_values=60',
     },
     {
       name: 'Bijleer-school',
@@ -397,6 +398,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
         'Ondersteuning',
       ],
       cta: 'Start gratis',
+      bestelUrl: 'https://www.bijleren.eu/shop/bijleer-school-123#attribute_values=60',
     },
     {
       name: 'Extra ondersteuning',
@@ -411,6 +413,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
         'Apps op maat'
       ],
       cta: 'Neem contact op',
+      bestelUrl: null,
     },
   ];
 
@@ -454,13 +457,25 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
                   </li>
                 ))}
               </ul>
-              <Button
-                onClick={() => navigate(plan.cta === 'Neem contact op' ? '/login' : '/login')}
-                variant={plan.highlight ? 'primary' : 'secondary'}
-                className="w-full justify-center"
-              >
-                {plan.cta}
-              </Button>
+              <div className="mt-auto flex flex-col gap-3">
+                <Button
+                  onClick={() => navigate('/login')}
+                  variant={plan.highlight ? 'primary' : 'secondary'}
+                  className="w-full justify-center"
+                >
+                  {plan.cta}
+                </Button>
+                {plan.bestelUrl && (
+                  <a
+                    href={plan.bestelUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full text-center py-2.5 px-4 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Bestel nu
+                  </a>
+                )}
+              </div>
             </div>
           ))}
         </div>
