@@ -223,7 +223,7 @@ function AppsSection() {
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Alle leerapps inbegrepen</h2>
           <p className="text-lg text-gray-500 max-w-2xl mx-auto">
             Eén abonnement geeft toegang tot alle huidige en toekomstige leerapps.
-            De tools die we maken groeien uit jullie noden.
+            De tools die vertrekken vanuit jullie noden.
           </p>
         </div>
         <div className="relative">
