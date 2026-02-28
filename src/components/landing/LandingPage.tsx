@@ -175,7 +175,7 @@ function Hero({ navigate }: { navigate: (path: string) => void }) {
             Leerwinst en tijdswinst via slimme didactiek en handige ICT-tools
           </h1>
           <p className="text-xl text-gray-500 mb-10 leading-relaxed">
-           Met de bijleer.school zetten we bijleren centraal. Met onze apps en platformen zet je ICT didactisch in. - Gebouwd op vraag van scholen, voor scholen.
+           Met de bijleer.school zetten we bijleren centraal. Met onze apps en platformen zet je ICT didactisch in. Gebouwd op vraag van scholen, voor scholen.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button onClick={() => navigate('/login')} size="lg">
