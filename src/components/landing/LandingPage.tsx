@@ -100,27 +100,33 @@ const APPS = [
 const FAQS = [
   {
     question: 'Hoe werkt de gratis proefperiode?',
-    answer: 'Je kunt bijleer.school volledig gratis uitproberen zonder kredietkaart. Maak een account aan, voeg je school toe en ontdek alle leerapps. Na de proefperiode kies je welk abonnement het beste bij je school past.',
+    answer: 'Je kunt bijleer.school volledig gratis uitproberen. Maak een account aan, voeg je school toe en ontdek alle leerapps. We nemen contact met je op om te kijken of wat wij bieden past bij jullie noden. Ga je niet van start met de bijleer.school? Dan verwijderen we  je school en data na 60 dagen. Zo kan je vrij uitproberen zonder zorgen.',
+  },{
+    question: 'Hoe werken jullie met ondersteuningcentra samen?',
+    answer: 'Als ondersteuner kan je snel en eenvoudig verschillende scholen aanmaken en beheren. Zo kan je perfect over scholen heen leerlingen op weg helpen bij het gebruiken van de tools. Wil je ook met het team toegang tot onze didactische expertise? Neem contact op, want ook jullie kunnen als team een bijleer.school worden!',
   },
   {
-    question: 'Wat is het verschil tussen "Vrij aantal leerlingen" en "Volledige school"?',
-    answer: '"Vrij aantal leerlingen" geeft toegang tot alle leerapps voor een zelf gekozen set leerlingen binnen de school. "Volledige school" omvat bovendien het volledige didactiekplatform met onderwijstechnieken, FAQs en vormingen — voor het hele team.',
+    question: 'Wat is het verschil tussen "Leerlingen-pakket" en "Bijleer.school"?',
+    answer: 'Leerling-pakket" geeft toegang tot alle leerapps voor een zelf gekozen set leerlingen binnen de school. Je krijgt geen toegang tot de didactische expertise met de vormingen, nieuwsbrieven en techniekendatabank die we hebben. Met dit pakket kan je dus alle tools gebruiken, maar mis je de didactische expertise die een volledige school wel krijgt.',
   },
   {
     question: 'Krijg ik ook toegang tot nieuwe apps die later worden toegevoegd?',
-    answer: 'Ja. Elk abonnement geeft toegang tot alle huidige én toekomstige leerapps. Je betaalt eenmalig per leerling per jaar en profiteert automatisch van alle nieuwe functionaliteiten.',
+    answer: 'Ja. Elk abonnement geeft toegang tot alle huidige én toekomstige leerapps. Je betaalt eenmalig per leerling per schooljaar en profiteert automatisch van alle nieuwe functionaliteiten.',
   },
   {
     question: 'Kan onze school een specifieke app laten maken?',
-    answer: 'Absoluut. bijleer.school is gebouwd op vraag van scholen. Elke school kan een aanvraag indienen voor nieuwe functionaliteiten of tools. We bespreken de nood, bouwen een prototype en rollen het uit voor alle gebruikers.',
+    answer: 'Absoluut. bijleer.school is gebouwd op vraag van scholen. Elke school kan een aanvraag indienen voor nieuwe functionaliteiten of tools. We bespreken de nood, bouwen een prototype en rollen het uit voor alle gebruikers. Zo kan je samen met scholen laagdrempelig een app bouwen. De bijleer.school is momenteel op deze manier gebouwd. Scholen die samen beter ICT willen inzetten en vooral didactisch sterker willen staan',
   },
   {
     question: 'Hoe werkt ondersteuning op school?',
-    answer: 'Voor scholen die extra begeleiding wensen, bieden we ondersteuning op maat aan. Dit omvat professionele ontwikkelingssessies, begeleiding bij de implementatie en directe support voor het schoolteam. Neem contact op voor een offerte.',
+    answer: 'Voor scholen die extra begeleiding wensen, bieden we ondersteuning op maat aan. Dit omvat vormingen op maat, begeleiding bij de implementatie en live lessen op jullie school zodat leerkrachten in hun eigen klas het effect kunnen zien. Neem contact op voor een offerte.',
   },
   {
     question: 'Is er een minimum aantal leerlingen?',
     answer: 'Neen, er is geen minimum. Je betaalt exact voor het aantal leerlingen dat je toevoegt aan het platform, aan 4,5 euro per leerling per jaar.',
+  }, {
+    question: 'Als ik voor het leerlingpakket kies, kan ik dan doorheen het jaar van leerlingen-aantal veranderen?'',
+    answer: 'Je kan altijd meer leerlingen opstarten. Elke nieuwe leerling telt mee voor je licentie. We kijken dus naar het aantal unieke leerlingen die voor een app zijn gebruikt. ',
   },
   {
     question: 'Hoe veilig zijn de leerlinggegevens?',
@@ -318,21 +324,19 @@ function TryFreeSection({ navigate }: { navigate: (path: string) => void }) {
         <div className="bg-white rounded-2xl border border-gray-200 p-10 sm:p-14">
           <div className="max-w-2xl">
             <span className="inline-block bg-green-50 text-green-700 text-sm font-semibold px-3 py-1 rounded-full mb-5 border border-green-100">
-              Gratis proberen
+              Didactiek centraal
             </span>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Start zonder risico
-            </h2>
+Niet gewoon een app, maar echte didactiek</h2>
             <p className="text-gray-500 text-lg mb-6 leading-relaxed">
-              Maak een gratis account aan en ontdek het volledige platform. Geen kredietkaart vereist, geen tijdslimiet voor het verkennen.
-              Wanneer je beslist om verder te gaan, kies je het abonnement dat past bij je school.
+              Wij hebben een menu-kaart van apps voor je klaarstaan. Voor elke school zijn er tools om de planlast te verlagen, meer leerwinst mogelijk te maken en tijdwinst centraal te zetten. Bouw een krachtige verticale leerlijn over heel je school.
             </p>
             <ul className="space-y-3 mb-8">
               {[
                 'Toegang tot alle leerapps',
-                'Geen kredietkaart nodig',
-                'Volledige functionaliteit tijdens de proefperiode',
-                'Persoonlijke begeleiding bij de start',
+                'Verticale leerlijn',
+                'ICT leerkracht- en leerlingvriendelijk inzetten',
+                'Ondersteuning tot op de klasvloer mogelijk',
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-gray-700">
                   <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
@@ -354,7 +358,7 @@ function TryFreeSection({ navigate }: { navigate: (path: string) => void }) {
 function PricingSection({ navigate }: { navigate: (path: string) => void }) {
   const plans = [
     {
-      name: 'Vrij aantal leerlingen',
+      name: 'Leerlingpakket',
       price: '4,5',
       unit: 'euro / leerling / jaar',
       description: 'Voor klassen of groepen die zelf de schaal bepalen.',
@@ -369,32 +373,30 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
       cta: 'Start gratis',
     },
     {
-      name: 'Volledige school',
+      name: 'Bijleer-school',
       price: '4,5',
       unit: 'euro / leerling / jaar',
-      description: 'Voor schoolteams die het volledige aanbod willen benutten.',
+      description: 'Krijg met het schoolteam toegang tot alle apps + didactische ondersteuning.',
       highlight: true,
       features: [
-        'Alles van Vrij aantal leerlingen',
-        'Didactiekplatform voor het team',
-        'Onderwijstechnieken & FAQs',
-        'Vormingen en professionele ontwikkeling',
-        'Prioritaire ondersteuning',
+        'Alles van het leerling-pakket',
+        'Didactische nieuwsbrief',
+        'Online Vormingen',
+        'Ondersteuning',
       ],
       cta: 'Start gratis',
     },
     {
-      name: 'Ondersteuning op school',
+      name: 'Extra ondersteuning',
       price: 'Op maat',
       unit: '',
       description: 'Begeleiding en implementatie door een expert op jouw school.',
       highlight: false,
       features: [
-        'Alles van Volledige school',
-        'Sessies op school',
+        'Studiedagen op je school',
+        'Demo-lessen in jullie klassen',
         'Implementatiebegeleiding',
-        'Training voor het team',
-        'Persoonlijk aanspreekpunt',
+        'Apps op maat'
       ],
       cta: 'Neem contact op',
     },
@@ -406,7 +408,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Eenvoudige, eerlijke prijzen</h2>
           <p className="text-lg text-gray-500 max-w-xl mx-auto">
-            Geen verborgen kosten. Geen modules die je apart moet kopen. Alle apps inbegrepen.
+           Alle apps inbegrepen. De enige kost die er nog bij komt is de opslagruimte die je zelf gebruikt.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-8 items-stretch">
@@ -422,7 +424,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
               {plan.highlight && (
                 <div className="mb-4">
                   <span className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                    <Star className="w-3 h-3" /> Meest gekozen
+                    <Star className="w-3 h-3" /> Ga voor impact
                   </span>
                 </div>
               )}
@@ -451,7 +453,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
           ))}
         </div>
         <p className="text-center text-sm text-gray-400 mt-8">
-          Alle prijzen zijn exclusief BTW. Factuur beschikbaar voor scholen.
+          Alle prijzen zijn exclusief 21% BTW.
         </p>
       </div>
     </div>
