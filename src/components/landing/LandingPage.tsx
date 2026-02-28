@@ -42,7 +42,7 @@ const APPS = [
     icon: <BookMarked className="w-6 h-6 text-pink-600" />,
     bg: 'bg-pink-50',
     title: 'Boeker',
-    problem: 'Wie heeft welk boek, en is het al teruggebracht? Hebben ze erin gelezen?',
+    problem: 'Wie heeft welk boek, en is het al teruggebracht? Hoe was hun leesproces?',
     description: 'Digitaal bibliotheeksysteem voor het beheren van schoolboeken en leenregistraties.',
   },
   {
