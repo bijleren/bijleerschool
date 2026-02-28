@@ -42,6 +42,23 @@ const SCHOOL_TYPES = [
       'BlinkQR voor leerlingtoegang',
     ],
   },
+   {
+    icon: <Brain className="w-7 h-7 text-teal-600" />,
+    bg: 'bg-teal-50',
+    border: 'border-teal-100',
+    badge: 'bg-teal-100 text-teal-700',
+    badgeLabel: 'Secundair onderwijs',
+    title: 'Anderstalige nieuwkomers',
+    subtitle: 'Van kleuter tot secundair',
+    description:
+      'Gebruik tools zoals woordenschat.be om een krachtige leerlijn rond het leren van het Nederlands mogelijk te maken. Ook andere tools maken het mogelijk om snel te differentiëren en digitale leermiddelen aan deze doelgroep te bezorgen.',
+    features: [
+      'Werk aan klanken, woorden en teksten met woordenschat.be',
+      'Universele onderwijstechnieken',
+      'Deel snel een video, document of website met de webwijer',
+      'Oefen op basis digitale vaardigheden om deze doelgroep vlot ICT te leren hanteren.',
+    ],
+  },
   {
     icon: <Brain className="w-7 h-7 text-teal-600" />,
     bg: 'bg-teal-50',
