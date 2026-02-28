@@ -128,10 +128,10 @@ function Hero({ navigate }: { navigate: (path: string) => void }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="max-w-3xl mx-auto text-center">
           <span className="inline-block bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-100">
-            Gebouwd door en voor scholen
+            Gebouwd vanuit echte noden van scholen
           </span>
           <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            Digitale leerapps die echt werken in de klas
+            Leerwinst en tijdswinst via slimme didactiek en handige ICT-tools
           </h1>
           <p className="text-xl text-gray-500 mb-10 leading-relaxed">
             bijleer.school bundelt alle tools die een leerkracht nodig heeft in één platform.
