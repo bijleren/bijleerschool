@@ -17,12 +17,12 @@ const APPS = [
     title: 'WebWijzer',
     tag: 'Leerlingen',
     tagColor: 'bg-orange-100 text-orange-700',
-    description: 'Gepersonaliseerde webwijzers per leerling. Elke leerling krijgt een eigen startpagina met educatieve links en goedgekeurde bronnen. Veilig, overzichtelijk en altijd up-to-date.',
+    description: 'Een slimme inlogkaart die leerling gebruiken tijdens het oefenen. Ze kunnen deze ook scannen met een webcam en zo hun favoriete websites vinden, boeken uitlenen, een zoekmachine raadplegen en meer.',
     features: [
       'Unieke QR-code per leerling',
       'Afgeschermde educatieve links',
       'Zichtbaar op klassenscherm',
-      'Activiteiten per leerling instellen',
+      'Deel snel wat je wil',
     ],
   },
   {
@@ -32,11 +32,11 @@ const APPS = [
     title: 'ActiviTijd',
     tag: 'Klas',
     tagColor: 'bg-teal-100 text-teal-700',
-    description: 'Real-time activiteitenborden voor de klas. Wijs activiteiten toe aan leerlingen of groepen en projecteer het bord op je klassenscherm. Zo weet iedereen wat ze moeten doen.',
+    description: 'Real-time activiteitenborden voor de klas. Wijs activiteiten toe aan leerlingen of groepen en projecteer het bord op je klassenscherm. Ideaal voor contractwerk. Zo weet iedereen wat ze moeten doen.',
     features: [
       'Activiteiten toewijzen per leerling',
       'Weergave op klassenscherm',
-      'QR-scan voor leerlingtoegang',
+      'QR-scan voor leerlingtoegang en snelle keuze',
       'Timer en tijdbeheer',
     ],
   },
@@ -49,9 +49,9 @@ const APPS = [
     tagColor: 'bg-pink-100 text-pink-700',
     description: 'Digitaal bibliotheeksysteem voor de school. Beheer je boekencollectie, registreer uitleen en volg op wie welk boek heeft. Snel scannen via barcode of handmatig toevoegen.',
     features: [
-      'Barcode scanner voor snelle uitleen',
+      'Barcode scanner via webcam voor snelle uitleen',
       'Uitleenhistoriek per leerling',
-      'Terugbrengherinneringen',
+      'Leesmotivatie: hoe was je leesmoment',
       'Leerlingen kunnen zelf inloggen',
     ],
   },
@@ -62,12 +62,12 @@ const APPS = [
     title: 'Zoeker',
     tag: 'Leerlingen',
     tagColor: 'bg-blue-100 text-blue-700',
-    description: 'Een veilige zoekomgeving voor leerlingen. Geen afleiding, geen ongepaste content. De leerkracht bepaalt welke bronnen beschikbaar zijn en leerlingen zoeken binnen die kaders.',
+    description: 'Een veilige start om online te zoeken op leerlingen-niveau. Jij als leerkracht kan zoekopdrachten bijsturen. Leerlingen kiezen eenvoudig welke bron ze raadplegen. Hou eenvoudig zicht op wat leerlingen zoeken.',
     features: [
-      'Afgesloten zoekomgeving',
-      'Leerkracht beheert bronnen',
-      'Schoolspecifieke inhoud',
-      'Werkt op tablet en computer',
+      'Leer prompten',
+      'Leerkracht kan feedback geven',
+      'volg zoekopdrachten op per leerling',
+      'Zoek multi-sensorieel',
     ],
   },
   {
@@ -92,7 +92,7 @@ const APPS = [
     title: 'Gedragsmanagement',
     tag: 'Leerlingbegeleiding',
     tagColor: 'bg-green-100 text-green-700',
-    description: 'Registreer en opvolg gedragsincidenten structureel. Per incident leg je de context, consequenties en opvolging vast. Analyses tonen patronen doorheen het jaar.',
+    description: 'Registreer en opvolg gedragsincidenten structureel. Dit ter vervangen of aanvulling van het typische .',
     features: [
       'Incidenten registreren',
       'Consequenties en opvolging',
@@ -243,7 +243,7 @@ export function AppsPage() {
               Eén abonnement. Alle apps.
             </h1>
             <p className="text-lg text-gray-500 leading-relaxed mb-8">
-              Alle huidige leerapps zijn inbegrepen in elk abonnement. En elke nieuwe app die we bouwen, krijg je automatisch erbij — zonder bijbetaling.
+              Alle huidige leerapps zijn inbegrepen in elk abonnement. En elke nieuwe app die we dankzij jullie mogen bouwen, krijg alle andere scholen er automatisch bij — zonder meerprijs.
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
               <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-1.5">
@@ -314,7 +314,7 @@ export function AppsPage() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-700 mb-2">Klagen en vragen, zo vinden we snel wat je team kan ondersteunen.</h3>
                 <p className="text-sm text-gray-500 leading-relaxed mb-5">
-                  Elke app is gebouwd op vraag van een school. Neem contact op en beschrijf wat je mist — we luisteren. Zo vroeg een school om de digitale versie van een oud leermateriaal, dit maken wij waar.
+                  Elke app is gebouwd op vraag van een school. Dit om hun werking te versterken. Zo vertrekt het soms vanuit een verzuchting dat een bepaalde taak veel tijd neemt of een krachtige vraag rond hoe ICT krachtiger ingezet kan worden. Neem contact op en beschrijf wat je mist of welke vragen je hebt — we luisteren. Elke app is dus op maat van een school, maar duurzaam verwerkt zodat iedereen er gebruik kan van maken.
                 </p>
                 <button
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
@@ -337,7 +337,7 @@ export function AppsPage() {
           <div className="bg-blue-600 rounded-2xl p-12 text-center text-white">
             <h2 className="text-3xl font-bold mb-4">Probeer alle apps gratis</h2>
             <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">
-              Maak een gratis account aan en ontdek elke app. Geen verplichtingen, maar we raden je wel aan je te laten ondersteunen zodat je de app echt volledig leer kennen.
+              Maak een gratis account aan en ontdek elke app. Geen verplichtingen, maar we raden je wel aan je te laten ondersteunen zodat je de app echt volledig leert kennen.
             </p>
             <button
               onClick={() => navigate('/login')}
