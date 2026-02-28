@@ -135,7 +135,7 @@ export function VoorWiePage() {
               Voor wie is bijleer.school?
             </h1>
             <p className="text-xl text-gray-500 leading-relaxed mb-10">
-              bijleer.school is ontworpen voor elke school in Vlaanderen — kleuterschool, lagere school,
+              bijleer.school is ontworpen voor elke school in Vlaanderen. Krachtig voor het ondersteunen van zorgleerlingen en anderstalige nieuwkomers, maar noodzakelijk voor elke kleuterschool, lagere school,
               secundaire school of buitengewoon onderwijs. Niet gebonden aan een net of methode.
               Gewoon tools die werken in de klas.
             </p>
