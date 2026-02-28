@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Star, HardDrive, ArrowRight, MessageSquare, CalendarCheck, ShieldCheck, Rocket } from 'lucide-react';
+import { CheckCircle, Star, HardDrive, ArrowRight, MessageSquare, CalendarCheck, ShieldCheck, Rocket, ChevronDown, ChevronUp } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
 import { Button } from '../ui/Button';
@@ -102,8 +102,56 @@ const timelineSteps = [
   },
 ];
 
+const FAQS = [
+  {
+    question: 'Hoe werkt de gratis proefperiode?',
+    answer: 'Je kunt bijleer.school volledig gratis uitproberen. Maak een account aan, voeg je school toe en ontdek alle leerapps. We nemen contact met je op om te kijken of wat wij bieden past bij jullie noden. Ga je niet van start met de bijleer.school? Dan verwijderen we  je school en data na 60 dagen. Zo kan je vrij uitproberen zonder zorgen.',
+  },{
+    question: 'Hoe werken jullie met ondersteuningcentra samen?',
+    answer: 'Als ondersteuner kan je snel en eenvoudig verschillende scholen aanmaken en beheren. Zo kan je perfect over scholen heen leerlingen op weg helpen bij het gebruiken van de tools. Wil je ook met het team toegang tot onze didactische expertise? Neem contact op, want ook jullie kunnen als team een bijleer.school worden!',
+  },
+  {
+    question: 'Wat is het verschil tussen "Leerlingen-pakket" en "Bijleer.school"?',
+    answer: 'Leerling-pakket" geeft toegang tot alle leerapps voor een zelf gekozen set leerlingen binnen de school. Je krijgt geen toegang tot de didactische expertise met de vormingen, nieuwsbrieven en techniekendatabank die we hebben. Met dit pakket kan je dus alle tools gebruiken, maar mis je de didactische expertise die een volledige school wel krijgt.',
+  },
+  {
+    question: 'Krijg ik ook toegang tot nieuwe apps die later worden toegevoegd?',
+    answer: 'Ja. Elk abonnement geeft toegang tot alle huidige én toekomstige leerapps. Je betaalt eenmalig per leerling per schooljaar en profiteert automatisch van alle nieuwe functionaliteiten.',
+  },
+  {
+    question: 'Kan onze school een specifieke app laten maken?',
+    answer: 'Absoluut. bijleer.school is gebouwd op vraag van scholen. Elke school kan een aanvraag indienen voor nieuwe functionaliteiten of tools. We bespreken de nood, bouwen een prototype en rollen het uit voor alle gebruikers. Zo kan je samen met scholen laagdrempelig een app bouwen. De bijleer.school is momenteel op deze manier gebouwd. Scholen die samen beter ICT willen inzetten en vooral didactisch sterker willen staan',
+  },
+  {
+    question: 'Hoe werkt ondersteuning op school?',
+    answer: 'Voor scholen die extra begeleiding wensen, bieden we ondersteuning op maat aan. Dit omvat vormingen op maat, begeleiding bij de implementatie en live lessen op jullie school zodat leerkrachten in hun eigen klas het effect kunnen zien. Neem contact op voor een offerte.',
+  },
+  {
+    question: 'Is er een minimum aantal leerlingen?',
+    answer: 'Neen, er is geen minimum. Je betaalt exact voor het aantal leerlingen dat je toevoegt aan het platform, aan 4,5 euro per leerling per jaar.',
+  },
+  {
+    question: 'Als ik voor het leerlingpakket kies, kan ik dan doorheen het jaar van leerlingen-aantal veranderen?',
+    answer: 'Je kan altijd meer leerlingen opstarten. Elke nieuwe leerling telt mee voor je licentie. We kijken dus naar het aantal unieke leerlingen die voor een app zijn gebruikt. ',
+  },
+  {
+    question: 'Hoe veilig zijn de leerlinggegevens?',
+    answer: 'Alle gegevens worden opgeslagen binnen de EU en zijn volledig afgeschermd per school. Leerlinggegevens zijn nooit zichtbaar voor andere scholen of derden. We voldoen aan de geldende privacy- en GDPR-wetgeving.',
+  },{
+    question: 'Is er korting als we later in het jaar starten?',
+    answer: 'Voor leerling-pakketten is er geen korting mogelijk. Van zodra je bestelt loopt de licentie tot 31 augustus van dat schooljaar. Wil je later in het schooljaar starten als bijleer.school? Dan voorzien we een korting afhankelijk van de maand waarin je start. Neem hiervoor contact op via info@bijleren.eu',
+  },{
+    question: 'Kunnen we als scholengroep aankopen?',
+    answer: 'Ja, het project is ook zo gestart. Samen bereiken we meer! Mail ons op info@bijleren.eu voor een offerte op maat.',
+  },{
+    question: 'Is dit een abonnement?',
+    answer: 'Neen, per schooljaar kies je of je verder deelneemt.',
+  },
+];
+
 export function PrijzenPage() {
   const navigate = useNavigate();
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -258,6 +306,41 @@ export function PrijzenPage() {
                   );
                 })}
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="py-24 bg-gray-50 border-t border-gray-100">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-14">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Veelgestelde vragen</h2>
+              <p className="text-gray-500 text-lg">Staat jouw vraag er niet bij? Neem gerust contact op.</p>
+            </div>
+            <div className="space-y-3">
+              {FAQS.map((faq, i) => (
+                <div
+                  key={i}
+                  className="bg-white border border-gray-200 rounded-xl overflow-hidden"
+                >
+                  <button
+                    className="w-full text-left px-6 py-5 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors"
+                    onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                  >
+                    <span className="font-semibold text-gray-900">{faq.question}</span>
+                    {openIndex === i ? (
+                      <ChevronUp className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    )}
+                  </button>
+                  {openIndex === i && (
+                    <div className="px-6 pb-5 text-gray-500 leading-relaxed border-t border-gray-100 pt-4">
+                      {faq.answer}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </section>
