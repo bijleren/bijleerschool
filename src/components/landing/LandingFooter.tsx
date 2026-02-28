@@ -6,6 +6,10 @@ export function LandingFooter() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleAnchorClick = (e: React.MouseEvent, anchor: string) => {
     e.preventDefault();
     const scrollToAnchor = () => {
@@ -50,12 +54,12 @@ export function LandingFooter() {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4">Platform</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link to="/apps" className="hover:text-white transition-colors">Alle apps</Link></li>
-              <li><Link to="/voor-wie" className="hover:text-white transition-colors">Voor wie?</Link></li>
-              <li><Link to="/hoe-werkt-het" className="hover:text-white transition-colors">Hoe werkt het?</Link></li>
-              <li><Link to="/ons-doel" className="hover:text-white transition-colors">Ons doel</Link></li>
+              <li><Link to="/apps" onClick={scrollToTop} className="hover:text-white transition-colors">Alle apps</Link></li>
+              <li><Link to="/voor-wie" onClick={scrollToTop} className="hover:text-white transition-colors">Voor wie?</Link></li>
+              <li><Link to="/hoe-werkt-het" onClick={scrollToTop} className="hover:text-white transition-colors">Hoe werkt het?</Link></li>
+              <li><Link to="/ons-doel" onClick={scrollToTop} className="hover:text-white transition-colors">Ons doel</Link></li>
               <li><a href="/#pricing" onClick={(e) => handleAnchorClick(e, 'pricing')} className="hover:text-white transition-colors cursor-pointer">Prijzen</a></li>
-              <li><Link to="/contact" className="hover:text-white transition-colors">Aanvraag nieuwe app</Link></li>
+              <li><Link to="/contact" onClick={scrollToTop} className="hover:text-white transition-colors">Aanvraag nieuwe app</Link></li>
             </ul>
           </div>
 
@@ -63,10 +67,10 @@ export function LandingFooter() {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4">School</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link to="/login" className="hover:text-white transition-colors">Leerkracht login</Link></li>
-              <li><Link to="/webwijzer" className="hover:text-white transition-colors">WebWijzer voor leerlingen</Link></li>
-              <li><Link to="/contact" className="hover:text-white transition-colors">Ondersteuning op school</Link></li>
-              <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+              <li><Link to="/login" onClick={scrollToTop} className="hover:text-white transition-colors">Leerkracht login</Link></li>
+              <li><Link to="/webwijzer" onClick={scrollToTop} className="hover:text-white transition-colors">WebWijzer voor leerlingen</Link></li>
+              <li><Link to="/contact" onClick={scrollToTop} className="hover:text-white transition-colors">Ondersteuning op school</Link></li>
+              <li><Link to="/contact" onClick={scrollToTop} className="hover:text-white transition-colors">Contact</Link></li>
             </ul>
           </div>
 
@@ -74,8 +78,8 @@ export function LandingFooter() {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4">Juridisch</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link to="/algemene-voorwaarden" className="hover:text-white transition-colors">Algemene voorwaarden</Link></li>
-              <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacybeleid</Link></li>
+              <li><Link to="/algemene-voorwaarden" onClick={scrollToTop} className="hover:text-white transition-colors">Algemene voorwaarden</Link></li>
+              <li><Link to="/privacy-policy" onClick={scrollToTop} className="hover:text-white transition-colors">Privacybeleid</Link></li>
               <li><a href="mailto:info@bijleren.eu" className="hover:text-white transition-colors">info@bijleren.eu</a></li>
             </ul>
           </div>
@@ -95,8 +99,8 @@ export function LandingFooter() {
             </a>
           </div>
           <div className="flex items-center gap-6 text-sm">
-            <Link to="/algemene-voorwaarden" className="hover:text-white transition-colors">Algemene voorwaarden</Link>
-            <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacybeleid</Link>
+            <Link to="/algemene-voorwaarden" onClick={scrollToTop} className="hover:text-white transition-colors">Algemene voorwaarden</Link>
+            <Link to="/privacy-policy" onClick={scrollToTop} className="hover:text-white transition-colors">Privacybeleid</Link>
           </div>
         </div>
       </div>
