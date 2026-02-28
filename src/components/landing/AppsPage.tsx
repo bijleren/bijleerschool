@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Globe, Grid, BookMarked, Search, QrCode, Users,
   BookCheck, Layers, Clock, BarChart3, Lightbulb, ArrowRight, CheckCircle,
-  Baby, AlignLeft, Monitor, Wrench
+  Baby, AlignLeft, Monitor, Wrench, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
@@ -234,12 +234,21 @@ const APPS = [
   },
 ];
 
+const CARD_WIDTH = 320;
+const GAP = 24;
+
 export function AppsPage() {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<string>('Alle');
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const tags = ['Alle', ...Array.from(new Set(APPS.map((a) => a.tag)))];
   const filtered = activeFilter === 'Alle' ? APPS : APPS.filter((a) => a.tag === activeFilter);
+
+  const scroll = (dir: 'left' | 'right') => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollBy({ left: dir === 'right' ? (CARD_WIDTH + GAP) * 2 : -(CARD_WIDTH + GAP) * 2, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -272,8 +281,8 @@ export function AppsPage() {
         </div>
       </div>
 
-      {/* Filter + grid */}
-      <div className="py-16 bg-gray-50">
+      {/* Filter + horizontal scroll */}
+      <div className="py-16 bg-gray-50 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Filter tabs */}
           <div className="flex flex-wrap gap-2 mb-10">
@@ -292,54 +301,79 @@ export function AppsPage() {
             ))}
           </div>
 
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filtered.map((app) => (
-              <div
-                key={app.title}
-                className="bg-white rounded-2xl border border-gray-200 p-7 flex flex-col hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${app.bg}`}>
-                    {app.icon}
-                  </div>
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${app.tagColor}`}>
-                    {app.tag}
-                  </span>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{app.title}</h3>
-                <p className="text-sm italic text-gray-700 bg-gray-50 rounded-lg px-3 py-2 mb-3 leading-snug border-l-2 border-gray-300">
-                  {app.problem}
-                </p>
-                <p className="text-sm text-gray-500 leading-relaxed mb-5 flex-1">{app.description}</p>
-                <ul className="space-y-2">
-                  {app.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm text-gray-600">
-                      <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-
-            {/* Request card */}
-            {activeFilter === 'Alle' && (
-              <div className="bg-white rounded-2xl border-2 border-dashed border-gray-300 p-7 flex flex-col items-start justify-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gray-50 mb-4">
-                  <Lightbulb className="w-6 h-6 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-700 mb-2">Klagen en vragen, zo vinden we snel wat je team kan ondersteunen.</h3>
-                <p className="text-sm text-gray-500 leading-relaxed mb-5">
-                  Elke app is gebouwd op vraag van een school. Dit om hun werking te versterken. Zo vertrekt het soms vanuit een verzuchting dat een bepaalde taak veel tijd neemt of een krachtige vraag rond hoe ICT krachtiger ingezet kan worden. Neem contact op en beschrijf wat je mist of welke vragen je hebt — we luisteren. Elke app is dus op maat van een school, maar duurzaam verwerkt zodat iedereen er gebruik kan van maken.
-                </p>
-                <button
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
-                  onClick={() => window.location.href = '/contact'}
+          {/* Carousel */}
+          <div className="relative">
+            <button
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+              aria-label="Scroll links"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            <button
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 bg-white border border-gray-200 rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+              aria-label="Scroll rechts"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
+            <div
+              ref={scrollRef}
+              className="flex gap-6 overflow-x-auto pb-4 scroll-smooth"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {filtered.map((app) => (
+                <div
+                  key={app.title}
+                  className="flex-shrink-0 bg-white rounded-2xl border border-gray-200 p-7 flex flex-col hover:shadow-md transition-shadow"
+                  style={{ width: CARD_WIDTH }}
                 >
-                  App aanvragen <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${app.bg}`}>
+                      {app.icon}
+                    </div>
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${app.tagColor}`}>
+                      {app.tag}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{app.title}</h3>
+                  <p className="text-sm italic text-gray-700 bg-gray-50 rounded-lg px-3 py-2 mb-3 leading-snug border-l-2 border-gray-300">
+                    {app.problem}
+                  </p>
+                  <p className="text-sm text-gray-500 leading-relaxed mb-5 flex-1">{app.description}</p>
+                  <ul className="space-y-2">
+                    {app.features.map((f) => (
+                      <li key={f} className="flex items-center gap-2.5 text-sm text-gray-600">
+                        <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+
+              {/* Request card */}
+              {activeFilter === 'Alle' && (
+                <div
+                  className="flex-shrink-0 bg-white rounded-2xl border-2 border-dashed border-gray-300 p-7 flex flex-col items-start justify-center"
+                  style={{ width: CARD_WIDTH }}
+                >
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gray-50 mb-4">
+                    <Lightbulb className="w-6 h-6 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-700 mb-2">Klagen en vragen, zo vinden we snel wat je team kan ondersteunen.</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed mb-5">
+                    Elke app is gebouwd op vraag van een school. Neem contact op en beschrijf wat je mist of welke vragen je hebt — we luisteren.
+                  </p>
+                  <button
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
+                    onClick={() => window.location.href = '/contact'}
+                  >
+                    App aanvragen <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
