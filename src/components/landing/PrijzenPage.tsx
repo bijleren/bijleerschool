@@ -246,7 +246,7 @@ export function PrijzenPage() {
                   Voor apps waarmee je afbeeldingen, video's, documenten of andere bestanden kunt uploaden, gebruiken we opslagruimte. Die verbruik je gedurende het schooljaar.
                 </p>
                 <p className="text-gray-600 leading-relaxed mb-5">
-                  We rekenen <span className="font-semibold text-gray-900">€ 1,65 per GB</span> aan, te verbruiken over het lopende schooljaar. Bij aanvang stellen we samen een datapakket voor dat past bij de tools die jouw school het meest zal gebruiken — zo betaal je nooit te veel en loop je niet onverwacht tegen limieten aan.
+                  We rekenen <span className="font-semibold text-gray-900">€ 1,65 per GB</span> aan, te verbruiken over het lopende schooljaar. Bij aanvang stellen we samen een datapakket voor dat past bij de tools die jouw school het meest zal gebruiken — zo betaal je nooit te veel en loop je niet onverwacht tegen limieten aan. Natuurlijk kan je steeds uitbreiden indien nodig is. We gaan niet automatisch opschalen, je beslist zelf het budget.
                 </p>
                 <div className="bg-white border border-gray-200 rounded-xl p-5 inline-flex flex-col sm:flex-row gap-4 sm:items-center">
                   <div className="flex items-center gap-3">
