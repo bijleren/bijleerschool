@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ArrowRight, CheckCircle, Users, BookOpen, Brain, Heart,
-  Building2, Shuffle, Star, Quote, GraduationCap
+  Building2, Shuffle, Star, GraduationCap
 } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
@@ -116,26 +116,6 @@ const PRINCIPLES = [
   },
 ];
 
-const TESTIMONIALS = [
-  {
-    quote:
-      'We werken met type 3 en type 9 leerlingen en de flexibiliteit van bijleer.school maakt het mogelijk om elk kind individueel op te volgen. Dat is zeldzaam in schoolsoftware.',
-    name: 'Leerkracht',
-    school: 'School voor buitengewoon onderwijs',
-  },
-  {
-    quote:
-      'Als vrije basisschool hadden we gevreesd dat het platform gebonden zou zijn aan een bepaalde visie. Dat is absoluut niet het geval. We passen alles aan naar onze eigen aanpak.',
-    name: 'Directeur',
-    school: 'Vrije basisschool',
-  },
-  {
-    quote:
-      'Van kleuter tot zesde leerjaar gebruiken we dezelfde tools. Dat zorgt voor consistentie en minder werkdruk voor ons team.',
-    name: 'Zorgcoördinator',
-    school: 'Gemeentelijke basisschool',
-  },
-];
 
 export function VoorWiePage() {
   const navigate = useNavigate();
@@ -241,28 +221,6 @@ export function VoorWiePage() {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{p.title}</h3>
                 <p className="text-gray-500 leading-relaxed text-sm">{p.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Testimonials */}
-      <div className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Wat scholen zeggen</h2>
-            <p className="text-gray-500 text-lg">Gebruikt door leerkrachten en directies van uiteenlopende scholen.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-gray-200 p-8">
-                <Quote className="w-8 h-8 text-blue-100 mb-4" />
-                <p className="text-gray-700 leading-relaxed mb-6 italic">"{t.quote}"</p>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">{t.name}</p>
-                  <p className="text-xs text-gray-400">{t.school}</p>
-                </div>
               </div>
             ))}
           </div>
