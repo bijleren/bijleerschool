@@ -386,6 +386,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
         'Analyse en rapportage',
         'Updates inbegrepen',
         'Didactische nieuwsbrief',
+        'Ondersteuning via online Q&A-sessies',
         'Online Vormingen',
         'Ondersteuning',
       ],
