@@ -193,10 +193,10 @@ export function PrijzenPage() {
                     <span className="text-xs font-bold tracking-widest text-amber-600 uppercase">Startersaanbieding</span>
                   </div>
                   <p className="text-gray-900 font-semibold text-base leading-snug">
-                    Start nu en rij mee tot juni 2027 — voor slechts 6 euro / leerling / jaar
+                    Start nu en groei mee tot juni 2027 — voor slechts 6 euro / leerling
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
-                    Scholen die nu instappen krijgen dit schooljaar én het volledige schooljaar 2025–2026 inbegrepen, t.e.m. juni 2027.
+                    Ga meteen voor een licentie tot juni 2027 en ga voor impact. Je kan ook een korte licentie opstarten voor dit schooljaar alleen. Neem dan contact op voor een offerte op maat.
                   </p>
                 </div>
               </div>
