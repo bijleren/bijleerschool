@@ -46,6 +46,16 @@ export function LandingNav({ navigate }: LandingNavProps) {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1">
+            <Link
+              to="/"
+              className={`px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${
+                location.pathname === '/'
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              Start
+            </Link>
             {NAV_LINKS.map((link) => (
               link.anchor ? (
                 <a
@@ -103,6 +113,13 @@ export function LandingNav({ navigate }: LandingNavProps) {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white px-4 pb-4 pt-2 space-y-1">
+          <Link
+            to="/"
+            className="block px-3 py-2.5 text-sm font-semibold text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            onClick={() => setMenuOpen(false)}
+          >
+            Start
+          </Link>
           {NAV_LINKS.map((link) => (
             link.anchor ? (
               <a
