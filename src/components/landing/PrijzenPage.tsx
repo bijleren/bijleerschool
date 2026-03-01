@@ -8,8 +8,8 @@ import { Button } from '../ui/Button';
 const plans = [
   {
     name: 'Leerlingpakket',
-    price: '4,5',
-    unit: 'euro / leerling / jaar',
+    price: '€ 4,50',
+    unit: ' / leerling / jaar',
     description: 'Kies zelf de groepsgrootte.',
     highlight: false,
     features: [
@@ -30,8 +30,8 @@ const plans = [
   },
   {
     name: 'Bijleer-school',
-    price: '4,5',
-    unit: 'euro / leerling / jaar',
+    price: '€ 4,50',
+    unit: '/ leerling / jaar',
     description: 'Krijg met het schoolteam toegang tot alle apps + didactische ondersteuning.',
     highlight: true,
     features: [
@@ -136,7 +136,7 @@ const FAQS = [
   },
   {
     question: 'Is er een minimum aantal leerlingen?',
-    answer: 'Neen, er is geen minimum. Je betaalt exact voor het aantal leerlingen dat je toevoegt aan het platform, aan 4,5 euro per leerling per jaar.',
+    answer: 'Neen, er is geen minimum. Je betaalt exact voor het aantal leerlingen dat je toevoegt aan het platform, aan € 4,50 per leerling per jaar.',
   },
   {
     question: 'Als ik voor het leerlingpakket kies, kan ik dan doorheen het jaar van leerlingen-aantal veranderen?',
