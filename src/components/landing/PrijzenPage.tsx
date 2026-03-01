@@ -32,7 +32,7 @@ const plans = [
     name: 'Bijleer-school',
     price: '€ 4,50',
     unit: '/ leerling / jaar',
-    description: 'Krijg met het schoolteam toegang tot alle apps + didactische ondersteuning.',
+    description: 'De volledige school doet mee = didactische ondersteuning erbij.',
     highlight: true,
     features: [
       'Alle huidige leerapps',
@@ -120,7 +120,7 @@ const FAQS = [
   },
   {
     question: 'Wat is het verschil tussen "Leerlingen-pakket" en "Bijleer.school"?',
-    answer: 'Leerling-pakket" geeft toegang tot alle leerapps voor een zelf gekozen set leerlingen binnen de school. Je krijgt geen toegang tot de didactische expertise met de vormingen, nieuwsbrieven en techniekendatabank die we hebben. Met dit pakket kan je dus alle tools gebruiken, maar mis je de didactische expertise die een volledige school wel krijgt.',
+    answer: 'Leerling-pakket" geeft toegang tot alle leerapps voor een zelf gekozen set leerlingen binnen de school. Je krijgt geen toegang tot de didactische expertise met de vormingen, nieuwsbrieven en techniekendatabank die we hebben. Met dit pakket kan je dus alle tools gebruiken, maar mis je de didactische expertise die een volledige school wel krijgt. De bijleer.school is dus voor de volledige school.',
   },
   {
     question: 'Krijg ik ook toegang tot nieuwe apps die later worden toegevoegd?',
