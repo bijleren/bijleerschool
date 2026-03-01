@@ -193,7 +193,7 @@ export function PrijzenPage() {
                     <span className="text-xs font-bold tracking-widest text-amber-600 uppercase">Startersaanbieding</span>
                   </div>
                   <p className="text-gray-900 font-semibold text-base leading-snug">
-                    Start nu en groei mee tot juni 2027 — voor slechts 6 euro / leerling
+                    Start nu en groei mee tot juni 2027 — voor slechts € 6 / leerling
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
                     Ga meteen voor een licentie tot juni 2027 en ga voor impact. Je kan ook een korte licentie opstarten voor dit schooljaar alleen. Neem dan contact op voor een offerte op maat.
@@ -282,7 +282,7 @@ export function PrijzenPage() {
                 <HardDrive className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-3">Opslagruimte — 1 / GB</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-3">Opslagruimte — € 1 / GB</h2>
                 <p className="text-gray-600 leading-relaxed mb-5">
                   Voor apps waarmee je afbeeldingen, video's, documenten of andere bestanden kunt uploaden, gebruiken we opslagruimte. Die verbruik je gedurende het schooljaar.
                 </p>
