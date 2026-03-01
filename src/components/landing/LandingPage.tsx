@@ -4,7 +4,7 @@ import {
   Users, BarChart3, Globe, ArrowRight, Grid,
   BookMarked, Search, QrCode, ChevronDown, ChevronUp,
   CheckCircle, XCircle, MessageSquare, Lightbulb, Rocket, MapPin, Star,
-  BookCheck, Layers, Clock, Wrench, MonitorSmartphone, BookOpen, Type, ChevronLeft, ChevronRight
+  BookCheck, Layers, Clock, Wrench, MonitorSmartphone, BookOpen, Type, ChevronLeft, ChevronRight, Tag
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { LandingNav } from './LandingNav';
@@ -443,6 +443,33 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
            Alle apps inbegrepen. De enige kost die er nog bij komt, is de opslagruimte die je zelf gebruikt.
           </p>
         </div>
+        {/* Early-bird banner */}
+        <div className="mb-10 rounded-2xl bg-amber-50 border border-amber-200 px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center mt-0.5">
+              <Tag className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-bold tracking-widest text-amber-600 uppercase">Startersaanbieding</span>
+              </div>
+              <p className="text-gray-900 font-semibold text-base leading-snug">
+                Start nu en groei mee tot juni 2027 — voor slechts 6 euro / leerling
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                Ga meteen voor een licentie tot juni 2027 en ga voor impact. Je kan ook een korte licentie opstarten voor dit schooljaar alleen.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/contact')}
+            className="flex-shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-white font-semibold text-sm transition-colors"
+          >
+            Meer info
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
         <div className="grid md:grid-cols-3 gap-8 items-stretch">
           {plans.map((plan) => (
             <div
