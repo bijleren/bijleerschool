@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, XCircle, Star, HardDrive, ArrowRight, MessageSquare, CalendarCheck, ShieldCheck, Rocket, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle, XCircle, Star, HardDrive, ArrowRight, MessageSquare, CalendarCheck, ShieldCheck, Rocket, ChevronDown, ChevronUp, Tag } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
 import { Button } from '../ui/Button';
@@ -182,6 +182,33 @@ export function PrijzenPage() {
         {/* Pricing cards */}
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Early-bird banner */}
+            <div className="mb-10 rounded-2xl bg-amber-50 border border-amber-200 px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center mt-0.5">
+                  <Tag className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-bold tracking-widest text-amber-600 uppercase">Startersaanbieding</span>
+                  </div>
+                  <p className="text-gray-900 font-semibold text-base leading-snug">
+                    Start nu en rij mee tot juni 2027 — voor slechts 6 euro / leerling / jaar
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Scholen die nu instappen krijgen dit schooljaar én het volledige schooljaar 2025–2026 inbegrepen, t.e.m. juni 2027.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/contact')}
+                className="flex-shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-white font-semibold text-sm transition-colors"
+              >
+                Meer info
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
             <div className="grid md:grid-cols-3 gap-8 items-stretch">
               {plans.map((plan) => (
                 <div
