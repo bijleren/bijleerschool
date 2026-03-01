@@ -410,7 +410,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
         'Didactische nieuwsbrief',
         'Ondersteuning via online Q&A-sessies',
         'Online Vormingen',
-        'Ondersteuning',
+        'Ondersteuning op school',
       ],
       notIncluded: [] as string[],
       cta: 'Start gratis',
