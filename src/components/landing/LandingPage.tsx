@@ -454,10 +454,10 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
                 <span className="text-xs font-bold tracking-widest text-amber-600 uppercase">Startersaanbieding</span>
               </div>
               <p className="text-gray-900 font-semibold text-base leading-snug">
-                Start nu en groei mee tot juni 2027 — voor slechts 6 euro / leerling
+                Start nu en groei mee tot juni 2027 — voor slechts € 6 / leerling
               </p>
               <p className="text-sm text-gray-500 mt-1">
-                Ga meteen voor een licentie tot juni 2027 en ga voor impact. Je kan ook een korte licentie opstarten voor dit schooljaar alleen.
+                 Ga voor impact en verzeker een licentie tot juni 2027. Liever een licentie tot juni 2026? Neem contact op.
               </p>
             </div>
           </div>
