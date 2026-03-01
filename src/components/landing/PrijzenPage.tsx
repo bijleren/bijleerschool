@@ -196,7 +196,7 @@ export function PrijzenPage() {
                     Start nu en groei mee tot juni 2027 — voor slechts € 6 / leerling
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
-                    Ga meteen voor een licentie tot juni 2027 en ga voor impact. Je kan ook een korte licentie opstarten voor dit schooljaar alleen. Neem dan contact op voor een offerte op maat.
+                    Ga voor impact en verzeker een licentie tot juni 2027. Liever een licentie tot juni 2026? Neem contact op.
                   </p>
                 </div>
               </div>
