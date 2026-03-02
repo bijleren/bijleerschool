@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ArrowRight, CheckCircle, Users, BookOpen, Brain, Heart,
-  Building2, Shuffle, Star, GraduationCap
+  Building2, Shuffle, Star, GraduationCap, Home, Network, Stethoscope
 } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
@@ -112,6 +112,60 @@ const SCHOOL_TYPES = [
   },
 ];
 
+const OTHER_AUDIENCES = [
+  {
+    icon: <Home className="w-7 h-7 text-orange-600" />,
+    bg: 'bg-orange-50',
+    border: 'border-orange-100',
+    badge: 'bg-orange-100 text-orange-700',
+    badgeLabel: 'Thuisonderwijs',
+    title: 'Huisonderwijs',
+    subtitle: 'Ouders die thuis lesgeven',
+    description:
+      'Ondersteun je kind thuis met alle bijleer-apps. Zet leermiddelen klaar via de WebWijzer, oefen op lezen, spellen en schrijven met woordenschat.be of ondersteun de structuur en dagindeling met BlinkQR\'s.',
+    features: [
+      'WebWijzer met gepersonaliseerde leermiddelen',
+      'woordenschat.be voor lezen, spellen en schrijven',
+      'BlinkQR voor structuur en dagindeling',
+      'Leerlingprofiel en voortgangsopvolging',
+    ],
+  },
+  {
+    icon: <Network className="w-7 h-7 text-cyan-600" />,
+    bg: 'bg-cyan-50',
+    border: 'border-cyan-100',
+    badge: 'bg-cyan-100 text-cyan-700',
+    badgeLabel: 'Ondersteuningsorganisaties',
+    title: 'Ondersteuningscentra',
+    subtitle: 'CLB, GON, ION en begeleiders',
+    description:
+      'Koppel jezelf aan verschillende scholen en ondersteun waar nodig. Krijg zicht op alle tools en leerlingen van de scholen die je begeleidt en schakel snel tussen contexten zonder te wisselen van platform.',
+    features: [
+      'Koppeling aan meerdere scholen',
+      'Overzicht over leerlingen van alle gekoppelde scholen',
+      'Toegang tot alle leerapps per school',
+      'Snel schakelen tussen scholen en leerlingen',
+    ],
+  },
+  {
+    icon: <Stethoscope className="w-7 h-7 text-rose-600" />,
+    bg: 'bg-rose-50',
+    border: 'border-rose-100',
+    badge: 'bg-rose-100 text-rose-700',
+    badgeLabel: 'Paramedici',
+    title: 'Therapeuten & logopedisten',
+    subtitle: 'Zorgprofessionals buiten school',
+    description:
+      'Gebruik de bijleer-tools tijdens therapie. Zet cliënten gericht aan het werk met woordenschat.be, werk aan digitale vaardigheden via DigiTools of maak gebruik van de leervideo\'s en didactische bronnen van bijleren.',
+    features: [
+      'woordenschat.be voor taal- en leestherapie',
+      'DigiTools voor digitale vaardigheidstraining',
+      'Leervideo\'s en didactische bronnen',
+      'WebWijzer met therapiegericht materiaal',
+    ],
+  },
+];
+
 const PRINCIPLES = [
   {
     icon: <Shuffle className="w-5 h-5 text-blue-600" />,
@@ -187,6 +241,48 @@ export function VoorWiePage() {
           </div>
           <div className="grid md:grid-cols-2 gap-8">
             {SCHOOL_TYPES.map((type) => (
+              <div
+                key={type.title}
+                className={`bg-white rounded-2xl border ${type.border} p-8 hover:shadow-md transition-shadow`}
+              >
+                <div className="flex items-start gap-5 mb-6">
+                  <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl flex-shrink-0 ${type.bg}`}>
+                    {type.icon}
+                  </div>
+                  <div>
+                    <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full mb-2 ${type.badge}`}>
+                      {type.badgeLabel}
+                    </span>
+                    <h3 className="text-xl font-bold text-gray-900">{type.title}</h3>
+                    <p className="text-sm text-gray-400">{type.subtitle}</p>
+                  </div>
+                </div>
+                <p className="text-gray-500 leading-relaxed mb-6">{type.description}</p>
+                <ul className="space-y-2.5">
+                  {type.features.map((f) => (
+                    <li key={f} className="flex items-center gap-3 text-sm text-gray-700">
+                      <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Other audiences */}
+      <div className="py-24 bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Ook buiten de schoolmuren</h2>
+            <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+              bijleer.school is niet alleen voor scholen. Ook thuis, in een ondersteuningscentrum of in een therapiepraktijk vind je hier de tools die het leren ondersteunen.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {OTHER_AUDIENCES.map((type) => (
               <div
                 key={type.title}
                 className={`bg-white rounded-2xl border ${type.border} p-8 hover:shadow-md transition-shadow`}
