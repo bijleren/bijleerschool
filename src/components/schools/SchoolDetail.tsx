@@ -8,7 +8,7 @@ import { StudentImport } from './StudentImport';
 import { GradeManagement } from '../schoolday/GradeManagement';
 import { SubjectsManagement } from '../schoolday/SubjectsManagement';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive, Calendar } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive, Calendar, LogOut } from 'lucide-react';
 import { DataGebruikTab } from '../storage/DataGebruikTab';
 import { DayTimeline } from '../schoolday/DayTimeline';
 import { TemplateBuilder } from '../schoolday/TemplateBuilder';
@@ -229,6 +229,36 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     } catch (error) {
       console.error('Error fetching school users:', error);
     }
+  };
+
+  const disconnectUser = async (schoolUserId: string, targetUserId: string) => {
+    const isSelf = targetUserId === user?.id;
+    setConfirmModal({
+      isOpen: true,
+      title: isSelf ? 'School verlaten' : 'Teammember verwijderen',
+      message: isSelf
+        ? 'Weet je zeker dat je jezelf wilt loskoppelen van deze school? Je verliest toegang tot alle gegevens van deze school.'
+        : 'Weet je zeker dat je dit teammember wilt loskoppelen van deze school?',
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('user_schools')
+            .update({ is_active: false, status: 'removed' })
+            .eq('id', schoolUserId);
+
+          if (error) throw error;
+
+          setSchoolUsers(prev => prev.filter(u => u.id !== schoolUserId));
+
+          if (isSelf) {
+            onBack();
+          }
+        } catch (error) {
+          console.error('Error disconnecting user:', error);
+          setMessage('Er is een fout opgetreden bij het loskoppelen.');
+        }
+      },
+    });
   };
 
   const updateSchool = async () => {
@@ -976,33 +1006,56 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                 </p>
               </Card>
             ) : (
-              filteredUsers.map((schoolUser) => (
-                <Card key={schoolUser.id} className="hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                        <UserPlus className="w-6 h-6 text-indigo-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {schoolUser.profiles?.first_name} {schoolUser.profiles?.last_name}
-                        </h3>
-                        <p className="text-sm text-gray-600">{schoolUser.profiles?.email}</p>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            schoolUser.role === 'admin' 
-                              ? 'bg-purple-100 text-purple-800'
-                              : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {schoolUser.role === 'admin' ? 'Beheerder' : 'Teammember'}
-                          </span>
-                          <span>Toegevoegd: {formatDate(schoolUser.joined_at)}</span>
+              filteredUsers.map((schoolUser) => {
+                const isSelf = schoolUser.user_id === user?.id;
+                const canDisconnect = isAdmin || isSelf;
+                return (
+                  <Card key={schoolUser.id} className="hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                          <UserPlus className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <h3 className="font-semibold text-gray-900">
+                              {schoolUser.profiles?.first_name} {schoolUser.profiles?.last_name}
+                            </h3>
+                            {isSelf && (
+                              <span className="text-xs text-gray-400 font-normal">(jij)</span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600">{schoolUser.profiles?.email}</p>
+                          <div className="flex items-center space-x-4 text-sm text-gray-500">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              schoolUser.role === 'admin'
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {schoolUser.role === 'admin' ? 'Beheerder' : 'Teammember'}
+                            </span>
+                            <span>Toegevoegd: {formatDate(schoolUser.joined_at)}</span>
+                          </div>
                         </div>
                       </div>
+                      {canDisconnect && (
+                        <button
+                          onClick={() => disconnectUser(schoolUser.id, schoolUser.user_id)}
+                          className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                            isSelf
+                              ? 'text-red-600 hover:bg-red-50 border border-red-200 hover:border-red-300'
+                              : 'text-gray-500 hover:bg-red-50 hover:text-red-600 border border-gray-200 hover:border-red-200'
+                          }`}
+                          title={isSelf ? 'School verlaten' : 'Loskoppelen van school'}
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>{isSelf ? 'Verlaten' : 'Loskoppelen'}</span>
+                        </button>
+                      )}
                     </div>
-                  </div>
-                </Card>
-              ))
+                  </Card>
+                );
+              })
             )}
           </div>
         </div>
