@@ -118,7 +118,6 @@ export function SchoolsTab() {
         return;
       }
 
-      // Check if user is already connected to this school
       const { data: existing } = await supabase
         .from('user_schools')
         .select('*')
@@ -127,8 +126,20 @@ export function SchoolsTab() {
         .maybeSingle();
 
       if (existing) {
-        setMessage('Je bent al verbonden met deze school.');
-        setJoinLoading(false);
+        if (existing.is_active) {
+          setMessage('Je bent al verbonden met deze school.');
+          setJoinLoading(false);
+          return;
+        }
+        const { error } = await supabase
+          .from('user_schools')
+          .update({ is_active: true, status: 'approved' })
+          .eq('id', existing.id);
+        if (error) throw error;
+        setMessage('Succesvol opnieuw verbonden met de school!');
+        setSchoolCode('');
+        setShowJoinForm(false);
+        fetchUserSchools();
         return;
       }
 

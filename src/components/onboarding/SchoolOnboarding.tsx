@@ -56,7 +56,6 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
         return;
       }
 
-      // Check if user is already connected to this school
       const { data: existing } = await supabase
         .from('user_schools')
         .select('*')
@@ -65,12 +64,22 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
         .maybeSingle();
 
       if (existing) {
-        setMessage('Je bent al verbonden met deze school.');
-        setLoading(false);
+        if (existing.is_active) {
+          setMessage('Je bent al verbonden met deze school.');
+          setLoading(false);
+          return;
+        }
+        const { error } = await supabase
+          .from('user_schools')
+          .update({ is_active: true, status: 'approved' })
+          .eq('id', existing.id);
+        if (error) throw error;
+        setMessage('Succesvol opnieuw verbonden met de school!');
+        setSchoolCode('');
+        setTimeout(() => { onSchoolConnected(); }, 1500);
         return;
       }
 
-      // Join the school
       const { error } = await supabase
         .from('user_schools')
         .insert({
@@ -84,8 +93,7 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
 
       setMessage('Succesvol toegevoegd aan de school! Je hebt nu toegang tot alle functies.');
       setSchoolCode('');
-      
-      // Refresh the parent component after a short delay
+
       setTimeout(() => {
         onSchoolConnected();
       }, 1500);
