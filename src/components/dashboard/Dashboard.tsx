@@ -779,7 +779,7 @@ export function Dashboard() {
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail
             school={selectedSchool}
-            onBack={() => setSelectedSchool(null)}
+            onBack={() => { setSelectedSchool(null); fetchUserSchools(); }}
             onSchoolUpdated={(updatedSchool) => setSelectedSchool(updatedSchool)}
             onNavigateToStudent={(studentId: string, schoolId: string) => handleNavigateToStudent(schoolId, studentId)}
             onNavigateToGroup={(groupId: string, schoolId: string) => handleNavigateToGroup(schoolId, groupId)}

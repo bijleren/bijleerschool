@@ -80,7 +80,7 @@ export function SchoolsTab() {
     return (
       <SchoolDetail
         school={selectedSchool}
-        onBack={() => setSelectedSchool(null)}
+        onBack={() => { setSelectedSchool(null); fetchUserSchools(); }}
         onSchoolUpdated={(updatedSchool) => {
           setSelectedSchool(updatedSchool);
           fetchUserSchools();
