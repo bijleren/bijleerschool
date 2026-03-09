@@ -243,7 +243,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
         try {
           const { error } = await supabase
             .from('user_schools')
-            .update({ is_active: false, status: 'removed' })
+            .update({ is_active: false })
             .eq('id', schoolUserId);
 
           if (error) throw error;
