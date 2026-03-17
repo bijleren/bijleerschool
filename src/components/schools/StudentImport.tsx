@@ -159,6 +159,7 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
             student_number: result.student.student_number?.trim() || null,
             grade_level: result.student.grade_level?.trim() || null,
             date_of_birth: formatDateForDatabase(result.student.date_of_birth || ''),
+            color: '#3B82F6',
           };
 
           const { error } = await supabase

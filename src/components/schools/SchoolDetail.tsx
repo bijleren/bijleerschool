@@ -306,6 +306,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
           student_number: newStudentNumber || null,
           grade_level: newStudentGradeLevel || null,
           date_of_birth: newStudentDateOfBirth || null,
+          color: '#3B82F6',
         });
 
       if (error) throw error;
