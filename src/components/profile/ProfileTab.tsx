@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
-import { User, Mail, Calendar, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
+import { User, Mail, Calendar, ChevronDown, ChevronUp, AlertTriangle, Star, ArrowRight } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -17,6 +18,7 @@ interface Profile {
 
 export function ProfileTab() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -26,10 +28,29 @@ export function ProfileTab() {
   const [lastName, setLastName] = useState('');
   const [message, setMessage] = useState('');
   const [showDeleteSection, setShowDeleteSection] = useState(false);
+  const [isPremium, setIsPremium] = useState<boolean | null>(null);
 
   useEffect(() => {
     fetchProfile();
+    fetchPremiumStatus();
   }, [user]);
+
+  const fetchPremiumStatus = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from('user_schools')
+        .select('schools (premium_school)')
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+
+      if (error) throw error;
+      const hasPremium = (data || []).some((us: any) => us.schools?.premium_school === 1);
+      setIsPremium(hasPremium);
+    } catch {
+      setIsPremium(false);
+    }
+  };
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -177,6 +198,29 @@ export function ProfileTab() {
             </div>
           </form>
         </Card>
+
+        {isPremium === false && (
+          <Card className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Star className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-semibold text-amber-900 mb-1">Upgrade naar een volledige licentie</h3>
+                <p className="text-sm text-amber-800 mb-4">
+                  Jouw school heeft momenteel geen actieve bijleer.school-licentie. Met een volledige licentie krijg je toegang tot alle didactische tools, nieuwsbrieven, en meer.
+                </p>
+                <button
+                  onClick={() => navigate('/prijzen')}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Bekijk onze tarieven
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Account Deletion Accordion */}
         <Card>
