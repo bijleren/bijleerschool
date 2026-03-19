@@ -85,18 +85,27 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
     }
   };
 
+  const sortForNonPremium = (list: Newsletter[]) => {
+    if (isAdmin || isPremium) return list;
+    return [...list].sort((a, b) => {
+      if (a.preview && !b.preview) return -1;
+      if (!a.preview && b.preview) return 1;
+      return 0;
+    });
+  };
+
   useEffect(() => {
     if (searchQuery.trim() === '') {
-      setFilteredNewsletters(newsletters);
+      setFilteredNewsletters(sortForNonPremium(newsletters));
     } else {
       const query = searchQuery.toLowerCase();
       const filtered = newsletters.filter(newsletter =>
         newsletter.title.toLowerCase().includes(query) ||
         (newsletter.description && newsletter.description.toLowerCase().includes(query))
       );
-      setFilteredNewsletters(filtered);
+      setFilteredNewsletters(sortForNonPremium(filtered));
     }
-  }, [searchQuery, newsletters]);
+  }, [searchQuery, newsletters, isAdmin, isPremium]);
 
   const handleDownload = async (newsletter: Newsletter) => {
     try {
@@ -301,14 +310,21 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <div className="text-center">
-                        <Button
-                          onClick={() => !locked && handleDownload(newsletter)}
-                          disabled={locked}
-                          className={locked ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}
-                        >
-                          {locked ? <Lock className="w-4 h-4 mr-2" /> : <Download className="w-4 h-4 mr-2" />}
-                          {locked ? 'Vergrendeld' : 'Download PDF'}
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          {!isAdmin && !isPremium && newsletter.preview && (
+                            <span className="text-xs font-semibold px-2 py-1 bg-amber-100 text-amber-700 rounded border border-amber-200">
+                              Voorbeeld
+                            </span>
+                          )}
+                          <Button
+                            onClick={() => !locked && handleDownload(newsletter)}
+                            disabled={locked}
+                            className={locked ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}
+                          >
+                            {locked ? <Lock className="w-4 h-4 mr-2" /> : <Download className="w-4 h-4 mr-2" />}
+                            {locked ? 'Vergrendeld' : 'Download PDF'}
+                          </Button>
+                        </div>
                         <div className="flex items-center justify-center text-xs text-gray-500 mt-2">
                           <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
                           {formatDate(newsletter.created_at)}
