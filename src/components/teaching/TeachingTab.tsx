@@ -102,6 +102,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
   const { user } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
   const [activePage, setActivePage] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>(initialPage);
   const [activeView, setActiveView] = useState<'list' | 'form' | 'detail' | 'management' | 'analytics'>('list');
   const [techniques, setTechniques] = useState<TeachingTechnique[]>([]);
@@ -175,7 +176,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
       const { data, error } = await supabase
         .from('user_schools')
         .select(`
-          schools (id, name)
+          schools (id, name, premium_school)
         `)
         .eq('user_id', user.id)
         .eq('status', 'approved')
@@ -183,8 +184,11 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
 
       if (error) throw error;
 
-      const schools = data?.map(us => us.schools).filter(Boolean) || [];
+      const schools = data?.map((us: any) => us.schools).filter(Boolean) || [];
       setUserSchools(schools);
+
+      const hasPremium = data?.some((us: any) => us.schools?.premium_school === 1) || false;
+      setIsPremium(hasPremium);
     } catch (error) {
       console.error('Error fetching user schools:', error);
     }
@@ -249,6 +253,12 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
     }
   };
 
+  const filterPreviewItems = <T extends { preview?: boolean }>(items: T[], admin: boolean, premium: boolean): T[] => {
+    if (admin) return items;
+    if (premium) return items.filter(item => !item.preview);
+    return items;
+  };
+
   const fetchTechniqueById = async (id: string) => {
     try {
       const { data, error } = await supabase
@@ -307,22 +317,24 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
     setActiveView('form');
   };
   
-  const filteredTechniques = techniques.filter(technique => {
-    const matchesSearch = searchTerm === '' || 
+  const visibleTechniques = filterPreviewItems(techniques, isAdmin, isPremium);
+
+  const filteredTechniques = visibleTechniques.filter(technique => {
+    const matchesSearch = searchTerm === '' ||
       technique.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       technique.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (technique.subtitle && technique.subtitle.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesAgeGroup = selectedAgeGroup === 'all' || 
+    const matchesAgeGroup = selectedAgeGroup === 'all' ||
       technique.teaching_technique_age_groups.some(tag => tag.age_groups && tag.age_groups.id === selectedAgeGroup);
 
-    const matchesSubject = selectedSubject === 'all' || 
+    const matchesSubject = selectedSubject === 'all' ||
       technique.teaching_technique_subjects.some(ts => ts.subjects && ts.subjects.id === selectedSubject);
 
-    const matchesMaterial = selectedMaterial === 'all' || 
+    const matchesMaterial = selectedMaterial === 'all' ||
       technique.teaching_technique_materials.some(tm => tm.materials && tm.materials.id === selectedMaterial);
 
-    const matchesCategory = selectedCategory === 'all' || 
+    const matchesCategory = selectedCategory === 'all' ||
       technique.teaching_technique_categories.some(tc => tc.technique_categories && tc.technique_categories.id === selectedCategory);
 
     return matchesSearch && matchesAgeGroup && matchesSubject && matchesMaterial && matchesCategory;
@@ -443,7 +455,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
     return (
       <div className="space-y-6">
         {renderTabNav()}
-        <DidactiekFAQ isAdmin={isAdmin} />
+        <DidactiekFAQ isAdmin={isAdmin} isPremium={isPremium} />
       </div>
     );
   }
@@ -452,7 +464,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
     return (
       <div className="space-y-6">
         {renderTabNav()}
-        <DidactiekVormingen isAdmin={isAdmin} />
+        <DidactiekVormingen isAdmin={isAdmin} isPremium={isPremium} />
       </div>
     );
   }
@@ -461,7 +473,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
     return (
       <div className="space-y-6">
         {renderTabNav()}
-        <NieuwsbriefTab />
+        <NieuwsbriefTab isPremium={isPremium} isAdmin={isAdmin} />
       </div>
     );
   }
@@ -580,7 +592,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
           </select>
           <div className="flex items-center text-sm text-gray-600">
             <Filter className="w-4 h-4 mr-2" />
-            {filteredTechniques.length} van {techniques.length} technieken
+            {filteredTechniques.length} van {visibleTechniques.length} technieken
           </div>
         </div>
       </Card>
@@ -591,15 +603,15 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
           <Card className="text-center py-12">
             <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {techniques.length === 0 ? 'Geen technieken gevonden' : 'Geen technieken gevonden met deze filters'}
+              {visibleTechniques.length === 0 ? 'Geen technieken gevonden' : 'Geen technieken gevonden met deze filters'}
             </h3>
             <p className="text-gray-600 mb-6">
-              {techniques.length === 0
+              {visibleTechniques.length === 0
                 ? 'Er zijn nog geen didactische technieken toegevoegd.'
                 : 'Probeer je zoekfilters aan te passen.'
               }
             </p>
-            {techniques.length === 0 && isAdmin && (
+            {visibleTechniques.length === 0 && isAdmin && (
               <Button onClick={() => setActiveView('form')}>
                 <Plus className="w-4 h-4 mr-2" />
                 Eerste techniek toevoegen
@@ -628,8 +640,13 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
                         onClick={() => handleViewTechnique(technique)}
                         className="text-left hover:text-indigo-600 transition-colors"
                       >
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
                           {technique.title}
+                          {isAdmin && (technique as any).preview && (
+                            <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded font-normal">
+                              Preview
+                            </span>
+                          )}
                         </h3>
                         {technique.subtitle && (
                           <p className="text-sm text-gray-600 mb-2">{technique.subtitle}</p>

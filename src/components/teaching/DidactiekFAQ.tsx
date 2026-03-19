@@ -4,7 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
 import { RichTextEditor } from '../ui/RichTextEditor';
-import { Plus, Edit2, Trash2, ChevronDown, ChevronUp, Save, X, HelpCircle, Search, Share2, Copy, Check } from 'lucide-react';
+import { Plus, CreditCard as Edit2, Trash2, ChevronDown, ChevronUp, Save, X, HelpCircle, Search, Share2, Copy, Check } from 'lucide-react';
 
 interface FAQ {
   id: string;
@@ -13,15 +13,17 @@ interface FAQ {
   category: string;
   display_order: number;
   is_published: boolean;
+  preview: boolean;
   created_at: string;
   updated_at: string;
 }
 
 interface DidactiekFAQProps {
   isAdmin: boolean;
+  isPremium: boolean;
 }
 
-export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
+export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedFaqId, setExpandedFaqId] = useState<string | null>(null);
@@ -37,7 +39,8 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
     answer: '',
     category: 'general',
     display_order: 0,
-    is_published: false
+    is_published: false,
+    preview: false
   });
 
   useEffect(() => {
@@ -59,7 +62,12 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
       const { data, error } = await query;
 
       if (error) throw error;
-      setFaqs(data || []);
+
+      let result = data || [];
+      if (!isAdmin && isPremium) {
+        result = result.filter((faq: FAQ) => !faq.preview);
+      }
+      setFaqs(result);
     } catch (error) {
       console.error('Error fetching FAQs:', error);
       setToast({ message: 'Fout bij ophalen FAQs', type: 'error' });
@@ -104,7 +112,8 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
         answer: '',
         category: 'general',
         display_order: 0,
-        is_published: false
+        is_published: false,
+        preview: false
       });
       setEditingFaq(null);
       setIsCreating(false);
@@ -122,7 +131,8 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
       answer: faq.answer,
       category: faq.category,
       display_order: faq.display_order,
-      is_published: faq.is_published
+      is_published: faq.is_published,
+      preview: faq.preview
     });
     setIsCreating(true);
   };
@@ -153,7 +163,8 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
       answer: '',
       category: 'general',
       display_order: 0,
-      is_published: false
+      is_published: false,
+      preview: false
     });
   };
 
@@ -272,6 +283,19 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
               </label>
             </div>
 
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="preview"
+                checked={formData.preview}
+                onChange={(e) => setFormData({ ...formData, preview: e.target.checked })}
+                className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+              />
+              <label htmlFor="preview" className="ml-2 text-sm text-gray-700">
+                Preview (alleen zichtbaar voor niet-premium scholen)
+              </label>
+            </div>
+
             <div className="flex gap-2">
               <Button type="submit">
                 <Save className="w-4 h-4 mr-2" />
@@ -358,6 +382,11 @@ export function DidactiekFAQ({ isAdmin }: DidactiekFAQProps) {
                       {isAdmin && !faq.is_published && (
                         <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded">
                           Niet gepubliceerd
+                        </span>
+                      )}
+                      {isAdmin && faq.preview && (
+                        <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded">
+                          Preview
                         </span>
                       )}
                     </div>

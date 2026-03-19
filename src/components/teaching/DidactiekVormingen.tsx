@@ -4,7 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
 import { RichTextEditor } from '../ui/RichTextEditor';
-import { Plus, Edit2, Trash2, Save, X, Video, Play } from 'lucide-react';
+import { Plus, CreditCard as Edit2, Trash2, Save, X, Video, Play } from 'lucide-react';
 
 interface Vorming {
   id: string;
@@ -14,15 +14,17 @@ interface Vorming {
   category: string;
   display_order: number;
   is_published: boolean;
+  preview: boolean;
   created_at: string;
   updated_at: string;
 }
 
 interface DidactiekVormingenProps {
   isAdmin: boolean;
+  isPremium: boolean;
 }
 
-export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
+export function DidactiekVormingen({ isAdmin, isPremium }: DidactiekVormingenProps) {
   const [vormingen, setVormingen] = useState<Vorming[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingVorming, setEditingVorming] = useState<Vorming | null>(null);
@@ -37,7 +39,8 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
     embed_code: '',
     category: 'algemeen',
     display_order: 0,
-    is_published: false
+    is_published: false,
+    preview: false
   });
 
   useEffect(() => {
@@ -59,7 +62,12 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
       const { data, error } = await query;
 
       if (error) throw error;
-      setVormingen(data || []);
+
+      let result = data || [];
+      if (!isAdmin && isPremium) {
+        result = result.filter((v: Vorming) => !v.preview);
+      }
+      setVormingen(result);
     } catch (error) {
       console.error('Error fetching vormingen:', error);
       setToast({ message: 'Fout bij ophalen vormingen', type: 'error' });
@@ -106,7 +114,8 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
         embed_code: '',
         category: 'algemeen',
         display_order: 0,
-        is_published: false
+        is_published: false,
+        preview: false
       });
       setEditingVorming(null);
       setIsCreating(false);
@@ -125,7 +134,8 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
       embed_code: vorming.embed_code,
       category: vorming.category,
       display_order: vorming.display_order,
-      is_published: vorming.is_published
+      is_published: vorming.is_published,
+      preview: vorming.preview
     });
     setIsCreating(true);
     setSelectedVorming(null);
@@ -158,7 +168,8 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
       embed_code: '',
       category: 'algemeen',
       display_order: 0,
-      is_published: false
+      is_published: false,
+      preview: false
     });
   };
 
@@ -332,6 +343,19 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
               </label>
             </div>
 
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="preview"
+                checked={formData.preview}
+                onChange={(e) => setFormData({ ...formData, preview: e.target.checked })}
+                className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+              />
+              <label htmlFor="preview" className="ml-2 text-sm text-gray-700">
+                Preview (alleen zichtbaar voor niet-premium scholen)
+              </label>
+            </div>
+
             <div className="flex gap-2">
               <Button type="submit">
                 <Save className="w-4 h-4 mr-2" />
@@ -434,6 +458,11 @@ export function DidactiekVormingen({ isAdmin }: DidactiekVormingenProps) {
                   {isAdmin && !vorming.is_published && (
                     <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded">
                       Niet gepubliceerd
+                    </span>
+                  )}
+                  {isAdmin && vorming.preview && (
+                    <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded">
+                      Preview
                     </span>
                   )}
                 </div>

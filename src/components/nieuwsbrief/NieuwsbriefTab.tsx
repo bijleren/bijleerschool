@@ -12,8 +12,14 @@ interface Newsletter {
   title: string;
   description: string;
   file_path: string;
+  preview: boolean;
   created_at: string;
   created_by: string | null;
+}
+
+interface NieuwsbriefTabProps {
+  isPremium?: boolean;
+  isAdmin?: boolean;
 }
 
 interface UserSchool {
@@ -23,21 +29,23 @@ interface UserSchool {
   is_active: boolean;
 }
 
-export function NieuwsbriefTab() {
+export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: NieuwsbriefTabProps = {}) {
   const { user } = useAuth();
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
   const [filteredNewsletters, setFilteredNewsletters] = useState<Newsletter[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(isAdminProp || false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newNewsletter, setNewNewsletter] = useState({ title: '', description: '', file: null as File | null });
+  const [newNewsletter, setNewNewsletter] = useState({ title: '', description: '', file: null as File | null, preview: false });
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (user) {
-      checkAdminStatus();
+      if (isAdminProp === undefined) {
+        checkAdminStatus();
+      }
       fetchNewsletters();
     }
   }, [user]);
@@ -66,8 +74,13 @@ export function NieuwsbriefTab() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setNewsletters(data || []);
-      setFilteredNewsletters(data || []);
+
+      let result = data || [];
+      if (!isAdmin && isPremium) {
+        result = result.filter((n: Newsletter) => !n.preview);
+      }
+      setNewsletters(result);
+      setFilteredNewsletters(result);
     } catch (err) {
       console.error('Error fetching newsletters:', err);
     } finally {
@@ -137,12 +150,13 @@ export function NieuwsbriefTab() {
           description: newNewsletter.description,
           file_path: filePath,
           created_by: user?.id,
+          preview: newNewsletter.preview,
         });
 
       if (insertError) throw insertError;
 
       setShowAddModal(false);
-      setNewNewsletter({ title: '', description: '', file: null });
+      setNewNewsletter({ title: '', description: '', file: null, preview: false });
       fetchNewsletters();
     } catch (err: any) {
       console.error('Error adding newsletter:', err);
@@ -258,8 +272,13 @@ export function NieuwsbriefTab() {
               <div className="p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
                       {newsletter.title}
+                      {isAdmin && newsletter.preview && (
+                        <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded font-normal">
+                          Preview
+                        </span>
+                      )}
                     </h3>
                     {newsletter.description && (
                       <p className="text-gray-600 text-sm mb-2">
@@ -307,7 +326,7 @@ export function NieuwsbriefTab() {
                 <button
                   onClick={() => {
                     setShowAddModal(false);
-                    setNewNewsletter({ title: '', description: '', file: null });
+                    setNewNewsletter({ title: '', description: '', file: null, preview: false });
                     setError('');
                   }}
                   className="text-gray-400 hover:text-gray-600"
@@ -376,6 +395,19 @@ export function NieuwsbriefTab() {
                   </div>
                 </div>
 
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="newsletter-preview"
+                    checked={newNewsletter.preview}
+                    onChange={(e) => setNewNewsletter({ ...newNewsletter, preview: e.target.checked })}
+                    className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                  />
+                  <label htmlFor="newsletter-preview" className="ml-2 text-sm text-gray-700">
+                    Preview (alleen zichtbaar voor niet-premium scholen)
+                  </label>
+                </div>
+
                 {error && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                     <p className="text-sm text-red-600">{error}</p>
@@ -387,7 +419,7 @@ export function NieuwsbriefTab() {
                     variant="outline"
                     onClick={() => {
                       setShowAddModal(false);
-                      setNewNewsletter({ title: '', description: '', file: null });
+                      setNewNewsletter({ title: '', description: '', file: null, preview: false });
                       setError('');
                     }}
                     className="flex-1"

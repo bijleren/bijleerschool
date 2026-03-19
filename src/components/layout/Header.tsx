@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid2x2 as Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library } from 'lucide-react';
 
 interface UserSchool {
   id: string;
@@ -344,63 +344,61 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
               )}
             </div>
 
-            {hasPremiumSchool && (
-              <div className="relative" ref={didactiekDropdownRef}>
-                <button
-                  onClick={() => setShowDidactiekDropdown(!showDidactiekDropdown)}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-                >
-                  <BookOpen className="w-5 h-5" />
-                  <span>Didactiek</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${showDidactiekDropdown ? 'rotate-180' : ''}`} />
-                </button>
+            <div className="relative" ref={didactiekDropdownRef}>
+              <button
+                onClick={() => setShowDidactiekDropdown(!showDidactiekDropdown)}
+                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+              >
+                <BookOpen className="w-5 h-5" />
+                <span>Didactiek</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showDidactiekDropdown ? 'rotate-180' : ''}`} />
+              </button>
 
-                {showDidactiekDropdown && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                    <button
-                      onClick={() => {
-                        onNavigateToTeaching();
-                        setShowDidactiekDropdown(false);
-                      }}
-                      className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <BookOpen className="w-4 h-4 mr-3" />
-                      Technieken
-                    </button>
-                    <button
-                      onClick={() => {
-                        onNavigateToTeachingFAQ();
-                        setShowDidactiekDropdown(false);
-                      }}
-                      className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <HelpCircle className="w-4 h-4 mr-3" />
-                      FAQ
-                    </button>
-                    <button
-                      onClick={() => {
-                        onNavigateToTeachingVormingen();
-                        setShowDidactiekDropdown(false);
-                      }}
-                      className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <Video className="w-4 h-4 mr-3" />
-                      Vormingen
-                    </button>
-                    <button
-                      onClick={() => {
-                        onNavigateToNieuwsbrief();
-                        setShowDidactiekDropdown(false);
-                      }}
-                      className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <Newspaper className="w-4 h-4 mr-3" />
-                      Nieuwsbrief
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+              {showDidactiekDropdown && (
+                <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  <button
+                    onClick={() => {
+                      onNavigateToTeaching();
+                      setShowDidactiekDropdown(false);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <BookOpen className="w-4 h-4 mr-3" />
+                    Technieken
+                  </button>
+                  <button
+                    onClick={() => {
+                      onNavigateToTeachingFAQ();
+                      setShowDidactiekDropdown(false);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <HelpCircle className="w-4 h-4 mr-3" />
+                    FAQ
+                  </button>
+                  <button
+                    onClick={() => {
+                      onNavigateToTeachingVormingen();
+                      setShowDidactiekDropdown(false);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Video className="w-4 h-4 mr-3" />
+                    Vormingen
+                  </button>
+                  <button
+                    onClick={() => {
+                      onNavigateToNieuwsbrief();
+                      setShowDidactiekDropdown(false);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Newspaper className="w-4 h-4 mr-3" />
+                    Nieuwsbrief
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Profile Dropdown */}
             <div className="relative" ref={dropdownRef}>
