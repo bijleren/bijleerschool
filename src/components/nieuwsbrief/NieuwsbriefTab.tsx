@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { Newspaper, Download, Plus, Trash2, Calendar, FileText, Upload, X, Search } from 'lucide-react';
+import { Newspaper, Download, Plus, Trash2, Calendar, FileText, Upload, X, Search, Lock } from 'lucide-react';
 
 interface Newsletter {
   id: string;
@@ -75,10 +75,7 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
 
       if (error) throw error;
 
-      let result = data || [];
-      if (!isAdmin && isPremium) {
-        result = result.filter((n: Newsletter) => !n.preview);
-      }
+      const result = data || [];
       setNewsletters(result);
       setFilteredNewsletters(result);
     } catch (err) {
@@ -267,53 +264,58 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
         </Card>
       ) : (
         <div className="space-y-4">
-          {filteredNewsletters.map((newsletter) => (
-            <Card key={newsletter.id} className="hover:shadow-md transition-shadow">
-              <div className="p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                      {newsletter.title}
-                      {isAdmin && newsletter.preview && (
-                        <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded font-normal">
-                          Preview
-                        </span>
+          {filteredNewsletters.map((newsletter) => {
+            const locked = !isAdmin && !isPremium && !newsletter.preview;
+            return (
+              <Card key={newsletter.id} className={`transition-shadow ${locked ? 'opacity-50' : 'hover:shadow-md'}`}>
+                <div className="p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                        {locked && <Lock className="w-4 h-4 text-gray-400 flex-shrink-0" />}
+                        {newsletter.title}
+                        {isAdmin && newsletter.preview && (
+                          <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded font-normal">
+                            Preview
+                          </span>
+                        )}
+                      </h3>
+                      {newsletter.description && (
+                        <p className="text-gray-600 text-sm mb-2">
+                          {newsletter.description}
+                        </p>
                       )}
-                    </h3>
-                    {newsletter.description && (
-                      <p className="text-gray-600 text-sm mb-2">
-                        {newsletter.description}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <div className="text-center">
-                      <Button
-                        onClick={() => handleDownload(newsletter)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download PDF
-                      </Button>
-                      <div className="flex items-center justify-center text-xs text-gray-500 mt-2">
-                        <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
-                        {formatDate(newsletter.created_at)}
-                      </div>
                     </div>
-                    {isAdmin && (
-                      <button
-                        onClick={() => handleDeleteNewsletter(newsletter)}
-                        className="text-red-600 hover:text-red-700 transition-colors p-2"
-                        title="Verwijderen"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="text-center">
+                        <Button
+                          onClick={() => !locked && handleDownload(newsletter)}
+                          disabled={locked}
+                          className={locked ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}
+                        >
+                          {locked ? <Lock className="w-4 h-4 mr-2" /> : <Download className="w-4 h-4 mr-2" />}
+                          {locked ? 'Vergrendeld' : 'Download PDF'}
+                        </Button>
+                        <div className="flex items-center justify-center text-xs text-gray-500 mt-2">
+                          <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
+                          {formatDate(newsletter.created_at)}
+                        </div>
+                      </div>
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDeleteNewsletter(newsletter)}
+                          className="text-red-600 hover:text-red-700 transition-colors p-2"
+                          title="Verwijderen"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
       )}
 

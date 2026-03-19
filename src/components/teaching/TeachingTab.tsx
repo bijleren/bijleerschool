@@ -12,7 +12,7 @@ import { TeachingUsageLog } from './TeachingUsageLog';
 import { DidactiekFAQ } from './DidactiekFAQ';
 import { DidactiekVormingen } from './DidactiekVormingen';
 import { NieuwsbriefTab } from '../nieuwsbrief/NieuwsbriefTab';
-import { BookOpen, Plus, Search, Filter, Settings, Play, ExternalLink, Users, BookMarked, Wrench, BarChart3, Clock, CreditCard as Edit, HelpCircle, Video, FileText } from 'lucide-react';
+import { BookOpen, Plus, Search, Filter, Settings, Play, ExternalLink, Users, BookMarked, Wrench, BarChart3, Clock, CreditCard as Edit, HelpCircle, Video, FileText, Lock } from 'lucide-react';
 
 interface AgeGroup {
   id: string;
@@ -236,10 +236,10 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
     }
   };
 
-  const filterPreviewItems = <T extends { preview?: boolean }>(items: T[], admin: boolean, premium: boolean): T[] => {
-    if (admin) return items;
-    if (premium) return items.filter(item => !item.preview);
-    return items;
+  const isItemLocked = (item: { preview?: boolean }, admin: boolean, premium: boolean): boolean => {
+    if (admin) return false;
+    if (premium) return false;
+    return !(item.preview);
   };
 
   const fetchTechniqueById = async (id: string) => {
@@ -300,7 +300,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
     setActiveView('form');
   };
   
-  const visibleTechniques = filterPreviewItems(techniques, isAdmin, isPremium);
+  const visibleTechniques = techniques;
 
   const filteredTechniques = visibleTechniques.filter(technique => {
     const matchesSearch = searchTerm === '' ||
@@ -602,134 +602,134 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
             )}
           </Card>
         ) : (
-          filteredTechniques.map((technique) => (
-            <Card key={technique.id} className="hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center overflow-hidden">
-                      {technique.photo_url ? (
-                        <img 
-                          src={technique.photo_url} 
-                          alt={technique.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <BookOpen className="w-6 h-6 text-indigo-600" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <button
-                        onClick={() => handleViewTechnique(technique)}
-                        className="text-left hover:text-indigo-600 transition-colors"
-                      >
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
-                          {technique.title}
-                          {isAdmin && (technique as any).preview && (
-                            <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded font-normal">
-                              Preview
-                            </span>
-                          )}
-                        </h3>
-                        {technique.subtitle && (
-                          <p className="text-sm text-gray-600 mb-2">{technique.subtitle}</p>
+          filteredTechniques.map((technique) => {
+            const locked = isItemLocked(technique as any, isAdmin, isPremium);
+            return (
+              <Card key={technique.id} className={`transition-shadow ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md'}`}>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center overflow-hidden">
+                        {technique.photo_url ? (
+                          <img
+                            src={technique.photo_url}
+                            alt={technique.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <BookOpen className="w-6 h-6 text-indigo-600" />
                         )}
-                      </button>
-                      
-                      <p className="text-gray-700 mb-3 line-clamp-2">{technique.description}</p>
-                      
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {technique.teaching_technique_categories.filter(tc => tc.technique_categories).map((tc) => (
-                          <span
-                            key={tc.technique_categories.id}
-                            className="px-2 py-1 text-xs rounded-full text-white"
-                            style={{ backgroundColor: tc.technique_categories.color }}
-                          >
-                            {tc.technique_categories.name}
-                          </span>
-                        ))}
-                        {technique.teaching_technique_age_groups.filter(tag => tag.age_groups).map((tag) => (
-                          <span
-                            key={tag.age_groups.id}
-                            className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
-                          >
-                            <Users className="w-3 h-3 inline mr-1" />
-                            {tag.age_groups.name}
-                          </span>
-                        ))}
-                        {technique.teaching_technique_subjects.filter(ts => ts.subjects).map((ts) => (
-                          <span
-                            key={ts.subjects.id}
-                            className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
-                          >
-                            <BookMarked className="w-3 h-3 inline mr-1" />
-                            {ts.subjects.name}
-                          </span>
-                        ))}
-                        {technique.teaching_technique_materials.filter(tm => tm.materials).map((tm) => (
-                          <span
-                            key={tm.materials.id}
-                            className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
-                          >
-                            <Wrench className="w-3 h-3 inline mr-1" />
-                            {tm.materials.name}
-                          </span>
-                        ))}
                       </div>
+                      <div className="flex-1">
+                        <div className="text-left">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                            {locked && <Lock className="w-4 h-4 text-gray-400 flex-shrink-0" />}
+                            {technique.title}
+                            {isAdmin && (technique as any).preview && (
+                              <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded font-normal">
+                                Preview
+                              </span>
+                            )}
+                          </h3>
+                          {technique.subtitle && (
+                            <p className="text-sm text-gray-600 mb-2">{technique.subtitle}</p>
+                          )}
+                        </div>
 
-                      {/* Media indicators */}
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        {technique.teacher_video_url && (
-                          <div className="flex items-center">
-                            <Play className="w-4 h-4 mr-1" />
-                            Docent video
-                          </div>
-                        )}
-                        {technique.student_video_url && (
-                          <div className="flex items-center">
-                            <Play className="w-4 h-4 mr-1" />
-                            Student video
-                          </div>
-                        )}
-                        {technique.external_links && Object.keys(technique.external_links).length > 0 && (
-                          <div className="flex items-center">
-                            <ExternalLink className="w-4 h-4 mr-1" />
-                            Externe links
-                          </div>
-                        )}
-                        {technique.profiles && (
-                          <div className="flex items-center">
-                            Door: {technique.profiles.first_name} {technique.profiles.last_name}
-                          </div>
-                        )}
+                        <p className="text-gray-700 mb-3 line-clamp-2">{technique.description}</p>
+
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {technique.teaching_technique_categories.filter(tc => tc.technique_categories).map((tc) => (
+                            <span
+                              key={tc.technique_categories.id}
+                              className="px-2 py-1 text-xs rounded-full text-white"
+                              style={{ backgroundColor: tc.technique_categories.color }}
+                            >
+                              {tc.technique_categories.name}
+                            </span>
+                          ))}
+                          {technique.teaching_technique_age_groups.filter(tag => tag.age_groups).map((tag) => (
+                            <span
+                              key={tag.age_groups.id}
+                              className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                            >
+                              <Users className="w-3 h-3 inline mr-1" />
+                              {tag.age_groups.name}
+                            </span>
+                          ))}
+                          {technique.teaching_technique_subjects.filter(ts => ts.subjects).map((ts) => (
+                            <span
+                              key={ts.subjects.id}
+                              className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
+                            >
+                              <BookMarked className="w-3 h-3 inline mr-1" />
+                              {ts.subjects.name}
+                            </span>
+                          ))}
+                          {technique.teaching_technique_materials.filter(tm => tm.materials).map((tm) => (
+                            <span
+                              key={tm.materials.id}
+                              className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full"
+                            >
+                              <Wrench className="w-3 h-3 inline mr-1" />
+                              {tm.materials.name}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          {technique.teacher_video_url && (
+                            <div className="flex items-center">
+                              <Play className="w-4 h-4 mr-1" />
+                              Docent video
+                            </div>
+                          )}
+                          {technique.student_video_url && (
+                            <div className="flex items-center">
+                              <Play className="w-4 h-4 mr-1" />
+                              Student video
+                            </div>
+                          )}
+                          {technique.external_links && Object.keys(technique.external_links).length > 0 && (
+                            <div className="flex items-center">
+                              <ExternalLink className="w-4 h-4 mr-1" />
+                              Externe links
+                            </div>
+                          )}
+                          {technique.profiles && (
+                            <div className="flex items-center">
+                              Door: {technique.profiles.first_name} {technique.profiles.last_name}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="flex flex-col items-end space-y-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleViewTechnique(technique)}
-                  >
-                    Bekijken
-                  </Button>
-                  {isAdmin && (
+
+                  <div className="flex flex-col items-end space-y-2">
                     <Button
                       variant="secondary"
                       size="sm"
-                      onClick={() => handleEditTechnique(technique)}
+                      onClick={() => !locked && handleViewTechnique(technique)}
+                      disabled={locked}
                     >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Bewerken
+                      {locked ? <Lock className="w-4 h-4" /> : 'Bekijken'}
                     </Button>
-                  )}
+                    {isAdmin && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleEditTechnique(technique)}
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Bewerken
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))
+              </Card>
+            );
+          })
         )}
       </div>
     </div>

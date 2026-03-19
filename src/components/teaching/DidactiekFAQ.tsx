@@ -4,7 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
 import { RichTextEditor } from '../ui/RichTextEditor';
-import { Plus, CreditCard as Edit2, Trash2, ChevronDown, ChevronUp, Save, X, HelpCircle, Search, Share2, Copy, Check } from 'lucide-react';
+import { Plus, CreditCard as Edit2, Trash2, ChevronDown, ChevronUp, Save, X, HelpCircle, Search, Share2, Check, Lock } from 'lucide-react';
 
 interface FAQ {
   id: string;
@@ -63,10 +63,7 @@ export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
 
       if (error) throw error;
 
-      let result = data || [];
-      if (!isAdmin && isPremium) {
-        result = result.filter((faq: FAQ) => !faq.preview);
-      }
+      const result = data || [];
       setFaqs(result);
     } catch (error) {
       console.error('Error fetching FAQs:', error);
@@ -362,91 +359,102 @@ export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredFaqs.map((faq) => (
-            <div
-              key={faq.id}
-              className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden"
-            >
-              <button
-                onClick={() => setExpandedFaqId(expandedFaqId === faq.id ? null : faq.id)}
-                className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+          {filteredFaqs.map((faq) => {
+            const locked = !isAdmin && !isPremium && !faq.preview;
+            return (
+              <div
+                key={faq.id}
+                className={`bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden ${locked ? 'opacity-50' : ''}`}
               >
-                <div className="flex items-start gap-3 flex-1 text-left">
-                  <HelpCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{faq.question}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
-                        {faq.category}
-                      </span>
-                      {isAdmin && !faq.is_published && (
-                        <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded">
-                          Niet gepubliceerd
+                <button
+                  onClick={() => !locked && setExpandedFaqId(expandedFaqId === faq.id ? null : faq.id)}
+                  className={`w-full px-6 py-4 flex items-center justify-between transition-colors ${locked ? 'cursor-not-allowed' : 'hover:bg-gray-50'}`}
+                >
+                  <div className="flex items-start gap-3 flex-1 text-left">
+                    {locked ? (
+                      <Lock className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <HelpCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    )}
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{faq.question}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
+                          {faq.category}
                         </span>
-                      )}
-                      {isAdmin && faq.preview && (
-                        <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded">
-                          Preview
-                        </span>
-                      )}
+                        {isAdmin && !faq.is_published && (
+                          <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded">
+                            Niet gepubliceerd
+                          </span>
+                        )}
+                        {isAdmin && faq.preview && (
+                          <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded">
+                            Preview
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleShareFaq(faq.id);
-                    }}
-                    className="p-2 text-green-600 hover:bg-green-50 rounded transition-colors"
-                    title="Deel deze FAQ"
-                  >
-                    {copiedFaqId === faq.id ? (
-                      <Check className="w-4 h-4" />
-                    ) : (
-                      <Share2 className="w-4 h-4" />
+                  <div className="flex items-center gap-2">
+                    {!locked && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShareFaq(faq.id);
+                        }}
+                        className="p-2 text-green-600 hover:bg-green-50 rounded transition-colors"
+                        title="Deel deze FAQ"
+                      >
+                        {copiedFaqId === faq.id ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Share2 className="w-4 h-4" />
+                        )}
+                      </button>
                     )}
-                  </button>
-                  {isAdmin && (
-                    <>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(faq);
-                        }}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(faq.id);
-                        }}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </>
-                  )}
-                  {expandedFaqId === faq.id ? (
-                    <ChevronUp className="w-5 h-5 text-gray-400" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-400" />
-                  )}
-                </div>
-              </button>
+                    {isAdmin && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(faq);
+                          }}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(faq.id);
+                          }}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </>
+                    )}
+                    {!locked && (
+                      expandedFaqId === faq.id ? (
+                        <ChevronUp className="w-5 h-5 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                      )
+                    )}
+                  </div>
+                </button>
 
-              {expandedFaqId === faq.id && (
-                <div className="px-6 pb-4 pt-2 border-t border-gray-100">
-                  <div
-                    className="prose prose-sm max-w-none text-gray-700"
-                    dangerouslySetInnerHTML={{ __html: faq.answer }}
-                  />
-                </div>
-              )}
-            </div>
-          ))}
+                {expandedFaqId === faq.id && !locked && (
+                  <div className="px-6 pb-4 pt-2 border-t border-gray-100">
+                    <div
+                      className="prose prose-sm max-w-none text-gray-700"
+                      dangerouslySetInnerHTML={{ __html: faq.answer }}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 

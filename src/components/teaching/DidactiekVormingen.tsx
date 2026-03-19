@@ -4,7 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
 import { RichTextEditor } from '../ui/RichTextEditor';
-import { Plus, CreditCard as Edit2, Trash2, Save, X, Video, Play } from 'lucide-react';
+import { Plus, CreditCard as Edit2, Trash2, Save, X, Video, Play, Lock } from 'lucide-react';
 
 interface Vorming {
   id: string;
@@ -63,10 +63,7 @@ export function DidactiekVormingen({ isAdmin, isPremium }: DidactiekVormingenPro
 
       if (error) throw error;
 
-      let result = data || [];
-      if (!isAdmin && isPremium) {
-        result = result.filter((v: Vorming) => !v.preview);
-      }
+      const result = data || [];
       setVormingen(result);
     } catch (error) {
       console.error('Error fetching vormingen:', error);
@@ -410,65 +407,79 @@ export function DidactiekVormingen({ isAdmin, isPremium }: DidactiekVormingenPro
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredVormingen.map((vorming) => (
-            <div
-              key={vorming.id}
-              className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => setSelectedVorming(vorming)}
-            >
-              <div className="relative group">
-                <div
-                  className="pointer-events-none"
-                  dangerouslySetInnerHTML={{ __html: vorming.embed_code }}
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-                  <Play className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </div>
-              <div className="p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900 flex-1">{vorming.title}</h3>
-                  {isAdmin && (
-                    <div className="flex gap-1 ml-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(vorming);
-                        }}
-                        className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(vorming.id);
-                        }}
-                        className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+          {filteredVormingen.map((vorming) => {
+            const locked = !isAdmin && !isPremium && !vorming.preview;
+            return (
+              <div
+                key={vorming.id}
+                className={`bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden transition-shadow ${locked ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg cursor-pointer'}`}
+                onClick={() => !locked && setSelectedVorming(vorming)}
+              >
+                <div className="relative group">
+                  {locked ? (
+                    <div className="w-full aspect-video bg-gray-100 flex items-center justify-center">
+                      <Lock className="w-12 h-12 text-gray-400" />
                     </div>
+                  ) : (
+                    <>
+                      <div
+                        className="pointer-events-none"
+                        dangerouslySetInnerHTML={{ __html: vorming.embed_code }}
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
+                        <Play className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
-                    {vorming.category}
-                  </span>
-                  {isAdmin && !vorming.is_published && (
-                    <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded">
-                      Niet gepubliceerd
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900 flex-1 flex items-center gap-2">
+                      {locked && <Lock className="w-4 h-4 text-gray-400 flex-shrink-0" />}
+                      {vorming.title}
+                    </h3>
+                    {isAdmin && (
+                      <div className="flex gap-1 ml-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(vorming);
+                          }}
+                          className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(vorming.id);
+                          }}
+                          className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
+                      {vorming.category}
                     </span>
-                  )}
-                  {isAdmin && vorming.preview && (
-                    <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded">
-                      Preview
-                    </span>
-                  )}
+                    {isAdmin && !vorming.is_published && (
+                      <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded">
+                        Niet gepubliceerd
+                      </span>
+                    )}
+                    {isAdmin && vorming.preview && (
+                      <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded">
+                        Preview
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
