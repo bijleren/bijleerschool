@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { Newspaper, Download, Plus, Trash2, Calendar, FileText, Upload, X, Search, Lock } from 'lucide-react';
+import { Newspaper, Download, Plus, Trash2, Calendar, FileText, Upload, X, Search, Lock, Info } from 'lucide-react';
 
 interface Newsletter {
   id: string;
@@ -207,6 +207,19 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
+      {!isAdmin && !isPremium && (
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
+          <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-blue-900">
+            <p className="font-semibold mb-1">Volledige toegang met een bijleer.school-licentie</p>
+            <p className="text-blue-800">
+              Deze didactische items zijn enkel beschikbaar voor scholen met een volledige bijleer.school-licentie. De items met een slotje zijn vergrendeld voor jouw school. De items die je wel kunt openen zijn gratis voorbeelditems.
+              Neem contact op via <a href="mailto:info@bijleren.eu" className="font-medium underline hover:text-blue-600">info@bijleren.eu</a> voor meer informatie over een licentie voor jouw hele school.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center">

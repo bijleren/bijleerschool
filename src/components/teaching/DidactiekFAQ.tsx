@@ -4,7 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
 import { RichTextEditor } from '../ui/RichTextEditor';
-import { Plus, CreditCard as Edit2, Trash2, ChevronDown, ChevronUp, Save, X, HelpCircle, Search, Share2, Check, Lock } from 'lucide-react';
+import { Plus, CreditCard as Edit2, Trash2, ChevronDown, ChevronUp, Save, X, HelpCircle, Search, Share2, Check, Lock, Info } from 'lucide-react';
 
 interface FAQ {
   id: string;
@@ -196,6 +196,19 @@ export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {!isAdmin && !isPremium && (
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
+          <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-blue-900">
+            <p className="font-semibold mb-1">Volledige toegang met een bijleer.school-licentie</p>
+            <p className="text-blue-800">
+              Deze didactische items zijn enkel beschikbaar voor scholen met een volledige bijleer.school-licentie. De items met een slotje zijn vergrendeld voor jouw school. De items die je wel kunt openen zijn gratis voorbeelditems.
+              Neem contact op via <a href="mailto:info@bijleren.eu" className="font-medium underline hover:text-blue-600">info@bijleren.eu</a> voor meer informatie over een licentie voor jouw hele school.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
