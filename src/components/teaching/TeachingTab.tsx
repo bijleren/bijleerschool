@@ -12,24 +12,7 @@ import { TeachingUsageLog } from './TeachingUsageLog';
 import { DidactiekFAQ } from './DidactiekFAQ';
 import { DidactiekVormingen } from './DidactiekVormingen';
 import { NieuwsbriefTab } from '../nieuwsbrief/NieuwsbriefTab';
-import {
-  BookOpen,
-  Plus,
-  Search,
-  Filter,
-  Settings,
-  Play,
-  ExternalLink,
-  Users,
-  BookMarked,
-  Wrench,
-  BarChart3,
-  Clock,
-  Edit,
-  HelpCircle,
-  Video,
-  FileText
-} from 'lucide-react';
+import { BookOpen, Plus, Search, Filter, Settings, Play, ExternalLink, Users, BookMarked, Wrench, BarChart3, Clock, CreditCard as Edit, HelpCircle, Video, FileText } from 'lucide-react';
 
 interface AgeGroup {
   id: string;
