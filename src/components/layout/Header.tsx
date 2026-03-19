@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid2x2 as Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid2x2 as Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library, Star } from 'lucide-react';
 
 interface UserSchool {
   id: string;
@@ -38,6 +39,7 @@ interface HeaderProps {
 
 export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToLeescoach, onNavigateToZoeker, onNavigateToEDI, onNavigateToDigiTools, onNavigateToBlinkQR, onNavigateToSporen, onNavigateToOnboarding, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
@@ -454,6 +456,19 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     >
                       <Sparkles className="w-4 h-4 mr-3" />
                       Aan de slag
+                    </button>
+                  )}
+
+                  {!hasPremiumSchool && (
+                    <button
+                      onClick={() => {
+                        navigate('/prijzen');
+                        setShowProfileDropdown(false);
+                      }}
+                      className="w-full flex items-center px-4 py-2 text-sm text-amber-700 hover:bg-amber-50 transition-colors"
+                    >
+                      <Star className="w-4 h-4 mr-3 text-amber-500" />
+                      Upgrade naar premium
                     </button>
                   )}
 
