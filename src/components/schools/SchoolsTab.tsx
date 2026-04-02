@@ -42,12 +42,6 @@ export function SchoolsTab() {
   const [createLoading, setCreateLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    // Auto-open school if user has only one school
-    if (userSchools.length === 1) {
-      setSelectedSchool(userSchools[0].schools);
-    }
-  }, [userSchools]);
 
   const fetchUserSchools = async () => {
     if (!user) return;
