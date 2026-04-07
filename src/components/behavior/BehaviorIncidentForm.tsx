@@ -770,6 +770,12 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       return;
     }
 
+    const validStudents = selectedStudents.filter(s => s.student_id && s.student_id !== '');
+    if (validStudents.length === 0) {
+      setMessage('Selecteer minimaal één student.');
+      return;
+    }
+
     setLoading(true);
     setMessage('');
 
@@ -779,8 +785,8 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
         .from('behavior_incidents')
         .insert({
           school_id: schoolId,
-          student_id: selectedStudents[0].student_id,
-          behavior_item_id: selectedBehaviorItem === 'other' ? null : selectedBehaviorItem,
+          student_id: validStudents[0].student_id,
+          behavior_item_id: selectedBehaviorItem === 'other' || selectedBehaviorItem === '' ? null : selectedBehaviorItem,
           reported_by: user.id,
           incident_date: incidentDate,
           location: location || null,
@@ -794,10 +800,10 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       if (incidentError) throw incidentError;
 
       // Add all selected students to the junction table
-      const studentInserts = selectedStudents.map(student => ({
+      const studentInserts = validStudents.map(student => ({
         incident_id: incident.id,
         student_id: student.student_id,
-        role_id: student.role_id,
+        role_id: student.role_id && student.role_id !== '' ? student.role_id : null,
       }));
 
       const { error: studentsError } = await supabase
