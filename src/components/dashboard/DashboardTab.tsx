@@ -4,29 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { OnboardingBanner } from '../onboarding/OnboardingBanner';
-import {
-  Heart,
-  Users,
-  GraduationCap,
-  Star,
-  TrendingUp,
-  Calendar,
-  MapPin,
-  School,
-  AlertTriangle,
-  Clock,
-  CheckCircle,
-  Filter,
-  BookOpen,
-  HelpCircle,
-  Video,
-  Newspaper,
-  Link,
-  Grid,
-  BookMarked,
-  Search,
-  QrCode
-} from 'lucide-react';
+import { Heart, Users, GraduationCap, Star, TrendingUp, Calendar, MapPin, School, AlertTriangle, Clock, CheckCircle, Filter, BookOpen, HelpCircle, Video, Newspaper, Link, Grid2x2 as Grid, BookMarked, Search, QrCode } from 'lucide-react';
 
 interface FavoriteStudent {
   id: string;
@@ -1298,11 +1276,12 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                   key={incident.id}
                   onClick={() => handleIncidentClick(incident.id)}
                   className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                  style={{ borderLeftWidth: '4px', borderLeftColor: incident.behavior_items.behavior_categories.color }}
+                  style={{ borderLeftWidth: '4px', borderLeftColor: incident.behavior_items?.behavior_categories?.color ?? '#6b7280' }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
+                        {incident.behavior_items?.behavior_categories && (
                         <span
                           className="px-2 py-1 rounded text-xs font-medium"
                           style={{
@@ -1312,6 +1291,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                         >
                           {incident.behavior_items.behavior_categories.name}
                         </span>
+                        )}
                         <span
                           className={`px-2 py-1 rounded text-xs font-medium ${
                             incident.status === 'pending'
@@ -1338,9 +1318,11 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
 
                       <h3 className="font-semibold text-gray-900 mb-1">{incident.description}</h3>
 
+                      {incident.behavior_items && (
                       <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
                         <span>{incident.behavior_items.name}</span>
                       </div>
+                      )}
 
                       <div className="text-sm text-gray-600">
                         <span className="font-medium">Betrokken leerlingen:</span>{' '}

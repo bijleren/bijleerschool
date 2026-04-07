@@ -121,12 +121,16 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
         }
 
         // Update severity breakdown
-        const severityLevel = incident.behavior_items.behavior_severity_levels.level;
-        studentData.severity_breakdown[severityLevel] = (studentData.severity_breakdown[severityLevel] || 0) + 1;
+        if (incident.behavior_items?.behavior_severity_levels) {
+          const severityLevel = incident.behavior_items.behavior_severity_levels.level;
+          studentData.severity_breakdown[severityLevel] = (studentData.severity_breakdown[severityLevel] || 0) + 1;
+        }
 
         // Update category breakdown
-        const categoryName = incident.behavior_items.behavior_categories.name;
-        studentData.category_breakdown[categoryName] = (studentData.category_breakdown[categoryName] || 0) + 1;
+        if (incident.behavior_items?.behavior_categories) {
+          const categoryName = incident.behavior_items.behavior_categories.name;
+          studentData.category_breakdown[categoryName] = (studentData.category_breakdown[categoryName] || 0) + 1;
+        }
       });
 
       const sortedStudents = Array.from(studentMap.values())
@@ -136,9 +140,10 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
       // Calculate category statistics
       const categoryMap = new Map<string, { count: number; color: string }>();
       incidentData.forEach((incident: any) => {
+        if (!incident.behavior_items?.behavior_categories) return;
         const categoryName = incident.behavior_items.behavior_categories.name;
         const categoryColor = incident.behavior_items.behavior_categories.color;
-        
+
         if (!categoryMap.has(categoryName)) {
           categoryMap.set(categoryName, { count: 0, color: categoryColor });
         }
@@ -156,6 +161,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
       // Calculate severity statistics
       const severityMap = new Map<number, { count: number; name: string; color: string }>();
       incidentData.forEach((incident: any) => {
+        if (!incident.behavior_items?.behavior_severity_levels) return;
         const level = incident.behavior_items.behavior_severity_levels.level;
         const name = incident.behavior_items.behavior_severity_levels.name;
         const color = incident.behavior_items.behavior_severity_levels.color;

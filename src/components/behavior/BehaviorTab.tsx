@@ -349,16 +349,16 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
   const filteredIncidents = incidents.filter(incident => {
     const matchesSearch = searchTerm === '' ||
       `${incident.students.first_name} ${incident.students.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      incident.behavior_items.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (incident.behavior_items?.name ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       incident.description.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus = statusFilter === 'all' || incident.status === statusFilter;
 
     const matchesSeverity = severityFilter === 'all' ||
-      incident.behavior_items.behavior_severity_levels.level.toString() === severityFilter;
+      (incident.behavior_items?.behavior_severity_levels?.level?.toString() ?? '') === severityFilter;
 
     const matchesCategory = categoryFilter === 'all' ||
-      incident.behavior_items.behavior_categories.name === categoryFilter;
+      (incident.behavior_items?.behavior_categories?.name ?? '') === categoryFilter;
 
     const matchesStudent = studentFilter === 'all' || incident.students.id === studentFilter;
 
@@ -560,7 +560,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="all">Alle categorieën</option>
-            {Array.from(new Set(incidents.map(i => i.behavior_items.behavior_categories.name)))
+            {Array.from(new Set(incidents.map(i => i.behavior_items?.behavior_categories?.name).filter(Boolean)))
               .sort()
               .map(category => (
                 <option key={category} value={category}>{category}</option>
@@ -672,6 +672,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                             <span className="text-sm text-gray-500">#{incident.students.student_number}</span>
                           )}
                         </div>
+                        {incident.behavior_items?.behavior_categories && (
                         <span
                           className="px-2 py-1 rounded-full text-xs font-medium"
                           style={{
@@ -681,6 +682,8 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                         >
                           {incident.behavior_items.behavior_categories.name}
                         </span>
+                        )}
+                        {incident.behavior_items?.behavior_severity_levels && (
                         <span
                           className="px-2 py-1 rounded-full text-xs font-medium"
                           style={{
@@ -690,6 +693,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                         >
                           Niveau {incident.behavior_items.behavior_severity_levels.level}
                         </span>
+                        )}
                       </div>
 
                       {/* Display all connected students */}
@@ -723,7 +727,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                         </div>
                       )}
 
-                      <h4 className="font-medium text-gray-900 mb-2">{incident.behavior_items.name}</h4>
+                      {incident.behavior_items && <h4 className="font-medium text-gray-900 mb-2">{incident.behavior_items.name}</h4>}
                       <p className="text-gray-600 mb-3">{incident.description}</p>
 
                       <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
