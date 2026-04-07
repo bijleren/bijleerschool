@@ -812,9 +812,10 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
       if (studentsError) throw studentsError;
 
-      // Add eerste acties (initial consequences)
-      if (eersteActies.length > 0) {
-        const eersteActiesInserts = eersteActies.map(actie => ({
+      // Add eerste acties (initial consequences) - only those with a valid consequence selected
+      const validEersteActies = eersteActies.filter(a => a.consequence_id && a.consequence_id !== '');
+      if (validEersteActies.length > 0) {
+        const eersteActiesInserts = validEersteActies.map(actie => ({
           incident_id: incident.id,
           consequence_id: actie.consequence_id,
           notes: actie.notes || null,
@@ -827,9 +828,10 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
         if (eersteActiesError) throw eersteActiesError;
       }
 
-      // Add follow-up consequences (without date/notes)
-      if (followupConsequences.length > 0) {
-        const followupInserts = followupConsequences.map(consequence => ({
+      // Add follow-up consequences (without date/notes) - only those with a valid consequence selected
+      const validFollowupConsequences = followupConsequences.filter(c => c.consequence_id && c.consequence_id !== '');
+      if (validFollowupConsequences.length > 0) {
+        const followupInserts = validFollowupConsequences.map(consequence => ({
           incident_id: incident.id,
           consequence_id: consequence.consequence_id,
           notes: null,
