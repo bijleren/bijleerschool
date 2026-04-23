@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { Brain, BarChart3, ChevronRight, Save, Users } from 'lucide-react';
+import { Brain, BarChart3, ChevronRight, Save, Users, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface ExecutiveFunction {
   id: string;
@@ -304,6 +305,43 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
   const getInitials = (s: Student) =>
     `${s.first_name[0] ?? ''}${s.last_name[0] ?? ''}`.toUpperCase();
 
+  const handleExport = () => {
+    const groupName = groups.find(g => g.id === selectedGroupId)?.name ?? 'Klas';
+    const ratingLabel = (r: number) => ['---', '--', '-', '0', '+', '++', '+++'][r + 3];
+
+    // Sheet 1: flat table — one row per student/function combination
+    const flatRows = students.flatMap(student =>
+      executiveFunctions.map(ef => ({
+        Leerling: `${student.last_name} ${student.first_name}`,
+        Klas: groupName,
+        School: schoolName,
+        Functie: ef.name,
+        Vermogen: ratingLabel(getStudentRating(student.id, ef.id)),
+        'Vermogen (getal)': getStudentRating(student.id, ef.id),
+        Zelfondersteuning: ratingLabel(getStudentSupportRating(student.id, ef.id)),
+        'Zelfondersteuning (getal)': getStudentSupportRating(student.id, ef.id),
+      }))
+    );
+
+    // Sheet 2: matrix — students as rows, functions as columns
+    const matrixRows = students.map(student => {
+      const row: Record<string, string | number> = {
+        Leerling: `${student.last_name} ${student.first_name}`,
+        Klas: groupName,
+      };
+      executiveFunctions.forEach(ef => {
+        row[`${ef.name} — Vermogen`] = ratingLabel(getStudentRating(student.id, ef.id));
+        row[`${ef.name} — Ondersteuning`] = ratingLabel(getStudentSupportRating(student.id, ef.id));
+      });
+      return row;
+    });
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(flatRows), 'Details');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(matrixRows), 'Matrix');
+    XLSX.writeFile(wb, `Executieve_Functies_${groupName}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   if (loading && students.length === 0 && selectedGroupId) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -323,13 +361,23 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
           </h1>
           <p className="text-gray-500 mt-1">{schoolName} — beoordeel leerlingen per executieve functie</p>
         </div>
-        <button
-          onClick={onNavigateToAnalytics}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
-        >
-          <BarChart3 className="w-4 h-4" />
-          Analyse
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExport}
+            disabled={students.length === 0}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Download className="w-4 h-4" />
+            Exporteer
+          </button>
+          <button
+            onClick={onNavigateToAnalytics}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+          >
+            <BarChart3 className="w-4 h-4" />
+            Analyse
+          </button>
+        </div>
       </div>
 
       {/* Group selector */}
@@ -427,7 +475,6 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
                     <div className="flex gap-6 items-start">
                       {/* Radar chart */}
                       <div className="hidden lg:flex flex-col items-center bg-white rounded-xl p-4 shadow-sm flex-shrink-0">
-                        <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Spinnenwebanalyse</p>
                         <RadarChart
                           functions={executiveFunctions}
                           getRating={(id) => getStudentRating(student.id, id)}
