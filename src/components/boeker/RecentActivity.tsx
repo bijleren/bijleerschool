@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
-import { BookOpen, Clock, FileText, Mic, Play, Pause, ChevronRight, Star, Calendar, BookMarked } from 'lucide-react';
+import { BookOpen, Clock, FileText, Mic, Play, Pause, ChevronRight, Calendar, BookMarked, Users, ChevronDown } from 'lucide-react';
+
+interface Group {
+  id: string;
+  name: string;
+  grade_level: string | null;
+}
 
 interface Session {
   id: string;
@@ -118,29 +125,86 @@ function AudioPlayer({ url }: { url: string }) {
 }
 
 export function RecentActivity({ schoolId, onViewStudent }: RecentActivityProps) {
+  const { user } = useAuth();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
 
   useEffect(() => {
-    fetchRecentActivity();
+    loadGroups();
   }, [schoolId]);
 
-  const fetchRecentActivity = async () => {
+  useEffect(() => {
+    fetchRecentActivity(selectedGroupId);
+  }, [schoolId, selectedGroupId]);
+
+  const loadGroups = async () => {
+    const [groupsRes, prefsRes] = await Promise.all([
+      supabase
+        .from('groups')
+        .select('id, name, grade_level')
+        .eq('school_id', schoolId)
+        .eq('is_active', true)
+        .order('name'),
+      user
+        ? supabase
+            .from('user_preferences')
+            .select('last_group_id')
+            .eq('user_id', user.id)
+            .eq('school_id', schoolId)
+            .maybeSingle()
+        : Promise.resolve({ data: null, error: null }),
+    ]);
+
+    const fetchedGroups = groupsRes.data || [];
+    setGroups(fetchedGroups);
+
+    const savedId = (prefsRes as any).data?.last_group_id;
+    if (savedId && fetchedGroups.some(g => g.id === savedId)) {
+      setSelectedGroupId(savedId);
+    } else if (fetchedGroups.length > 0) {
+      setSelectedGroupId(fetchedGroups[0].id);
+    }
+  };
+
+  const handleGroupChange = async (groupId: string) => {
+    setSelectedGroupId(groupId);
+    if (!user) return;
+    await supabase
+      .from('user_preferences')
+      .upsert(
+        { user_id: user.id, school_id: schoolId, last_group_id: groupId || null, updated_at: new Date().toISOString() },
+        { onConflict: 'user_id,school_id' }
+      );
+  };
+
+  const fetchRecentActivity = async (groupId: string) => {
     setLoading(true);
     try {
-      // Get the student IDs for this school first
-      const { data: schoolStudents } = await supabase
-        .from('students')
-        .select('id')
-        .eq('school_id', schoolId);
+      let studentIds: string[] = [];
 
-      if (!schoolStudents?.length) {
+      if (groupId) {
+        const { data: sgData } = await supabase
+          .from('student_groups')
+          .select('student_id')
+          .eq('group_id', groupId)
+          .eq('is_active', true);
+        studentIds = (sgData || []).map((r: any) => r.student_id);
+      } else {
+        const { data: schoolStudents } = await supabase
+          .from('students')
+          .select('id')
+          .eq('school_id', schoolId)
+          .eq('is_active', true);
+        studentIds = (schoolStudents || []).map((s: any) => s.id);
+      }
+
+      if (!studentIds.length) {
         setSessions([]);
         return;
       }
-
-      const studentIds = schoolStudents.map(s => s.id);
 
       const { data, error } = await supabase
         .from('reading_sessions')
@@ -187,29 +251,65 @@ export function RecentActivity({ schoolId, onViewStudent }: RecentActivityProps)
 
   const getAvatarColor = (s: Session) => s.students.color || '#3B82F6';
 
+  const selectedGroup = groups.find(g => g.id === selectedGroupId);
+
+  const GroupSelector = (
+    <div className="relative">
+      <div className="flex items-center gap-2 pl-3 pr-8 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-400 transition-colors min-w-[180px]">
+        <Users className="w-4 h-4 text-gray-400 flex-shrink-0" />
+        <select
+          value={selectedGroupId}
+          onChange={e => handleGroupChange(e.target.value)}
+          className="absolute inset-0 opacity-0 w-full cursor-pointer"
+        >
+          {groups.map(g => (
+            <option key={g.id} value={g.id}>
+              {g.name}{g.grade_level ? ` (${g.grade_level})` : ''}
+            </option>
+          ))}
+        </select>
+        <span className="flex-1 truncate">
+          {selectedGroup ? selectedGroup.name : 'Kies klas'}
+        </span>
+        <ChevronDown className="w-4 h-4 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">{GroupSelector}</div>
+        <div className="flex items-center justify-center h-48">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        </div>
       </div>
     );
   }
 
   if (grouped.length === 0) {
     return (
-      <Card>
-        <div className="p-12 text-center">
-          <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 font-medium">Nog geen leesactiviteit</p>
-          <p className="text-sm text-gray-400 mt-1">Zodra leerlingen leessessies voltooien, verschijnen ze hier.</p>
-        </div>
-      </Card>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">{GroupSelector}</div>
+        <Card>
+          <div className="p-12 text-center">
+            <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 font-medium">Nog geen leesactiviteit</p>
+            <p className="text-sm text-gray-400 mt-1">
+              {selectedGroup
+                ? `${selectedGroup.name} heeft nog geen voltooide leessessies.`
+                : 'Zodra leerlingen leessessies voltooien, verschijnen ze hier.'}
+            </p>
+          </div>
+        </Card>
+      </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        {GroupSelector}
         <p className="text-sm text-gray-500">{grouped.length} leerlingen · {sessions.length} sessies</p>
       </div>
 
@@ -387,3 +487,6 @@ export function RecentActivity({ schoolId, onViewStudent }: RecentActivityProps)
     </div>
   );
 }
+
+
+export { RecentActivity }
