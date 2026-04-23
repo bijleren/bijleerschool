@@ -9,7 +9,8 @@ import { Toast } from '../ui/Toast';
 import { BarcodeScanner } from './BarcodeScanner';
 import { QuickScanModal } from './QuickScanModal';
 import { fetchBookMetadata, BookMetadata } from '../../utils/bookApi';
-import { Plus, Search, Edit, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare } from 'lucide-react';
+import { Plus, Search, CreditCard as Edit, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare, MapPin } from 'lucide-react';
+import { LocationCombobox } from './LocationCombobox';
 
 interface Book {
   id: string;
@@ -22,6 +23,8 @@ interface Book {
   total_copies: number;
   available_copies: number;
   metadata_source: string;
+  location_id: string | null;
+  book_locations?: { name: string } | null;
 }
 
 interface StudentBookInfo {
@@ -83,7 +86,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     cover_image_url: '',
     custom_cover_url: '',
     language: '',
-    total_copies: '1'
+    total_copies: '1',
+    location_id: null as string | null
   });
 
   useEffect(() => {
@@ -111,7 +115,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     try {
       const { data, error } = await supabase
         .from('books')
-        .select('*')
+        .select('*, book_locations(name)')
         .eq('school_id', schoolId)
         .order('title');
 
@@ -187,7 +191,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
           description: metadata.description || '',
           cover_image_url: metadata.coverImageUrl || '',
           language: metadata.language || '',
-          total_copies: '1'
+          total_copies: '1',
+          location_id: null
         });
         setToast({ message: 'Boekgegevens gevonden!', type: 'success' });
         setShowAddModal(true);
@@ -267,7 +272,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
         available_copies: editingBook
           ? Math.max(0, editingBook.available_copies + (totalCopies - editingBook.total_copies))
           : totalCopies,
-        added_by: user?.id
+        added_by: user?.id,
+        location_id: formData.location_id || null
       };
 
       if (editingBook) {
@@ -332,7 +338,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
       cover_image_url: book.cover_image_url || '',
       custom_cover_url: book.custom_cover_url || '',
       language: '',
-      total_copies: book.total_copies.toString()
+      total_copies: book.total_copies.toString(),
+      location_id: book.location_id || null
     });
     setCustomCoverFile(null);
     setCustomCoverPreview(book.custom_cover_url || null);
@@ -352,7 +359,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
       cover_image_url: '',
       custom_cover_url: '',
       language: '',
-      total_copies: '1'
+      total_copies: '1',
+      location_id: null
     });
     setEditingBook(null);
     setCustomCoverFile(null);
@@ -462,7 +470,12 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
         .single();
 
       if (updatedBook) {
-        setViewingBook(updatedBook);
+        const { data: updatedWithLocation } = await supabase
+          .from('books')
+          .select('*, book_locations(name)')
+          .eq('id', book.id)
+          .single();
+        setViewingBook(updatedWithLocation || updatedBook);
       }
 
       fetchBooks();
@@ -590,6 +603,12 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                     <div className="text-[10px] text-gray-500 mb-1">
                       <div className="line-clamp-1">ISBN: {book.isbn}</div>
                       <div>Beschikbaar: {book.available_copies}/{book.total_copies}</div>
+                      {book.book_locations?.name && (
+                        <div className="flex items-center gap-0.5 text-blue-600 mt-0.5">
+                          <MapPin className="w-2.5 h-2.5 flex-shrink-0" />
+                          <span className="line-clamp-1">{book.book_locations.name}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex gap-1">
                       <button
@@ -714,6 +733,17 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                       min="1"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Locatie
+                  </label>
+                  <LocationCombobox
+                    schoolId={schoolId}
+                    value={formData.location_id}
+                    onChange={(id) => setFormData({ ...formData, location_id: id })}
+                  />
                 </div>
 
                 <div>
@@ -869,6 +899,12 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                       <p>
                         Beschikbaar: {viewingBook.available_copies}/{viewingBook.total_copies}
                       </p>
+                      {viewingBook.book_locations?.name && (
+                        <p className="flex items-center gap-1 text-blue-600">
+                          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                          {viewingBook.book_locations.name}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -992,7 +1028,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                                     // Refetch the updated book
                                     const { data: updatedBook } = await supabase
                                       .from('books')
-                                      .select('*')
+                                      .select('*, book_locations(name)')
                                       .eq('id', viewingBook.id)
                                       .single();
 

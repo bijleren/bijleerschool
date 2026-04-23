@@ -119,9 +119,9 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
           const dateStr = student.date_of_birth.trim();
           let parsedDate: Date | null = null;
           
-          // Try DD-MM-YYYY or DD/MM/YYYY
-          if (dateStr.match(/^\d{1,2}[-/]\d{1,2}[-/]\d{4}$/)) {
-            const parts = dateStr.split(/[-/]/);
+          // Try DD-MM-YYYY, DD/MM/YYYY or DD.MM.YYYY
+          if (dateStr.match(/^\d{1,2}[-/.]\d{1,2}[-/.]\d{4}$/)) {
+            const parts = dateStr.split(/[-/.]/);
             parsedDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
           }
           // Try YYYY-MM-DD
@@ -130,7 +130,7 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
           }
 
           if (!parsedDate || isNaN(parsedDate.getTime())) {
-            errors.push('Ongeldige geboortedatum (gebruik DD-MM-YYYY of YYYY-MM-DD)');
+            errors.push('Ongeldige geboortedatum (gebruik DD-MM-YYYY, DD/MM/YYYY, DD.MM.YYYY of YYYY-MM-DD)');
           }
         }
 
@@ -202,9 +202,9 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
     
     const trimmed = dateStr.trim();
     
-    // Try DD-MM-YYYY or DD/MM/YYYY
-    if (trimmed.match(/^\d{1,2}[-/]\d{1,2}[-/]\d{4}$/)) {
-      const parts = trimmed.split(/[-/]/);
+    // Try DD-MM-YYYY, DD/MM/YYYY or DD.MM.YYYY
+    if (trimmed.match(/^\d{1,2}[-/.]\d{1,2}[-/.]\d{4}$/)) {
+      const parts = trimmed.split(/[-/.]/);
       const date = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
       if (!isNaN(date.getTime())) {
         return date.toISOString().split('T')[0];
