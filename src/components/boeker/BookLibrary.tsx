@@ -14,9 +14,21 @@ import { LocationCombobox } from './LocationCombobox';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('');
 
-type SortField = 'title' | 'author' | 'available_copies' | 'total_copies';
+type SortField = 'title' | 'author' | 'available_copies' | 'total_copies' | 'created_at' | 'popularity' | 'recent_activity';
 type SortDir = 'asc' | 'desc';
 type AvailFilter = 'all' | 'available' | 'unavailable';
+
+const COMPUTED_SORTS: SortField[] = ['popularity', 'recent_activity'];
+
+const SORT_LABELS: Record<SortField, string> = {
+  title: 'Titel',
+  author: 'Auteur',
+  available_copies: 'Beschikbaar',
+  total_copies: 'Exemplaren',
+  created_at: 'Toegevoegd',
+  popularity: 'Populairste',
+  recent_activity: 'Laatste activiteit',
+};
 
 interface Book {
   id: string;
@@ -153,33 +165,39 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     }
   };
 
-  const buildQuery = (letter: string, sf: SortField, sd: SortDir, af: AvailFilter) => {
-    let q = supabase
-      .from('books')
-      .select('*, book_locations(name)')
-      .eq('school_id', schoolId)
-      .order(sf, { ascending: sd === 'asc' });
-
-    if (letter === '#') {
-      for (const l of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')) {
-        q = q.not('title', 'ilike', `${l}%`);
-      }
-    } else {
-      q = q.ilike('title', `${letter}%`);
-    }
-
-    if (af === 'available') q = q.gt('available_copies', 0);
-    if (af === 'unavailable') q = q.eq('available_copies', 0);
-
-    return q;
-  };
-
   const fetchBooksByLetter = async (letter: string, sf: SortField, sd: SortDir, af: AvailFilter) => {
     setLoading(true);
     setSearchResults(null);
     setSearchQuery('');
     try {
-      const { data, error } = await buildQuery(letter, sf, sd, af);
+      let data: any[] | null = null;
+      let error: any = null;
+
+      if (sf === 'popularity') {
+        ({ data, error } = await supabase.rpc('get_books_by_popularity', {
+          p_school_id: schoolId, p_letter: null, p_avail_filter: af
+        }));
+      } else if (sf === 'recent_activity') {
+        ({ data, error } = await supabase.rpc('get_books_by_recent_activity', {
+          p_school_id: schoolId, p_letter: null, p_avail_filter: af
+        }));
+      } else {
+        let q = supabase
+          .from('books')
+          .select('*, book_locations(name)')
+          .eq('school_id', schoolId)
+          .order(sf, { ascending: sd === 'asc' });
+
+        if (letter === '#') {
+          for (const l of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')) q = q.not('title', 'ilike', `${l}%`);
+        } else {
+          q = q.ilike('title', `${letter}%`);
+        }
+        if (af === 'available') q = q.gt('available_copies', 0);
+        if (af === 'unavailable') q = q.eq('available_copies', 0);
+        ({ data, error } = await q);
+      }
+
       if (error) throw error;
       setBooks(data || []);
     } catch (err) {
@@ -194,20 +212,34 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     if (!q.trim()) { setSearchResults(null); return; }
     setSearchLoading(true);
     try {
-      let query = supabase
-        .from('books')
-        .select('*, book_locations(name)')
-        .eq('school_id', schoolId)
-        .or(`title.ilike.%${q}%,author.ilike.%${q}%,isbn.ilike.%${q}%`)
-        .order(sf, { ascending: sd === 'asc' })
-        .limit(100);
-
-      if (af === 'available') query = query.gt('available_copies', 0);
-      if (af === 'unavailable') query = query.eq('available_copies', 0);
-
-      const { data, error } = await query;
-      if (error) throw error;
-      setSearchResults(data || []);
+      // For computed sorts during search, fetch all matches then sort client-side
+      if (COMPUTED_SORTS.includes(sf)) {
+        let query = supabase
+          .from('books')
+          .select('*, book_locations(name)')
+          .eq('school_id', schoolId)
+          .or(`title.ilike.%${q}%,author.ilike.%${q}%,isbn.ilike.%${q}%`)
+          .order('title', { ascending: true })
+          .limit(100);
+        if (af === 'available') query = query.gt('available_copies', 0);
+        if (af === 'unavailable') query = query.eq('available_copies', 0);
+        const { data, error } = await query;
+        if (error) throw error;
+        setSearchResults(data || []);
+      } else {
+        let query = supabase
+          .from('books')
+          .select('*, book_locations(name)')
+          .eq('school_id', schoolId)
+          .or(`title.ilike.%${q}%,author.ilike.%${q}%,isbn.ilike.%${q}%`)
+          .order(sf, { ascending: sd === 'asc' })
+          .limit(100);
+        if (af === 'available') query = query.gt('available_copies', 0);
+        if (af === 'unavailable') query = query.eq('available_copies', 0);
+        const { data, error } = await query;
+        if (error) throw error;
+        setSearchResults(data || []);
+      }
     } catch (err) {
       console.error('Error searching books:', err);
     } finally {
@@ -239,7 +271,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     }
   };
 
-  const activeFilterCount = (availFilter !== 'all' ? 1 : 0);
+  const isComputedSort = COMPUTED_SORTS.includes(sortField);
+  const activeFilterCount = (availFilter !== 'all' ? 1 : 0) + (sortField !== 'title' ? 1 : 0);
 
   const fetchBooks = () => {
     fetchBooksByLetter(activeLetter, sortField, sortDir, availFilter);
@@ -662,17 +695,17 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
               )}
             </button>
 
-            {/* Sort button */}
-            <div className="relative">
-              <button
-                onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <ArrowUpDown className="w-4 h-4" />
-                {sortField === 'title' ? 'Titel' : sortField === 'author' ? 'Auteur' : sortField === 'available_copies' ? 'Beschikbaar' : 'Exemplaren'}
+            {/* Sort quick-toggle */}
+            <button
+              onClick={() => COMPUTED_SORTS.includes(sortField) ? undefined : setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <ArrowUpDown className="w-4 h-4" />
+              {SORT_LABELS[sortField]}
+              {!COMPUTED_SORTS.includes(sortField) && (
                 <span className="text-gray-400 text-xs">{sortDir === 'asc' ? '↑' : '↓'}</span>
-              </button>
-            </div>
+              )}
+            </button>
 
             <div className="flex gap-2 ml-auto">
               <Button onClick={() => setShowQuickScan(true)} className="bg-green-600 hover:bg-green-700 text-sm py-2">
@@ -714,23 +747,27 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
               </div>
 
               {/* Sort by */}
-              <div>
+              <div className="w-full">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Sorteren op</p>
-                <div className="flex gap-1.5">
-                  {([['title', 'Titel'], ['author', 'Auteur'], ['available_copies', 'Beschikbaar'], ['total_copies', 'Exemplaren']] as [SortField, string][]).map(([val, label]) => (
-                    <button
-                      key={val}
-                      onClick={() => toggleSort(val)}
-                      className={`px-3 py-1.5 text-xs rounded-full border font-medium transition-colors flex items-center gap-1 ${
-                        sortField === val
-                          ? 'bg-blue-600 border-blue-600 text-white'
-                          : 'border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600'
-                      }`}
-                    >
-                      {label}
-                      {sortField === val && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap gap-1.5">
+                  {(Object.entries(SORT_LABELS) as [SortField, string][]).map(([val, label]) => {
+                    const isComputed = COMPUTED_SORTS.includes(val);
+                    const isActive = sortField === val;
+                    return (
+                      <button
+                        key={val}
+                        onClick={() => toggleSort(val)}
+                        className={`px-3 py-1.5 text-xs rounded-full border font-medium transition-colors flex items-center gap-1 ${
+                          isActive
+                            ? 'bg-blue-600 border-blue-600 text-white'
+                            : 'border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+                        }`}
+                      >
+                        {label}
+                        {isActive && !isComputed && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -746,8 +783,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
             </div>
           )}
 
-          {/* Alphabet index bar (hidden during search) */}
-          {searchResults === null && availableLetters.size > 0 && (
+          {/* Alphabet index bar (hidden during search or computed sort) */}
+          {searchResults === null && !isComputedSort && availableLetters.size > 0 && (
             <div className="flex flex-wrap gap-1 mb-4">
               {ALPHABET.map(letter => {
                 const has = availableLetters.has(letter);
@@ -775,7 +812,11 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
           {!loading && (
             <p className="text-xs text-gray-400 mb-3">
               {displayedBooks.length} {displayedBooks.length === 1 ? 'boek' : 'boeken'}
-              {searchResults !== null ? ` gevonden voor "${searchQuery}"` : ` onder "${activeLetter}"`}
+              {searchResults !== null
+                ? ` gevonden voor "${searchQuery}"`
+                : isComputedSort
+                  ? ` gesorteerd op ${SORT_LABELS[sortField].toLowerCase()}`
+                  : ` onder "${activeLetter}"`}
             </p>
           )}
 
