@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { Search, CheckCircle, Edit3, XCircle, BarChart3, Clock, CheckSquare, TrendingUp, Youtube, Globe, Image as ImageIcon, Tv, BookOpen, Users as UsersIcon, MessageCircle } from 'lucide-react';
+import { Search, CheckCircle, CreditCard as Edit3, XCircle, BarChart3, Clock, CheckSquare, TrendingUp, Youtube, Globe, Image as ImageIcon, Tv, BookOpen, Users as UsersIcon, MessageCircle } from 'lucide-react';
 
 interface Student {
   id: string;
@@ -57,6 +57,7 @@ export function ZoekerTab() {
   const [pendingCount, setPendingCount] = useState(0);
   const [approvedCount, setApprovedCount] = useState(0);
   const [todayCount, setTodayCount] = useState(0);
+  const [pendingByClass, setPendingByClass] = useState<{ name: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'requests' | 'analytics'>('requests');
   const [editingStudents, setEditingStudents] = useState<Set<string>>(new Set());
@@ -257,6 +258,39 @@ export function ZoekerTab() {
         .in('school_id', schoolIds)
         .gte('created_at', today.toISOString());
 
+      // Pending per class: fetch all pending requests for the school, then group by class
+      const { data: pendingRequests } = await supabase
+        .from('zoeker_search_requests')
+        .select('student_id')
+        .in('school_id', schoolIds)
+        .eq('status', 'pending');
+
+      if (pendingRequests && pendingRequests.length > 0) {
+        const studentIds = pendingRequests.map((r: any) => r.student_id);
+
+        const { data: studentGroupRows } = await supabase
+          .from('student_groups')
+          .select('student_id, groups(name)')
+          .in('student_id', studentIds)
+          .eq('is_active', true);
+
+        const classCount: Record<string, number> = {};
+        (studentGroupRows || []).forEach((row: any) => {
+          const className = row.groups?.name;
+          if (className) {
+            classCount[className] = (classCount[className] || 0) + 1;
+          }
+        });
+
+        const breakdown = Object.entries(classCount)
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        setPendingByClass(breakdown);
+      } else {
+        setPendingByClass([]);
+      }
+
       setPendingCount(pending || 0);
       setApprovedCount(approved || 0);
       setTodayCount(todaySearches || 0);
@@ -393,11 +427,26 @@ export function ZoekerTab() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-6">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex-1 min-w-0">
               <p className="text-gray-600 text-sm font-semibold">Wachtend</p>
               <p className="text-4xl font-bold text-orange-500 mt-2">{pendingCount}</p>
+              {pendingByClass.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  {pendingByClass.map(({ name, count }) => (
+                    <span
+                      key={name}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full"
+                    >
+                      {name}
+                      <span className="bg-orange-200 text-orange-800 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">
+                        {count}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-            <Clock className="w-12 h-12 text-orange-500 opacity-20" />
+            <Clock className="w-12 h-12 text-orange-500 opacity-20 flex-shrink-0" />
           </div>
         </Card>
         <Card className="p-6">
