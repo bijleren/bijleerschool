@@ -8,9 +8,10 @@ import { StudentBookManagement } from './StudentBookManagement';
 import { BoekerAnalytics } from './BoekerAnalytics';
 import { MaterialenTab } from '../materials/MaterialenTab';
 import { QuickScanModal } from './QuickScanModal';
-import { Book, Users, BarChart3, Package, Scan } from 'lucide-react';
+import { RecentActivity } from './RecentActivity';
+import { Book, Users, BarChart3, Package, Scan, Activity } from 'lucide-react';
 
-type View = 'library' | 'students' | 'analytics' | 'materials';
+type View = 'library' | 'students' | 'analytics' | 'materials' | 'activity';
 
 export function BoekerTab() {
   const { user } = useAuth();
@@ -128,6 +129,17 @@ export function BoekerTab() {
           Leerlingen
         </button>
         <button
+          onClick={() => setCurrentView('activity')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            currentView === 'activity'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <Activity className="w-4 h-4 inline mr-2" />
+          Activiteit
+        </button>
+        <button
           onClick={() => setCurrentView('analytics')}
           className={`px-4 py-2 font-medium transition-colors ${
             currentView === 'analytics'
@@ -157,6 +169,15 @@ export function BoekerTab() {
           initialStudentId={selectedStudentId}
           onClearStudent={() => setSelectedStudentId(null)}
           key={refreshTrigger}
+        />
+      )}
+      {currentView === 'activity' && (
+        <RecentActivity
+          schoolId={schoolId}
+          onViewStudent={(studentId) => {
+            setSelectedStudentId(studentId);
+            setCurrentView('students');
+          }}
         />
       )}
       {currentView === 'analytics' && <BoekerAnalytics schoolId={schoolId} key={refreshTrigger} />}
