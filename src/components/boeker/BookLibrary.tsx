@@ -99,6 +99,9 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   const [activeLetter, setActiveLetter] = useState<string>('A');
   const [indexLoaded, setIndexLoaded] = useState(false);
 
+  // View mode: 'recent' shows 20 newest, 'browse' shows letter-indexed + filters
+  const [viewMode, setViewMode] = useState<'recent' | 'browse'>('recent');
+
   // Filters & sorting
   const [sortField, setSortField] = useState<SortField>('title');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
@@ -123,28 +126,28 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   });
 
   useEffect(() => {
+    fetchRecentBooks();
     fetchLetterIndex();
   }, [schoolId]);
 
-  // Once index loads pick first available letter
+  // Once index loads, set first available letter (but don't fetch yet — we start in recent mode)
   useEffect(() => {
     if (indexLoaded && availableLetters.size > 0) {
       const first = ALPHABET.find(l => availableLetters.has(l)) || 'A';
       setActiveLetter(first);
-      fetchBooksByLetter(first, sortField, sortDir, availFilter);
     }
   }, [indexLoaded]);
 
-  // Re-fetch when sort/filter changes (but not on initial load)
+  // Re-fetch when sort/filter/viewMode changes (but not on initial mount)
   const isFirstRun = useRef(true);
   useEffect(() => {
     if (isFirstRun.current) { isFirstRun.current = false; return; }
     if (searchResults !== null) {
       runSearch(searchQuery, sortField, sortDir, availFilter);
-    } else {
+    } else if (viewMode === 'browse') {
       fetchBooksByLetter(activeLetter, sortField, sortDir, availFilter);
     }
-  }, [sortField, sortDir, availFilter]);
+  }, [sortField, sortDir, availFilter, viewMode]);
 
   const fetchLetterIndex = async () => {
     try {
@@ -162,6 +165,25 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
       setIndexLoaded(true);
     } catch (err) {
       console.error('Error fetching letter index:', err);
+    }
+  };
+
+  const fetchRecentBooks = async () => {
+    setLoading(true);
+    setSearchResults(null);
+    try {
+      const { data, error } = await supabase
+        .from('books')
+        .select('*, book_locations(name)')
+        .eq('school_id', schoolId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      setBooks(data || []);
+    } catch (err) {
+      console.error('Error fetching recent books:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -259,10 +281,16 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   const handleLetterClick = (letter: string) => {
     if (!availableLetters.has(letter)) return;
     setActiveLetter(letter);
+    setViewMode('browse');
     fetchBooksByLetter(letter, sortField, sortDir, availFilter);
   };
 
+  const switchToBrowse = () => {
+    if (viewMode !== 'browse') setViewMode('browse');
+  };
+
   const toggleSort = (field: SortField) => {
+    switchToBrowse();
     if (sortField === field) {
       setSortDir(d => d === 'asc' ? 'desc' : 'asc');
     } else {
@@ -271,11 +299,22 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     }
   };
 
+  const handleOpenFilters = () => {
+    setShowFilters(f => {
+      if (!f) switchToBrowse();
+      return !f;
+    });
+  };
+
   const isComputedSort = COMPUTED_SORTS.includes(sortField);
   const activeFilterCount = (availFilter !== 'all' ? 1 : 0) + (sortField !== 'title' ? 1 : 0);
 
   const fetchBooks = () => {
-    fetchBooksByLetter(activeLetter, sortField, sortDir, availFilter);
+    if (viewMode === 'recent') {
+      fetchRecentBooks();
+    } else {
+      fetchBooksByLetter(activeLetter, sortField, sortDir, availFilter);
+    }
     fetchLetterIndex();
   };
 
@@ -677,17 +716,17 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
               )}
             </div>
 
-            {/* Filter toggle */}
+            {/* Filter toggle — also switches to browse mode */}
             <button
-              onClick={() => setShowFilters(f => !f)}
+              onClick={handleOpenFilters}
               className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition-colors ${
-                showFilters || activeFilterCount > 0
+                showFilters || activeFilterCount > 0 || viewMode === 'browse'
                   ? 'bg-blue-50 border-blue-300 text-blue-700'
                   : 'border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
             >
               <SlidersHorizontal className="w-4 h-4" />
-              Filters
+              {viewMode === 'recent' && activeFilterCount === 0 ? 'Bladeren' : 'Filters'}
               {activeFilterCount > 0 && (
                 <span className="ml-0.5 bg-blue-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                   {activeFilterCount}
@@ -695,17 +734,19 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
               )}
             </button>
 
-            {/* Sort quick-toggle */}
-            <button
-              onClick={() => COMPUTED_SORTS.includes(sortField) ? undefined : setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <ArrowUpDown className="w-4 h-4" />
-              {SORT_LABELS[sortField]}
-              {!COMPUTED_SORTS.includes(sortField) && (
-                <span className="text-gray-400 text-xs">{sortDir === 'asc' ? '↑' : '↓'}</span>
-              )}
-            </button>
+            {/* Sort quick-toggle (only relevant in browse mode) */}
+            {viewMode === 'browse' && (
+              <button
+                onClick={() => !isComputedSort && setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <ArrowUpDown className="w-4 h-4" />
+                {SORT_LABELS[sortField]}
+                {!isComputedSort && (
+                  <span className="text-gray-400 text-xs">{sortDir === 'asc' ? '↑' : '↓'}</span>
+                )}
+              </button>
+            )}
 
             <div className="flex gap-2 ml-auto">
               <Button onClick={() => setShowQuickScan(true)} className="bg-green-600 hover:bg-green-700 text-sm py-2">
@@ -733,7 +774,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                   {([['all', 'Alle'], ['available', 'Beschikbaar'], ['unavailable', 'Uitgeleend']] as [AvailFilter, string][]).map(([val, label]) => (
                     <button
                       key={val}
-                      onClick={() => setAvailFilter(val)}
+                      onClick={() => { switchToBrowse(); setAvailFilter(val); }}
                       className={`px-3 py-1.5 text-xs rounded-full border font-medium transition-colors ${
                         availFilter === val
                           ? 'bg-blue-600 border-blue-600 text-white'
@@ -783,8 +824,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
             </div>
           )}
 
-          {/* Alphabet index bar (hidden during search or computed sort) */}
-          {searchResults === null && !isComputedSort && availableLetters.size > 0 && (
+          {/* Alphabet index bar — only in browse mode, not during search or computed sort */}
+          {searchResults === null && viewMode === 'browse' && !isComputedSort && availableLetters.size > 0 && (
             <div className="flex flex-wrap gap-1 mb-4">
               {ALPHABET.map(letter => {
                 const has = availableLetters.has(letter);
@@ -808,15 +849,16 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
             </div>
           )}
 
-          {/* Results count */}
+          {/* Results label */}
           {!loading && (
             <p className="text-xs text-gray-400 mb-3">
-              {displayedBooks.length} {displayedBooks.length === 1 ? 'boek' : 'boeken'}
               {searchResults !== null
-                ? ` gevonden voor "${searchQuery}"`
-                : isComputedSort
-                  ? ` gesorteerd op ${SORT_LABELS[sortField].toLowerCase()}`
-                  : ` onder "${activeLetter}"`}
+                ? `${displayedBooks.length} ${displayedBooks.length === 1 ? 'boek' : 'boeken'} gevonden voor "${searchQuery}"`
+                : viewMode === 'recent'
+                  ? `${displayedBooks.length} recent toegevoegde boeken`
+                  : isComputedSort
+                    ? `${displayedBooks.length} ${displayedBooks.length === 1 ? 'boek' : 'boeken'} gesorteerd op ${SORT_LABELS[sortField].toLowerCase()}`
+                    : `${displayedBooks.length} ${displayedBooks.length === 1 ? 'boek' : 'boeken'} onder "${activeLetter}"`}
             </p>
           )}
 
@@ -828,7 +870,11 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
             <div className="text-center py-12">
               <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-600">
-                {searchResults !== null ? 'Geen boeken gevonden' : availableLetters.size === 0 ? 'Nog geen boeken in de bibliotheek' : `Geen boeken onder "${activeLetter}"`}
+                {searchResults !== null
+                  ? 'Geen boeken gevonden'
+                  : availableLetters.size === 0
+                    ? 'Nog geen boeken in de bibliotheek'
+                    : `Geen boeken onder "${activeLetter}"`}
               </p>
             </div>
           ) : (
