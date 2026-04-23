@@ -254,11 +254,44 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
         schoolIds = userSchools?.map(us => us.school_id) || [];
       }
 
-      const { count: pending } = await supabase
+      const { data: pendingRequests } = await supabase
         .from('zoeker_search_requests')
-        .select('*', { count: 'exact', head: true })
+        .select('student_id')
         .in('school_id', schoolIds)
         .eq('status', 'pending');
+
+      // Only count pending requests from students who are active members of a group
+      let activePendingCount = 0;
+      const breakdown: { name: string; count: number }[] = [];
+
+      if (pendingRequests && pendingRequests.length > 0) {
+        const studentIds = pendingRequests.map((r: any) => r.student_id);
+
+        const { data: studentGroupRows } = await supabase
+          .from('student_groups')
+          .select('student_id, groups(name)')
+          .in('student_id', studentIds)
+          .eq('is_active', true);
+
+        const classCount: Record<string, number> = {};
+        const activeStudentIds = new Set<string>();
+        (studentGroupRows || []).forEach((row: any) => {
+          const className = row.groups?.name;
+          if (className) {
+            activeStudentIds.add(row.student_id);
+            classCount[className] = (classCount[className] || 0) + 1;
+          }
+        });
+
+        activePendingCount = activeStudentIds.size;
+        breakdown.push(
+          ...Object.entries(classCount)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => a.name.localeCompare(b.name))
+        );
+      }
+
+      setPendingByClass(breakdown);
 
       const { count: approved } = await supabase
         .from('zoeker_search_requests')
@@ -276,40 +309,7 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
         .in('school_id', schoolIds)
         .gte('created_at', today.toISOString());
 
-      // Pending per class: fetch all pending requests for the school, then group by class
-      const { data: pendingRequests } = await supabase
-        .from('zoeker_search_requests')
-        .select('student_id')
-        .in('school_id', schoolIds)
-        .eq('status', 'pending');
-
-      if (pendingRequests && pendingRequests.length > 0) {
-        const studentIds = pendingRequests.map((r: any) => r.student_id);
-
-        const { data: studentGroupRows } = await supabase
-          .from('student_groups')
-          .select('student_id, groups(name)')
-          .in('student_id', studentIds)
-          .eq('is_active', true);
-
-        const classCount: Record<string, number> = {};
-        (studentGroupRows || []).forEach((row: any) => {
-          const className = row.groups?.name;
-          if (className) {
-            classCount[className] = (classCount[className] || 0) + 1;
-          }
-        });
-
-        const breakdown = Object.entries(classCount)
-          .map(([name, count]) => ({ name, count }))
-          .sort((a, b) => a.name.localeCompare(b.name));
-
-        setPendingByClass(breakdown);
-      } else {
-        setPendingByClass([]);
-      }
-
-      setPendingCount(pending || 0);
+      setPendingCount(activePendingCount);
       setApprovedCount(approved || 0);
       setTodayCount(todaySearches || 0);
     } catch (error) {
