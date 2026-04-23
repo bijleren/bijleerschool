@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { ArrowLeft, ChevronRight, Users, School } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Users, School, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface ExecutiveFunction {
   id: string;
@@ -186,21 +187,72 @@ export function EFSchoolAnalytics({ schoolId, schoolName, onNavigateBack, onNavi
 
   const getFunction = (id: string) => functions.find(f => f.id === id);
 
+  const ratingLabel = (r: number) => ['---', '--', '-', '0', '+', '++', '+++'][Math.round(r) + 3] ?? '0';
+
+  const handleExport = () => {
+    const scopeLabel = scope === 'class'
+      ? (groups.find(g => g.id === selectedGroupId)?.name ?? 'Klas')
+      : schoolName;
+
+    // Sheet 1: summary — one row per function with averages
+    const summaryRows = stats.map(stat => {
+      const fn = getFunction(stat.functionId);
+      return {
+        Functie: fn?.name ?? '—',
+        Scope: scopeLabel,
+        'Gem. Vermogen (label)': ratingLabel(stat.avgRating),
+        'Gem. Vermogen (getal)': +stat.avgRating.toFixed(2),
+        'Gem. Ondersteuning (label)': ratingLabel(stat.avgSupport),
+        'Gem. Ondersteuning (getal)': +stat.avgSupport.toFixed(2),
+        'Aantal leerlingen': stat.count,
+      };
+    });
+
+    // Sheet 2: detail — one row per student per function
+    const detailRows = stats.flatMap(stat => {
+      const fn = getFunction(stat.functionId);
+      return stat.scores.map(s => ({
+        Functie: fn?.name ?? '—',
+        Leerling: s.studentName,
+        Scope: scopeLabel,
+        'Vermogen (label)': ratingLabel(s.rating),
+        'Vermogen (getal)': s.rating,
+        'Ondersteuning (label)': ratingLabel(s.support_rating),
+        'Ondersteuning (getal)': s.support_rating,
+      }));
+    });
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryRows), 'Gemiddelden');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(detailRows), 'Details per leerling');
+    XLSX.writeFile(wb, `EF_Analyse_${scopeLabel}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <button
-          onClick={onNavigateBack}
-          className="flex items-center gap-1.5 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Terug
-        </button>
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Analyse — {schoolName}</h1>
-          <p className="text-sm text-gray-500">Gemiddelde scores per executieve functie</p>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onNavigateBack}
+            className="flex items-center gap-1.5 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Terug
+          </button>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Analyse — {schoolName}</h1>
+            <p className="text-sm text-gray-500">Gemiddelde scores per executieve functie</p>
+          </div>
         </div>
+        <button
+          onClick={handleExport}
+          disabled={stats.length === 0 || loading}
+          className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Download className="w-4 h-4" />
+          Exporteer
+        </button>
       </div>
 
       {/* Controls */}
