@@ -39,6 +39,15 @@ interface StudentWithRequest extends Student {
   status: 'idle' | 'waiting' | 'approved' | 'needs_work';
 }
 
+interface School {
+  id: string;
+  name: string;
+}
+
+interface ZoekerTabProps {
+  focusSchool?: School | null;
+}
+
 const TARGETS = {
   youtube: { label: 'YouTube', icon: Youtube, color: '#FF0000' },
   google: { label: 'Google', icon: Globe, color: '#4285F4' },
@@ -49,7 +58,7 @@ const TARGETS = {
   prompt: { label: 'Antwoord', icon: MessageCircle, color: '#3498DB' }
 };
 
-export function ZoekerTab() {
+export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
   const { user } = useAuth();
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
@@ -66,9 +75,10 @@ export function ZoekerTab() {
 
   useEffect(() => {
     if (user) {
+      setSelectedGroup(null);
       fetchGroups();
     }
-  }, [user]);
+  }, [user, focusSchool?.id]);
 
   useEffect(() => {
     if (selectedGroup) {
@@ -112,12 +122,17 @@ export function ZoekerTab() {
     if (!user) return;
 
     try {
-      const { data: userSchools } = await supabase
-        .from('user_schools')
-        .select('school_id')
-        .eq('user_id', user.id);
+      let schoolIds: string[];
 
-      const schoolIds = userSchools?.map(us => us.school_id) || [];
+      if (focusSchool) {
+        schoolIds = [focusSchool.id];
+      } else {
+        const { data: userSchools } = await supabase
+          .from('user_schools')
+          .select('school_id')
+          .eq('user_id', user.id);
+        schoolIds = userSchools?.map(us => us.school_id) || [];
+      }
 
       const { data, error } = await supabase
         .from('groups')
@@ -128,9 +143,7 @@ export function ZoekerTab() {
       if (error) throw error;
 
       setGroups(data || []);
-      if (data && data.length > 0 && !selectedGroup) {
-        setSelectedGroup(data[0].id);
-      }
+      setSelectedGroup(data && data.length > 0 ? data[0].id : null);
     } catch (error) {
       console.error('Error fetching groups:', error);
     }
@@ -229,12 +242,17 @@ export function ZoekerTab() {
     if (!user) return;
 
     try {
-      const { data: userSchools } = await supabase
-        .from('user_schools')
-        .select('school_id')
-        .eq('user_id', user.id);
+      let schoolIds: string[];
 
-      const schoolIds = userSchools?.map(us => us.school_id) || [];
+      if (focusSchool) {
+        schoolIds = [focusSchool.id];
+      } else {
+        const { data: userSchools } = await supabase
+          .from('user_schools')
+          .select('school_id')
+          .eq('user_id', user.id);
+        schoolIds = userSchools?.map(us => us.school_id) || [];
+      }
 
       const { count: pending } = await supabase
         .from('zoeker_search_requests')

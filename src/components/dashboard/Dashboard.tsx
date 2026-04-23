@@ -761,7 +761,7 @@ export function Dashboard() {
         {activeTab === 'schoolday' && <SchoolDayTab />}
         {activeTab === 'webwijzer' && <WebWijzerTab focusSchool={focusSchool} />}
         {activeTab === 'boeker' && <BoekerTab />}
-        {activeTab === 'zoeker' && <ZoekerTab />}
+        {activeTab === 'zoeker' && <ZoekerTab focusSchool={focusSchool} />}
         {activeTab === 'edi' && <EDITab />}
         {activeTab === 'digitools' && <DigiToolsTab />}
         {activeTab === 'blinkqr' && <BlinkQRTab />}
