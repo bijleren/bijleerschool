@@ -63,12 +63,16 @@ function RadarChart({
   functions,
   getRating,
   getSupport,
+  compact = false,
 }: {
   functions: ExecutiveFunction[];
   getRating: (id: string) => number;
   getSupport: (id: string) => number;
+  compact?: boolean;
 }) {
-  const cx = 130, cy = 130, radius = 90;
+  const size = compact ? 80 : 130;
+  const radius = compact ? 28 : 90;
+  const cx = size, cy = size;
   const n = functions.length;
 
   const pointFor = (index: number, value: number) => {
@@ -81,7 +85,8 @@ function RadarChart({
 
   const labelPos = (index: number) => {
     const angle = (index * 2 * Math.PI) / n - Math.PI / 2;
-    return { x: cx + Math.cos(angle) * (radius + 24), y: cy + Math.sin(angle) * (radius + 24) };
+    const labelR = compact ? radius + 10 : radius + 24;
+    return { x: cx + Math.cos(angle) * labelR, y: cy + Math.sin(angle) * labelR };
   };
 
   const abilityPts = functions.map((f, i) => pointFor(i, getRating(f.id)));
@@ -90,8 +95,9 @@ function RadarChart({
   const toPath = (pts: { x: number; y: number }[]) =>
     pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + ' Z';
 
+  const svgSize = size * 2;
   return (
-    <svg width="260" height="260" className="overflow-visible">
+    <svg width={svgSize} height={svgSize} className="overflow-visible">
       {[0.17, 0.33, 0.5, 0.67, 0.83, 1.0].map((s, i) => (
         <circle key={i} cx={cx} cy={cy} r={radius * s} fill="none"
           stroke={i < 3 ? '#d1d5db' : '#e5e7eb'} strokeWidth="1" />
@@ -117,14 +123,16 @@ function RadarChart({
         const { x, y } = labelPos(i);
         return (
           <g key={f.id}>
-            <text x={x} y={y - 6} textAnchor="middle" fontSize="12">{f.icon}</text>
-            <text x={x} y={y + 6} textAnchor="middle" fontSize="8" fill="#374151" fontWeight="500">
-              {f.name.split(' ')[0]}
-            </text>
+            <text x={x} y={y - (compact ? 4 : 6)} textAnchor="middle" fontSize={compact ? 8 : 12}>{f.icon}</text>
+            {!compact && (
+              <text x={x} y={y + 6} textAnchor="middle" fontSize="8" fill="#374151" fontWeight="500">
+                {f.name.split(' ')[0]}
+              </text>
+            )}
           </g>
         );
       })}
-      <circle cx={cx} cy={cy} r="2.5" fill="#374151" />
+      <circle cx={cx} cy={cy} r={compact ? 1.5 : 2.5} fill="#374151" />
     </svg>
   );
 }
@@ -141,6 +149,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
   const [saving, setSaving] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [infoOpen, setInfoOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState<'beoordeling' | 'profielen'>('beoordeling');
 
   useEffect(() => {
     fetchGroups();
@@ -358,9 +367,9 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <div className="w-full px-4 py-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Brain className="w-7 h-7 text-blue-600" />
@@ -368,7 +377,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
           </h1>
           <p className="text-gray-500 mt-1">{schoolName} — beoordeel leerlingen per executieve functie</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={handleExport}
             disabled={students.length === 0}
@@ -459,25 +468,88 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
         )}
       </div>
 
-      {/* Group selector */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-gray-600">Klas:</span>
-        <select
-          value={selectedGroupId}
-          onChange={e => { setSelectedGroupId(e.target.value); setExpandedStudent(null); }}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {groups.map(g => (
-            <option key={g.id} value={g.id}>{g.name}</option>
-          ))}
-        </select>
-        {students.length > 0 && (
-          <span className="text-sm text-gray-400">{students.length} leerlingen</span>
-        )}
+      {/* Group selector + tab toggle */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-gray-600">Klas:</span>
+          <select
+            value={selectedGroupId}
+            onChange={e => { setSelectedGroupId(e.target.value); setExpandedStudent(null); }}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {groups.map(g => (
+              <option key={g.id} value={g.id}>{g.name}</option>
+            ))}
+          </select>
+          {students.length > 0 && (
+            <span className="text-sm text-gray-400">{students.length} leerlingen</span>
+          )}
+        </div>
+        <div className="flex rounded-lg border border-gray-200 overflow-hidden bg-white text-sm font-medium">
+          <button
+            onClick={() => setActiveTab('beoordeling')}
+            className={`flex items-center gap-1.5 px-4 py-2 transition-colors ${activeTab === 'beoordeling' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            Beoordeling
+          </button>
+          <button
+            onClick={() => setActiveTab('profielen')}
+            className={`flex items-center gap-1.5 px-4 py-2 transition-colors ${activeTab === 'profielen' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+          >
+            <Brain className="w-3.5 h-3.5" />
+            Profielen
+          </button>
+        </div>
       </div>
 
-      {/* Function legend row */}
-      {executiveFunctions.length > 0 && students.length > 0 && (
+      {/* ── PROFIELEN TAB ── */}
+      {activeTab === 'profielen' && (
+        <>
+          {students.length > 0 && executiveFunctions.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
+              {students.map(student => (
+                <button
+                  key={student.id}
+                  onClick={() => onNavigateToStudent(student.id, `${student.first_name} ${student.last_name}`)}
+                  className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col items-center hover:shadow-md hover:border-blue-200 transition-all group text-left"
+                >
+                  <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-bold mb-3 group-hover:bg-blue-200 transition-colors flex-shrink-0">
+                    {getInitials(student)}
+                  </div>
+                  <p className="text-xs font-semibold text-gray-800 text-center mb-4 leading-tight">
+                    {student.first_name} {student.last_name}
+                  </p>
+                  <RadarChart
+                    functions={executiveFunctions}
+                    getRating={(id) => getStudentRating(student.id, id)}
+                    getSupport={(id) => getStudentSupportRating(student.id, id)}
+                    compact
+                  />
+                  <div className="flex gap-3 mt-3 text-[10px] text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-0.5 bg-blue-500 inline-block rounded" />
+                      Vermogen
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 border-t border-dashed border-emerald-500 inline-block" />
+                      Ondersteuning
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-48 text-gray-400 bg-white rounded-xl border border-gray-100">
+              <Users className="w-10 h-10 mb-2 opacity-40" />
+              <p>Geen leerlingen in deze klas</p>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── BEOORDELING TAB ── */}
+      {activeTab === 'beoordeling' && executiveFunctions.length > 0 && students.length > 0 && (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
           {/* Compact table header */}
           <div className="grid grid-cols-[1fr_repeat(8,_2.5rem)] gap-1 px-4 py-3 bg-gray-50 border-b border-gray-100">
@@ -641,7 +713,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
         </div>
       )}
 
-      {students.length === 0 && selectedGroupId && !loading && (
+      {activeTab === 'beoordeling' && students.length === 0 && selectedGroupId && !loading && (
         <div className="flex flex-col items-center justify-center h-48 text-gray-400 bg-white rounded-xl border border-gray-100">
           <Users className="w-10 h-10 mb-2 opacity-40" />
           <p>Geen leerlingen in deze klas</p>
