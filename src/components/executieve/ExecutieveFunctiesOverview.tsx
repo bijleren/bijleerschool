@@ -70,8 +70,8 @@ function RadarChart({
   getSupport: (id: string) => number;
   compact?: boolean;
 }) {
-  const size = compact ? 80 : 130;
-  const radius = compact ? 28 : 90;
+  const size = compact ? 120 : 130;
+  const radius = compact ? 55 : 90;
   const cx = size, cy = size;
   const n = functions.length;
 
@@ -85,7 +85,7 @@ function RadarChart({
 
   const labelPos = (index: number) => {
     const angle = (index * 2 * Math.PI) / n - Math.PI / 2;
-    const labelR = compact ? radius + 10 : radius + 24;
+    const labelR = compact ? radius + 18 : radius + 24;
     return { x: cx + Math.cos(angle) * labelR, y: cy + Math.sin(angle) * labelR };
   };
 
@@ -123,7 +123,7 @@ function RadarChart({
         const { x, y } = labelPos(i);
         return (
           <g key={f.id}>
-            <text x={x} y={y - (compact ? 4 : 6)} textAnchor="middle" fontSize={compact ? 8 : 12}>{f.icon}</text>
+            <text x={x} y={y - (compact ? 5 : 6)} textAnchor="middle" fontSize={compact ? 13 : 12}>{f.icon}</text>
             {!compact && (
               <text x={x} y={y + 6} textAnchor="middle" fontSize="8" fill="#374151" fontWeight="500">
                 {f.name.split(' ')[0]}
@@ -507,7 +507,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
       {activeTab === 'profielen' && (
         <>
           {students.length > 0 && executiveFunctions.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
               {students.map(student => (
                 <button
                   key={student.id}
@@ -722,3 +722,6 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
     </div>
   );
 }
+
+
+export { ExecutieveFunctiesOverview }
