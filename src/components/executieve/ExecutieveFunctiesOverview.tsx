@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { Brain, BarChart3, ChevronRight, ChevronDown, ChevronUp, Save, Users } from 'lucide-react';
+import { Brain, BarChart3, ChevronRight, Save, Users } from 'lucide-react';
 
 interface ExecutiveFunction {
   id: string;
@@ -55,6 +55,76 @@ function RatingBadge({ rating }: { rating: number }) {
     >
       {getRatingLabel(rating)}
     </span>
+  );
+}
+
+function RadarChart({
+  functions,
+  getRating,
+  getSupport,
+}: {
+  functions: ExecutiveFunction[];
+  getRating: (id: string) => number;
+  getSupport: (id: string) => number;
+}) {
+  const cx = 130, cy = 130, radius = 90;
+  const n = functions.length;
+
+  const pointFor = (index: number, value: number) => {
+    const angle = (index * 2 * Math.PI) / n - Math.PI / 2;
+    const norm = (value + 3) / 6;
+    const minR = radius * 0.17;
+    const dist = minR + norm * (radius - minR);
+    return { x: cx + Math.cos(angle) * dist, y: cy + Math.sin(angle) * dist };
+  };
+
+  const labelPos = (index: number) => {
+    const angle = (index * 2 * Math.PI) / n - Math.PI / 2;
+    return { x: cx + Math.cos(angle) * (radius + 24), y: cy + Math.sin(angle) * (radius + 24) };
+  };
+
+  const abilityPts = functions.map((f, i) => pointFor(i, getRating(f.id)));
+  const supportPts = functions.map((f, i) => pointFor(i, getSupport(f.id)));
+
+  const toPath = (pts: { x: number; y: number }[]) =>
+    pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + ' Z';
+
+  return (
+    <svg width="260" height="260" className="overflow-visible">
+      {[0.17, 0.33, 0.5, 0.67, 0.83, 1.0].map((s, i) => (
+        <circle key={i} cx={cx} cy={cy} r={radius * s} fill="none"
+          stroke={i < 3 ? '#d1d5db' : '#e5e7eb'} strokeWidth="1" />
+      ))}
+      {functions.map((f, i) => {
+        const angle = (i * 2 * Math.PI) / n - Math.PI / 2;
+        return (
+          <line key={f.id} x1={cx} y1={cy}
+            x2={cx + Math.cos(angle) * radius}
+            y2={cy + Math.sin(angle) * radius}
+            stroke="#e5e7eb" strokeWidth="1" />
+        );
+      })}
+      <path d={toPath(supportPts)} fill="rgba(16,185,129,0.15)" stroke="#10b981" strokeWidth="1.5" strokeDasharray="4,3" />
+      <path d={toPath(abilityPts)} fill="rgba(59,130,246,0.2)" stroke="#3b82f6" strokeWidth="2" />
+      {abilityPts.map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#3b82f6" stroke="white" strokeWidth="1.5" />
+      ))}
+      {supportPts.map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="3" fill="#10b981" stroke="white" strokeWidth="1.5" />
+      ))}
+      {functions.map((f, i) => {
+        const { x, y } = labelPos(i);
+        return (
+          <g key={f.id}>
+            <text x={x} y={y - 6} textAnchor="middle" fontSize="12">{f.icon}</text>
+            <text x={x} y={y + 6} textAnchor="middle" fontSize="8" fill="#374151" fontWeight="500">
+              {f.name.split(' ')[0]}
+            </text>
+          </g>
+        );
+      })}
+      <circle cx={cx} cy={cy} r="2.5" fill="#374151" />
+    </svg>
   );
 }
 
@@ -330,16 +400,15 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
 
                 {/* Expanded rating panel */}
                 {isExpanded && (
-                  <div className="bg-blue-50 border-t border-blue-100 px-4 py-4 space-y-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => onNavigateToStudent(student.id, `${student.first_name} ${student.last_name}`)}
-                          className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors"
-                        >
-                          Profiel bekijken <ChevronRight className="w-3 h-3" />
-                        </button>
-                      </div>
+                  <div className="bg-blue-50 border-t border-blue-100 px-4 py-4">
+                    {/* Top bar */}
+                    <div className="flex items-center justify-between mb-4">
+                      <button
+                        onClick={() => onNavigateToStudent(student.id, `${student.first_name} ${student.last_name}`)}
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors"
+                      >
+                        Volledig profiel <ChevronRight className="w-3 h-3" />
+                      </button>
                       <button
                         onClick={() => handleSaveStudent(student.id)}
                         disabled={!hasChanges || isSaving}
@@ -353,6 +422,31 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
                         {isSaving ? 'Opslaan...' : 'Opslaan'}
                       </button>
                     </div>
+
+                    {/* Radar + ratings side by side */}
+                    <div className="flex gap-6 items-start">
+                      {/* Radar chart */}
+                      <div className="hidden lg:flex flex-col items-center bg-white rounded-xl p-4 shadow-sm flex-shrink-0">
+                        <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Spinnenwebanalyse</p>
+                        <RadarChart
+                          functions={executiveFunctions}
+                          getRating={(id) => getStudentRating(student.id, id)}
+                          getSupport={(id) => getStudentSupportRating(student.id, id)}
+                        />
+                        <div className="flex gap-4 mt-2 text-xs text-gray-400">
+                          <span className="flex items-center gap-1">
+                            <span className="w-3 h-0.5 bg-blue-500 inline-block rounded" />
+                            Vermogen
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <span className="w-3 border-t border-dashed border-green-500 inline-block" />
+                            Ondersteuning
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Function cards */}
+                      <div className="flex-1 space-y-3 min-w-0">
 
                     {executiveFunctions.map(ef => (
                       <div key={ef.id} className="bg-white rounded-lg p-3 shadow-sm">
@@ -411,6 +505,8 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
                         </div>
                       </div>
                     ))}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
