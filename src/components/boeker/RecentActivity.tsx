@@ -487,6 +487,3 @@ export function RecentActivity({ schoolId, onViewStudent }: RecentActivityProps)
     </div>
   );
 }
-
-
-export { RecentActivity }
