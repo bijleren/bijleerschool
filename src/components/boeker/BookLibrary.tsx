@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { trackFileUpload } from '../../utils/storageTracking';
@@ -9,8 +9,14 @@ import { Toast } from '../ui/Toast';
 import { BarcodeScanner } from './BarcodeScanner';
 import { QuickScanModal } from './QuickScanModal';
 import { fetchBookMetadata, BookMetadata } from '../../utils/bookApi';
-import { Plus, Search, CreditCard as Edit, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare, MapPin } from 'lucide-react';
+import { Plus, Search, CreditCard as Edit, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare, MapPin, SlidersHorizontal, ArrowUpDown, ChevronDown } from 'lucide-react';
 import { LocationCombobox } from './LocationCombobox';
+
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('');
+
+type SortField = 'title' | 'author' | 'available_copies' | 'total_copies';
+type SortDir = 'asc' | 'desc';
+type AvailFilter = 'all' | 'available' | 'unavailable';
 
 interface Book {
   id: string;
@@ -59,9 +65,10 @@ interface BookLibraryProps {
 export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   const { user } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
-  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+  const [searchResults, setSearchResults] = useState<Book[] | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showQuickScan, setShowQuickScan] = useState(false);
@@ -74,6 +81,19 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   const [customCoverFile, setCustomCoverFile] = useState<File | null>(null);
   const [customCoverPreview, setCustomCoverPreview] = useState<string | null>(null);
   const [useCustomCover, setUseCustomCover] = useState(false);
+
+  // Letter index
+  const [availableLetters, setAvailableLetters] = useState<Set<string>>(new Set());
+  const [activeLetter, setActiveLetter] = useState<string>('A');
+  const [indexLoaded, setIndexLoaded] = useState(false);
+
+  // Filters & sorting
+  const [sortField, setSortField] = useState<SortField>('title');
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
+  const [availFilter, setAvailFilter] = useState<AvailFilter>('all');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [formData, setFormData] = useState({
     isbn: '',
@@ -91,43 +111,139 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   });
 
   useEffect(() => {
-    fetchBooks();
+    fetchLetterIndex();
   }, [schoolId]);
 
+  // Once index loads pick first available letter
   useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredBooks(books);
-    } else {
-      const query = searchQuery.toLowerCase();
-      setFilteredBooks(
-        books.filter(
-          (book) =>
-            book.title.toLowerCase().includes(query) ||
-            book.author?.toLowerCase().includes(query) ||
-            book.isbn.includes(query)
-        )
-      );
+    if (indexLoaded && availableLetters.size > 0) {
+      const first = ALPHABET.find(l => availableLetters.has(l)) || 'A';
+      setActiveLetter(first);
+      fetchBooksByLetter(first, sortField, sortDir, availFilter);
     }
-  }, [searchQuery, books]);
+  }, [indexLoaded]);
 
-  const fetchBooks = async () => {
-    setLoading(true);
+  // Re-fetch when sort/filter changes (but not on initial load)
+  const isFirstRun = useRef(true);
+  useEffect(() => {
+    if (isFirstRun.current) { isFirstRun.current = false; return; }
+    if (searchResults !== null) {
+      runSearch(searchQuery, sortField, sortDir, availFilter);
+    } else {
+      fetchBooksByLetter(activeLetter, sortField, sortDir, availFilter);
+    }
+  }, [sortField, sortDir, availFilter]);
+
+  const fetchLetterIndex = async () => {
     try {
       const { data, error } = await supabase
         .from('books')
-        .select('*, book_locations(name)')
-        .eq('school_id', schoolId)
-        .order('title');
+        .select('title')
+        .eq('school_id', schoolId);
+      if (error) throw error;
+      const letters = new Set<string>();
+      (data || []).forEach(b => {
+        const ch = b.title.charAt(0).toUpperCase();
+        letters.add(/[A-Z]/.test(ch) ? ch : '#');
+      });
+      setAvailableLetters(letters);
+      setIndexLoaded(true);
+    } catch (err) {
+      console.error('Error fetching letter index:', err);
+    }
+  };
 
+  const buildQuery = (letter: string, sf: SortField, sd: SortDir, af: AvailFilter) => {
+    let q = supabase
+      .from('books')
+      .select('*, book_locations(name)')
+      .eq('school_id', schoolId)
+      .order(sf, { ascending: sd === 'asc' });
+
+    if (letter === '#') {
+      for (const l of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')) {
+        q = q.not('title', 'ilike', `${l}%`);
+      }
+    } else {
+      q = q.ilike('title', `${letter}%`);
+    }
+
+    if (af === 'available') q = q.gt('available_copies', 0);
+    if (af === 'unavailable') q = q.eq('available_copies', 0);
+
+    return q;
+  };
+
+  const fetchBooksByLetter = async (letter: string, sf: SortField, sd: SortDir, af: AvailFilter) => {
+    setLoading(true);
+    setSearchResults(null);
+    setSearchQuery('');
+    try {
+      const { data, error } = await buildQuery(letter, sf, sd, af);
       if (error) throw error;
       setBooks(data || []);
-      setFilteredBooks(data || []);
-    } catch (error) {
-      console.error('Error fetching books:', error);
+    } catch (err) {
+      console.error('Error fetching books:', err);
       setToast({ message: 'Fout bij ophalen boeken', type: 'error' });
     } finally {
       setLoading(false);
     }
+  };
+
+  const runSearch = async (q: string, sf: SortField, sd: SortDir, af: AvailFilter) => {
+    if (!q.trim()) { setSearchResults(null); return; }
+    setSearchLoading(true);
+    try {
+      let query = supabase
+        .from('books')
+        .select('*, book_locations(name)')
+        .eq('school_id', schoolId)
+        .or(`title.ilike.%${q}%,author.ilike.%${q}%,isbn.ilike.%${q}%`)
+        .order(sf, { ascending: sd === 'asc' })
+        .limit(100);
+
+      if (af === 'available') query = query.gt('available_copies', 0);
+      if (af === 'unavailable') query = query.eq('available_copies', 0);
+
+      const { data, error } = await query;
+      if (error) throw error;
+      setSearchResults(data || []);
+    } catch (err) {
+      console.error('Error searching books:', err);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    if (!value.trim()) { setSearchResults(null); return; }
+    searchTimeoutRef.current = setTimeout(() => {
+      runSearch(value, sortField, sortDir, availFilter);
+    }, 300);
+  };
+
+  const handleLetterClick = (letter: string) => {
+    if (!availableLetters.has(letter)) return;
+    setActiveLetter(letter);
+    fetchBooksByLetter(letter, sortField, sortDir, availFilter);
+  };
+
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDir('asc');
+    }
+  };
+
+  const activeFilterCount = (availFilter !== 'all' ? 1 : 0);
+
+  const fetchBooks = () => {
+    fetchBooksByLetter(activeLetter, sortField, sortDir, availFilter);
+    fetchLetterIndex();
   };
 
   const handleCustomCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -504,64 +620,179 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  const displayedBooks = searchResults !== null ? searchResults : books;
 
   return (
     <div className="space-y-6">
       <Card>
         <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Zoek op titel, auteur of ISBN..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+          {/* Toolbar row 1: search + actions */}
+          <div className="flex items-center gap-3 mb-3 flex-wrap">
+            <div className="relative flex-1 min-w-[200px] max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Zoek op titel, auteur of ISBN..."
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {searchLoading && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-blue-600" />
+                </div>
+              )}
             </div>
-            <div className="flex gap-2">
-              <Button onClick={() => setShowQuickScan(true)} className="bg-green-600 hover:bg-green-700">
-                <Scan className="w-4 h-4 mr-2" />
+
+            {/* Filter toggle */}
+            <button
+              onClick={() => setShowFilters(f => !f)}
+              className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition-colors ${
+                showFilters || activeFilterCount > 0
+                  ? 'bg-blue-50 border-blue-300 text-blue-700'
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              Filters
+              {activeFilterCount > 0 && (
+                <span className="ml-0.5 bg-blue-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+
+            {/* Sort button */}
+            <div className="relative">
+              <button
+                onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <ArrowUpDown className="w-4 h-4" />
+                {sortField === 'title' ? 'Titel' : sortField === 'author' ? 'Auteur' : sortField === 'available_copies' ? 'Beschikbaar' : 'Exemplaren'}
+                <span className="text-gray-400 text-xs">{sortDir === 'asc' ? '↑' : '↓'}</span>
+              </button>
+            </div>
+
+            <div className="flex gap-2 ml-auto">
+              <Button onClick={() => setShowQuickScan(true)} className="bg-green-600 hover:bg-green-700 text-sm py-2">
+                <Scan className="w-4 h-4 mr-1.5" />
                 Quick Scan
               </Button>
-              <Button onClick={() => setShowScanner(true)}>
-                <Camera className="w-4 h-4 mr-2" />
+              <Button onClick={() => setShowScanner(true)} className="text-sm py-2">
+                <Camera className="w-4 h-4 mr-1.5" />
                 Scan ISBN
               </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  resetForm();
-                  setEditingBook(null);
-                  setShowAddModal(true);
-                }}
-              >
-                <Plus className="w-4 h-4 mr-2" />
+              <Button variant="secondary" className="text-sm py-2" onClick={() => { resetForm(); setEditingBook(null); setShowAddModal(true); }}>
+                <Plus className="w-4 h-4 mr-1.5" />
                 Handmatig Toevoegen
               </Button>
             </div>
           </div>
 
-          {filteredBooks.length === 0 ? (
+          {/* Filter panel */}
+          {showFilters && (
+            <div className="flex flex-wrap gap-4 mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              {/* Availability */}
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Beschikbaarheid</p>
+                <div className="flex gap-1.5">
+                  {([['all', 'Alle'], ['available', 'Beschikbaar'], ['unavailable', 'Uitgeleend']] as [AvailFilter, string][]).map(([val, label]) => (
+                    <button
+                      key={val}
+                      onClick={() => setAvailFilter(val)}
+                      className={`px-3 py-1.5 text-xs rounded-full border font-medium transition-colors ${
+                        availFilter === val
+                          ? 'bg-blue-600 border-blue-600 text-white'
+                          : 'border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sort by */}
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Sorteren op</p>
+                <div className="flex gap-1.5">
+                  {([['title', 'Titel'], ['author', 'Auteur'], ['available_copies', 'Beschikbaar'], ['total_copies', 'Exemplaren']] as [SortField, string][]).map(([val, label]) => (
+                    <button
+                      key={val}
+                      onClick={() => toggleSort(val)}
+                      className={`px-3 py-1.5 text-xs rounded-full border font-medium transition-colors flex items-center gap-1 ${
+                        sortField === val
+                          ? 'bg-blue-600 border-blue-600 text-white'
+                          : 'border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+                      }`}
+                    >
+                      {label}
+                      {sortField === val && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={() => { setAvailFilter('all'); }}
+                  className="ml-auto self-end text-xs text-gray-500 hover:text-red-500 transition-colors flex items-center gap-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  Filters wissen
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Alphabet index bar (hidden during search) */}
+          {searchResults === null && availableLetters.size > 0 && (
+            <div className="flex flex-wrap gap-1 mb-4">
+              {ALPHABET.map(letter => {
+                const has = availableLetters.has(letter);
+                return (
+                  <button
+                    key={letter}
+                    onClick={() => handleLetterClick(letter)}
+                    disabled={!has}
+                    className={`w-8 h-8 text-sm font-semibold rounded transition-colors ${
+                      activeLetter === letter
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : has
+                          ? 'bg-gray-100 text-blue-600 hover:bg-blue-50'
+                          : 'text-gray-300 cursor-default'
+                    }`}
+                  >
+                    {letter}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Results count */}
+          {!loading && (
+            <p className="text-xs text-gray-400 mb-3">
+              {displayedBooks.length} {displayedBooks.length === 1 ? 'boek' : 'boeken'}
+              {searchResults !== null ? ` gevonden voor "${searchQuery}"` : ` onder "${activeLetter}"`}
+            </p>
+          )}
+
+          {loading ? (
+            <div className="flex items-center justify-center h-48">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+            </div>
+          ) : displayedBooks.length === 0 ? (
             <div className="text-center py-12">
               <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-600">
-                {searchQuery ? 'Geen boeken gevonden' : 'Nog geen boeken in de bibliotheek'}
+                {searchResults !== null ? 'Geen boeken gevonden' : availableLetters.size === 0 ? 'Nog geen boeken in de bibliotheek' : `Geen boeken onder "${activeLetter}"`}
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-              {filteredBooks.map((book) => (
+              {displayedBooks.map((book) => (
                 <div
                   key={book.id}
                   className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
@@ -577,18 +808,19 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
-                          if (e.currentTarget.parentElement) {
-                            const fallback = e.currentTarget.parentElement.querySelector('.fallback-icon');
-                            if (fallback) {
-                              (fallback as HTMLElement).style.display = 'flex';
-                            }
-                          }
+                          const fallback = e.currentTarget.parentElement?.querySelector('.fallback-icon');
+                          if (fallback) (fallback as HTMLElement).style.display = 'flex';
                         }}
                       />
                     ) : null}
                     <div className={`fallback-icon w-full h-full flex items-center justify-center ${(book.custom_cover_url || book.cover_image_url) ? 'hidden' : ''}`}>
                       <BookOpen className="w-12 h-12 text-gray-300" />
                     </div>
+                    {book.available_copies === 0 && (
+                      <div className="absolute top-1.5 right-1.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                        Uit
+                      </div>
+                    )}
                   </div>
                   <div className="p-2">
                     <h3
