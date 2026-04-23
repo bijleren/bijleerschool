@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { Brain, BarChart3, ChevronRight, Save, Users, Download, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { Brain, BarChart3, ChevronRight, Save, Users, Download, ChevronDown, ChevronUp, Info, LayoutGrid } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface ExecutiveFunction {
@@ -35,6 +35,7 @@ interface Props {
   schoolName: string;
   onNavigateToStudent: (studentId: string, studentName: string) => void;
   onNavigateToAnalytics: () => void;
+  onNavigateToGedragskaart: () => void;
 }
 
 const RATING_LABELS = ['---', '--', '-', '0', '+', '++', '+++'];
@@ -137,7 +138,7 @@ function RadarChart({
   );
 }
 
-export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToStudent, onNavigateToAnalytics }: Props) {
+export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToStudent, onNavigateToAnalytics, onNavigateToGedragskaart }: Props) {
   const { user } = useAuth();
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
@@ -392,6 +393,13 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
           >
             <BarChart3 className="w-4 h-4" />
             Analyse
+          </button>
+          <button
+            onClick={onNavigateToGedragskaart}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+          >
+            <LayoutGrid className="w-4 h-4" />
+            Gedragskaart
           </button>
         </div>
       </div>
