@@ -220,16 +220,6 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     </button>
                     <button
                       onClick={() => {
-                        onNavigateToBoeker();
-                        setShowAppsDropdown(false);
-                      }}
-                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                    >
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Boeker
-                    </button>
-                    <button
-                      onClick={() => {
                         onNavigateToLeescoach();
                         setShowAppsDropdown(false);
                       }}
@@ -321,6 +311,16 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     >
                       <QrCode className="w-4 h-4 mr-2" />
                       BlinkQR
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToBoeker();
+                        setShowSlimmeICTDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      Boeker
                     </button>
                     <button
                       onClick={() => {
