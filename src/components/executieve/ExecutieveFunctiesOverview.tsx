@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { Brain, BarChart3, ChevronRight, Save, Users, Download } from 'lucide-react';
+import { Brain, BarChart3, ChevronRight, Save, Users, Download, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface ExecutiveFunction {
@@ -140,6 +140,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
   const [pendingChanges, setPendingChanges] = useState<Record<string, Record<string, { rating: number; support_rating: number }>>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [infoOpen, setInfoOpen] = useState(true);
 
   useEffect(() => {
     fetchGroups();
@@ -157,6 +158,12 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
       fetchAllAssessments();
     }
   }, [students]);
+
+  // Collapse info block once any real assessment data exists
+  useEffect(() => {
+    const hasData = Object.values(assessments).some(arr => arr.length > 0);
+    if (hasData) setInfoOpen(false);
+  }, [assessments]);
 
   const fetchGroups = async () => {
     const { data } = await supabase
@@ -378,6 +385,78 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
             Analyse
           </button>
         </div>
+      </div>
+
+      {/* Info block */}
+      <div className="bg-white rounded-xl border border-blue-100 shadow-sm overflow-hidden">
+        <button
+          onClick={() => setInfoOpen(o => !o)}
+          className="w-full flex items-center justify-between px-5 py-4 hover:bg-blue-50 transition-colors"
+        >
+          <div className="flex items-center gap-2 text-blue-700 font-semibold text-sm">
+            <Info className="w-4 h-4 flex-shrink-0" />
+            Wat is het doel van deze pagina?
+          </div>
+          {infoOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+        </button>
+
+        {infoOpen && (
+          <div className="px-5 pb-6 border-t border-blue-50">
+            <div className="flex flex-col lg:flex-row gap-8 pt-5">
+              {/* Text column */}
+              <div className="flex-1 space-y-4 text-sm text-gray-600 leading-relaxed">
+                <p>
+                  Met deze pagina breng je de <strong className="text-gray-800">executieve functies</strong> van elke leerling in kaart.
+                  Executieve functies zijn de mentale vaardigheden die helpen bij plannen, focussen, impulsen beheersen en flexibel denken.
+                </p>
+                <p>
+                  Voor elke functie geef je twee scores op een schaal van <strong className="text-gray-800">--- tot +++</strong>:
+                </p>
+                <ul className="space-y-2 pl-1">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 w-3 h-3 rounded-full bg-blue-500 flex-shrink-0" />
+                    <span><strong className="text-gray-800">Vermogen</strong> — hoe sterk is de leerling in deze functie?</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 w-3 h-3 rounded-full bg-emerald-500 flex-shrink-0" />
+                    <span><strong className="text-gray-800">Zelfondersteuning</strong> — hoe goed kan de leerling zichzelf hierin helpen?</span>
+                  </li>
+                </ul>
+                <p>
+                  De scores verschijnen direct in het <strong className="text-gray-800">spinnenwebdiagram</strong> (zie rechts).
+                  Zo zie je in een oogopslag waar een leerling sterk in is en waar er ruimte is voor groei.
+                  Via <strong className="text-gray-800">Analyse</strong> bekijk je de gemiddelden per klas of school.
+                </p>
+              </div>
+
+              {/* Demo radar column */}
+              <div className="flex flex-col items-center flex-shrink-0">
+                <p className="text-xs font-medium text-gray-400 mb-3 uppercase tracking-wide">Voorbeelddiagram</p>
+                {executiveFunctions.length > 0 && (() => {
+                  const DEMO_RATINGS: Record<number, number> = { 0: 2, 1: 1, 2: -1, 3: 1, 4: -2, 5: 0, 6: 1, 7: 2 };
+                  const DEMO_SUPPORT: Record<number, number> = { 0: 1, 1: 2, 2: 0, 3: 2, 4: -1, 5: 1, 6: 0, 7: 1 };
+                  return (
+                    <RadarChart
+                      functions={executiveFunctions}
+                      getRating={(id) => DEMO_RATINGS[executiveFunctions.findIndex(f => f.id === id)] ?? 0}
+                      getSupport={(id) => DEMO_SUPPORT[executiveFunctions.findIndex(f => f.id === id)] ?? 0}
+                    />
+                  );
+                })()}
+                <div className="flex gap-5 mt-3 text-xs text-gray-400">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-3.5 h-0.5 bg-blue-500 inline-block rounded" />
+                    Vermogen
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-3.5 h-0 border-t-2 border-dashed border-emerald-500 inline-block" />
+                    Ondersteuning
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Group selector */}
