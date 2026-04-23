@@ -722,6 +722,3 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
     </div>
   );
 }
-
-
-export { ExecutieveFunctiesOverview }
