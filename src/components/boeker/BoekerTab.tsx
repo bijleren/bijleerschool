@@ -10,14 +10,17 @@ import { MaterialenTab } from '../materials/MaterialenTab';
 import { QuickScanModal } from './QuickScanModal';
 import { RecentActivity } from './RecentActivity';
 import { Book, Users, BarChart3, Package, Scan, Activity } from 'lucide-react';
+import { BookDetailPage } from './BookDetailPage';
 
-type View = 'library' | 'students' | 'analytics' | 'materials' | 'activity';
+type View = 'library' | 'students' | 'analytics' | 'materials' | 'activity' | 'book-detail';
 
 export function BoekerTab() {
   const { user } = useAuth();
   const [currentView, setCurrentView] = useState<View>('library');
   const [schoolId, setSchoolId] = useState<string | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showQuickScan, setShowQuickScan] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -30,15 +33,24 @@ export function BoekerTab() {
     const handleNavigateToStudents = () => setCurrentView('students');
     const handleNavigateToAnalytics = () => setCurrentView('analytics');
     const handleNavigateToMaterials = () => setCurrentView('materials');
+    const handleNavigateToBookDetail = (e: Event) => {
+      const bookId = (e as CustomEvent).detail?.bookId;
+      if (bookId) {
+        setSelectedBookId(bookId);
+        setCurrentView('book-detail');
+      }
+    };
 
     window.addEventListener('navigateToBoekerStudents', handleNavigateToStudents);
     window.addEventListener('navigateToBoekerAnalytics', handleNavigateToAnalytics);
     window.addEventListener('navigateToBoekerMaterials', handleNavigateToMaterials);
+    window.addEventListener('navigateToBoekerBookDetail', handleNavigateToBookDetail);
 
     return () => {
       window.removeEventListener('navigateToBoekerStudents', handleNavigateToStudents);
       window.removeEventListener('navigateToBoekerAnalytics', handleNavigateToAnalytics);
       window.removeEventListener('navigateToBoekerMaterials', handleNavigateToMaterials);
+      window.removeEventListener('navigateToBoekerBookDetail', handleNavigateToBookDetail);
     };
   }, []);
 
@@ -48,7 +60,7 @@ export function BoekerTab() {
     try {
       const { data, error } = await supabase
         .from('user_schools')
-        .select('school_id')
+        .select('school_id, role')
         .eq('user_id', user.id)
         .eq('is_active', true)
         .eq('status', 'approved')
@@ -58,6 +70,7 @@ export function BoekerTab() {
 
       if (data && data.length > 0) {
         setSchoolId(data[0].school_id);
+        setIsAdmin(data[0].role === 'admin');
       }
     } catch (error) {
       console.error('Error fetching school:', error);
@@ -86,15 +99,17 @@ export function BoekerTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Boeker - Digitale Bibliotheek</h1>
-        <Button onClick={() => setShowQuickScan(true)} variant="primary">
-          <Scan className="w-4 h-4 mr-2" />
-          Snel Scannen
-        </Button>
-      </div>
+      {currentView !== 'book-detail' && (
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">Boeker - Digitale Bibliotheek</h1>
+          <Button onClick={() => setShowQuickScan(true)} variant="primary">
+            <Scan className="w-4 h-4 mr-2" />
+            Snel Scannen
+          </Button>
+        </div>
+      )}
 
-      <div className="flex gap-2 border-b border-gray-200">
+      {currentView !== 'book-detail' && <div className="flex gap-2 border-b border-gray-200">
         <button
           onClick={() => setCurrentView('library')}
           className={`px-4 py-2 font-medium transition-colors ${
@@ -150,7 +165,20 @@ export function BoekerTab() {
           <BarChart3 className="w-4 h-4 inline mr-2" />
           Statistieken
         </button>
-      </div>
+      </div>}
+
+      {currentView === 'book-detail' && selectedBookId && schoolId && (
+        <BookDetailPage
+          bookId={selectedBookId}
+          schoolId={schoolId}
+          isAdmin={isAdmin}
+          onBack={() => setCurrentView('library')}
+          onViewStudent={(studentId) => {
+            setSelectedStudentId(studentId);
+            setCurrentView('students');
+          }}
+        />
+      )}
 
       {currentView === 'library' && (
         <BookLibrary

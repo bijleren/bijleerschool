@@ -9,7 +9,7 @@ import { Toast } from '../ui/Toast';
 import { BarcodeScanner } from './BarcodeScanner';
 import { QuickScanModal } from './QuickScanModal';
 import { fetchBookMetadata, BookMetadata } from '../../utils/bookApi';
-import { Plus, Search, CreditCard as Edit, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare, MapPin, SlidersHorizontal, ArrowUpDown, ChevronDown } from 'lucide-react';
+import { Plus, Search, CreditCard as Edit, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare, MapPin, SlidersHorizontal, ArrowUpDown, ChevronDown, ExternalLink } from 'lucide-react';
 import { LocationCombobox } from './LocationCombobox';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('');
@@ -886,7 +886,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                 >
                   <div
                     className="aspect-[2/3] bg-gray-100 relative cursor-pointer"
-                    onClick={() => handleViewBook(book)}
+                    onClick={() => window.dispatchEvent(new CustomEvent('navigateToBoekerBookDetail', { detail: { bookId: book.id } }))}
                   >
                     {(book.custom_cover_url || book.cover_image_url) ? (
                       <img
@@ -912,7 +912,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                   <div className="p-2">
                     <h3
                       className="font-semibold text-gray-900 text-xs mb-0.5 line-clamp-2 min-h-[2rem] cursor-pointer hover:text-blue-600"
-                      onClick={() => handleViewBook(book)}
+                      onClick={() => window.dispatchEvent(new CustomEvent('navigateToBoekerBookDetail', { detail: { bookId: book.id } }))}
                     >
                       {book.title}
                     </h3>
@@ -930,6 +930,13 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                       )}
                     </div>
                     <div className="flex gap-1">
+                      <button
+                        onClick={() => window.dispatchEvent(new CustomEvent('navigateToBoekerBookDetail', { detail: { bookId: book.id } }))}
+                        className="flex-1 px-2 py-1 text-[10px] bg-blue-50 hover:bg-blue-100 text-blue-600 rounded transition-colors flex items-center justify-center"
+                        title="Details bekijken"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                      </button>
                       <button
                         onClick={() => handleEditBook(book)}
                         className="flex-1 px-2 py-1 text-[10px] bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors flex items-center justify-center"
