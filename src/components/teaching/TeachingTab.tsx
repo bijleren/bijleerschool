@@ -11,6 +11,7 @@ import { TeachingAnalytics } from './TeachingAnalytics';
 import { TeachingUsageLog } from './TeachingUsageLog';
 import { DidactiekFAQ } from './DidactiekFAQ';
 import { DidactiekVormingen } from './DidactiekVormingen';
+import { QASessionsSection } from './QASessionsSection';
 import { NieuwsbriefTab } from '../nieuwsbrief/NieuwsbriefTab';
 import { BookOpen, Plus, Search, Filter, Settings, Play, ExternalLink, Users, BookMarked, Wrench, BarChart3, Clock, CreditCard as Edit, HelpCircle, Video, FileText, Lock, Info } from 'lucide-react';
 
@@ -407,7 +408,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
         }`}
       >
         <HelpCircle className="w-4 h-4" />
-        <span>FAQ</span>
+        <span>FAQ & Q&A</span>
       </button>
       <button
         onClick={() => setActivePage('vormingen')}
@@ -438,6 +439,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
     return (
       <div className="space-y-6">
         {renderTabNav()}
+        <QASessionsSection isAdmin={isAdmin} />
         <DidactiekFAQ isAdmin={isAdmin} isPremium={isPremium} />
       </div>
     );

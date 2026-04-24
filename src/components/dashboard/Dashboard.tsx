@@ -24,6 +24,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
 import { OnboardingChecklist } from '../onboarding/OnboardingChecklist';
+import { QANotificationBubble } from '../teaching/QANotificationBubble';
 
 interface School {
   id: string;
@@ -812,6 +813,7 @@ export function Dashboard() {
           />
         )}
       </main>
+      <QANotificationBubble />
     </div>
   );
 }
