@@ -558,14 +558,17 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
 
       {/* ── BEOORDELING TAB ── */}
       {activeTab === 'beoordeling' && executiveFunctions.length > 0 && students.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
           {/* Compact table header */}
-          <div className="grid grid-cols-[1fr_repeat(8,_2.5rem)] gap-1 px-4 py-3 bg-gray-50 border-b border-gray-100">
+          <div
+            className="px-4 py-3 bg-gray-50 border-b border-gray-100 min-w-max"
+            style={{ display: 'grid', gridTemplateColumns: `minmax(160px,1fr) repeat(${executiveFunctions.length}, 2.5rem)`, gap: '0.25rem' }}
+          >
             <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Leerling</div>
             {executiveFunctions.map(ef => (
               <div key={ef.id} className="flex flex-col items-center justify-center" title={ef.name}>
                 <span className="text-base leading-none">{ef.icon}</span>
-                <span className="text-[9px] text-gray-400 mt-0.5 leading-none text-center truncate w-full">{ef.name.split(' ')[0]}</span>
+                <span className="text-[9px] text-gray-400 mt-0.5 leading-none text-center w-9 truncate">{ef.name.split(' ')[0]}</span>
               </div>
             ))}
           </div>
@@ -580,7 +583,8 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
               <div key={student.id} className="border-b border-gray-50 last:border-0">
                 {/* Compact row */}
                 <div
-                  className={`grid grid-cols-[1fr_repeat(8,_2.5rem)] gap-1 px-4 py-2.5 items-center cursor-pointer transition-colors ${isExpanded ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                  className={`px-4 py-2.5 items-center cursor-pointer transition-colors min-w-max ${isExpanded ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                  style={{ display: 'grid', gridTemplateColumns: `minmax(160px,1fr) repeat(${executiveFunctions.length}, 2.5rem)`, gap: '0.25rem' }}
                   onClick={() => setExpandedStudent(isExpanded ? null : student.id)}
                 >
                   <div className="flex items-center gap-2 min-w-0">
