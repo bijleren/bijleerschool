@@ -387,7 +387,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <HelpCircle className="w-4 h-4 mr-3" />
-                    FAQ
+                    FAQ en Q&A
                   </button>
                   <button
                     onClick={() => {
