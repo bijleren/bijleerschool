@@ -46,21 +46,34 @@ function minutesUntilActive(session: QASession): number {
   return Math.ceil((fiveMinBefore.getTime() - now.getTime()) / 60000);
 }
 
+function toICSTime(date: string, time: string): string {
+  // date: YYYY-MM-DD, time: HH:MM or HH:MM:SS
+  const datePart = date.replace(/-/g, '');
+  const parts = time.split(':');
+  const hh = parts[0].padStart(2, '0');
+  const mm = (parts[1] ?? '00').padStart(2, '0');
+  const ss = (parts[2] ?? '00').padStart(2, '0').slice(0, 2);
+  return `${datePart}T${hh}${mm}${ss}`;
+}
+
 function generateICS(session: QASession): string {
-  const start = `${session.date.replace(/-/g, '')}T${session.start_time.replace(/:/g, '')}00`;
-  const end = `${session.date.replace(/-/g, '')}T${session.end_time.replace(/:/g, '')}00`;
-  const now = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15) + 'Z';
+  const start = toICSTime(session.date, session.start_time);
+  const end = toICSTime(session.date, session.end_time);
+  // DTSTAMP must be UTC: YYYYMMDDTHHmmssZ
+  const dtstamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '').slice(0, 15) + 'Z';
 
   return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//SchoolApp//QA//NL',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'PRODID:-//bijleer.school//QA//NL',
     'BEGIN:VEVENT',
-    `UID:${session.id}@schoolapp`,
-    `DTSTAMP:${now}`,
+    `UID:${session.id}@bijleer.school`,
+    `DTSTAMP:${dtstamp}`,
     `DTSTART:${start}`,
     `DTEND:${end}`,
-    `SUMMARY:bijleer.school Q&A`,
+    'SUMMARY:bijleer.school Q&A',
     `DESCRIPTION:Teams-link: ${session.teams_link}`,
     `URL:${session.teams_link}`,
     'END:VEVENT',
