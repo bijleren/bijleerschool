@@ -47,7 +47,6 @@ function minutesUntilActive(session: QASession): number {
 }
 
 function generateICS(session: QASession): string {
-  const title = sessionTitle(session);
   const start = `${session.date.replace(/-/g, '')}T${session.start_time.replace(/:/g, '')}00`;
   const end = `${session.date.replace(/-/g, '')}T${session.end_time.replace(/:/g, '')}00`;
   const now = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15) + 'Z';
@@ -61,7 +60,7 @@ function generateICS(session: QASession): string {
     `DTSTAMP:${now}`,
     `DTSTART:${start}`,
     `DTEND:${end}`,
-    `SUMMARY:${title}`,
+    `SUMMARY:bijleer.school Q&A`,
     `DESCRIPTION:Teams-link: ${session.teams_link}`,
     `URL:${session.teams_link}`,
     'END:VEVENT',
