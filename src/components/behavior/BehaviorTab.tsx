@@ -86,6 +86,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
   const [studentFilter, setStudentFilter] = useState<string>('all');
   const [filteredStudentName, setFilteredStudentName] = useState<string>('');
   const [timeFilter, setTimeFilter] = useState<{ startMinutes: number; endMinutes: number; label: string } | null>(null);
+  const [studentIncidentCount, setStudentIncidentCount] = useState<Map<string, number>>(new Map());
 
   // Update dashboard filter when initialFilter changes
   useEffect(() => {
@@ -283,7 +284,29 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
 
       if (error) throw error;
 
-      setIncidents(data || []);
+      const allIncidents: any[] = data || [];
+
+      // Compute per-student incident count since September 1 of current school year
+      const now = new Date();
+      const septYear = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+      const sept1 = new Date(septYear, 8, 1); // month 8 = September
+
+      const counts = new Map<string, number>();
+      const bump = (studentId: string, date: string) => {
+        if (new Date(date) >= sept1) {
+          counts.set(studentId, (counts.get(studentId) || 0) + 1);
+        }
+      };
+
+      allIncidents.forEach((inc: any) => {
+        if (inc.students?.id) bump(inc.students.id, inc.incident_date);
+        (inc.behavior_incident_students || []).forEach((rel: any) => {
+          if (rel.students?.id) bump(rel.students.id, inc.incident_date);
+        });
+      });
+
+      setStudentIncidentCount(counts);
+      setIncidents(allIncidents);
     } catch (error) {
       console.error('Error fetching incidents:', error);
     } finally {
@@ -671,6 +694,14 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                           {incident.students.student_number && (
                             <span className="text-sm text-gray-500">#{incident.students.student_number}</span>
                           )}
+                          {studentIncidentCount.get(incident.students.id) != null && (
+                            <span
+                              className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-bold"
+                              title={`Incident ${studentIncidentCount.get(incident.students.id)} van dit schooljaar`}
+                            >
+                              {studentIncidentCount.get(incident.students.id)}
+                            </span>
+                          )}
                         </div>
                         {incident.behavior_items?.behavior_categories && (
                         <span
@@ -711,6 +742,14 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                                 </button>
                                 {studentRel.students.student_number && (
                                   <span className="text-xs text-gray-500">#{studentRel.students.student_number}</span>
+                                )}
+                                {studentIncidentCount.get(studentRel.students.id) != null && (
+                                  <span
+                                    className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-bold"
+                                    title={`Incident ${studentIncidentCount.get(studentRel.students.id)} van dit schooljaar`}
+                                  >
+                                    {studentIncidentCount.get(studentRel.students.id)}
+                                  </span>
                                 )}
                                 <span
                                   className="px-2 py-0.5 rounded-full text-xs font-medium"
