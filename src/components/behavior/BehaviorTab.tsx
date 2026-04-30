@@ -286,17 +286,26 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
 
       const allIncidents: any[] = data || [];
 
-      // Compute per-student incident count since September 1 of current school year
+      // Compute per-incident ordinal number per student since September 1 of current school year
+      // e.g. "this incident is Lucas's 3rd this school year"
       const now = new Date();
       const septYear = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
-      const sept1 = new Date(septYear, 8, 1); // month 8 = September
+      const sept1 = new Date(septYear, 8, 1);
 
-      const counts = new Map<string, number>();
+      // Process oldest-first so ordinals count up chronologically
+      const chronological = [...allIncidents].sort(
+        (a, b) => new Date(a.incident_date).getTime() - new Date(b.incident_date).getTime()
+      );
 
-      allIncidents.forEach((inc: any) => {
+      // studentOrdinalCount: running counter per student
+      const studentOrdinalCount = new Map<string, number>();
+      // incidentStudentOrdinal: "incidentId:studentId" -> ordinal at the time of that incident
+      const incidentStudentOrdinal = new Map<string, number>();
+
+      chronological.forEach((inc: any) => {
         if (new Date(inc.incident_date) < sept1) return;
 
-        // Deduplicate: a student may appear as both the main student and in the junction table
+        // Collect unique students for this incident
         const involvedIds = new Set<string>();
         if (inc.students?.id) involvedIds.add(inc.students.id);
         (inc.behavior_incident_students || []).forEach((rel: any) => {
@@ -304,11 +313,13 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
         });
 
         involvedIds.forEach(studentId => {
-          counts.set(studentId, (counts.get(studentId) || 0) + 1);
+          const ordinal = (studentOrdinalCount.get(studentId) || 0) + 1;
+          studentOrdinalCount.set(studentId, ordinal);
+          incidentStudentOrdinal.set(`${inc.id}:${studentId}`, ordinal);
         });
       });
 
-      setStudentIncidentCount(counts);
+      setStudentIncidentCount(incidentStudentOrdinal);
       setIncidents(allIncidents);
     } catch (error) {
       console.error('Error fetching incidents:', error);
@@ -697,12 +708,12 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                           {incident.students.student_number && (
                             <span className="text-sm text-gray-500">#{incident.students.student_number}</span>
                           )}
-                          {studentIncidentCount.get(incident.students.id) != null && (
+                          {studentIncidentCount.get(`${incident.id}:${incident.students.id}`) != null && (
                             <span
                               className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-bold"
-                              title={`Incident ${studentIncidentCount.get(incident.students.id)} van dit schooljaar`}
+                              title={`Incident #${studentIncidentCount.get(`${incident.id}:${incident.students.id}`)} van dit schooljaar`}
                             >
-                              {studentIncidentCount.get(incident.students.id)}
+                              {studentIncidentCount.get(`${incident.id}:${incident.students.id}`)}
                             </span>
                           )}
                         </div>
@@ -746,12 +757,12 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                                 {studentRel.students.student_number && (
                                   <span className="text-xs text-gray-500">#{studentRel.students.student_number}</span>
                                 )}
-                                {studentIncidentCount.get(studentRel.students.id) != null && (
+                                {studentIncidentCount.get(`${incident.id}:${studentRel.students.id}`) != null && (
                                   <span
                                     className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-bold"
-                                    title={`Incident ${studentIncidentCount.get(studentRel.students.id)} van dit schooljaar`}
+                                    title={`Incident #${studentIncidentCount.get(`${incident.id}:${studentRel.students.id}`)} van dit schooljaar`}
                                   >
-                                    {studentIncidentCount.get(studentRel.students.id)}
+                                    {studentIncidentCount.get(`${incident.id}:${studentRel.students.id}`)}
                                   </span>
                                 )}
                                 <span
