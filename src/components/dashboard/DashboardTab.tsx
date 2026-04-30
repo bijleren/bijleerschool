@@ -574,7 +574,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
           )
         `)
         .eq('school_id', selectedSchoolId)
-        .gte('incident_date', (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1)); d.setHours(0,0,0,0); return d.toISOString(); })())
+        .gte('incident_date', (() => { const d = new Date(); d.setDate(d.getDate() - 7); d.setHours(0,0,0,0); return d.toISOString(); })())
         .order('incident_date', { ascending: false })
         .limit(5);
 
@@ -1208,7 +1208,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center">
             <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
-            Gedragsincidenten deze week
+            Gedragsincidenten laatste 7 dagen
           </h2>
         </div>
 
@@ -1219,9 +1219,9 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         ) : incidents.length === 0 ? (
           <Card className="text-center py-12">
             <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen incidenten deze week</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen incidenten afgelopen 7 dagen</h3>
             <p className="text-gray-600">
-              Er zijn geen gedragsincidenten geregistreerd deze week.
+              Er zijn geen gedragsincidenten geregistreerd in de afgelopen 7 dagen.
             </p>
           </Card>
         ) : (
