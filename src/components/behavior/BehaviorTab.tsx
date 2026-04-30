@@ -292,16 +292,19 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
       const sept1 = new Date(septYear, 8, 1); // month 8 = September
 
       const counts = new Map<string, number>();
-      const bump = (studentId: string, date: string) => {
-        if (new Date(date) >= sept1) {
-          counts.set(studentId, (counts.get(studentId) || 0) + 1);
-        }
-      };
 
       allIncidents.forEach((inc: any) => {
-        if (inc.students?.id) bump(inc.students.id, inc.incident_date);
+        if (new Date(inc.incident_date) < sept1) return;
+
+        // Deduplicate: a student may appear as both the main student and in the junction table
+        const involvedIds = new Set<string>();
+        if (inc.students?.id) involvedIds.add(inc.students.id);
         (inc.behavior_incident_students || []).forEach((rel: any) => {
-          if (rel.students?.id) bump(rel.students.id, inc.incident_date);
+          if (rel.students?.id) involvedIds.add(rel.students.id);
+        });
+
+        involvedIds.forEach(studentId => {
+          counts.set(studentId, (counts.get(studentId) || 0) + 1);
         });
       });
 
