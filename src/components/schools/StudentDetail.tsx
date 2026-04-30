@@ -1245,7 +1245,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                         Niveau {incident.behavior_items.behavior_severity_levels.level}
                       </span>
                     )}
-                    {incident.behavior_incident_students && incident.behavior_incident_students[0] && (
+                    {incident.behavior_incident_students && incident.behavior_incident_students[0]?.student_roles && (
                       <span
                         className="px-2 py-1 rounded-full text-xs font-medium"
                         style={{
@@ -1263,7 +1263,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                 </div>
 
                 <h4 className="font-medium text-gray-900 mb-2">
-                  {incident.behavior_items.name}
+                  {incident.behavior_items?.name}
                 </h4>
 
                 <p className="text-gray-700 text-sm mb-3">{incident.description}</p>
