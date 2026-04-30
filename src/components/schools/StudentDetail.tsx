@@ -12,6 +12,7 @@ import { ImageCropper } from '../ui/ImageCropper';
 import { StudentWebWijzer } from '../webwijzer/StudentWebWijzer';
 import { StudentBoekerView } from '../boeker/StudentBoekerView';
 import { StudentReadingProgress } from './StudentReadingProgress';
+import { StudentTagsCard } from './StudentTagsCard';
 
 interface Student {
   id: string;
@@ -1096,6 +1097,9 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
           </div>
         )}
       </Card>
+
+      {/* Tags */}
+      <StudentTagsCard studentId={student.id} schoolId={schoolId} />
 
       {/* Incident Statistics */}
       <Card className="mb-6">

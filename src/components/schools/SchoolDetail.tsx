@@ -8,12 +8,13 @@ import { StudentImport } from './StudentImport';
 import { GradeManagement } from '../schoolday/GradeManagement';
 import { SubjectsManagement } from '../schoolday/SubjectsManagement';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive, Calendar, LogOut } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive, Calendar, LogOut, Tag } from 'lucide-react';
 import { DataGebruikTab } from '../storage/DataGebruikTab';
 import { DayTimeline } from '../schoolday/DayTimeline';
 import { TemplateBuilder } from '../schoolday/TemplateBuilder';
 import { TemplateConnections } from '../schoolday/TemplateConnections';
 import { LessonTimingSettings } from '../schoolday/LessonTimingSettings';
+import { SchoolTagsSettings } from './SchoolTagsSettings';
 
 interface School {
   id: string;
@@ -83,7 +84,7 @@ interface SchoolDetailProps {
 
 export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStudent, onNavigateToGroup }: SchoolDetailProps) {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'grades' | 'subjects' | 'teamleden' | 'datagebruik' | 'schooldag'>('students');
+  const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'grades' | 'subjects' | 'teamleden' | 'datagebruik' | 'schooldag' | 'tags'>('students');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -109,6 +110,12 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [userSearch, setUserSearch] = useState('');
   const [studentSearch, setStudentSearch] = useState('');
   const [groupSearch, setGroupSearch] = useState('');
+
+  // Tag filter state
+  const [schoolTags, setSchoolTags] = useState<Array<{ id: string; name: string; color: string }>>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [tagFilterMode, setTagFilterMode] = useState<'OR' | 'AND'>('OR');
+  const [studentTagMap, setStudentTagMap] = useState<Map<string, string[]>>(new Map());
 
   // Student form
   const [newStudentFirstName, setNewStudentFirstName] = useState('');
@@ -146,6 +153,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     fetchStudents();
     fetchGroups();
     fetchSchoolUsers();
+    fetchSchoolTagsForFilter();
 
     const searchQuery = sessionStorage.getItem('studentSearchQuery');
     if (searchQuery) {
@@ -153,6 +161,32 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       sessionStorage.removeItem('studentSearchQuery');
     }
   }, []);
+
+  const fetchSchoolTagsForFilter = async () => {
+    try {
+      const { data: tagDefs } = await supabase
+        .from('student_tag_definitions')
+        .select('id, name, color')
+        .eq('school_id', school.id)
+        .order('name', { ascending: true });
+
+      setSchoolTags(tagDefs || []);
+
+      const { data: assignments } = await supabase
+        .from('student_tag_assignments')
+        .select('student_id, tag_definition_id')
+        .in('tag_definition_id', (tagDefs || []).map(t => t.id));
+
+      const map = new Map<string, string[]>();
+      (assignments || []).forEach(a => {
+        const existing = map.get(a.student_id) || [];
+        map.set(a.student_id, [...existing, a.tag_definition_id]);
+      });
+      setStudentTagMap(map);
+    } catch (err) {
+      console.error('Error fetching tags for filter:', err);
+    }
+  };
 
   const fetchUserRole = async () => {
     if (!user) return;
@@ -459,11 +493,22 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   };
 
   // Filter functions
-  const filteredStudents = students.filter(student =>
-    studentSearch === '' ||
-    `${student.first_name} ${student.last_name}`.toLowerCase().includes(studentSearch.toLowerCase()) ||
-    (student.student_number && student.student_number.includes(studentSearch))
-  );
+  const filteredStudents = students.filter(student => {
+    const matchesSearch =
+      studentSearch === '' ||
+      `${student.first_name} ${student.last_name}`.toLowerCase().includes(studentSearch.toLowerCase()) ||
+      (student.student_number && student.student_number.includes(studentSearch));
+
+    if (!matchesSearch) return false;
+    if (selectedTagIds.length === 0) return true;
+
+    const studentTags = studentTagMap.get(student.id) || [];
+    if (tagFilterMode === 'OR') {
+      return selectedTagIds.some(tid => studentTags.includes(tid));
+    } else {
+      return selectedTagIds.every(tid => studentTags.includes(tid));
+    }
+  });
 
   useEffect(() => {
     if (studentSearch && filteredStudents.length === 1 && students.length > 0) {
@@ -651,12 +696,23 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'schooldag'
-                ? 'border-indigo-500 text-indigo-600'
+                ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
             <Calendar className="w-4 h-4 mr-2" />
             Schooldag
+          </button>
+          <button
+            onClick={() => setActiveTab('tags')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
+              activeTab === 'tags'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            <Tag className="w-4 h-4 mr-2" />
+            Tags ({schoolTags.length})
           </button>
         </nav>
       </div>
@@ -664,31 +720,88 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       {/* Tab Content */}
       {activeTab === 'students' && (
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Zoek leerlingen..."
-                  value={studentSearch}
-                  onChange={(e) => setStudentSearch(e.target.value)}
-                  className="pl-10 w-64"
-                />
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Zoek leerlingen..."
+                    value={studentSearch}
+                    onChange={(e) => setStudentSearch(e.target.value)}
+                    className="pl-10 w-64"
+                  />
+                </div>
+              </div>
+              <div className="flex space-x-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowImportStudents(true)}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Importeren
+                </Button>
+                <Button onClick={() => setShowAddStudent(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Student toevoegen
+                </Button>
               </div>
             </div>
-            <div className="flex space-x-3">
-              <Button
-                variant="secondary"
-                onClick={() => setShowImportStudents(true)}
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Importeren
-              </Button>
-              <Button onClick={() => setShowAddStudent(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Student toevoegen
-              </Button>
-            </div>
+
+            {/* Tag filter row */}
+            {schoolTags.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-gray-400 font-medium flex-shrink-0">Filter op tag:</span>
+                {schoolTags.map(tag => (
+                  <button
+                    key={tag.id}
+                    onClick={() => setSelectedTagIds(prev =>
+                      prev.includes(tag.id) ? prev.filter(id => id !== tag.id) : [...prev, tag.id]
+                    )}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                      selectedTagIds.includes(tag.id)
+                        ? 'text-white border-transparent'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                    }`}
+                    style={selectedTagIds.includes(tag.id) ? { backgroundColor: tag.color, borderColor: tag.color } : {}}
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: selectedTagIds.includes(tag.id) ? 'rgba(255,255,255,0.6)' : tag.color }}
+                    />
+                    {tag.name}
+                  </button>
+                ))}
+                {selectedTagIds.length > 1 && (
+                  <div className="flex items-center gap-1 ml-1 bg-gray-100 rounded-lg p-0.5">
+                    <button
+                      onClick={() => setTagFilterMode('OR')}
+                      className={`text-xs px-2 py-0.5 rounded-md transition-colors ${
+                        tagFilterMode === 'OR' ? 'bg-white text-gray-800 shadow-sm font-medium' : 'text-gray-500'
+                      }`}
+                    >
+                      OF
+                    </button>
+                    <button
+                      onClick={() => setTagFilterMode('AND')}
+                      className={`text-xs px-2 py-0.5 rounded-md transition-colors ${
+                        tagFilterMode === 'AND' ? 'bg-white text-gray-800 shadow-sm font-medium' : 'text-gray-500'
+                      }`}
+                    >
+                      EN
+                    </button>
+                  </div>
+                )}
+                {selectedTagIds.length > 0 && (
+                  <button
+                    onClick={() => setSelectedTagIds([])}
+                    className="text-xs text-gray-400 hover:text-gray-600 ml-1 transition-colors"
+                  >
+                    Wis filter
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {showAddStudent && (
@@ -1169,6 +1282,13 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             </div>
           )}
         </>
+      )}
+
+      {activeTab === 'tags' && (
+        <SchoolTagsSettings
+          schoolId={school.id}
+          onTagsChanged={fetchSchoolTagsForFilter}
+        />
       )}
 
       {/* Import Students Modal */}
