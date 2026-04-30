@@ -302,7 +302,9 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
       // Group by category
       const categoryMap = new Map<string, { count: number; color: string }>();
       allIncidents?.forEach(inc => {
-        const category = inc.behavior_incidents.behavior_items.behavior_categories;
+        const items = inc.behavior_incidents.behavior_items;
+        if (!items?.behavior_categories) return;
+        const category = items.behavior_categories;
         const current = categoryMap.get(category.name) || { count: 0, color: category.color };
         categoryMap.set(category.name, { count: current.count + 1, color: category.color });
       });
@@ -313,7 +315,9 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
       // Group by severity
       const severityMap = new Map<number, { count: number; color: string }>();
       allIncidents?.forEach(inc => {
-        const severity = inc.behavior_incidents.behavior_items.behavior_severity_levels;
+        const items = inc.behavior_incidents.behavior_items;
+        if (!items?.behavior_severity_levels) return;
+        const severity = items.behavior_severity_levels;
         const current = severityMap.get(severity.level) || { count: 0, color: severity.color };
         severityMap.set(severity.level, { count: current.count + 1, color: severity.color });
       });
@@ -1225,18 +1229,22 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
               }}>
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center space-x-2">
-                    <span
-                      className="px-2 py-1 rounded-full text-xs font-medium text-white"
-                      style={{ backgroundColor: incident.behavior_items.behavior_categories.color }}
-                    >
-                      {incident.behavior_items.behavior_categories.name}
-                    </span>
-                    <span
-                      className="px-2 py-1 rounded-full text-xs font-medium text-white"
-                      style={{ backgroundColor: incident.behavior_items.behavior_severity_levels.color }}
-                    >
-                      Niveau {incident.behavior_items.behavior_severity_levels.level}
-                    </span>
+                    {incident.behavior_items?.behavior_categories && (
+                      <span
+                        className="px-2 py-1 rounded-full text-xs font-medium text-white"
+                        style={{ backgroundColor: incident.behavior_items.behavior_categories.color }}
+                      >
+                        {incident.behavior_items.behavior_categories.name}
+                      </span>
+                    )}
+                    {incident.behavior_items?.behavior_severity_levels && (
+                      <span
+                        className="px-2 py-1 rounded-full text-xs font-medium text-white"
+                        style={{ backgroundColor: incident.behavior_items.behavior_severity_levels.color }}
+                      >
+                        Niveau {incident.behavior_items.behavior_severity_levels.level}
+                      </span>
+                    )}
                     {incident.behavior_incident_students && incident.behavior_incident_students[0] && (
                       <span
                         className="px-2 py-1 rounded-full text-xs font-medium"
