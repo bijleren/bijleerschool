@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { OnboardingBanner } from '../onboarding/OnboardingBanner';
-import { Heart, Users, GraduationCap, Star, TrendingUp, Calendar, MapPin, School, AlertTriangle, Clock, CheckCircle, Filter, BookOpen, HelpCircle, Video, Newspaper, Link, Grid2x2 as Grid, BookMarked, Search, QrCode } from 'lucide-react';
+import { Heart, Users, GraduationCap, Star, TrendingUp, Calendar, MapPin, School, AlertTriangle, Clock, CheckCircle, BookOpen, HelpCircle, Video, Newspaper, Link, Grid2x2 as Grid, BookMarked, Search, QrCode } from 'lucide-react';
 
 interface FavoriteStudent {
   id: string;
@@ -121,7 +121,6 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   const [schoolOverviewPeriod, setSchoolOverviewPeriod] = useState<number>(7);
   const [schoolStats, setSchoolStats] = useState({ today: 0, open: 0, students: 0 });
   const [incidents, setIncidents] = useState<BehaviorIncident[]>([]);
-  const [statusFilters, setStatusFilters] = useState<string[]>(['pending', 'in_progress']);
   const [incidentsLoading, setIncidentsLoading] = useState(false);
   const [hasAnyIncidents, setHasAnyIncidents] = useState(false);
   const [studentSearchQuery, setStudentSearchQuery] = useState('');
@@ -546,10 +545,10 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   }, [schoolOverviewPeriod, selectedSchoolId, hasAnyIncidents]);
 
   useEffect(() => {
-    if (selectedSchoolId && statusFilters.length > 0 && hasAnyIncidents) {
+    if (selectedSchoolId && hasAnyIncidents) {
       fetchIncidents();
     }
-  }, [selectedSchoolId, statusFilters, hasAnyIncidents]);
+  }, [selectedSchoolId, hasAnyIncidents]);
 
   const fetchIncidents = async () => {
     if (!selectedSchoolId) return;
@@ -575,9 +574,9 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
           )
         `)
         .eq('school_id', selectedSchoolId)
-        .in('status', statusFilters)
+        .gte('incident_date', (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1)); d.setHours(0,0,0,0); return d.toISOString(); })())
         .order('incident_date', { ascending: false })
-        .limit(20);
+        .limit(5);
 
       if (error) throw error;
 
@@ -587,16 +586,6 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
     } finally {
       setIncidentsLoading(false);
     }
-  };
-
-  const toggleStatusFilter = (status: string) => {
-    setStatusFilters(prev => {
-      if (prev.includes(status)) {
-        return prev.filter(s => s !== status);
-      } else {
-        return [...prev, status];
-      }
-    });
   };
 
   const handleIncidentClick = (incidentId: string) => {
@@ -1219,53 +1208,20 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center">
             <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
-            Gedragsincidenten ({incidents.length})
+            Gedragsincidenten deze week
           </h2>
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-500" />
-            <button
-              onClick={() => toggleStatusFilter('pending')}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                statusFilters.includes('pending')
-                  ? 'bg-red-100 text-red-700 border border-red-300'
-                  : 'bg-gray-100 text-gray-600 border border-gray-300'
-              }`}
-            >
-              Onderzoek
-            </button>
-            <button
-              onClick={() => toggleStatusFilter('in_progress')}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                statusFilters.includes('in_progress')
-                  ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
-                  : 'bg-gray-100 text-gray-600 border border-gray-300'
-              }`}
-            >
-              Onderzoek
-            </button>
-            <button
-              onClick={() => toggleStatusFilter('resolved')}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                statusFilters.includes('resolved')
-                  ? 'bg-green-100 text-green-700 border border-green-300'
-                  : 'bg-gray-100 text-gray-600 border border-gray-300'
-              }`}
-            >
-              Afgerond
-            </button>
-          </div>
         </div>
 
         {incidentsLoading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
           </div>
         ) : incidents.length === 0 ? (
           <Card className="text-center py-12">
             <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen incidenten gevonden</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Geen incidenten deze week</h3>
             <p className="text-gray-600">
-              Er zijn geen incidenten met de geselecteerde filters.
+              Er zijn geen gedragsincidenten geregistreerd deze week.
             </p>
           </Card>
         ) : (
@@ -1359,6 +1315,17 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+              <button
+                onClick={() => onNavigateToBehavior('all')}
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1"
+              >
+                Bekijk alle incidenten
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
           </div>
         )}
