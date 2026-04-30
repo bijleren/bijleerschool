@@ -1241,7 +1241,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                   : 'bg-gray-100 text-gray-600 border border-gray-300'
               }`}
             >
-              In behandeling
+              Onderzoek
             </button>
             <button
               onClick={() => toggleStatusFilter('resolved')}
@@ -1312,7 +1312,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                               : 'bg-green-50 text-green-700'
                           }`}
                         >
-                          {incident.status === 'pending' ? 'Onderzoek' : incident.status === 'in_progress' ? 'In behandeling' : 'Afgerond'}
+                          {incident.status === 'pending' ? 'Melding' : incident.status === 'in_progress' ? 'Onderzoek' : 'Afgerond'}
                         </span>
                       </div>
 

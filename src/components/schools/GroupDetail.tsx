@@ -684,9 +684,10 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
 
   const getStatusText = (status: string) => {
     switch (status) {
+      case 'pending': return 'Melding';
       case 'open': return 'Open';
-      case 'in_progress': return 'In behandeling';
-      case 'resolved': return 'Opgelost';
+      case 'in_progress': return 'Onderzoek';
+      case 'resolved': return 'Afgerond';
       case 'closed': return 'Gesloten';
       default: return status;
     }
