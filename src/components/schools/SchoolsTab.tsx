@@ -38,6 +38,7 @@ export function SchoolsTab() {
   const [newSchoolAddress, setNewSchoolAddress] = useState('');
   const [newSchoolCity, setNewSchoolCity] = useState('');
   const [newSchoolPostalCode, setNewSchoolPostalCode] = useState('');
+  const [newSchoolCountry, setNewSchoolCountry] = useState('België');
   const [joinLoading, setJoinLoading] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -181,6 +182,7 @@ export function SchoolsTab() {
           address: newSchoolAddress || null,
           city: newSchoolCity || null,
           postal_code: newSchoolPostalCode || null,
+          country: newSchoolCountry || null,
           created_by: user.id,
         })
         .select()
@@ -205,6 +207,7 @@ export function SchoolsTab() {
       setNewSchoolAddress('');
       setNewSchoolCity('');
       setNewSchoolPostalCode('');
+      setNewSchoolCountry('België');
       setShowCreateForm(false);
       fetchUserSchools();
     } catch (error) {
@@ -307,14 +310,25 @@ export function SchoolsTab() {
                 label="Postcode (optioneel)"
                 value={newSchoolPostalCode}
                 onChange={(e) => setNewSchoolPostalCode(e.target.value)}
-                placeholder="1234 AB"
+                placeholder="3000"
               />
               <Input
                 label="Plaats (optioneel)"
                 value={newSchoolCity}
                 onChange={(e) => setNewSchoolCity(e.target.value)}
-                placeholder="Amsterdam"
+                placeholder="Leuven"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Land</label>
+              <select
+                value={newSchoolCountry}
+                onChange={(e) => setNewSchoolCountry(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="België">België</option>
+                <option value="Nederland">Nederland</option>
+              </select>
             </div>
             <div className="flex justify-end space-x-3">
               <Button
