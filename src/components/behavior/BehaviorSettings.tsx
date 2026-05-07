@@ -45,6 +45,8 @@ interface StudentRole {
   description: string | null;
   color: string;
   is_active: boolean;
+  is_default: boolean;
+  count_in_analytics: boolean;
 }
 
 interface Consequence {
@@ -257,13 +259,18 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
         formData.level = maxLevel + 1;
       }
 
-      // For student roles, handle default role logic
-      if (activeTab === 'roles' && formData.is_default) {
-        // First, remove default from all other roles
-        await supabase
-          .from('student_roles')
-          .update({ is_default: false })
-          .eq('school_id', schoolId);
+      // For student roles, handle default role logic and analytics flag
+      if (activeTab === 'roles') {
+        if (formData.is_default) {
+          await supabase
+            .from('student_roles')
+            .update({ is_default: false })
+            .eq('school_id', schoolId);
+        }
+        // Ensure count_in_analytics is always explicitly set (default true for new roles)
+        if (formData.count_in_analytics === undefined) {
+          formData.count_in_analytics = true;
+        }
       }
       
       // For behavior_items, filter out nested objects that are not actual columns
@@ -1099,17 +1106,31 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                   className="h-10 w-20 border border-gray-300 rounded-lg"
                 />
               </div>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="isDefault"
-                  checked={formData.is_default || false}
-                  onChange={(e) => setFormData({ ...formData, is_default: e.target.checked })}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label htmlFor="isDefault" className="ml-2 block text-sm text-gray-900">
-                  Standaard rol
-                </label>
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isDefault"
+                    checked={formData.is_default || false}
+                    onChange={(e) => setFormData({ ...formData, is_default: e.target.checked })}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isDefault" className="ml-2 block text-sm text-gray-900">
+                    Standaard rol
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="countInAnalytics"
+                    checked={formData.count_in_analytics !== false}
+                    onChange={(e) => setFormData({ ...formData, count_in_analytics: e.target.checked })}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="countInAnalytics" className="ml-2 block text-sm text-gray-900">
+                    Tellen in analytics
+                  </label>
+                </div>
               </div>
             </div>
             <div className="flex justify-end space-x-3">
@@ -1144,11 +1165,16 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                     <Users className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 flex-wrap gap-1">
                       <h4 className="font-medium text-gray-900">{role.name}</h4>
                       {role.is_default && (
                         <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
                           Standaard
+                        </span>
+                      )}
+                      {role.count_in_analytics && (
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                          Tellen in analytics
                         </span>
                       )}
                     </div>

@@ -271,6 +271,9 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
         .select(`
           id,
           created_at,
+          student_roles (
+            count_in_analytics
+          ),
           behavior_incidents (
             id,
             incident_date,
@@ -290,18 +293,23 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
 
       if (error) throw error;
 
-      const total = allIncidents?.length || 0;
+      // Only count incidents where the student's role has count_in_analytics = true
+      const countableIncidents = allIncidents?.filter(
+        inc => inc.student_roles?.count_in_analytics !== false
+      ) || [];
+
+      const total = countableIncidents.length;
 
       // Calculate recent incidents (last 30 days)
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const recent = allIncidents?.filter(inc =>
+      const recent = countableIncidents.filter(inc =>
         new Date(inc.behavior_incidents.incident_date) >= thirtyDaysAgo
-      ).length || 0;
+      ).length;
 
       // Group by category
       const categoryMap = new Map<string, { count: number; color: string }>();
-      allIncidents?.forEach(inc => {
+      countableIncidents.forEach(inc => {
         const items = inc.behavior_incidents.behavior_items;
         if (!items?.behavior_categories) return;
         const category = items.behavior_categories;
@@ -314,7 +322,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
 
       // Group by severity
       const severityMap = new Map<number, { count: number; color: string }>();
-      allIncidents?.forEach(inc => {
+      countableIncidents.forEach(inc => {
         const items = inc.behavior_incidents.behavior_items;
         if (!items?.behavior_severity_levels) return;
         const severity = items.behavior_severity_levels;

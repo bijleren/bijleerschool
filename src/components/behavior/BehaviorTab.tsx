@@ -226,7 +226,8 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
             student_roles (
               id,
               name,
-              color
+              color,
+              count_in_analytics
             )
           ),
           behavior_items (
@@ -305,12 +306,20 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
       chronological.forEach((inc: any) => {
         if (new Date(inc.incident_date) < sept1) return;
 
-        // Collect unique students for this incident
+        // Collect unique students for this incident whose role counts in analytics
         const involvedIds = new Set<string>();
-        if (inc.students?.id) involvedIds.add(inc.students.id);
         (inc.behavior_incident_students || []).forEach((rel: any) => {
-          if (rel.students?.id) involvedIds.add(rel.students.id);
+          if (rel.students?.id && rel.student_roles?.count_in_analytics !== false) {
+            involvedIds.add(rel.students.id);
+          }
         });
+        // Main student (legacy field) — include if no role assignment or role counts
+        if (inc.students?.id) {
+          const hasRoleEntry = (inc.behavior_incident_students || []).some(
+            (rel: any) => rel.students?.id === inc.students.id
+          );
+          if (!hasRoleEntry) involvedIds.add(inc.students.id);
+        }
 
         involvedIds.forEach(studentId => {
           const ordinal = (studentOrdinalCount.get(studentId) || 0) + 1;
