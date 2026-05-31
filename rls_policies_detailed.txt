@@ -1,0 +1,5614 @@
+--- Row 1 ---
+  tablename:  activity_board_access
+  policyname: School members can manage activity_board_access
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (board_id IN ( SELECT activity_boards.id
+   FROM activity_boards
+  WHERE (activity_boards.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (board_id IN ( SELECT activity_boards.id
+   FROM activity_boards
+  WHERE (activity_boards.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 2 ---
+  tablename:  activity_board_timeblocks
+  policyname: School members can manage activity_board_timeblocks
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (board_id IN ( SELECT activity_boards.id
+   FROM activity_boards
+  WHERE (activity_boards.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (board_id IN ( SELECT activity_boards.id
+   FROM activity_boards
+  WHERE (activity_boards.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 3 ---
+  tablename:  activity_boards
+  policyname: School members can manage activity_boards
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 4 ---
+  tablename:  activity_collaboration_logs
+  policyname: School members can manage activity_collaboration_logs
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (session_id_1 IN ( SELECT s.id
+   FROM (activity_sessions s
+     JOIN activity_boards b ON ((b.id = s.board_id)))
+  WHERE (b.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (session_id_1 IN ( SELECT s.id
+   FROM (activity_sessions s
+     JOIN activity_boards b ON ((b.id = s.board_id)))
+  WHERE (b.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 5 ---
+  tablename:  activity_options
+  policyname: School members can manage activity_options
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (board_id IN ( SELECT activity_boards.id
+   FROM activity_boards
+  WHERE (activity_boards.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (board_id IN ( SELECT activity_boards.id
+   FROM activity_boards
+  WHERE (activity_boards.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 6 ---
+  tablename:  activity_presets
+  policyname: School members can manage activity_presets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 7 ---
+  tablename:  activity_sessions
+  policyname: School members can manage activity_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (board_id IN ( SELECT activity_boards.id
+   FROM activity_boards
+  WHERE (activity_boards.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (board_id IN ( SELECT activity_boards.id
+   FROM activity_boards
+  WHERE (activity_boards.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 8 ---
+  tablename:  admin_users
+  policyname: Users can read own admin_users row
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (email = auth.email())
+  with_check: NULL
+--- Row 9 ---
+  tablename:  age_groups
+  policyname: Admins can delete age_groups
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 10 ---
+  tablename:  age_groups
+  policyname: Admins can manage age_groups
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 11 ---
+  tablename:  age_groups
+  policyname: Authenticated can read age_groups
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 12 ---
+  tablename:  age_groups
+  policyname: Admins can update age_groups
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 13 ---
+  tablename:  assertive_sentences
+  policyname: Admins can delete assertive_sentences
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 14 ---
+  tablename:  assertive_sentences
+  policyname: Admins can manage assertive_sentences
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 15 ---
+  tablename:  assertive_sentences
+  policyname: Authenticated can read assertive_sentences
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 16 ---
+  tablename:  assertive_sentences
+  policyname: Admins can update assertive_sentences
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 17 ---
+  tablename:  assertiveness_exercises
+  policyname: School members can delete assertiveness_exercises
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 18 ---
+  tablename:  assertiveness_exercises
+  policyname: School members can insert assertiveness_exercises
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 19 ---
+  tablename:  assertiveness_exercises
+  policyname: School members can read assertiveness_exercises
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 20 ---
+  tablename:  attempt_mistakes
+  policyname: School members can insert attempt_mistakes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (word_attempt_id IN ( SELECT wea.id
+   FROM ((word_exercise_attempts wea
+     JOIN students s ON ((s.id = wea.student_id)))
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 21 ---
+  tablename:  attempt_mistakes
+  policyname: School members can read attempt_mistakes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (word_attempt_id IN ( SELECT wea.id
+   FROM ((word_exercise_attempts wea
+     JOIN students s ON ((s.id = wea.student_id)))
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 22 ---
+  tablename:  behavior_card_increments
+  policyname: School members can manage behavior_card_increments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 23 ---
+  tablename:  behavior_card_presets
+  policyname: Users can manage own behavior_card_presets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 24 ---
+  tablename:  behavior_card_progress
+  policyname: School members can manage behavior_card_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 25 ---
+  tablename:  behavior_cards
+  policyname: Users can manage own behavior_cards
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (created_by_user_id = auth.uid())
+  with_check: (created_by_user_id = auth.uid())
+--- Row 26 ---
+  tablename:  behavior_cards
+  policyname: Authenticated can read public behavior_cards
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((is_public = true) OR (created_by_user_id = auth.uid()))
+  with_check: NULL
+--- Row 27 ---
+  tablename:  behavior_categories
+  policyname: School members can manage behavior_categories
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 28 ---
+  tablename:  behavior_incident_attachments
+  policyname: School members can manage behavior_incident_attachments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (incident_id IN ( SELECT behavior_incidents.id
+   FROM behavior_incidents
+  WHERE (behavior_incidents.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (incident_id IN ( SELECT behavior_incidents.id
+   FROM behavior_incidents
+  WHERE (behavior_incidents.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 29 ---
+  tablename:  behavior_incident_eerste_acties
+  policyname: School members can manage behavior_incident_eerste_acties
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (incident_id IN ( SELECT behavior_incidents.id
+   FROM behavior_incidents
+  WHERE (behavior_incidents.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (incident_id IN ( SELECT behavior_incidents.id
+   FROM behavior_incidents
+  WHERE (behavior_incidents.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 30 ---
+  tablename:  behavior_incident_followup_acties
+  policyname: School members can manage behavior_incident_followup_acties
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (incident_id IN ( SELECT behavior_incidents.id
+   FROM behavior_incidents
+  WHERE (behavior_incidents.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (incident_id IN ( SELECT behavior_incidents.id
+   FROM behavior_incidents
+  WHERE (behavior_incidents.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 31 ---
+  tablename:  behavior_incident_notifications
+  policyname: School members can manage behavior_incident_notifications
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (incident_id IN ( SELECT behavior_incidents.id
+   FROM behavior_incidents
+  WHERE (behavior_incidents.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (incident_id IN ( SELECT behavior_incidents.id
+   FROM behavior_incidents
+  WHERE (behavior_incidents.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 32 ---
+  tablename:  behavior_incident_students
+  policyname: School members can manage behavior_incident_students
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (incident_id IN ( SELECT behavior_incidents.id
+   FROM behavior_incidents
+  WHERE (behavior_incidents.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (incident_id IN ( SELECT behavior_incidents.id
+   FROM behavior_incidents
+  WHERE (behavior_incidents.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 33 ---
+  tablename:  behavior_incidents
+  policyname: School members can manage behavior_incidents
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 34 ---
+  tablename:  behavior_item_consequences
+  policyname: School members can manage behavior_item_consequences
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (behavior_item_id IN ( SELECT behavior_items.id
+   FROM behavior_items
+  WHERE (behavior_items.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (behavior_item_id IN ( SELECT behavior_items.id
+   FROM behavior_items
+  WHERE (behavior_items.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 35 ---
+  tablename:  behavior_items
+  policyname: School members can manage behavior_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 36 ---
+  tablename:  behavior_presets
+  policyname: Users can manage own behavior_presets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 37 ---
+  tablename:  behavior_presets
+  policyname: Authenticated can read behavior_presets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 38 ---
+  tablename:  behavior_scenarios
+  policyname: Admins can manage behavior_scenarios
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 39 ---
+  tablename:  behavior_scenarios
+  policyname: Authenticated can read behavior_scenarios
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 40 ---
+  tablename:  behavior_severity_levels
+  policyname: School members can manage behavior_severity_levels
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 41 ---
+  tablename:  book_loans
+  policyname: School members can manage book_loans
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 42 ---
+  tablename:  book_locations
+  policyname: School members can manage book_locations
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 43 ---
+  tablename:  book_reviews
+  policyname: School members can manage book_reviews
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 44 ---
+  tablename:  book_reviews
+  policyname: Students can manage own book_reviews
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 45 ---
+  tablename:  books
+  policyname: School members can manage books
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 46 ---
+  tablename:  bug_reports
+  policyname: user rw own bug_reports
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 47 ---
+  tablename:  bug_reports
+  policyname: Admins can read all bug_reports
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 48 ---
+  tablename:  bug_reports
+  policyname: Admins can update all bug_reports
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 49 ---
+  tablename:  children
+  policyname: parent rw own children
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (parent_id = auth.uid())
+  with_check: (parent_id = auth.uid())
+--- Row 50 ---
+  tablename:  classes
+  policyname: School admins can delete classes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_school_admin(school_id)
+  with_check: NULL
+--- Row 51 ---
+  tablename:  classes
+  policyname: School members can insert classes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 52 ---
+  tablename:  classes
+  policyname: School members can read classes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 53 ---
+  tablename:  classes
+  policyname: School members can update classes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 54 ---
+  tablename:  consequences
+  policyname: School members can manage consequences
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 55 ---
+  tablename:  contact_messages
+  policyname: Public can insert contact_messages with email
+  permissive: PERMISSIVE
+  roles:      {anon,authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: ((email IS NOT NULL) AND (email <> ''::text))
+--- Row 56 ---
+  tablename:  contact_messages
+  policyname: Admins can read all contact_messages
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 57 ---
+  tablename:  contact_messages
+  policyname: Admins can update contact_messages
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 58 ---
+  tablename:  coupon_codes
+  policyname: Admins can manage coupon_codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 59 ---
+  tablename:  coupon_codes
+  policyname: Authenticated can read active coupon_codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (is_active = true)
+  with_check: NULL
+--- Row 60 ---
+  tablename:  credit_codes
+  policyname: Admins can manage credit_codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 61 ---
+  tablename:  credit_codes
+  policyname: Authenticated can read credit codes for redemption
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 62 ---
+  tablename:  credit_codes
+  policyname: Authenticated can redeem credit codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (is_redeemed = false)
+  with_check: (redeemed_by = auth.uid())
+--- Row 63 ---
+  tablename:  credit_transactions
+  policyname: Users can insert own credit_transactions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (user_id = auth.uid())
+--- Row 64 ---
+  tablename:  credit_transactions
+  policyname: Admins can read all credit_transactions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 65 ---
+  tablename:  credit_transactions
+  policyname: Users can read own credit_transactions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 66 ---
+  tablename:  custom_vocabulary
+  policyname: School members can delete custom_vocabulary
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 67 ---
+  tablename:  custom_vocabulary
+  policyname: School members can insert custom_vocabulary
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 68 ---
+  tablename:  custom_vocabulary
+  policyname: School members can read custom_vocabulary
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 69 ---
+  tablename:  custom_vocabulary
+  policyname: School members can update custom_vocabulary
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 70 ---
+  tablename:  daily_progress
+  policyname: Authenticated can insert daily_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 71 ---
+  tablename:  daily_progress
+  policyname: Admins can read daily_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 72 ---
+  tablename:  daily_progress
+  policyname: Authenticated can update daily_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (auth.uid() IS NOT NULL)
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 73 ---
+  tablename:  day_block_activities
+  policyname: Users can delete own day_block_activities
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 74 ---
+  tablename:  day_block_activities
+  policyname: Users can insert own day_block_activities
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (user_id = auth.uid())
+--- Row 75 ---
+  tablename:  day_block_activities
+  policyname: Users can read own day_block_activities
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 76 ---
+  tablename:  day_block_activities
+  policyname: Users can update own day_block_activities
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 77 ---
+  tablename:  day_template_blocks
+  policyname: School members can manage day_template_blocks
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (template_id IN ( SELECT day_templates.id
+   FROM day_templates
+  WHERE (day_templates.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (template_id IN ( SELECT day_templates.id
+   FROM day_templates
+  WHERE (day_templates.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 78 ---
+  tablename:  day_templates
+  policyname: School members can manage day_templates
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 79 ---
+  tablename:  demo_platforms
+  policyname: Admins can manage demo_platforms
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 80 ---
+  tablename:  demo_platforms
+  policyname: Authenticated can read demo_platforms
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 81 ---
+  tablename:  demo_registrations
+  policyname: Admins can manage demo_registrations
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 82 ---
+  tablename:  demo_registrations
+  policyname: Public can insert demo_registrations with email
+  permissive: PERMISSIVE
+  roles:      {anon,authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: ((email IS NOT NULL) AND (email <> ''::text))
+--- Row 83 ---
+  tablename:  demo_sessions
+  policyname: Admins can manage demo_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 84 ---
+  tablename:  didactiek_faq
+  policyname: Admins can delete didactiek_faq
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 85 ---
+  tablename:  didactiek_faq
+  policyname: Admins can insert didactiek_faq
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 86 ---
+  tablename:  didactiek_faq
+  policyname: Authenticated can read didactiek_faq
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 87 ---
+  tablename:  didactiek_faq
+  policyname: Admins can update didactiek_faq
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 88 ---
+  tablename:  didactiek_vormingen
+  policyname: Admins can delete didactiek_vormingen
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 89 ---
+  tablename:  didactiek_vormingen
+  policyname: Admins can insert didactiek_vormingen
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 90 ---
+  tablename:  didactiek_vormingen
+  policyname: Authenticated can read didactiek_vormingen
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 91 ---
+  tablename:  didactiek_vormingen
+  policyname: Admins can update didactiek_vormingen
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 92 ---
+  tablename:  digitools
+  policyname: Admins can manage digitools
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 93 ---
+  tablename:  digitools
+  policyname: Authenticated can view visible digitools
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((visible_to_users = true) AND (is_active = true))
+  with_check: NULL
+--- Row 94 ---
+  tablename:  educational_goals
+  policyname: Admins can delete educational_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 95 ---
+  tablename:  educational_goals
+  policyname: Admins can manage educational_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 96 ---
+  tablename:  educational_goals
+  policyname: Authenticated can read educational_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 97 ---
+  tablename:  educational_goals
+  policyname: Admins can update educational_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 98 ---
+  tablename:  educational_material_goals
+  policyname: Authenticated can delete educational_material_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (auth.uid() IS NOT NULL)
+  with_check: NULL
+--- Row 99 ---
+  tablename:  educational_material_goals
+  policyname: Authenticated can manage educational_material_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 100 ---
+  tablename:  educational_material_goals
+  policyname: Authenticated can read educational_material_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 101 ---
+  tablename:  educational_material_sessions
+  policyname: School members can insert educational_material_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 102 ---
+  tablename:  educational_material_sessions
+  policyname: School members can read educational_material_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 103 ---
+  tablename:  educational_materials
+  policyname: Creators can delete educational_materials
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (created_by = auth.uid())
+  with_check: NULL
+--- Row 104 ---
+  tablename:  educational_materials
+  policyname: Authenticated can insert educational_materials
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 105 ---
+  tablename:  educational_materials
+  policyname: Authenticated can read educational_materials
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((is_global = true) OR (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true)))))
+  with_check: NULL
+--- Row 106 ---
+  tablename:  educational_materials
+  policyname: Creators can update educational_materials
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (created_by = auth.uid())
+  with_check: (created_by = auth.uid())
+--- Row 107 ---
+  tablename:  educational_video_goals
+  policyname: Authenticated can delete educational_video_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (auth.uid() IS NOT NULL)
+  with_check: NULL
+--- Row 108 ---
+  tablename:  educational_video_goals
+  policyname: Authenticated can manage educational_video_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 109 ---
+  tablename:  educational_video_goals
+  policyname: Authenticated can read educational_video_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 110 ---
+  tablename:  educational_video_sessions
+  policyname: School members can insert educational_video_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 111 ---
+  tablename:  educational_video_sessions
+  policyname: School members can read educational_video_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 112 ---
+  tablename:  educational_videos
+  policyname: Creators can delete educational_videos
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (created_by = auth.uid())
+  with_check: NULL
+--- Row 113 ---
+  tablename:  educational_videos
+  policyname: Authenticated can insert educational_videos
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 114 ---
+  tablename:  educational_videos
+  policyname: Authenticated can read educational_videos
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((is_global = true) OR (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true)))))
+  with_check: NULL
+--- Row 115 ---
+  tablename:  educational_videos
+  policyname: Creators can update educational_videos
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (created_by = auth.uid())
+  with_check: (created_by = auth.uid())
+--- Row 116 ---
+  tablename:  evaluation_attachments
+  policyname: Creators can delete evaluation_attachments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (created_by = auth.uid())
+  with_check: NULL
+--- Row 117 ---
+  tablename:  evaluation_attachments
+  policyname: School members can insert evaluation_attachments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 118 ---
+  tablename:  evaluation_attachments
+  policyname: School members can read evaluation_attachments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 119 ---
+  tablename:  executive_function_assessment_history
+  policyname: School members can manage executive_function_assessment_history
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 120 ---
+  tablename:  executive_function_assessments
+  policyname: School members can manage executive_function_assessments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 121 ---
+  tablename:  executive_function_tasks
+  policyname: Authenticated can read executive_function_tasks
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 122 ---
+  tablename:  executive_functions
+  policyname: Authenticated can read executive_functions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 123 ---
+  tablename:  exercise_attempts
+  policyname: Authenticated can insert exercise_attempts
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 124 ---
+  tablename:  exercise_attempts
+  policyname: Authenticated can read exercise_attempts
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (auth.uid() IS NOT NULL)
+  with_check: NULL
+--- Row 125 ---
+  tablename:  exercise_sets
+  policyname: Admins can delete exercise_sets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 126 ---
+  tablename:  exercise_sets
+  policyname: Admins can manage exercise_sets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 127 ---
+  tablename:  exercise_sets
+  policyname: Authenticated can read exercise_sets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 128 ---
+  tablename:  exercise_sets
+  policyname: Admins can update exercise_sets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 129 ---
+  tablename:  exercise_types
+  policyname: ref read exercise_types
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 130 ---
+  tablename:  exercises
+  policyname: Admins can delete exercises
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 131 ---
+  tablename:  exercises
+  policyname: Admins can manage exercises
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 132 ---
+  tablename:  exercises
+  policyname: Authenticated can read exercises
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 133 ---
+  tablename:  exercises
+  policyname: Admins can update exercises
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 134 ---
+  tablename:  fiche_images
+  policyname: School members can delete fiche_images
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 135 ---
+  tablename:  fiche_images
+  policyname: School members can insert fiche_images
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 136 ---
+  tablename:  fiche_images
+  policyname: School members can read fiche_images
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 137 ---
+  tablename:  fiches
+  policyname: School members can delete fiches
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 138 ---
+  tablename:  fiches
+  policyname: School members can insert fiches
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 139 ---
+  tablename:  fiches
+  policyname: School members can read fiches
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 140 ---
+  tablename:  fiches
+  policyname: School members can update fiches
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 141 ---
+  tablename:  file_uploads
+  policyname: user rw own file_uploads
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 142 ---
+  tablename:  followup_actions
+  policyname: School members can manage followup_actions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 143 ---
+  tablename:  game_questions
+  policyname: Admins can delete game_questions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 144 ---
+  tablename:  game_questions
+  policyname: Admins can manage game_questions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 145 ---
+  tablename:  game_questions
+  policyname: Authenticated can read game_questions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 146 ---
+  tablename:  game_questions
+  policyname: Admins can update game_questions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 147 ---
+  tablename:  game_sessions
+  policyname: School members can insert game_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 148 ---
+  tablename:  game_sessions
+  policyname: School members can read game_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 149 ---
+  tablename:  goal_tracking_sessions
+  policyname: School members can insert goal_tracking_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 150 ---
+  tablename:  goal_tracking_sessions
+  policyname: School members can read goal_tracking_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 151 ---
+  tablename:  group_day_templates
+  policyname: School members can manage group_day_templates
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (group_id IN ( SELECT groups.id
+   FROM groups
+  WHERE (groups.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (group_id IN ( SELECT groups.id
+   FROM groups
+  WHERE (groups.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 152 ---
+  tablename:  group_goal_progress
+  policyname: School members can insert group_goal_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 153 ---
+  tablename:  group_goal_progress
+  policyname: School members can read group_goal_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 154 ---
+  tablename:  group_goal_progress
+  policyname: School members can update group_goal_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 155 ---
+  tablename:  group_grades
+  policyname: School members can manage group_grades
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (group_id IN ( SELECT groups.id
+   FROM groups
+  WHERE (groups.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (group_id IN ( SELECT groups.id
+   FROM groups
+  WHERE (groups.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 156 ---
+  tablename:  group_lists
+  policyname: coach manages group_lists
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (assigned_by = auth.uid())
+  with_check: (assigned_by = auth.uid())
+--- Row 157 ---
+  tablename:  group_lists
+  policyname: coach reads school group_lists
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM (groups g
+     JOIN user_schools us ON ((g.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 158 ---
+  tablename:  group_onboarding_progress
+  policyname: Users can insert own group_onboarding_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (user_id = auth.uid())
+--- Row 159 ---
+  tablename:  group_onboarding_progress
+  policyname: Users can read own group_onboarding_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 160 ---
+  tablename:  group_onboarding_progress
+  policyname: Users can update own group_onboarding_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 161 ---
+  tablename:  group_routines
+  policyname: School members can delete group_routines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 162 ---
+  tablename:  group_routines
+  policyname: School members can insert group_routines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 163 ---
+  tablename:  group_routines
+  policyname: School members can read group_routines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 164 ---
+  tablename:  group_routines
+  policyname: School members can update group_routines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 165 ---
+  tablename:  groups
+  policyname: user reads school groups
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 166 ---
+  tablename:  hoekenwerk_schedules
+  policyname: School members can delete hoekenwerk_schedules
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 167 ---
+  tablename:  hoekenwerk_schedules
+  policyname: School members can insert hoekenwerk_schedules
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 168 ---
+  tablename:  hoekenwerk_schedules
+  policyname: School members can read hoekenwerk_schedules
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 169 ---
+  tablename:  hoekenwerk_schedules
+  policyname: School members can update hoekenwerk_schedules
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 170 ---
+  tablename:  hoekenwerk_template_items
+  policyname: School members can delete hoekenwerk_template_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (template_id IN ( SELECT ht.id
+   FROM hoekenwerk_templates ht
+  WHERE (ht.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 171 ---
+  tablename:  hoekenwerk_template_items
+  policyname: School members can manage hoekenwerk_template_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (template_id IN ( SELECT ht.id
+   FROM hoekenwerk_templates ht
+  WHERE (ht.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 172 ---
+  tablename:  hoekenwerk_template_items
+  policyname: School members can read hoekenwerk_template_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (template_id IN ( SELECT ht.id
+   FROM hoekenwerk_templates ht
+  WHERE (ht.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 173 ---
+  tablename:  hoekenwerk_template_items
+  policyname: School members can update hoekenwerk_template_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (template_id IN ( SELECT ht.id
+   FROM hoekenwerk_templates ht
+  WHERE (ht.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (template_id IN ( SELECT ht.id
+   FROM hoekenwerk_templates ht
+  WHERE (ht.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 174 ---
+  tablename:  hoekenwerk_templates
+  policyname: School admins can delete hoekenwerk_templates
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_school_admin(school_id)
+  with_check: NULL
+--- Row 175 ---
+  tablename:  hoekenwerk_templates
+  policyname: School members can insert hoekenwerk_templates
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 176 ---
+  tablename:  hoekenwerk_templates
+  policyname: School members can read hoekenwerk_templates
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 177 ---
+  tablename:  hoekenwerk_templates
+  policyname: School members can update hoekenwerk_templates
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 178 ---
+  tablename:  homework_hints
+  policyname: Admins can delete homework_hints
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 179 ---
+  tablename:  homework_hints
+  policyname: Admins can manage homework_hints
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 180 ---
+  tablename:  homework_hints
+  policyname: Authenticated can read homework_hints
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 181 ---
+  tablename:  homework_hints
+  policyname: Admins can update homework_hints
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 182 ---
+  tablename:  homework_stage_hints
+  policyname: Admins can delete homework_stage_hints
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 183 ---
+  tablename:  homework_stage_hints
+  policyname: Admins can manage homework_stage_hints
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 184 ---
+  tablename:  homework_stage_hints
+  policyname: Authenticated can read homework_stage_hints
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 185 ---
+  tablename:  homework_stage_hints
+  policyname: Admins can update homework_stage_hints
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 186 ---
+  tablename:  import_batches
+  policyname: user rw own import_batches
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (imported_by = auth.uid())
+  with_check: (imported_by = auth.uid())
+--- Row 187 ---
+  tablename:  import_batches
+  policyname: Admins can read all import_batches
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 188 ---
+  tablename:  instructions
+  policyname: ref read instructions
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (is_active = true)
+  with_check: NULL
+--- Row 189 ---
+  tablename:  invite_contacts
+  policyname: Users can delete own invite_contacts
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 190 ---
+  tablename:  invite_contacts
+  policyname: Users can insert own invite_contacts
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (user_id = auth.uid())
+--- Row 191 ---
+  tablename:  invite_contacts
+  policyname: Users can read own invite_contacts
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 192 ---
+  tablename:  invite_contacts
+  policyname: Users can update own invite_contacts
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 193 ---
+  tablename:  invite_settings
+  policyname: Admins can manage invite_settings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 194 ---
+  tablename:  invite_settings
+  policyname: Authenticated can read invite_settings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 195 ---
+  tablename:  invite_settings
+  policyname: Admins can update invite_settings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 196 ---
+  tablename:  key_stats
+  policyname: Admins can manage key_stats
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 197 ---
+  tablename:  klankteken
+  policyname: ref read klankteken
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 198 ---
+  tablename:  learning_activities
+  policyname: School members can delete learning_activities
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 199 ---
+  tablename:  learning_activities
+  policyname: School members can insert learning_activities
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 200 ---
+  tablename:  learning_activities
+  policyname: School members can read learning_activities
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 201 ---
+  tablename:  learning_games
+  policyname: Admins can delete learning_games
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 202 ---
+  tablename:  learning_games
+  policyname: Admins can manage learning_games
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 203 ---
+  tablename:  learning_games
+  policyname: Authenticated can read learning_games
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 204 ---
+  tablename:  learning_games
+  policyname: Admins can update learning_games
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 205 ---
+  tablename:  learning_lines
+  policyname: Admins can delete learning_lines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 206 ---
+  tablename:  learning_lines
+  policyname: Admins can manage learning_lines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 207 ---
+  tablename:  learning_lines
+  policyname: Authenticated can read learning_lines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 208 ---
+  tablename:  learning_lines
+  policyname: Admins can update learning_lines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 209 ---
+  tablename:  learning_path_steps
+  policyname: ref read learning_path_steps
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 210 ---
+  tablename:  learning_paths
+  policyname: ref read learning_paths
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (is_active = true)
+  with_check: NULL
+--- Row 211 ---
+  tablename:  learning_techniques
+  policyname: Admins can delete learning_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 212 ---
+  tablename:  learning_techniques
+  policyname: Admins can manage learning_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 213 ---
+  tablename:  learning_techniques
+  policyname: Authenticated can read learning_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 214 ---
+  tablename:  learning_techniques
+  policyname: Admins can update learning_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 215 ---
+  tablename:  lesson_goals
+  policyname: School members can delete lesson_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 216 ---
+  tablename:  lesson_goals
+  policyname: School members can manage lesson_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 217 ---
+  tablename:  lesson_goals
+  policyname: School members can read lesson_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 218 ---
+  tablename:  lesson_items
+  policyname: School members can delete lesson_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (lesson_id IN ( SELECT l.id
+   FROM lessons l
+  WHERE (l.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 219 ---
+  tablename:  lesson_items
+  policyname: School members can manage lesson_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (lesson_id IN ( SELECT l.id
+   FROM lessons l
+  WHERE (l.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 220 ---
+  tablename:  lesson_items
+  policyname: School members can read lesson_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (lesson_id IN ( SELECT l.id
+   FROM lessons l
+  WHERE (l.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 221 ---
+  tablename:  lesson_items
+  policyname: School members can update lesson_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (lesson_id IN ( SELECT l.id
+   FROM lessons l
+  WHERE (l.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (lesson_id IN ( SELECT l.id
+   FROM lessons l
+  WHERE (l.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 222 ---
+  tablename:  lessons
+  policyname: Creators can delete lessons
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (created_by = auth.uid())
+  with_check: NULL
+--- Row 223 ---
+  tablename:  lessons
+  policyname: School members can insert lessons
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 224 ---
+  tablename:  lessons
+  policyname: School members can read lessons
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 225 ---
+  tablename:  lessons
+  policyname: Creators can update lessons
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (created_by = auth.uid())
+  with_check: (created_by = auth.uid())
+--- Row 226 ---
+  tablename:  license_transactions
+  policyname: Admins can manage license_transactions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 227 ---
+  tablename:  license_transactions
+  policyname: Authenticated can insert own license_transactions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (created_by_user_id = auth.uid())
+--- Row 228 ---
+  tablename:  license_transactions
+  policyname: School members can read own license_transactions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (organization_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 229 ---
+  tablename:  master_words
+  policyname: ref read master_words
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 230 ---
+  tablename:  material_feedback
+  policyname: School members can insert material_feedback
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 231 ---
+  tablename:  material_feedback
+  policyname: School members can read material_feedback
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 232 ---
+  tablename:  materials
+  policyname: Admins can delete materials
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 233 ---
+  tablename:  materials
+  policyname: Admins can manage materials
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 234 ---
+  tablename:  materials
+  policyname: Authenticated can read materials
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 235 ---
+  tablename:  materials
+  policyname: Admins can update materials
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 236 ---
+  tablename:  mistake_types
+  policyname: ref read mistake_types
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 237 ---
+  tablename:  new_words
+  policyname: Admins can delete new_words
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 238 ---
+  tablename:  new_words
+  policyname: Authenticated can insert own batch new_words
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (batch_id IN ( SELECT import_batches.id
+   FROM import_batches
+  WHERE (import_batches.imported_by = auth.uid())))
+--- Row 239 ---
+  tablename:  new_words
+  policyname: Admins can read all new_words
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 240 ---
+  tablename:  new_words
+  policyname: user reads own batch new_words
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (batch_id IN ( SELECT import_batches.id
+   FROM import_batches
+  WHERE (import_batches.imported_by = auth.uid())))
+  with_check: NULL
+--- Row 241 ---
+  tablename:  new_words
+  policyname: Admins can update all new_words
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 242 ---
+  tablename:  news_updates
+  policyname: ref read news_updates
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (is_published = true)
+  with_check: NULL
+--- Row 243 ---
+  tablename:  newsletters
+  policyname: Admins can delete newsletters
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 244 ---
+  tablename:  newsletters
+  policyname: Admins can insert newsletters
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 245 ---
+  tablename:  newsletters
+  policyname: Admins can read all newsletters
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 246 ---
+  tablename:  newsletters
+  policyname: School members can read newsletters
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((school_id IS NULL) OR (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true)))))
+  with_check: NULL
+--- Row 247 ---
+  tablename:  newsletters
+  policyname: Admins can update newsletters
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 248 ---
+  tablename:  organization_codes
+  policyname: School members can manage organization_codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (organization_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (organization_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 249 ---
+  tablename:  organization_licenses
+  policyname: Admins can manage organization_licenses
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 250 ---
+  tablename:  organization_licenses
+  policyname: School members can insert own organization_licenses
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (organization_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 251 ---
+  tablename:  organization_licenses
+  policyname: School members can read own organization_licenses
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (organization_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 252 ---
+  tablename:  organization_licenses
+  policyname: School members can extend own organization_licenses
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (organization_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (organization_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 253 ---
+  tablename:  paper_templates
+  policyname: ref read paper_templates
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (is_active = true)
+  with_check: NULL
+--- Row 254 ---
+  tablename:  phoneme_categories
+  policyname: ref read phoneme_categories
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 255 ---
+  tablename:  phoneme_category_links
+  policyname: ref read phoneme_category_links
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 256 ---
+  tablename:  phoneme_exercise_attempts
+  policyname: coach inserts school phoneme_exercise_attempts
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 257 ---
+  tablename:  phoneme_exercise_attempts
+  policyname: student writes own phoneme_exercise_attempts
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id = current_student_id())
+--- Row 258 ---
+  tablename:  phoneme_exercise_attempts
+  policyname: coach reads school phoneme_exercise_attempts
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 259 ---
+  tablename:  phoneme_exercise_attempts
+  policyname: student reads own phoneme_exercise_attempts
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id = current_student_id())
+  with_check: NULL
+--- Row 260 ---
+  tablename:  phoneme_submissions
+  policyname: user rw own phoneme_submissions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 261 ---
+  tablename:  phonemes
+  policyname: ref read phonemes
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 262 ---
+  tablename:  physical_tasks
+  policyname: Admins can delete physical_tasks
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 263 ---
+  tablename:  physical_tasks
+  policyname: Admins can manage physical_tasks
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 264 ---
+  tablename:  physical_tasks
+  policyname: Authenticated can read physical_tasks
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 265 ---
+  tablename:  physical_tasks
+  policyname: Admins can update physical_tasks
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 266 ---
+  tablename:  pricing_tiers
+  policyname: Admins can manage pricing_tiers
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 267 ---
+  tablename:  pricing_tiers
+  policyname: Authenticated can read pricing_tiers
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 268 ---
+  tablename:  product_catalog
+  policyname: Admins can manage product_catalog
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 269 ---
+  tablename:  product_catalog
+  policyname: Authenticated can read product_catalog
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 270 ---
+  tablename:  profiles
+  policyname: Admins can read all profiles
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (EXISTS ( SELECT 1
+   FROM admin_users
+  WHERE (admin_users.email = auth.email())))
+  with_check: NULL
+--- Row 271 ---
+  tablename:  profiles
+  policyname: School members can read other school members profiles
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (id IN ( SELECT user_schools.user_id
+   FROM user_schools
+  WHERE ((user_schools.school_id IN ( SELECT user_schools_1.school_id
+           FROM user_schools user_schools_1
+          WHERE ((user_schools_1.user_id = auth.uid()) AND (user_schools_1.is_active = true)))) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 272 ---
+  tablename:  profiles
+  policyname: user reads own profile
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (id = auth.uid())
+  with_check: NULL
+--- Row 273 ---
+  tablename:  profiles
+  policyname: user updates own profile
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        UPDATE
+  qual:       (id = auth.uid())
+  with_check: NULL
+--- Row 274 ---
+  tablename:  qa_sessions
+  policyname: Admins can delete qa_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 275 ---
+  tablename:  qa_sessions
+  policyname: Admins can insert qa_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 276 ---
+  tablename:  qa_sessions
+  policyname: Authenticated can read qa_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 277 ---
+  tablename:  qa_sessions
+  policyname: Admins can update qa_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 278 ---
+  tablename:  qr_codes
+  policyname: School members can manage qr_codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 279 ---
+  tablename:  qr_codes
+  policyname: Users can delete their own QR codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (auth.uid() = user_id)
+  with_check: NULL
+--- Row 280 ---
+  tablename:  qr_codes
+  policyname: Users can create QR codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() = user_id)
+--- Row 281 ---
+  tablename:  qr_codes
+  policyname: Access control for viewing QR codes
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (((NOT is_locked) AND (content_type IS NOT NULL)) OR (auth.uid() = user_id))
+  with_check: NULL
+--- Row 282 ---
+  tablename:  qr_codes
+  policyname: Anyone can increment qr view counter
+  permissive: PERMISSIVE
+  roles:      {anon,authenticated}
+  cmd:        UPDATE
+  qual:       (code IS NOT NULL)
+  with_check: (code IS NOT NULL)
+--- Row 283 ---
+  tablename:  qr_codes
+  policyname: Users can update their own QR codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (auth.uid() = user_id)
+  with_check: (auth.uid() = user_id)
+--- Row 284 ---
+  tablename:  qr_content_items
+  policyname: School members can manage qr_content_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (qr_code_id IN ( SELECT qr_codes.id
+   FROM qr_codes
+  WHERE (qr_codes.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (qr_code_id IN ( SELECT qr_codes.id
+   FROM qr_codes
+  WHERE (qr_codes.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 285 ---
+  tablename:  qr_content_items
+  policyname: Owners can delete content items from their QR codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (EXISTS ( SELECT 1
+   FROM qr_codes
+  WHERE ((qr_codes.id = qr_content_items.qr_code_id) AND (qr_codes.user_id = auth.uid()))))
+  with_check: NULL
+--- Row 286 ---
+  tablename:  qr_content_items
+  policyname: Owners can insert content items to their QR codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (EXISTS ( SELECT 1
+   FROM qr_codes
+  WHERE ((qr_codes.id = qr_content_items.qr_code_id) AND (qr_codes.user_id = auth.uid()))))
+--- Row 287 ---
+  tablename:  qr_content_items
+  policyname: Owners can view their own QR code content items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (EXISTS ( SELECT 1
+   FROM qr_codes
+  WHERE ((qr_codes.id = qr_content_items.qr_code_id) AND (qr_codes.user_id = auth.uid()))))
+  with_check: NULL
+--- Row 288 ---
+  tablename:  qr_content_items
+  policyname: Anyone can view content items of unlocked QR codes
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (EXISTS ( SELECT 1
+   FROM qr_codes
+  WHERE ((qr_codes.id = qr_content_items.qr_code_id) AND (NOT qr_codes.is_locked) AND (qr_codes.content_type IS NOT NULL))))
+  with_check: NULL
+--- Row 289 ---
+  tablename:  qr_content_items
+  policyname: Owners can update content items on their QR codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (EXISTS ( SELECT 1
+   FROM qr_codes
+  WHERE ((qr_codes.id = qr_content_items.qr_code_id) AND (qr_codes.user_id = auth.uid()))))
+  with_check: (EXISTS ( SELECT 1
+   FROM qr_codes
+  WHERE ((qr_codes.id = qr_content_items.qr_code_id) AND (qr_codes.user_id = auth.uid()))))
+--- Row 290 ---
+  tablename:  qr_views
+  policyname: Anon can insert anonymous qr_views
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (user_id IS NULL)
+--- Row 291 ---
+  tablename:  qr_views
+  policyname: Authenticated can insert own qr_views
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (user_id = auth.uid())
+--- Row 292 ---
+  tablename:  qr_views
+  policyname: School members can read qr_views
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (qr_code_id IN ( SELECT qr_codes.id
+   FROM qr_codes
+  WHERE (qr_codes.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 293 ---
+  tablename:  reading_coach_sessions
+  policyname: School members can manage reading_coach_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 294 ---
+  tablename:  reading_interventions
+  policyname: School members can manage own reading_interventions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 295 ---
+  tablename:  reading_interventions
+  policyname: School members can read global and school reading_interventions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((school_id IS NULL) OR (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true)))))
+  with_check: NULL
+--- Row 296 ---
+  tablename:  reading_recordings
+  policyname: School members can delete reading_recordings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 297 ---
+  tablename:  reading_recordings
+  policyname: School members can insert reading_recordings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 298 ---
+  tablename:  reading_recordings
+  policyname: School members can read reading_recordings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 299 ---
+  tablename:  reading_session_interventions
+  policyname: School members can manage reading_session_interventions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (session_id IN ( SELECT reading_coach_sessions.id
+   FROM reading_coach_sessions
+  WHERE (reading_coach_sessions.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (session_id IN ( SELECT reading_coach_sessions.id
+   FROM reading_coach_sessions
+  WHERE (reading_coach_sessions.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 300 ---
+  tablename:  reading_session_techniques
+  policyname: School members can manage reading_session_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (session_id IN ( SELECT reading_coach_sessions.id
+   FROM reading_coach_sessions
+  WHERE (reading_coach_sessions.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (session_id IN ( SELECT reading_coach_sessions.id
+   FROM reading_coach_sessions
+  WHERE (reading_coach_sessions.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 301 ---
+  tablename:  reading_sessions
+  policyname: School members can manage reading_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 302 ---
+  tablename:  reading_sessions
+  policyname: Students can manage own reading_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 303 ---
+  tablename:  reading_techniques
+  policyname: School members can manage own reading_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 304 ---
+  tablename:  reading_techniques
+  policyname: School members can read global and school reading_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((school_id IS NULL) OR (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true)))))
+  with_check: NULL
+--- Row 305 ---
+  tablename:  recording_usage
+  policyname: user rw own recording_usage
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 306 ---
+  tablename:  rejected_words
+  policyname: Admins can manage rejected_words
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 307 ---
+  tablename:  rejected_words
+  policyname: Admins can read rejected_words
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 308 ---
+  tablename:  rejected_words
+  policyname: Admins can update rejected_words
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 309 ---
+  tablename:  routine_goals
+  policyname: Authenticated can delete routine_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (auth.uid() IS NOT NULL)
+  with_check: NULL
+--- Row 310 ---
+  tablename:  routine_goals
+  policyname: Authenticated can insert routine_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 311 ---
+  tablename:  routine_goals
+  policyname: Authenticated can read routine_goals
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 312 ---
+  tablename:  routine_logs
+  policyname: School members can insert routine_logs
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 313 ---
+  tablename:  routine_logs
+  policyname: School members can read routine_logs
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 314 ---
+  tablename:  routines
+  policyname: School admins can delete routines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_school_admin(school_id)
+  with_check: NULL
+--- Row 315 ---
+  tablename:  routines
+  policyname: School members can insert routines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 316 ---
+  tablename:  routines
+  policyname: Authenticated can read routines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((is_default = true) OR (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true)))))
+  with_check: NULL
+--- Row 317 ---
+  tablename:  routines
+  policyname: School members can update routines
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 318 ---
+  tablename:  saved_text_images
+  policyname: Authenticated can delete saved_text_images
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (auth.uid() IS NOT NULL)
+  with_check: NULL
+--- Row 319 ---
+  tablename:  saved_text_images
+  policyname: Authenticated can insert saved_text_images
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 320 ---
+  tablename:  saved_text_images
+  policyname: Authenticated can read saved_text_images
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (auth.uid() IS NOT NULL)
+  with_check: NULL
+--- Row 321 ---
+  tablename:  saved_text_students
+  policyname: coach manages school saved_text_students
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 322 ---
+  tablename:  saved_text_students
+  policyname: student rw own saved_text_students
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        ALL
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 323 ---
+  tablename:  saved_text_students
+  policyname: coach reads school saved_text_students
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 324 ---
+  tablename:  saved_texts
+  policyname: user rw own saved_texts
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (created_by_user_id = auth.uid())
+  with_check: (created_by_user_id = auth.uid())
+--- Row 325 ---
+  tablename:  saved_texts
+  policyname: coach reads school students' saved_texts
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (id IN ( SELECT sts.text_id
+   FROM ((saved_text_students sts
+     JOIN students s ON ((s.id = sts.student_id)))
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 326 ---
+  tablename:  saved_texts
+  policyname: student reads assigned saved_texts
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (id IN ( SELECT saved_text_students.text_id
+   FROM saved_text_students
+  WHERE (saved_text_students.student_id = current_student_id())))
+  with_check: NULL
+--- Row 327 ---
+  tablename:  school_day_templates
+  policyname: School members can manage school_day_templates
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 328 ---
+  tablename:  school_grades
+  policyname: School members can manage school_grades
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 329 ---
+  tablename:  school_lesson_settings
+  policyname: School members can manage school_lesson_settings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 330 ---
+  tablename:  school_material_loans
+  policyname: School members can manage school_material_loans
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (material_id IN ( SELECT school_materials.id
+   FROM school_materials
+  WHERE (school_materials.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (material_id IN ( SELECT school_materials.id
+   FROM school_materials
+  WHERE (school_materials.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 331 ---
+  tablename:  school_materials
+  policyname: School members can manage school_materials
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 332 ---
+  tablename:  school_subjects
+  policyname: School members can manage school_subjects
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 333 ---
+  tablename:  school_teammembers
+  policyname: Users can manage own school_teammembers entry
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 334 ---
+  tablename:  school_teammembers
+  policyname: School members can read school_teammembers
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 335 ---
+  tablename:  school_users
+  policyname: Users can manage own school_users entry
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 336 ---
+  tablename:  school_users
+  policyname: School members can read school_users
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 337 ---
+  tablename:  schools
+  policyname: Admins can delete schools
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (EXISTS ( SELECT 1
+   FROM admin_users
+  WHERE (admin_users.email = auth.email())))
+  with_check: NULL
+--- Row 338 ---
+  tablename:  schools
+  policyname: Admins can insert schools
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (EXISTS ( SELECT 1
+   FROM admin_users
+  WHERE (admin_users.email = auth.email())))
+--- Row 339 ---
+  tablename:  schools
+  policyname: Admins can read all schools
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (EXISTS ( SELECT 1
+   FROM admin_users
+  WHERE (admin_users.email = auth.email())))
+  with_check: NULL
+--- Row 340 ---
+  tablename:  schools
+  policyname: user reads own schools
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 341 ---
+  tablename:  schools
+  policyname: Admins can update all schools
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (EXISTS ( SELECT 1
+   FROM admin_users
+  WHERE (admin_users.email = auth.email())))
+  with_check: (EXISTS ( SELECT 1
+   FROM admin_users
+  WHERE (admin_users.email = auth.email())))
+--- Row 342 ---
+  tablename:  schools
+  policyname: School admins can update own school
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 343 ---
+  tablename:  spelling_feedback
+  policyname: user rw own spelling_feedback
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 344 ---
+  tablename:  spoor_notes
+  policyname: School members can manage spoor_notes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (spoor_id IN ( SELECT sporen.id
+   FROM sporen
+  WHERE (sporen.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (spoor_id IN ( SELECT sporen.id
+   FROM sporen
+  WHERE (sporen.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 345 ---
+  tablename:  spoor_subject_links
+  policyname: School members can manage spoor_subject_links
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (spoor_id IN ( SELECT sporen.id
+   FROM sporen
+  WHERE (sporen.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (spoor_id IN ( SELECT sporen.id
+   FROM sporen
+  WHERE (sporen.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 346 ---
+  tablename:  sporen
+  policyname: School members can manage sporen
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 347 ---
+  tablename:  sticker_data_plans
+  policyname: Admins can delete sticker_data_plans
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 348 ---
+  tablename:  sticker_data_plans
+  policyname: Admins can manage sticker_data_plans
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 349 ---
+  tablename:  sticker_data_plans
+  policyname: Authenticated can read sticker_data_plans
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 350 ---
+  tablename:  sticker_data_plans
+  policyname: Admins can update sticker_data_plans
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 351 ---
+  tablename:  sticker_formats
+  policyname: Admins can delete sticker_formats
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 352 ---
+  tablename:  sticker_formats
+  policyname: Admins can manage sticker_formats
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 353 ---
+  tablename:  sticker_formats
+  policyname: Authenticated can read sticker_formats
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 354 ---
+  tablename:  sticker_formats
+  policyname: Admins can update sticker_formats
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 355 ---
+  tablename:  sticker_order_items
+  policyname: Users can manage sticker_order_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (order_id IN ( SELECT sticker_orders.id
+   FROM sticker_orders
+  WHERE (sticker_orders.user_id = auth.uid())))
+--- Row 356 ---
+  tablename:  sticker_order_items
+  policyname: Users can read own sticker_order_items
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (order_id IN ( SELECT sticker_orders.id
+   FROM sticker_orders
+  WHERE (sticker_orders.user_id = auth.uid())))
+  with_check: NULL
+--- Row 357 ---
+  tablename:  sticker_orders
+  policyname: Users can insert own sticker_orders
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (user_id = auth.uid())
+--- Row 358 ---
+  tablename:  sticker_orders
+  policyname: Users can read own sticker_orders
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((user_id = auth.uid()) OR is_current_user_admin())
+  with_check: NULL
+--- Row 359 ---
+  tablename:  sticker_orders
+  policyname: Admins can update sticker_orders
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 360 ---
+  tablename:  sticker_pricing_tiers
+  policyname: Admins can manage sticker_pricing_tiers
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 361 ---
+  tablename:  sticker_pricing_tiers
+  policyname: Authenticated can read sticker_pricing_tiers
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 362 ---
+  tablename:  sticker_pricing_tiers
+  policyname: Admins can update sticker_pricing_tiers
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 363 ---
+  tablename:  storage_usage_log
+  policyname: Authenticated can insert storage_usage_log
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 364 ---
+  tablename:  storage_usage_log
+  policyname: School members can read own storage_usage_log
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 365 ---
+  tablename:  storage_usage_log
+  policyname: Authenticated can update own storage_usage_log
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 366 ---
+  tablename:  student_access_codes
+  policyname: coach manages own access_codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (created_by = auth.uid())
+  with_check: (created_by = auth.uid())
+--- Row 367 ---
+  tablename:  student_books
+  policyname: School members can manage student_books
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 368 ---
+  tablename:  student_books
+  policyname: Students can read own student_books
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id = current_student_id())
+  with_check: NULL
+--- Row 369 ---
+  tablename:  student_codes
+  policyname: School members can insert student_codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 370 ---
+  tablename:  student_codes
+  policyname: Authenticated can check student code uniqueness
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 371 ---
+  tablename:  student_codes
+  policyname: School members can read student_codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 372 ---
+  tablename:  student_codes
+  policyname: School members can update student_codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 373 ---
+  tablename:  student_evaluation_sessions
+  policyname: Creators can delete student_evaluation_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (created_by = auth.uid())
+  with_check: NULL
+--- Row 374 ---
+  tablename:  student_evaluation_sessions
+  policyname: School members can insert student_evaluation_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 375 ---
+  tablename:  student_evaluation_sessions
+  policyname: School members can read student_evaluation_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 376 ---
+  tablename:  student_exercise_settings
+  policyname: coach manages school student_exercise_settings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 377 ---
+  tablename:  student_exercise_settings
+  policyname: student rw own student_exercise_settings
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        ALL
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 378 ---
+  tablename:  student_goal_evaluations
+  policyname: School members can insert student_goal_evaluations
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 379 ---
+  tablename:  student_goal_evaluations
+  policyname: School members can read student_goal_evaluations
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 380 ---
+  tablename:  student_grades
+  policyname: School members can manage student_grades
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 381 ---
+  tablename:  student_groups
+  policyname: coach manages school student_groups
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (group_id IN ( SELECT g.id
+   FROM (groups g
+     JOIN user_schools us ON ((g.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (group_id IN ( SELECT g.id
+   FROM (groups g
+     JOIN user_schools us ON ((g.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 382 ---
+  tablename:  student_groups
+  policyname: Anon can read student_groups for active students
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        SELECT
+  qual:       (EXISTS ( SELECT 1
+   FROM students s
+  WHERE ((s.id = student_groups.student_id) AND (s.is_active = true))))
+  with_check: NULL
+--- Row 383 ---
+  tablename:  student_groups
+  policyname: coach reads school student_groups
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM (groups g
+     JOIN user_schools us ON ((g.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 384 ---
+  tablename:  student_groups
+  policyname: student reads own student_groups
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id = current_student_id())
+  with_check: NULL
+--- Row 385 ---
+  tablename:  student_learning_path_progress
+  policyname: student rw own learning_path_progress
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        ALL
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 386 ---
+  tablename:  student_learning_path_progress
+  policyname: coach reads school learning_path_progress
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 387 ---
+  tablename:  student_lists
+  policyname: coach manages student_lists
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (granted_by = auth.uid())
+  with_check: (granted_by = auth.uid())
+--- Row 388 ---
+  tablename:  student_lists
+  policyname: coach reads school student_lists
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 389 ---
+  tablename:  student_lists
+  policyname: student reads own student_lists
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id = current_student_id())
+  with_check: NULL
+--- Row 390 ---
+  tablename:  student_organizations
+  policyname: School members can manage student_organizations
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 391 ---
+  tablename:  student_phoneme_access
+  policyname: coach manages school phoneme_access
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 392 ---
+  tablename:  student_phoneme_access
+  policyname: student rw own phoneme_access
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        ALL
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 393 ---
+  tablename:  student_phoneme_access
+  policyname: coach reads school phoneme_access
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 394 ---
+  tablename:  student_phoneme_log
+  policyname: student inserts own phoneme_log
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id = current_student_id())
+--- Row 395 ---
+  tablename:  student_phoneme_log
+  policyname: coach reads school phoneme_log
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 396 ---
+  tablename:  student_phoneme_progress
+  policyname: student rw own phoneme_progress
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        ALL
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 397 ---
+  tablename:  student_phoneme_progress
+  policyname: coach reads school phoneme_progress
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 398 ---
+  tablename:  student_roles
+  policyname: School members can manage student_roles
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 399 ---
+  tablename:  student_sessions
+  policyname: student inserts own sessions
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id = current_student_id())
+--- Row 400 ---
+  tablename:  student_sessions
+  policyname: coach reads school sessions
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 401 ---
+  tablename:  student_sessions
+  policyname: student reads own sessions
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id = current_student_id())
+  with_check: NULL
+--- Row 402 ---
+  tablename:  student_shares
+  policyname: Users can manage own student_shares
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       ((shared_by = auth.uid()) OR (shared_with_user_id = auth.uid()))
+  with_check: (shared_by = auth.uid())
+--- Row 403 ---
+  tablename:  student_soundboard_settings
+  policyname: coach manages school soundboard
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 404 ---
+  tablename:  student_soundboard_settings
+  policyname: student rw own soundboard
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        ALL
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 405 ---
+  tablename:  student_spoor_assignments
+  policyname: School members can manage student_spoor_assignments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (spoor_id IN ( SELECT sporen.id
+   FROM sporen
+  WHERE (sporen.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (spoor_id IN ( SELECT sporen.id
+   FROM sporen
+  WHERE (sporen.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 406 ---
+  tablename:  student_tag_assignments
+  policyname: School members can manage student_tag_assignments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 407 ---
+  tablename:  student_tag_definitions
+  policyname: School members can manage student_tag_definitions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 408 ---
+  tablename:  student_tag_log
+  policyname: School members can read student_tag_log
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 409 ---
+  tablename:  student_tasks
+  policyname: School members can delete student_tasks
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 410 ---
+  tablename:  student_tasks
+  policyname: School members can insert student_tasks
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 411 ---
+  tablename:  student_tasks
+  policyname: School members can read student_tasks
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 412 ---
+  tablename:  student_tasks
+  policyname: School members can update student_tasks
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 413 ---
+  tablename:  student_word_progress
+  policyname: student rw own word_progress
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        ALL
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 414 ---
+  tablename:  student_word_progress
+  policyname: coach reads school word_progress
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 415 ---
+  tablename:  students
+  policyname: coach deletes school students
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        DELETE
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 416 ---
+  tablename:  students
+  policyname: coach inserts school students
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 417 ---
+  tablename:  students
+  policyname: Anon can lookup student by access hash
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        SELECT
+  qual:       ((access_hash IS NOT NULL) AND (is_active = true))
+  with_check: NULL
+--- Row 418 ---
+  tablename:  students
+  policyname: Admins can read all students
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 419 ---
+  tablename:  students
+  policyname: coach reads school students
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 420 ---
+  tablename:  students
+  policyname: student reads self
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (id = current_student_id())
+  with_check: NULL
+--- Row 421 ---
+  tablename:  students
+  policyname: coach updates school students
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        UPDATE
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 422 ---
+  tablename:  study_sessions
+  policyname: School members can delete study_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 423 ---
+  tablename:  study_sessions
+  policyname: School members can insert study_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 424 ---
+  tablename:  study_sessions
+  policyname: School members can read study_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 425 ---
+  tablename:  study_technique_sessions
+  policyname: School members can delete study_technique_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 426 ---
+  tablename:  study_technique_sessions
+  policyname: School members can insert study_technique_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 427 ---
+  tablename:  study_technique_sessions
+  policyname: School members can read study_technique_sessions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 428 ---
+  tablename:  study_techniques
+  policyname: Creators can delete study_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (created_by = auth.uid())
+  with_check: NULL
+--- Row 429 ---
+  tablename:  study_techniques
+  policyname: Authenticated can insert study_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 430 ---
+  tablename:  study_techniques
+  policyname: Authenticated can read study_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 431 ---
+  tablename:  study_techniques
+  policyname: Creators can update study_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (created_by = auth.uid())
+  with_check: (created_by = auth.uid())
+--- Row 432 ---
+  tablename:  subjects
+  policyname: Admins can delete subjects
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 433 ---
+  tablename:  subjects
+  policyname: Admins can manage subjects
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 434 ---
+  tablename:  subjects
+  policyname: Authenticated can read subjects
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 435 ---
+  tablename:  subjects
+  policyname: Admins can update subjects
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 436 ---
+  tablename:  super_admins
+  policyname: Authenticated can read super_admins
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 437 ---
+  tablename:  task_completion_log
+  policyname: School members can insert task_completion_log
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 438 ---
+  tablename:  task_completion_log
+  policyname: School members can read task_completion_log
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 439 ---
+  tablename:  task_completions
+  policyname: School members can insert task_completions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 440 ---
+  tablename:  task_completions
+  policyname: School members can read task_completions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 441 ---
+  tablename:  task_library
+  policyname: Authenticated can insert task_library
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 442 ---
+  tablename:  task_library
+  policyname: Authenticated can read task_library
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 443 ---
+  tablename:  task_library
+  policyname: Creators can update task_library
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (created_by = auth.uid())
+  with_check: (created_by = auth.uid())
+--- Row 444 ---
+  tablename:  teaching_technique_age_groups
+  policyname: Admins can manage teaching_technique_age_groups
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 445 ---
+  tablename:  teaching_technique_age_groups
+  policyname: Authenticated can read teaching_technique_age_groups
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 446 ---
+  tablename:  teaching_technique_categories
+  policyname: Admins can manage teaching_technique_categories
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 447 ---
+  tablename:  teaching_technique_categories
+  policyname: Authenticated can read teaching_technique_categories
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 448 ---
+  tablename:  teaching_technique_materials
+  policyname: Admins can manage teaching_technique_materials
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 449 ---
+  tablename:  teaching_technique_materials
+  policyname: Authenticated can read teaching_technique_materials
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 450 ---
+  tablename:  teaching_technique_subjects
+  policyname: Admins can manage teaching_technique_subjects
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 451 ---
+  tablename:  teaching_technique_subjects
+  policyname: Authenticated can read teaching_technique_subjects
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 452 ---
+  tablename:  teaching_techniques
+  policyname: Admins can manage teaching_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 453 ---
+  tablename:  teaching_techniques
+  policyname: Authenticated can read teaching_techniques
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 454 ---
+  tablename:  teammember_groups
+  policyname: coach manages school teammember_groups
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (group_id IN ( SELECT g.id
+   FROM (groups g
+     JOIN user_schools us ON ((g.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (group_id IN ( SELECT g.id
+   FROM (groups g
+     JOIN user_schools us ON ((g.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 455 ---
+  tablename:  teammember_groups
+  policyname: user reads own teammember_groups
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (teammember_id = auth.uid())
+  with_check: NULL
+--- Row 456 ---
+  tablename:  teammembers
+  policyname: Users can manage own teammembers entry
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 457 ---
+  tablename:  teammembers
+  policyname: Users can read own teammembers entry
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 458 ---
+  tablename:  technique_categories
+  policyname: Admins can manage technique_categories
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 459 ---
+  tablename:  technique_categories
+  policyname: Authenticated can read technique_categories
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 460 ---
+  tablename:  technique_coaches
+  policyname: Admins can manage technique_coaches
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 461 ---
+  tablename:  technique_coaches
+  policyname: Authenticated can read technique_coaches
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 462 ---
+  tablename:  technique_comments
+  policyname: Admins can manage technique_comments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 463 ---
+  tablename:  technique_comments
+  policyname: Authenticated can read technique_comments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 464 ---
+  tablename:  technique_usage_logs
+  policyname: School members can manage technique_usage_logs
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 465 ---
+  tablename:  text_exercise_recordings
+  policyname: School members can delete text_exercise_recordings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 466 ---
+  tablename:  text_exercise_recordings
+  policyname: School members can insert text_exercise_recordings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 467 ---
+  tablename:  text_exercise_recordings
+  policyname: School members can read text_exercise_recordings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 468 ---
+  tablename:  text_exercise_sessions
+  policyname: student rw own text_exercise_sessions
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        ALL
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 469 ---
+  tablename:  text_exercise_sessions
+  policyname: coach reads school text_exercise_sessions
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 470 ---
+  tablename:  texts
+  policyname: ref read texts
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (is_active = true)
+  with_check: NULL
+--- Row 471 ---
+  tablename:  topics
+  policyname: School members can delete topics
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (auth.uid() IS NOT NULL)
+  with_check: NULL
+--- Row 472 ---
+  tablename:  topics
+  policyname: School members can insert topics
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 473 ---
+  tablename:  topics
+  policyname: School members can read topics
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((student_id IS NULL) OR (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true)))))
+  with_check: NULL
+--- Row 474 ---
+  tablename:  user_favorites
+  policyname: Users can manage own user_favorites
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 475 ---
+  tablename:  user_invites
+  policyname: Authenticated can insert own user_invites
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (inviter_id = auth.uid())
+--- Row 476 ---
+  tablename:  user_invites
+  policyname: Authenticated can check invite code uniqueness
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((inviter_id = auth.uid()) OR (invite_code IS NOT NULL))
+  with_check: NULL
+--- Row 477 ---
+  tablename:  user_invites
+  policyname: Users can read own user_invites
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (invited_user_id = auth.uid())
+  with_check: NULL
+--- Row 478 ---
+  tablename:  user_preferences
+  policyname: Users can delete own user_preferences
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 479 ---
+  tablename:  user_preferences
+  policyname: Users can insert own user_preferences
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (user_id = auth.uid())
+--- Row 480 ---
+  tablename:  user_preferences
+  policyname: Users can read own user_preferences
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 481 ---
+  tablename:  user_preferences
+  policyname: Users can update own user_preferences
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 482 ---
+  tablename:  user_profiles
+  policyname: Users can insert own user_profiles
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (user_id = auth.uid())
+--- Row 483 ---
+  tablename:  user_profiles
+  policyname: Users can read own user_profiles
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 484 ---
+  tablename:  user_profiles
+  policyname: Users can update own user_profiles
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 485 ---
+  tablename:  user_progress
+  policyname: Users can manage own user_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 486 ---
+  tablename:  user_schools
+  policyname: Users can insert own user_schools
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (user_id = auth.uid())
+--- Row 487 ---
+  tablename:  user_schools
+  policyname: user reads own user_schools
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 488 ---
+  tablename:  user_sticker_sheets
+  policyname: Users can delete own sticker_sheets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 489 ---
+  tablename:  user_sticker_sheets
+  policyname: Users can insert own sticker_sheets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (user_id = auth.uid())
+--- Row 490 ---
+  tablename:  user_sticker_sheets
+  policyname: Users can read own sticker_sheets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (user_id = auth.uid())
+  with_check: NULL
+--- Row 491 ---
+  tablename:  user_sticker_sheets
+  policyname: Users can update own sticker_sheets
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 492 ---
+  tablename:  user_student_relations
+  policyname: user rw own user_student_relations
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 493 ---
+  tablename:  user_word_progress
+  policyname: user rw own user_word_progress
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 494 ---
+  tablename:  user_word_submissions
+  policyname: user rw own user_word_submissions
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (user_id = auth.uid())
+  with_check: (user_id = auth.uid())
+--- Row 495 ---
+  tablename:  verbs
+  policyname: ref read verbs
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 496 ---
+  tablename:  video_drawings
+  policyname: School members can delete video_drawings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 497 ---
+  tablename:  video_drawings
+  policyname: School members can insert video_drawings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 498 ---
+  tablename:  video_drawings
+  policyname: School members can read video_drawings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 499 ---
+  tablename:  video_moments
+  policyname: School members can delete video_moments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 500 ---
+  tablename:  video_moments
+  policyname: School members can insert video_moments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 501 ---
+  tablename:  video_moments
+  policyname: School members can read video_moments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 502 ---
+  tablename:  video_moments
+  policyname: School members can update video_moments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 503 ---
+  tablename:  video_recordings
+  policyname: School members can delete video_recordings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 504 ---
+  tablename:  video_recordings
+  policyname: School members can insert video_recordings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 505 ---
+  tablename:  video_recordings
+  policyname: School members can read video_recordings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 506 ---
+  tablename:  video_technique_logs
+  policyname: School members can insert video_technique_logs
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 507 ---
+  tablename:  video_technique_logs
+  policyname: School members can read video_technique_logs
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 508 ---
+  tablename:  video_technique_usage
+  policyname: School members can insert video_technique_usage
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 509 ---
+  tablename:  video_technique_usage
+  policyname: School members can read video_technique_usage
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 510 ---
+  tablename:  video_technique_usage
+  policyname: School members can update video_technique_usage
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 511 ---
+  tablename:  video_word_lists
+  policyname: School members can delete video_word_lists
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 512 ---
+  tablename:  video_word_lists
+  policyname: School members can insert video_word_lists
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 513 ---
+  tablename:  video_word_lists
+  policyname: School members can read video_word_lists
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 514 ---
+  tablename:  videos
+  policyname: Authenticated can delete videos
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (auth.uid() IS NOT NULL)
+  with_check: NULL
+--- Row 515 ---
+  tablename:  videos
+  policyname: Authenticated can insert videos
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 516 ---
+  tablename:  videos
+  policyname: School members can read videos
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       ((student_id IS NULL) OR (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true)))))
+  with_check: NULL
+--- Row 517 ---
+  tablename:  videos
+  policyname: Authenticated can update videos
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (auth.uid() IS NOT NULL)
+  with_check: (auth.uid() IS NOT NULL)
+--- Row 518 ---
+  tablename:  vocabulary_categories
+  policyname: Admins can delete vocabulary_categories
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 519 ---
+  tablename:  vocabulary_categories
+  policyname: Admins can manage vocabulary_categories
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 520 ---
+  tablename:  vocabulary_categories
+  policyname: Authenticated can read vocabulary_categories
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 521 ---
+  tablename:  vocabulary_categories
+  policyname: Admins can update vocabulary_categories
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 522 ---
+  tablename:  vocabulary_practice_log
+  policyname: School members can insert vocabulary_practice_log
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 523 ---
+  tablename:  vocabulary_practice_log
+  policyname: School members can read vocabulary_practice_log
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 524 ---
+  tablename:  vocabulary_words
+  policyname: Admins can delete vocabulary_words
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 525 ---
+  tablename:  vocabulary_words
+  policyname: Admins can manage vocabulary_words
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 526 ---
+  tablename:  vocabulary_words
+  policyname: Authenticated can read vocabulary_words
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 527 ---
+  tablename:  vocabulary_words
+  policyname: Admins can update vocabulary_words
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 528 ---
+  tablename:  voucher_codes
+  policyname: Admins can manage voucher_codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 529 ---
+  tablename:  voucher_codes
+  policyname: Authenticated can read voucher codes for redemption
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 530 ---
+  tablename:  voucher_codes
+  policyname: Authenticated can redeem voucher codes
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (status = 'unused'::voucher_status)
+  with_check: ((redeemed_by_user_id = auth.uid()) AND (status = 'redeemed'::voucher_status))
+--- Row 531 ---
+  tablename:  webwijzer_access_log
+  policyname: Anon can insert webwijzer_access_log for own student
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id = current_student_id())
+--- Row 532 ---
+  tablename:  webwijzer_access_log
+  policyname: Authenticated can insert webwijzer_access_log for own students
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 533 ---
+  tablename:  webwijzer_access_log
+  policyname: School members can read webwijzer_access_log
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 534 ---
+  tablename:  webwijzer_assignments
+  policyname: School members can manage webwijzer_assignments
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (content_id IN ( SELECT webwijzer_content.id
+   FROM webwijzer_content
+  WHERE (webwijzer_content.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: (content_id IN ( SELECT webwijzer_content.id
+   FROM webwijzer_content
+  WHERE (webwijzer_content.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 535 ---
+  tablename:  webwijzer_assignments
+  policyname: Public can read webwijzer_assignments
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 536 ---
+  tablename:  webwijzer_content
+  policyname: School members can manage webwijzer_content
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 537 ---
+  tablename:  webwijzer_content
+  policyname: Public can read webwijzer_content
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 538 ---
+  tablename:  webwijzer_usage
+  policyname: Anon can insert webwijzer_usage for own student
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id = current_student_id())
+--- Row 539 ---
+  tablename:  webwijzer_usage
+  policyname: Authenticated can insert webwijzer_usage for own students
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 540 ---
+  tablename:  webwijzer_usage
+  policyname: School members can read webwijzer_usage
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 541 ---
+  tablename:  word_antonyms
+  policyname: ref read word_antonyms
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 542 ---
+  tablename:  word_categories
+  policyname: ref read word_categories
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 543 ---
+  tablename:  word_category_links
+  policyname: ref read word_category_links
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 544 ---
+  tablename:  word_exercise_attempts
+  policyname: student rw own word_exercise_attempts
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        ALL
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 545 ---
+  tablename:  word_exercise_attempts
+  policyname: coach inserts school word_exercise_attempts
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 546 ---
+  tablename:  word_exercise_attempts
+  policyname: coach reads school word_exercise_attempts
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 547 ---
+  tablename:  word_exercise_attempts
+  policyname: coach updates school word_exercise_attempts
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        UPDATE
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((s.school_id = us.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: NULL
+--- Row 548 ---
+  tablename:  word_expression_links
+  policyname: ref read word_expression_links
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 549 ---
+  tablename:  word_expressions
+  policyname: ref read word_expressions
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 550 ---
+  tablename:  word_frequency
+  policyname: ref read word_frequency
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 551 ---
+  tablename:  word_lists
+  policyname: user deletes own word_lists
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        DELETE
+  qual:       (created_by = auth.uid())
+  with_check: NULL
+--- Row 552 ---
+  tablename:  word_lists
+  policyname: user inserts own word_lists
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (created_by = auth.uid())
+--- Row 553 ---
+  tablename:  word_lists
+  policyname: anyone reads public word_lists
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       ((is_public = true) AND (is_active = true))
+  with_check: NULL
+--- Row 554 ---
+  tablename:  word_lists
+  policyname: student reads assigned word_lists
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (id IN ( SELECT student_lists.list_id
+   FROM student_lists
+  WHERE (student_lists.student_id = current_student_id())))
+  with_check: NULL
+--- Row 555 ---
+  tablename:  word_lists
+  policyname: user reads own word_lists
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (created_by = auth.uid())
+  with_check: NULL
+--- Row 556 ---
+  tablename:  word_lists
+  policyname: user reads school word_lists
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 557 ---
+  tablename:  word_lists
+  policyname: user updates own word_lists
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        UPDATE
+  qual:       (created_by = auth.uid())
+  with_check: NULL
+--- Row 558 ---
+  tablename:  word_plurals
+  policyname: ref read word_plurals
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 559 ---
+  tablename:  word_synonyms
+  policyname: ref read word_synonyms
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 560 ---
+  tablename:  wordfrequency
+  policyname: ref read wordfrequency
+  permissive: PERMISSIVE
+  roles:      {public}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 561 ---
+  tablename:  writing_exercises
+  policyname: Admins can delete writing_exercises
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       is_current_user_admin()
+  with_check: NULL
+--- Row 562 ---
+  tablename:  writing_exercises
+  policyname: Admins can manage writing_exercises
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: is_current_user_admin()
+--- Row 563 ---
+  tablename:  writing_exercises
+  policyname: Authenticated can read writing_exercises
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 564 ---
+  tablename:  writing_exercises
+  policyname: Admins can update writing_exercises
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       is_current_user_admin()
+  with_check: is_current_user_admin()
+--- Row 565 ---
+  tablename:  writing_practice_log
+  policyname: School members can insert writing_practice_log
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+--- Row 566 ---
+  tablename:  writing_practice_log
+  policyname: School members can read writing_practice_log
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (group_id IN ( SELECT g.id
+   FROM groups g
+  WHERE (g.school_id IN ( SELECT user_schools.school_id
+           FROM user_schools
+          WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))))
+  with_check: NULL
+--- Row 567 ---
+  tablename:  zoeker_notifications
+  policyname: Teachers can manage zoeker_notifications
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+  with_check: (student_id IN ( SELECT s.id
+   FROM (students s
+     JOIN user_schools us ON ((us.school_id = s.school_id)))
+  WHERE ((us.user_id = auth.uid()) AND (us.is_active = true))))
+--- Row 568 ---
+  tablename:  zoeker_notifications
+  policyname: Students can read own zoeker_notifications
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        SELECT
+  qual:       (student_id = current_student_id())
+  with_check: NULL
+--- Row 569 ---
+  tablename:  zoeker_notifications
+  policyname: Students can update own zoeker_notifications
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        UPDATE
+  qual:       (student_id = current_student_id())
+  with_check: (student_id = current_student_id())
+--- Row 570 ---
+  tablename:  zoeker_search_history
+  policyname: Anon students can insert zoeker search history
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: true
+--- Row 571 ---
+  tablename:  zoeker_search_history
+  policyname: Anon students can view own zoeker search history
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 572 ---
+  tablename:  zoeker_search_history
+  policyname: Teachers can view school zoeker_search_history
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 573 ---
+  tablename:  zoeker_search_requests
+  policyname: Teachers can delete school zoeker_search_requests
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        DELETE
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 574 ---
+  tablename:  zoeker_search_requests
+  policyname: Anon students can insert zoeker search requests
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        INSERT
+  qual:       NULL
+  with_check: true
+--- Row 575 ---
+  tablename:  zoeker_search_requests
+  policyname: Anon students can read own zoeker search requests
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        SELECT
+  qual:       true
+  with_check: NULL
+--- Row 576 ---
+  tablename:  zoeker_search_requests
+  policyname: Teachers can view school zoeker_search_requests
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        SELECT
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: NULL
+--- Row 577 ---
+  tablename:  zoeker_search_requests
+  policyname: Anon students can update own zoeker search requests
+  permissive: PERMISSIVE
+  roles:      {anon}
+  cmd:        UPDATE
+  qual:       true
+  with_check: true
+--- Row 578 ---
+  tablename:  zoeker_search_requests
+  policyname: Teachers can update school zoeker_search_requests
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        UPDATE
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+--- Row 579 ---
+  tablename:  zoeker_settings
+  policyname: School members can manage zoeker_settings
+  permissive: PERMISSIVE
+  roles:      {authenticated}
+  cmd:        ALL
+  qual:       (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))
+  with_check: (school_id IN ( SELECT user_schools.school_id
+   FROM user_schools
+  WHERE ((user_schools.user_id = auth.uid()) AND (user_schools.is_active = true))))

@@ -470,9 +470,9 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="space-y-6">
           {/* Main Content Section */}
-          <div className="xl:col-span-2 space-y-6">
+          <div className="space-y-6">
             <Card>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Content Details</h2>
 
@@ -862,10 +862,9 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
             )}
           </div>
 
-          {/* Settings Sidebar - Only show for new content */}
+          {/* Content Settings - Only show for new content */}
           {!content && (
-            <div className="space-y-6">
-              <Card>
+            <Card>
                 <h3 className="font-semibold text-gray-900 mb-4">Content Settings</h3>
 
                 {selectedStudents.size === 0 && selectedGroups.size === 0 ? (
@@ -980,8 +979,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                     </div>
                   </div>
                 )}
-              </Card>
-            </div>
+            </Card>
           )}
         </div>
 

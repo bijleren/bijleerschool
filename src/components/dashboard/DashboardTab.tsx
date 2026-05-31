@@ -1308,7 +1308,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                         </div>
                         <div className="flex items-center gap-1">
                           <Users className="w-3 h-3" />
-                          Gemeld door: {incident.profiles.first_name} {incident.profiles.last_name}
+                          Gemeld door: {incident.profiles?.first_name ?? ''} {incident.profiles?.last_name ?? ''}
                         </div>
                       </div>
                     </div>

@@ -13,7 +13,8 @@ import { DidactiekFAQ } from './DidactiekFAQ';
 import { DidactiekVormingen } from './DidactiekVormingen';
 import { QASessionsSection } from './QASessionsSection';
 import { NieuwsbriefTab } from '../nieuwsbrief/NieuwsbriefTab';
-import { BookOpen, Plus, Search, Filter, Settings, Play, ExternalLink, Users, BookMarked, Wrench, BarChart3, Clock, CreditCard as Edit, HelpCircle, Video, FileText, Lock, Info } from 'lucide-react';
+import { BookOpen, Plus, Search, Filter, Settings, Play, ExternalLink, Users, BookMarked, Wrench, BarChart3, Clock, CreditCard as Edit, HelpCircle, Video, FileText, Lock, Info, HandHelping } from 'lucide-react';
+import { DidactiekBegeleiding } from './DidactiekBegeleiding';
 
 interface AgeGroup {
   id: string;
@@ -79,7 +80,7 @@ interface UserSchool {
 }
 
 interface TeachingTabProps {
-  initialPage?: 'technieken' | 'faq' | 'vormingen' | 'newsletter';
+  initialPage?: 'technieken' | 'faq' | 'vormingen' | 'newsletter' | 'begeleiding';
 }
 
 export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {}) {
@@ -87,7 +88,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
-  const [activePage, setActivePage] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>(initialPage);
+  const [activePage, setActivePage] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter' | 'begeleiding'>(initialPage);
   const [activeView, setActiveView] = useState<'list' | 'form' | 'detail' | 'management' | 'analytics'>('list');
   const [techniques, setTechniques] = useState<TeachingTechnique[]>([]);
   const [ageGroups, setAgeGroups] = useState<AgeGroup[]>([]);
@@ -432,6 +433,17 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
         <FileText className="w-4 h-4" />
         <span>Nieuwsbrief</span>
       </button>
+      <button
+        onClick={() => setActivePage('begeleiding')}
+        className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
+          activePage === 'begeleiding'
+            ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+            : 'text-gray-700 hover:text-blue-600'
+        }`}
+      >
+        <HandHelping className="w-4 h-4" />
+        <span>Begeleiding</span>
+      </button>
     </div>
   );
 
@@ -459,6 +471,15 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
       <div className="space-y-6">
         {renderTabNav()}
         <NieuwsbriefTab isPremium={isPremium} isAdmin={isAdmin} />
+      </div>
+    );
+  }
+
+  if (activePage === 'begeleiding') {
+    return (
+      <div className="space-y-6">
+        {renderTabNav()}
+        <DidactiekBegeleiding />
       </div>
     );
   }

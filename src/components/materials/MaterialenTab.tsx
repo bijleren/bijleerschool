@@ -6,7 +6,8 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
-import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, Edit, Trash2 } from 'lucide-react';
+import { QrCode, Package, Plus, Search, ArrowLeft, Camera, X, UserCheck, UserX, CreditCard as Edit, Trash2, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { UniversalScanner } from '../ui/UniversalScanner';
 
 interface Material {
@@ -450,6 +451,22 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
     );
   }
 
+  const exportToExcel = () => {
+    const rows = filteredMaterials.map(m => ({
+      Titel: m.title,
+      'BlinkQR code': m.blink_code,
+      Beschrijving: m.description ?? '',
+      'Totaal exemplaren': m.total_copies,
+      'Beschikbare exemplaren': m.available_copies,
+      'Uitgeleend': m.total_copies - m.available_copies,
+      'Toegevoegd op': new Date(m.created_at).toLocaleDateString('nl-BE'),
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Materialen');
+    XLSX.writeFile(wb, `materialen_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -458,6 +475,10 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
           <p className="text-sm text-gray-600 mt-1">Beheer schoolmateriaal met BlinkQR codes</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="secondary" onClick={exportToExcel} disabled={filteredMaterials.length === 0}>
+            <Download className="w-4 h-4 mr-2" />
+            Exporteren
+          </Button>
           <Button onClick={() => setShowScanner(true)}>
             <QrCode className="w-4 h-4 mr-2" />
             Scan Code

@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide the injected header/footer UI from html5-qrcode */
+[id^="webwijzer-qr-"] > #qr-reader__header_message,
+[id^="webwijzer-qr-"] > #qr-reader__status_span,
+[id^="webwijzer-qr-"] > #qr-reader__dashboard,
+[id^="webwijzer-qr-"] > #qr-reader__filescan_input {
+  display: none !important;
+}
+[id^="webwijzer-qr-"] video {
+  border-radius: 0;
+}
+
 @keyframes slide-up {
   from {
     transform: translateY(100%);

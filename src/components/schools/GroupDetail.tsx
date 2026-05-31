@@ -6,7 +6,7 @@ import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { GroupStudentImport } from './GroupStudentImport';
-import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, AlertTriangle, Calendar, Clock, Upload } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, AlertTriangle, Calendar, Clock, Upload, Palette } from 'lucide-react';
 
 interface Group {
   id: string;
@@ -38,6 +38,7 @@ interface Student {
   last_name: string;
   student_number: string | null;
   grade_level: string | null;
+  color: string | null;
 }
 
 interface Teammember {
@@ -125,6 +126,9 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
   const [showAddTeammember, setShowAddTeammember] = useState(false);
   const [showAddGrade, setShowAddGrade] = useState(false);
   const [showImportStudents, setShowImportStudents] = useState(false);
+  const [showBulkColorModal, setShowBulkColorModal] = useState(false);
+  const [bulkColor, setBulkColor] = useState('#3B82F6');
+  const [bulkColorApplying, setBulkColorApplying] = useState(false);
   const [studentSearch, setStudentSearch] = useState('');
   const [teammemberSearch, setTeammemberSearch] = useState('');
 
@@ -761,10 +765,29 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
       teammemberSearch === '' || 
       `${userSchool.profiles.first_name} ${userSchool.profiles.last_name}`.toLowerCase().includes(teammemberSearch.toLowerCase())
     )
-    .filter((userSchool, index, self) => 
+    .filter((userSchool, index, self) =>
       // Remove duplicates based on user_id
       index === self.findIndex(t => t.user_id === userSchool.user_id)
     );
+
+  const handleBulkColorApply = async () => {
+    if (!groupStudents.length) return;
+    setBulkColorApplying(true);
+    try {
+      const studentIds = groupStudents.map(sg => sg.students.id);
+      const { error } = await supabase
+        .from('students')
+        .update({ color: bulkColor })
+        .in('id', studentIds);
+      if (error) throw error;
+      setShowBulkColorModal(false);
+      fetchGroupData();
+    } catch (err) {
+      console.error('Error applying bulk color:', err);
+    } finally {
+      setBulkColorApplying(false);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -970,6 +993,15 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
             Leerlingen ({groupStudents.length})
           </h3>
           <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => { setBulkColor('#3B82F6'); setShowBulkColorModal(true); }}
+              disabled={groupStudents.length === 0}
+              title="Kleur instellen voor alle leerlingen in de groep"
+            >
+              <Palette className="w-4 h-4 mr-2" />
+              Kleur instellen
+            </Button>
             <Button variant="secondary" onClick={() => setShowImportStudents(true)}>
               <Upload className="w-4 h-4 mr-2" />
               Importeren
@@ -1278,6 +1310,100 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
         cancelText="Annuleren"
         variant="danger"
       />
+
+      {/* Bulk Color Modal */}
+      {showBulkColorModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <Palette className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">Kleur instellen</h2>
+                  <p className="text-sm text-gray-500">{groupStudents.length} leerling{groupStudents.length !== 1 ? 'en' : ''}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowBulkColorModal(false)}
+                className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              <p className="text-sm text-gray-600">
+                Kies een kleur die wordt toegepast op alle leerlingen in deze groep. Dit heeft invloed op hun WebWijzer-kaarten.
+              </p>
+
+              {/* Color preview */}
+              <div className="flex items-center gap-4">
+                <div
+                  className="w-14 h-14 rounded-2xl shadow-md border-4 border-white ring-2 ring-gray-200 transition-all"
+                  style={{ backgroundColor: bulkColor }}
+                />
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Geselecteerde kleur</p>
+                  <p className="text-sm font-mono text-gray-800">{bulkColor.toUpperCase()}</p>
+                </div>
+              </div>
+
+              {/* Preset swatches */}
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Snelle keuze</p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    '#EF4444','#F97316','#EAB308','#22C55E',
+                    '#14B8A6','#3B82F6','#8B5CF6','#EC4899',
+                    '#6B7280','#1E293B','#F8FAFC','#FFFFFF',
+                  ].map(c => (
+                    <button
+                      key={c}
+                      onClick={() => setBulkColor(c)}
+                      className="w-8 h-8 rounded-full border-2 transition-all hover:scale-110 focus:outline-none"
+                      style={{
+                        backgroundColor: c,
+                        borderColor: bulkColor === c ? '#1d4ed8' : '#e5e7eb',
+                        boxShadow: bulkColor === c ? '0 0 0 2px #bfdbfe' : undefined,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Native color picker */}
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Eigen kleur</p>
+                <input
+                  type="color"
+                  value={bulkColor}
+                  onChange={e => setBulkColor(e.target.value)}
+                  className="w-full h-10 rounded-lg cursor-pointer border border-gray-200"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 p-6 pt-0">
+              <Button
+                variant="secondary"
+                className="flex-1"
+                onClick={() => setShowBulkColorModal(false)}
+              >
+                Annuleren
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handleBulkColorApply}
+                loading={bulkColorApplying}
+              >
+                Toepassen op alle leerlingen
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

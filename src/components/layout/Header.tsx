@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid2x2 as Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library, Star, Brain } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid2x2 as Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library, Star, Brain, MessageSquare, Bug, Lightbulb, X, Send, HandHelping } from 'lucide-react';
 
 interface UserSchool {
   id: string;
@@ -24,6 +24,7 @@ interface HeaderProps {
   onNavigateToTeachingFAQ: () => void;
   onNavigateToTeachingVormingen: () => void;
   onNavigateToNieuwsbrief: () => void;
+  onNavigateToBegeleiding: () => void;
   onNavigateToWebWijzer: () => void;
   onNavigateToActivityBoards: () => void;
   onNavigateToBoeker: () => void;
@@ -38,7 +39,7 @@ interface HeaderProps {
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToLeescoach, onNavigateToZoeker, onNavigateToEDI, onNavigateToDigiTools, onNavigateToBlinkQR, onNavigateToSporen, onNavigateToExecutieveFuncties, onNavigateToOnboarding, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToBegeleiding, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToLeescoach, onNavigateToZoeker, onNavigateToEDI, onNavigateToDigiTools, onNavigateToBlinkQR, onNavigateToSporen, onNavigateToExecutieveFuncties, onNavigateToOnboarding, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
@@ -48,6 +49,12 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
   const [showSlimmeICTDropdown, setShowSlimmeICTDropdown] = useState(false);
   const [showVersionModal, setShowVersionModal] = useState(false);
   const [hasPremiumSchool, setHasPremiumSchool] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackType, setFeedbackType] = useState<'bug' | 'suggestie' | 'vraag'>('bug');
+  const [feedbackTitle, setFeedbackTitle] = useState('');
+  const [feedbackDescription, setFeedbackDescription] = useState('');
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const appsDropdownRef = useRef<HTMLDivElement>(null);
   const didactiekDropdownRef = useRef<HTMLDivElement>(null);
@@ -115,11 +122,42 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
 
   const handleBehaviorClick = () => {
     if (focusSchool) {
-      // Use focus school for behavior navigation
       onNavigateToBehaviorWithSchool(focusSchool);
     } else {
-      // Fallback to behavior selection if no focus school
       onNavigateToBehavior();
+    }
+  };
+
+  const openFeedbackModal = () => {
+    setFeedbackType('bug');
+    setFeedbackTitle('');
+    setFeedbackDescription('');
+    setFeedbackSuccess(false);
+    setShowFeedbackModal(true);
+    setShowProfileDropdown(false);
+  };
+
+  const submitFeedback = async () => {
+    if (!feedbackTitle.trim() || !feedbackDescription.trim()) return;
+    setFeedbackSubmitting(true);
+    try {
+      await supabase.from('bug_reports').insert({
+        type: feedbackType,
+        title: feedbackTitle.trim().slice(0, 200),
+        description: feedbackDescription.trim().slice(0, 5000),
+        user_id: user?.id ?? null,
+        user_email: user?.email ?? null,
+        url: window.location.href,
+        user_agent: navigator.userAgent,
+        viewport: `${window.innerWidth}x${window.innerHeight}`,
+        locale: navigator.language,
+        status: 'new',
+      });
+      setFeedbackSuccess(true);
+    } catch (err) {
+      console.error('Error submitting feedback:', err);
+    } finally {
+      setFeedbackSubmitting(false);
     }
   };
 
@@ -258,6 +296,30 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                       <Wrench className="w-4 h-4 mr-2" />
                       DigiTools
                     </button>
+                  </div>
+                  <div className="border-t border-gray-100 mx-3 my-1" />
+                  <div className="px-3 py-1">
+                    <p className="text-xs text-gray-400 font-medium px-2 pb-1">Meer van bijleer</p>
+                    <a
+                      href="https://woordenschat.be"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setShowAppsDropdown(false)}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <BookOpen className="w-4 h-4 mr-2 text-emerald-600" />
+                      woordenschat.be
+                    </a>
+                    <a
+                      href="https://kleuterdidactiek.be"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setShowAppsDropdown(false)}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2 text-pink-500" />
+                      kleuterdidactiek.be
+                    </a>
                   </div>
                 </div>
               )}
@@ -409,6 +471,16 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     <Newspaper className="w-4 h-4 mr-3" />
                     Nieuwsbrief
                   </button>
+                  <button
+                    onClick={() => {
+                      onNavigateToBegeleiding();
+                      setShowDidactiekDropdown(false);
+                    }}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <HandHelping className="w-4 h-4 mr-3" />
+                    Begeleiding
+                  </button>
                 </div>
               )}
             </div>
@@ -470,6 +542,14 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     </button>
                   )}
 
+                  <button
+                    onClick={openFeedbackModal}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-3" />
+                    Geef feedback
+                  </button>
+
                   {!hasPremiumSchool && (
                     <button
                       onClick={() => {
@@ -507,6 +587,151 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
         isOpen={showVersionModal}
         onClose={() => setShowVersionModal(false)}
       />
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowFeedbackModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center justify-center w-9 h-9 bg-blue-50 rounded-lg">
+                  <MessageSquare className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-gray-900">Feedback of bug melden</h2>
+                  <p className="text-xs text-gray-500">We lezen elke inzending</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowFeedbackModal(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {feedbackSuccess ? (
+              <div className="px-6 py-12 text-center">
+                <div className="flex items-center justify-center w-14 h-14 bg-green-100 rounded-full mx-auto mb-4">
+                  <Send className="w-6 h-6 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Bedankt!</h3>
+                <p className="text-sm text-gray-500 mb-6">Je feedback is ontvangen. We bekijken het zo snel mogelijk.</p>
+                <button
+                  onClick={() => setShowFeedbackModal(false)}
+                  className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Sluiten
+                </button>
+              </div>
+            ) : (
+              <div className="px-6 py-5 space-y-4">
+                {/* Type selector */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Soort melding</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { value: 'bug', label: 'Bug melden', icon: Bug, color: 'red' },
+                      { value: 'suggestie', label: 'Idee / feedback', icon: Lightbulb, color: 'amber' },
+                      { value: 'vraag', label: 'Vraag', icon: HelpCircle, color: 'blue' },
+                    ] as const).map(({ value, label, icon: Icon, color }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setFeedbackType(value)}
+                        className={`flex flex-col items-center justify-center gap-1.5 px-3 py-3 rounded-xl border-2 text-xs font-medium transition-all ${
+                          feedbackType === value
+                            ? color === 'red'
+                              ? 'border-red-400 bg-red-50 text-red-700'
+                              : color === 'amber'
+                              ? 'border-amber-400 bg-amber-50 text-amber-700'
+                              : 'border-blue-400 bg-blue-50 text-blue-700'
+                            : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Title */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Titel</label>
+                  <input
+                    type="text"
+                    value={feedbackTitle}
+                    onChange={(e) => setFeedbackTitle(e.target.value)}
+                    maxLength={200}
+                    placeholder={
+                      feedbackType === 'bug'
+                        ? 'Korte omschrijving van het probleem'
+                        : feedbackType === 'suggestie'
+                        ? 'Kort idee of suggestie'
+                        : 'Stel je vraag kort'
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Beschrijving</label>
+                  <textarea
+                    value={feedbackDescription}
+                    onChange={(e) => setFeedbackDescription(e.target.value)}
+                    maxLength={5000}
+                    rows={4}
+                    placeholder={
+                      feedbackType === 'bug'
+                        ? 'Beschrijf wat er misging en hoe we het kunnen nabootsen...'
+                        : feedbackType === 'suggestie'
+                        ? 'Beschrijf je idee of feedback in detail...'
+                        : 'Beschrijf je vraag zo duidelijk mogelijk...'
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  />
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end space-x-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowFeedbackModal(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Annuleren
+                  </button>
+                  <button
+                    type="button"
+                    onClick={submitFeedback}
+                    disabled={feedbackSubmitting || !feedbackTitle.trim() || !feedbackDescription.trim()}
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {feedbackSubmitting ? (
+                      <span className="flex items-center">
+                        <svg className="animate-spin -ml-0.5 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                        Versturen...
+                      </span>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Versturen
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }

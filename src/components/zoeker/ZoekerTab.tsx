@@ -4,7 +4,8 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { Search, CheckCircle, CreditCard as Edit3, XCircle, BarChart3, Clock, CheckSquare, TrendingUp, Youtube, Globe, Image as ImageIcon, Tv, BookOpen, Users as UsersIcon, MessageCircle } from 'lucide-react';
+import { Search, CheckCircle, CreditCard as Edit3, XCircle, BarChart3, Clock, CheckSquare, TrendingUp, Youtube, Globe, Image as ImageIcon, Tv, BookOpen, Users as UsersIcon, MessageCircle, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface Student {
   id: string;
@@ -389,6 +390,42 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
     }
   };
 
+  const exportToExcel = () => {
+    const TARGET_LABELS: Record<string, string> = {
+      youtube: 'YouTube', google: 'Google', images: 'Afbeeldingen',
+      schooltv: 'SchoolTV', wikipedia: 'Wikipedia', wikikids: 'WikiKids', prompt: 'Antwoord'
+    };
+    const STATUS_LABELS: Record<string, string> = {
+      pending: 'Wachtend', approved: 'Goedgekeurd',
+      needs_improvement: 'Moet verbeteren', rejected: 'Afgekeurd', answered: 'Beantwoord'
+    };
+    const rows = students.flatMap(s => {
+      const req = s.pending_request;
+      if (!req) return [{
+        Leerling: `${s.first_name} ${s.last_name}`,
+        Zoekopdracht: '',
+        Doel: '',
+        Status: 'Geen verzoek',
+        'Leerkracht feedback': '',
+        'Aangepaste zoekopdracht': '',
+        Datum: '',
+      }];
+      return [{
+        Leerling: `${s.first_name} ${s.last_name}`,
+        Zoekopdracht: req.query,
+        Doel: TARGET_LABELS[req.target] ?? req.target,
+        Status: STATUS_LABELS[req.status] ?? req.status,
+        'Leerkracht feedback': req.teacher_feedback ?? '',
+        'Aangepaste zoekopdracht': req.modified_query ?? '',
+        Datum: new Date(req.created_at).toLocaleDateString('nl-BE'),
+      }];
+    });
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Zoekopdrachten');
+    XLSX.writeFile(wb, `zoeker_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -406,6 +443,10 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
           <p className="text-gray-600">Beheer zoekopdrachten van leerlingen</p>
         </div>
         <div className="flex items-center gap-3">
+          <Button variant="secondary" onClick={exportToExcel} disabled={students.length === 0}>
+            <Download className="w-4 h-4 mr-2" />
+            Exporteren
+          </Button>
           <label className="font-semibold text-gray-700">Klas:</label>
           <select
             value={selectedGroup || ''}

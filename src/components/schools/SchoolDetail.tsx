@@ -8,7 +8,9 @@ import { StudentImport } from './StudentImport';
 import { GradeManagement } from '../schoolday/GradeManagement';
 import { SubjectsManagement } from '../schoolday/SubjectsManagement';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive, Calendar, LogOut, Tag } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive, Calendar, LogOut, Tag, Image as ImageIcon, Zap, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { trackFileUpload } from '../../utils/storageTracking';
 import { DataGebruikTab } from '../storage/DataGebruikTab';
 import { DayTimeline } from '../schoolday/DayTimeline';
 import { TemplateBuilder } from '../schoolday/TemplateBuilder';
@@ -36,6 +38,9 @@ interface Student {
   date_of_birth: string | null;
   is_active: boolean;
   created_at: string;
+  profile_picture_url?: string | null;
+  symbol_url?: string | null;
+  color?: string | null;
 }
 
 interface Group {
@@ -117,6 +122,12 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [tagFilterMode, setTagFilterMode] = useState<'OR' | 'AND'>('OR');
   const [studentTagMap, setStudentTagMap] = useState<Map<string, string[]>>(new Map());
 
+  // Quick edit mode
+  const [quickUploadMode, setQuickUploadMode] = useState(false);
+  const [quickUploadingId, setQuickUploadingId] = useState<string | null>(null);
+  const [schoolColors, setSchoolColors] = useState<string[]>([]);
+  const [colorPickerOpenId, setColorPickerOpenId] = useState<string | null>(null);
+
   // Student form
   const [newStudentFirstName, setNewStudentFirstName] = useState('');
   const [newStudentLastName, setNewStudentLastName] = useState('');
@@ -147,6 +158,16 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     message: '',
     onConfirm: () => {},
   });
+
+  useEffect(() => {
+    if (!colorPickerOpenId) return;
+    const close = () => setColorPickerOpenId(null);
+    const timer = setTimeout(() => document.addEventListener('click', close), 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('click', close);
+    };
+  }, [colorPickerOpenId]);
 
   useEffect(() => {
     fetchUserRole();
@@ -452,6 +473,46 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     setNewGroupSchoolYear('');
   };
 
+  const handleQuickUpload = async (studentId: string, file: File, type: 'profile' | 'symbol') => {
+    setQuickUploadingId(studentId);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${studentId}_${type}_${Date.now()}.${fileExt}`;
+      const filePath = `${school.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('student-files')
+        .upload(filePath, file, { cacheControl: '3600', upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      if (user) {
+        await trackFileUpload(school.id, 'student_photo', `student-files/${filePath}`, file.size, user.id);
+      }
+
+      const { data: { publicUrl } } = supabase.storage.from('student-files').getPublicUrl(filePath);
+
+      const updateField = type === 'profile' ? { profile_picture_url: publicUrl } : { symbol_url: publicUrl };
+      const { error: updateError } = await supabase.from('students').update(updateField).eq('id', studentId);
+      if (updateError) throw updateError;
+
+      setStudents(prev => prev.map(s => s.id === studentId ? { ...s, ...updateField } : s));
+    } catch (err) {
+      console.error('Quick upload error:', err);
+    } finally {
+      setQuickUploadingId(null);
+    }
+  };
+
+  const handleQuickColorUpdate = async (studentId: string, color: string) => {
+    setStudents(prev => prev.map(s => s.id === studentId ? { ...s, color } : s));
+    setColorPickerOpenId(null);
+    await supabase.from('students').update({ color }).eq('id', studentId);
+    // Refresh palette of used colors
+    const used = [...new Set(students.map(s => s.id === studentId ? color : s.color).filter(Boolean))] as string[];
+    setSchoolColors(used);
+  };
+
   const handleStudentClick = (student: Student) => {
     console.log('SchoolDetail: Student clicked:', student.id, school.id);
     // Dispatch custom event for navigation
@@ -539,6 +600,22 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   };
 
   const isAdmin = userRole === 'admin';
+
+  const exportStudentsToExcel = () => {
+    const rows = students.map(s => ({
+      Voornaam: s.first_name,
+      Achternaam: s.last_name,
+      Leerlingnummer: s.student_number ?? '',
+      Leerjaar: s.grade_level ?? '',
+      Geboortedatum: s.date_of_birth ? new Date(s.date_of_birth).toLocaleDateString('nl-BE') : '',
+      Status: s.is_active ? 'Actief' : 'Inactief',
+      'Toegevoegd op': new Date(s.created_at).toLocaleDateString('nl-BE'),
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Leerlingen');
+    XLSX.writeFile(wb, `leerlingen_${school.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -736,10 +813,35 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
               <div className="flex space-x-3">
                 <Button
                   variant="secondary"
+                  onClick={exportStudentsToExcel}
+                  disabled={students.length === 0}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Exporteren
+                </Button>
+                <Button
+                  variant="secondary"
                   onClick={() => setShowImportStudents(true)}
                 >
                   <Upload className="w-4 h-4 mr-2" />
                   Importeren
+                </Button>
+                <Button
+                  variant={quickUploadMode ? 'primary' : 'secondary'}
+                  onClick={() => {
+                    const next = !quickUploadMode;
+                    setQuickUploadMode(next);
+                    if (next) {
+                      const used = [...new Set(students.map(s => s.color).filter(Boolean))] as string[];
+                      setSchoolColors(used);
+                    } else {
+                      setColorPickerOpenId(null);
+                    }
+                  }}
+                  title="Snel foto, symbool en kleur aanpassen per leerling"
+                >
+                  <Zap className="w-4 h-4 mr-2" />
+                  Snel aanpassen
                 </Button>
                 <Button onClick={() => setShowAddStudent(true)}>
                   <Plus className="w-4 h-4 mr-2" />
@@ -877,21 +979,126 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                 <Card key={student.id} className="hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
-                        {student.profile_picture_url ? (
-                          <img
-                            src={student.profile_picture_url}
-                            alt={`${student.first_name} ${student.last_name}`}
-                            className="w-full h-full object-cover"
-                          />
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {quickUploadMode ? (
+                          <label
+                            className={`relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 cursor-pointer group ${quickUploadingId === student.id ? 'opacity-60 cursor-not-allowed' : ''}`}
+                            title="Klik om profielfoto te uploaden"
+                          >
+                            <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                              {student.profile_picture_url ? (
+                                <img src={student.profile_picture_url} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <GraduationCap className="w-6 h-6 text-blue-600" />
+                              )}
+                            </div>
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                              <Upload className="w-4 h-4 text-white" />
+                            </div>
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg"
+                              className="hidden"
+                              disabled={quickUploadingId === student.id}
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                if (f) handleQuickUpload(student.id, f, 'profile');
+                                e.target.value = '';
+                              }}
+                            />
+                          </label>
                         ) : (
-                          <GraduationCap className="w-6 h-6 text-blue-600" />
+                          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {student.profile_picture_url ? (
+                              <img
+                                src={student.profile_picture_url}
+                                alt={`${student.first_name} ${student.last_name}`}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <GraduationCap className="w-6 h-6 text-blue-600" />
+                            )}
+                          </div>
+                        )}
+                        {quickUploadMode && (
+                          <label
+                            className={`relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer group border border-gray-200 ${quickUploadingId === student.id ? 'opacity-60 cursor-not-allowed' : ''}`}
+                            title="Klik om symbool te uploaden"
+                          >
+                            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                              {student.symbol_url ? (
+                                <img src={student.symbol_url} alt="Symbool" className="w-full h-full object-cover" />
+                              ) : (
+                                <ImageIcon className="w-5 h-5 text-gray-400" />
+                              )}
+                            </div>
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                              <Upload className="w-4 h-4 text-white" />
+                            </div>
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg"
+                              className="hidden"
+                              disabled={quickUploadingId === student.id}
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                if (f) handleQuickUpload(student.id, f, 'symbol');
+                                e.target.value = '';
+                              }}
+                            />
+                          </label>
+                        )}
+                        {quickUploadMode && (
+                          <div className="relative flex-shrink-0">
+                            <button
+                              className="w-8 h-8 rounded-lg border-2 border-white shadow ring-1 ring-gray-200 transition-transform hover:scale-110"
+                              style={{ backgroundColor: student.color || '#3B82F6' }}
+                              title="Kleur aanpassen"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setColorPickerOpenId(colorPickerOpenId === student.id ? null : student.id);
+                              }}
+                            />
+                            {colorPickerOpenId === student.id && (
+                              <div
+                                className="absolute left-0 top-10 z-30 bg-white rounded-xl shadow-xl border border-gray-200 p-3 w-52"
+                                onClick={e => e.stopPropagation()}
+                              >
+                                <p className="text-xs font-semibold text-gray-500 mb-2">Kleur kiezen</p>
+                                {schoolColors.length > 0 && (
+                                  <>
+                                    <p className="text-xs text-gray-400 mb-1.5">Gebruikt in school</p>
+                                    <div className="flex flex-wrap gap-1.5 mb-3">
+                                      {schoolColors.map(c => (
+                                        <button
+                                          key={c}
+                                          className="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110"
+                                          style={{ backgroundColor: c, borderColor: student.color === c ? '#1d4ed8' : 'white' }}
+                                          onClick={() => handleQuickColorUpdate(student.id, c)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </>
+                                )}
+                                <p className="text-xs text-gray-400 mb-1.5">Eigen kleur</p>
+                                <input
+                                  type="color"
+                                  defaultValue={student.color || '#3B82F6'}
+                                  className="w-full h-8 rounded cursor-pointer border border-gray-200"
+                                  onChange={e => handleQuickColorUpdate(student.id, e.target.value)}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {quickUploadingId === student.id && (
+                          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                         )}
                       </div>
                       <div>
                         <button
                           onClick={() => handleStudentClick(student)}
-                          className="font-semibold text-gray-900 hover:text-indigo-600 transition-colors text-left"
+                          className="font-semibold text-gray-900 hover:text-blue-600 transition-colors text-left"
                         >
                           {student.first_name} {student.last_name}
                         </button>
@@ -908,7 +1115,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
                       <Button
                         variant="secondary"
                         size="sm"

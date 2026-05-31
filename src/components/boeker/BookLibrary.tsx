@@ -9,7 +9,8 @@ import { Toast } from '../ui/Toast';
 import { BarcodeScanner } from './BarcodeScanner';
 import { QuickScanModal } from './QuickScanModal';
 import { fetchBookMetadata, BookMetadata } from '../../utils/bookApi';
-import { Plus, Search, CreditCard as Edit, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare, MapPin, SlidersHorizontal, ArrowUpDown, ChevronDown, ExternalLink } from 'lucide-react';
+import { Plus, Search, CreditCard as Edit, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare, MapPin, SlidersHorizontal, ArrowUpDown, ChevronDown, ExternalLink, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { LocationCombobox } from './LocationCombobox';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('');
@@ -86,6 +87,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   const [showQuickScan, setShowQuickScan] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [viewingBook, setViewingBook] = useState<Book | null>(null);
+  const [duplicateBook, setDuplicateBook] = useState<Book | null>(null);
+  const [addingDuplicateCopies, setAddingDuplicateCopies] = useState(false);
   const [currentBorrowers, setCurrentBorrowers] = useState<StudentBookInfo[]>([]);
   const [bookReviews, setBookReviews] = useState<BookReview[]>([]);
   const [fetchingMetadata, setFetchingMetadata] = useState(false);
@@ -361,11 +364,26 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   };
 
   const handleIsbnScan = async (isbn: string) => {
-    setShowScanner(false);
     setFetchingMetadata(true);
     setToast({ message: 'Boekgegevens ophalen...', type: 'info' });
 
     try {
+      // Check if this ISBN already exists in the library
+      const { data: existing } = await supabase
+        .from('books')
+        .select('*, book_locations(name)')
+        .eq('school_id', schoolId)
+        .eq('isbn', isbn)
+        .maybeSingle();
+
+      if (existing) {
+        setFetchingMetadata(false);
+        setToast(null);
+        await handleViewBook(existing);
+        setDuplicateBook(existing);
+        return;
+      }
+
       const metadata = await fetchBookMetadata(isbn);
 
       if (metadata) {
@@ -396,6 +414,28 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
       setShowAddModal(true);
     } finally {
       setFetchingMetadata(false);
+    }
+  };
+
+  const handleAddDuplicateCopy = async () => {
+    if (!duplicateBook) return;
+    setAddingDuplicateCopies(true);
+    try {
+      const newTotal = duplicateBook.total_copies + 1;
+      const newAvailable = duplicateBook.available_copies + 1;
+      const { error } = await supabase
+        .from('books')
+        .update({ total_copies: newTotal, available_copies: newAvailable })
+        .eq('id', duplicateBook.id);
+      if (error) throw error;
+      setDuplicateBook(null);
+      setViewingBook(prev => prev ? { ...prev, total_copies: newTotal, available_copies: newAvailable } : null);
+      setToast({ message: `Exemplaar toegevoegd. Nu ${newTotal} exemplaren in totaal.`, type: 'success' });
+      fetchRecentBooks();
+    } catch (err) {
+      setToast({ message: 'Fout bij toevoegen exemplaar', type: 'error' });
+    } finally {
+      setAddingDuplicateCopies(false);
     }
   };
 
@@ -694,6 +734,23 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
 
   const displayedBooks = searchResults !== null ? searchResults : books;
 
+  const exportToExcel = () => {
+    const rows = displayedBooks.map(b => ({
+      Titel: b.title,
+      Auteur: b.author ?? '',
+      ISBN: b.isbn,
+      Paginas: b.page_count ?? '',
+      Locatie: b.book_locations?.name ?? '',
+      'Totaal exemplaren': b.total_copies,
+      'Beschikbare exemplaren': b.available_copies,
+      'Uitgeleend': b.total_copies - b.available_copies,
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Boeken');
+    XLSX.writeFile(wb, `boeken_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -749,6 +806,10 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
             )}
 
             <div className="flex gap-2 ml-auto">
+              <Button variant="secondary" onClick={exportToExcel} disabled={displayedBooks.length === 0} className="text-sm py-2">
+                <Download className="w-4 h-4 mr-1.5" />
+                Exporteren
+              </Button>
               <Button onClick={() => setShowQuickScan(true)} className="bg-green-600 hover:bg-green-700 text-sm py-2">
                 <Scan className="w-4 h-4 mr-1.5" />
                 Quick Scan
@@ -1239,12 +1300,44 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                     setViewingBook(null);
                     setCurrentBorrowers([]);
                     setBookReviews([]);
+                    setDuplicateBook(null);
                   }}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
+
+              {duplicateBook && duplicateBook.id === viewingBook.id && (
+                <div className="mb-4 p-4 bg-amber-50 border border-amber-300 rounded-xl">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                      <BookOpen className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-amber-900">Dit boek staat al in de catalogus</p>
+                      <p className="text-sm text-amber-700 mt-0.5">
+                        Er {viewingBook.total_copies === 1 ? 'is' : 'zijn'} al <strong>{viewingBook.total_copies}</strong> {viewingBook.total_copies === 1 ? 'exemplaar' : 'exemplaren'} geregistreerd ({viewingBook.available_copies} beschikbaar). Wil je er nog een exemplaar aan toevoegen?
+                      </p>
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={handleAddDuplicateCopy}
+                          disabled={addingDuplicateCopies}
+                          className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                        >
+                          {addingDuplicateCopies ? 'Toevoegen...' : '+ Exemplaar toevoegen'}
+                        </button>
+                        <button
+                          onClick={() => setDuplicateBook(null)}
+                          className="px-3 py-1.5 bg-white hover:bg-amber-100 text-amber-800 text-xs font-medium rounded-lg border border-amber-300 transition-colors"
+                        >
+                          Nee, bedankt
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="border-t pt-4">
                 <div className="flex items-center gap-2 mb-4">

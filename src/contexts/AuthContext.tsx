@@ -53,82 +53,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Check for recovery/reset password tokens in URL
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
-    const refreshToken = hashParams.get('refresh_token');
-    const type = hashParams.get('type');
-
-    if (type === 'recovery' && accessToken) {
-      console.log('Recovery token detected in URL, Supabase will handle session establishment');
-    }
-
-    // Get initial session (will automatically detect and process URL tokens)
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        console.error('Error getting session:', error);
-      }
-
-      console.log('Initial session check:', {
-        hasSession: !!session,
-        hasError: !!error,
-        userId: session?.user?.id
-      });
-
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-
-      // Ensure profile exists after setting user state
-      if (session?.user) {
-        ensureProfileExists(session.user);
-      }
-    });
-
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', {
-          event,
-          email: session?.user?.email,
-          userId: session?.user?.id,
-          hasSession: !!session
-        });
-
-        // Handle password recovery
-        if (event === 'PASSWORD_RECOVERY') {
-          console.log('PASSWORD_RECOVERY event: Session established for password reset');
-          setSession(session);
-          setUser(session?.user ?? null);
-          setLoading(false);
-          return;
-        }
-
-        // Handle signed out or invalid session
-        if (event === 'SIGNED_OUT' || !session) {
-          console.log('SIGNED_OUT or no session');
-          setSession(null);
-          setUser(null);
-          setLoading(false);
-          return;
-        }
-
-        // Handle token refresh
-        if (event === 'TOKEN_REFRESHED') {
-          console.log('Token refreshed successfully');
-        }
-
-        // Handle signed in
-        if (event === 'SIGNED_IN') {
-          console.log('SIGNED_IN event detected');
-        }
-
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Ensure profile exists after setting user state
-        if (session?.user) {
+        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
           ensureProfileExists(session.user);
         }
       }

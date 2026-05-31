@@ -98,6 +98,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
       
       incidentData.forEach((incident: any) => {
         const studentId = incident.student_id;
+        if (!incident.students) return;
         const studentName = `${incident.students.first_name} ${incident.students.last_name}`;
         
         if (!studentMap.has(studentId)) {

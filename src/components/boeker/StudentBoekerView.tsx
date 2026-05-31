@@ -100,8 +100,6 @@ export function StudentBoekerView({ studentAccessHash, onBack }: StudentBoekerVi
   };
 
   const handleIsbnScan = async (isbn: string) => {
-    setShowScanner(false);
-
     if (!student) return;
 
     try {

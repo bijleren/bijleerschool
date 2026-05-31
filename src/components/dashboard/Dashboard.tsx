@@ -25,6 +25,7 @@ import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
 import { OnboardingChecklist } from '../onboarding/OnboardingChecklist';
 import { QANotificationBubble } from '../teaching/QANotificationBubble';
+import { EmergencyBroadcastBanner } from '../ui/EmergencyBroadcastBanner';
 
 interface School {
   id: string;
@@ -63,7 +64,7 @@ export function Dashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr' | 'sporen' | 'leescoach' | 'executieve' | 'onboarding'>('dashboard');
-  const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter'>('technieken');
+  const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter' | 'begeleiding'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
@@ -94,7 +95,7 @@ export function Dashboard() {
 
         // Handle teaching subtab
         if (tabParam === 'teaching' && subtabParam) {
-          const validSubtabs = ['technieken', 'faq', 'vormingen', 'newsletter'];
+          const validSubtabs = ['technieken', 'faq', 'vormingen', 'newsletter', 'begeleiding'];
           if (validSubtabs.includes(subtabParam)) {
             setTeachingPageOverride(subtabParam as typeof teachingPageOverride);
           }
@@ -398,6 +399,14 @@ export function Dashboard() {
     setSelectedGroup(null);
     setActiveTab('teaching');
     setTeachingPageOverride('newsletter');
+  };
+
+  const handleNavigateToBegeleiding = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('teaching');
+    setTeachingPageOverride('begeleiding');
   };
 
   const handleNavigateToBehaviorWithSchool = (school: { id: string; name: string }) => {
@@ -717,6 +726,7 @@ export function Dashboard() {
         onNavigateToTeachingFAQ={handleNavigateToTeachingFAQ}
         onNavigateToTeachingVormingen={handleNavigateToTeachingVormingen}
         onNavigateToNieuwsbrief={handleNavigateToNewsletter}
+        onNavigateToBegeleiding={handleNavigateToBegeleiding}
         onNavigateToWebWijzer={handleNavigateToWebWijzer}
         onNavigateToActivityBoards={handleNavigateToActivityBoards}
         onNavigateToBoeker={handleNavigateToBoeker}
@@ -814,6 +824,7 @@ export function Dashboard() {
         )}
       </main>
       <QANotificationBubble />
+      <EmergencyBroadcastBanner />
     </div>
   );
 }

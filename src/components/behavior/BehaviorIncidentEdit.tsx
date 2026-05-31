@@ -1308,14 +1308,18 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">
-                          {notification.notification_type === 'teacher' 
-                            ? `${(notification as TeacherNotification).profiles.first_name} ${(notification as TeacherNotification).profiles.last_name}`
-                            : `Groep: ${(notification as GroupNotification).groups.name}`
+                          {notification.notification_type === 'teacher'
+                            ? (notification as TeacherNotification).profiles
+                                ? `${(notification as TeacherNotification).profiles.first_name} ${(notification as TeacherNotification).profiles.last_name}`
+                                : 'Verwijderde gebruiker'
+                            : (notification as GroupNotification).groups
+                                ? `Groep: ${(notification as GroupNotification).groups.name}`
+                                : 'Verwijderde groep'
                           }
                         </p>
                         {notification.notification_type === 'teacher' && (
                           <p className="text-sm text-gray-500">
-                            {(notification as TeacherNotification).profiles.email}
+                            {(notification as TeacherNotification).profiles?.email ?? ''}
                           </p>
                         )}
                         <p className="text-xs text-gray-500">

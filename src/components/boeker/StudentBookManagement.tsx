@@ -3,7 +3,8 @@ import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
-import { Search, BookOpen, Clock, X, ArrowLeft, Package } from 'lucide-react';
+import { Search, BookOpen, Clock, X, ArrowLeft, Package, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface Student {
   id: string;
@@ -366,12 +367,39 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
     );
   }
 
+  const exportToExcel = () => {
+    const rows = filteredStudents.map(s => ({
+      Voornaam: s.student.first_name,
+      Achternaam: s.student.last_name,
+      Leerlingnummer: s.student.student_number ?? '',
+      'Huidige boeken': s.current_books,
+      'Totaal boeken gelezen': s.total_books,
+      'Totaal minuten gelezen': s.total_minutes,
+      'Totaal pagina\'s gelezen': s.total_pages,
+      'Huidig materiaal': s.current_materials,
+      'Totaal materiaal geleend': s.total_materials,
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Leesoverzicht leerlingen');
+    XLSX.writeFile(wb, `leerlingen_boeken_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="space-y-6">
       <Card>
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-gray-900">Leerlingen</h2>
+            <div className="flex items-center gap-3">
+            <button
+              onClick={exportToExcel}
+              disabled={filteredStudents.length === 0}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Exporteren
+            </button>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
@@ -389,6 +417,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
                   <X className="w-4 h-4" />
                 </button>
               )}
+            </div>
             </div>
           </div>
 

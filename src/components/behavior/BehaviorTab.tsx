@@ -9,6 +9,7 @@ import { BehaviorSettings } from './BehaviorSettings';
 import { BehaviorAnalytics } from './BehaviorAnalytics';
 import { BehaviorIncidentEdit } from './BehaviorIncidentEdit';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
+import * as XLSX from 'xlsx';
 import {
   AlertTriangle,
   Plus,
@@ -20,7 +21,8 @@ import {
   Clock,
   Filter,
   Search,
-  X
+  X,
+  Download
 } from 'lucide-react';
 
 interface School {
@@ -522,10 +524,32 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
     );
   }
 
+  const exportToExcel = () => {
+    const rows = incidents.map(inc => ({
+      Datum: new Date(inc.incident_date).toLocaleDateString('nl-BE'),
+      Leerling: `${inc.students?.first_name ?? ''} ${inc.students?.last_name ?? ''}`.trim(),
+      Leerlingnummer: inc.students?.student_number ?? '',
+      Categorie: inc.behavior_items?.behavior_categories?.name ?? '',
+      Gedragsitem: inc.behavior_items?.name ?? '',
+      Ernstniveau: inc.behavior_items?.behavior_severity_levels?.name ?? '',
+      Locatie: inc.location ?? '',
+      Beschrijving: inc.description,
+      Status: inc.status === 'pending' ? 'Openstaand' : inc.status === 'in_progress' ? 'In behandeling' : 'Afgehandeld',
+      'Follow-up nodig': inc.follow_up_required ? 'Ja' : 'Nee',
+      'Follow-up datum': inc.follow_up_date ? new Date(inc.follow_up_date).toLocaleDateString('nl-BE') : '',
+      'Follow-up notities': inc.follow_up_notes ?? '',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Incidenten');
+    const dateStr = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(wb, `gedragsincidenten_${dateStr}.xlsx`);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -557,6 +581,14 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
           </div>
         </div>
         <div className="flex space-x-3">
+          <Button
+            variant="secondary"
+            onClick={exportToExcel}
+            disabled={incidents.length === 0}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Exporteren
+          </Button>
           <Button
             variant="secondary"
             onClick={() => setActiveView('analytics')}
@@ -874,9 +906,13 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                             key={notification.id}
                             className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
                           >
-                            {notification.notification_type === 'teacher' 
-                              ? `${notification.profiles?.first_name} ${notification.profiles?.last_name}`
-                              : `Groep: ${notification.groups?.name}`
+                            {notification.notification_type === 'teacher'
+                              ? notification.profiles
+                                  ? `${notification.profiles.first_name} ${notification.profiles.last_name}`
+                                  : 'Verwijderde gebruiker'
+                              : notification.groups
+                                  ? `Groep: ${notification.groups.name}`
+                                  : 'Verwijderde groep'
                             }
                           </span>
                         ))}

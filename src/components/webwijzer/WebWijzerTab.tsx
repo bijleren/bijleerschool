@@ -4,7 +4,8 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { Link, Plus, Video, FileText, ExternalLink, Trash2, Pencil, Users, BarChart3, Eye, Zap, Star, X, Filter, QrCode, UserCog } from 'lucide-react';
+import { Link, Plus, Video, FileText, ExternalLink, Trash2, Pencil, Users, BarChart3, Eye, Zap, Star, X, Filter, QrCode, UserCog, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { WebWijzerContentForm } from './WebWijzerContentForm';
 import { WebWijzerAssignments } from './WebWijzerAssignments';
 import { WebWijzerAnalytics } from './WebWijzerAnalytics';
@@ -316,6 +317,23 @@ export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
       .includes(studentSearchTerm.toLowerCase())
   );
 
+  const exportToExcel = () => {
+    const rows = allContents.map(c => ({
+      Titel: c.title,
+      Type: c.content_type === 'video' ? 'Video' : c.content_type === 'file' ? 'Bestand' : 'Link',
+      URL: c.content_url,
+      Leerlingen: c.student_count ?? 0,
+      Weergaven: c.total_views ?? 0,
+      'Push-count': c.push_count ?? 0,
+      'Favoriet-count': c.favorite_count ?? 0,
+      'Aangemaakt op': new Date(c.created_at).toLocaleDateString('nl-BE'),
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'WebWijzer content');
+    XLSX.writeFile(wb, `webwijzer_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -324,6 +342,10 @@ export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
           <p className="text-gray-600 mt-1">Share content with students using QR codes</p>
         </div>
         <div className="flex gap-3">
+          <Button variant="secondary" onClick={exportToExcel} disabled={allContents.length === 0}>
+            <Download className="w-4 h-4 mr-2" />
+            Exporteren
+          </Button>
           <Button variant="secondary" onClick={() => setShowStudentManager(true)}>
             <UserCog className="w-4 h-4 mr-2" />
             Student Beheer

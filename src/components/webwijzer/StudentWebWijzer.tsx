@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid, Search, Clock } from 'lucide-react';
+import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid2x2 as Grid, Search, Clock } from 'lucide-react';
 import { WebWijzerContentViewer } from './WebWijzerContentViewer';
 import { StudentBibliotheekModal } from './StudentBibliotheekModal';
 import { StudentActiviTijdModal } from './StudentActiviTijdModal';
@@ -153,14 +153,24 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
         }
       }
 
-      const query = supabase
+      const { data: studentData } = await supabase
+        .from('students')
+        .select('school_id')
+        .eq('id', studentId)
+        .maybeSingle();
+
+      const boardQuery = supabase
         .from('activity_boards')
         .select('id, name, description, active_until, board_icon, icon_url, student_group_ids, student_ids')
         .eq('is_active', true)
         .not('active_until', 'is', null)
         .gt('active_until', new Date().toISOString());
 
-      const { data: boards, error: boardsError } = await query;
+      if (studentData?.school_id) {
+        boardQuery.eq('school_id', studentData.school_id);
+      }
+
+      const { data: boards, error: boardsError } = await boardQuery;
       if (boardsError) throw boardsError;
 
       const accessibleBoards = (boards || []).filter(board => {
