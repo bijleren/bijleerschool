@@ -338,7 +338,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
         .eq('group_id', group.id);
 
       if (teammemberError) throw teammemberError;
-      setGroupTeammembers(teammemberData || []);
+      setGroupTeammembers((teammemberData || []).filter(tg => tg.teammembers?.profiles != null));
     } catch (error) {
       console.error('Error fetching group members:', error);
     }
