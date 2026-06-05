@@ -9,7 +9,7 @@ import { Toast } from '../ui/Toast';
 import { BarcodeScanner } from './BarcodeScanner';
 import { QuickScanModal } from './QuickScanModal';
 import { fetchBookMetadata, BookMetadata } from '../../utils/bookApi';
-import { Plus, Search, CreditCard as Edit, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare, MapPin, SlidersHorizontal, ArrowUpDown, ChevronDown, ExternalLink, Download } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare, MapPin, SlidersHorizontal, ArrowUpDown, ExternalLink, Download, Tag } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { LocationCombobox } from './LocationCombobox';
 
@@ -70,6 +70,12 @@ interface BookReview {
   };
 }
 
+interface BookTag {
+  id: string;
+  name: string;
+  color: string;
+}
+
 interface BookLibraryProps {
   schoolId: string;
   onViewStudent?: (studentId: string) => void;
@@ -111,6 +117,12 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   const [availFilter, setAvailFilter] = useState<AvailFilter>('all');
   const [showFilters, setShowFilters] = useState(false);
 
+  // Tags
+  const [allTags, setAllTags] = useState<BookTag[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [bookTagMap, setBookTagMap] = useState<Record<string, string[]>>({});
+  const [editBookTagIds, setEditBookTagIds] = useState<string[]>([]);
+
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [formData, setFormData] = useState({
@@ -131,6 +143,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   useEffect(() => {
     fetchRecentBooks();
     fetchLetterIndex();
+    fetchTags();
   }, [schoolId]);
 
   // Once index loads, set first available letter (but don't fetch yet — we start in recent mode)
@@ -171,6 +184,39 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     }
   };
 
+  const fetchTags = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('book_tag_definitions')
+        .select('id, name, color')
+        .eq('school_id', schoolId)
+        .order('name');
+      if (error) throw error;
+      setAllTags(data || []);
+    } catch {
+      // non-critical
+    }
+  };
+
+  const fetchBookTagMap = async (bookIds: string[]) => {
+    if (bookIds.length === 0) return;
+    try {
+      const { data, error } = await supabase
+        .from('book_tag_assignments')
+        .select('book_id, tag_id')
+        .in('book_id', bookIds);
+      if (error) throw error;
+      const map: Record<string, string[]> = {};
+      (data || []).forEach((a: { book_id: string; tag_id: string }) => {
+        if (!map[a.book_id]) map[a.book_id] = [];
+        map[a.book_id].push(a.tag_id);
+      });
+      setBookTagMap(map);
+    } catch {
+      // non-critical
+    }
+  };
+
   const fetchRecentBooks = async () => {
     setLoading(true);
     setSearchResults(null);
@@ -183,6 +229,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
         .limit(20);
       if (error) throw error;
       setBooks(data || []);
+      await fetchBookTagMap((data || []).map((b: Book) => b.id));
     } catch (err) {
       console.error('Error fetching recent books:', err);
     } finally {
@@ -225,6 +272,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
 
       if (error) throw error;
       setBooks(data || []);
+      await fetchBookTagMap((data || []).map((b: Book) => b.id));
     } catch (err) {
       console.error('Error fetching books:', err);
       setToast({ message: 'Fout bij ophalen boeken', type: 'error' });
@@ -251,6 +299,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
         const { data, error } = await query;
         if (error) throw error;
         setSearchResults(data || []);
+        await fetchBookTagMap((data || []).map((b: Book) => b.id));
       } else {
         let query = supabase
           .from('books')
@@ -264,6 +313,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
         const { data, error } = await query;
         if (error) throw error;
         setSearchResults(data || []);
+        await fetchBookTagMap((data || []).map((b: Book) => b.id));
       }
     } catch (err) {
       console.error('Error searching books:', err);
@@ -310,7 +360,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   };
 
   const isComputedSort = COMPUTED_SORTS.includes(sortField);
-  const activeFilterCount = (availFilter !== 'all' ? 1 : 0) + (sortField !== 'title' ? 1 : 0);
+  const activeFilterCount = (availFilter !== 'all' ? 1 : 0) + (sortField !== 'title' ? 1 : 0) + (selectedTagIds.length > 0 ? 1 : 0);
 
   const fetchBooks = () => {
     if (viewMode === 'recent') {
@@ -504,6 +554,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
         location_id: formData.location_id || null
       };
 
+      let savedBookId: string;
+
       if (editingBook) {
         const { error } = await supabase
           .from('books')
@@ -511,14 +563,34 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
           .eq('id', editingBook.id);
 
         if (error) throw error;
+        savedBookId = editingBook.id;
         setToast({ message: 'Boek bijgewerkt', type: 'success' });
       } else {
-        const { error } = await supabase
+        const { data: inserted, error } = await supabase
           .from('books')
-          .insert(bookData);
+          .insert(bookData)
+          .select('id')
+          .single();
 
         if (error) throw error;
+        savedBookId = inserted.id;
         setToast({ message: 'Boek toegevoegd', type: 'success' });
+      }
+
+      // Sync tag assignments
+      await supabase
+        .from('book_tag_assignments')
+        .delete()
+        .eq('book_id', savedBookId);
+
+      if (editBookTagIds.length > 0) {
+        await supabase
+          .from('book_tag_assignments')
+          .insert(editBookTagIds.map(tagId => ({
+            book_id: savedBookId,
+            tag_id: tagId,
+            school_id: schoolId,
+          })));
       }
 
       setShowAddModal(false);
@@ -572,6 +644,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     setCustomCoverFile(null);
     setCustomCoverPreview(book.custom_cover_url || null);
     setUseCustomCover(!!book.custom_cover_url);
+    setEditBookTagIds(bookTagMap[book.id] || []);
     setShowAddModal(true);
   };
 
@@ -594,6 +667,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     setCustomCoverFile(null);
     setCustomCoverPreview(null);
     setUseCustomCover(false);
+    setEditBookTagIds([]);
   };
 
   const handleViewBook = async (book: Book) => {
@@ -732,7 +806,10 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     }
   };
 
-  const displayedBooks = searchResults !== null ? searchResults : books;
+  const rawBooks = searchResults !== null ? searchResults : books;
+  const displayedBooks = selectedTagIds.length > 0
+    ? rawBooks.filter(b => selectedTagIds.some(tid => (bookTagMap[b.id] || []).includes(tid)))
+    : rawBooks;
 
   const exportToExcel = () => {
     const rows = displayedBooks.map(b => ({
@@ -848,6 +925,33 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                 </div>
               </div>
 
+              {/* Tags */}
+              {allTags.length > 0 && (
+                <div className="w-full">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Tags</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {allTags.map((tag) => {
+                      const isActive = selectedTagIds.includes(tag.id);
+                      return (
+                        <button
+                          key={tag.id}
+                          onClick={() => setSelectedTagIds(prev =>
+                            isActive ? prev.filter(id => id !== tag.id) : [...prev, tag.id]
+                          )}
+                          className="px-3 py-1.5 text-xs rounded-full border font-medium transition-colors"
+                          style={isActive
+                            ? { backgroundColor: tag.color, borderColor: tag.color, color: '#fff' }
+                            : { borderColor: '#D1D5DB', color: '#4B5563' }
+                          }
+                        >
+                          {tag.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Sort by */}
               <div className="w-full">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Sorteren op</p>
@@ -875,7 +979,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
 
               {activeFilterCount > 0 && (
                 <button
-                  onClick={() => { setAvailFilter('all'); }}
+                  onClick={() => { setAvailFilter('all'); setSelectedTagIds([]); }}
                   className="ml-auto self-end text-xs text-gray-500 hover:text-red-500 transition-colors flex items-center gap-1"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -990,6 +1094,28 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                         </div>
                       )}
                     </div>
+                    {(bookTagMap[book.id] || []).length > 0 && (
+                      <div className="flex flex-wrap gap-0.5 mb-1.5">
+                        {(bookTagMap[book.id] || []).slice(0, 3).map(tid => {
+                          const tag = allTags.find(t => t.id === tid);
+                          if (!tag) return null;
+                          return (
+                            <span
+                              key={tid}
+                              className="px-1.5 py-0.5 text-[9px] font-medium rounded-full text-white leading-tight"
+                              style={{ backgroundColor: tag.color }}
+                            >
+                              {tag.name}
+                            </span>
+                          );
+                        })}
+                        {(bookTagMap[book.id] || []).length > 3 && (
+                          <span className="px-1.5 py-0.5 text-[9px] font-medium rounded-full bg-gray-200 text-gray-600 leading-tight">
+                            +{(bookTagMap[book.id] || []).length - 3}
+                          </span>
+                        )}
+                      </div>
+                    )}
                     <div className="flex gap-1">
                       <button
                         onClick={() => window.dispatchEvent(new CustomEvent('navigateToBoekerBookDetail', { detail: { bookId: book.id } }))}
@@ -1003,7 +1129,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                         className="flex-1 px-2 py-1 text-[10px] bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors flex items-center justify-center"
                         title="Bewerken"
                       >
-                        <Edit className="w-3 h-3" />
+                        <Pencil className="w-3 h-3" />
                       </button>
                       <button
                         onClick={() => handleDeleteBook(book.id)}
@@ -1230,6 +1356,36 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
+
+                {allTags.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Tag className="w-4 h-4 inline mr-1.5 text-gray-500" />
+                      Tags
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {allTags.map((tag) => {
+                        const isSelected = editBookTagIds.includes(tag.id);
+                        return (
+                          <button
+                            key={tag.id}
+                            type="button"
+                            onClick={() => setEditBookTagIds(prev =>
+                              isSelected ? prev.filter(id => id !== tag.id) : [...prev, tag.id]
+                            )}
+                            className="px-3 py-1.5 text-sm rounded-full border font-medium transition-all"
+                            style={isSelected
+                              ? { backgroundColor: tag.color, borderColor: tag.color, color: '#fff' }
+                              : { borderColor: '#D1D5DB', color: '#4B5563' }
+                            }
+                          >
+                            {tag.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 mt-6">

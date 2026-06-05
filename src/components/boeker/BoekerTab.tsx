@@ -9,10 +9,11 @@ import { BoekerAnalytics } from './BoekerAnalytics';
 import { MaterialenTab } from '../materials/MaterialenTab';
 import { QuickScanModal } from './QuickScanModal';
 import { RecentActivity } from './RecentActivity';
-import { Book, Users, BarChart3, Package, Scan, Activity } from 'lucide-react';
+import { Book, Users, BarChart3, Package, Scan, Activity, Tag } from 'lucide-react';
 import { BookDetailPage } from './BookDetailPage';
+import { BookTagsSettings } from './BookTagsSettings';
 
-type View = 'library' | 'students' | 'analytics' | 'materials' | 'activity' | 'book-detail';
+type View = 'library' | 'students' | 'analytics' | 'materials' | 'activity' | 'tags' | 'book-detail';
 
 export function BoekerTab() {
   const { user } = useAuth();
@@ -165,6 +166,17 @@ export function BoekerTab() {
           <BarChart3 className="w-4 h-4 inline mr-2" />
           Statistieken
         </button>
+        <button
+          onClick={() => setCurrentView('tags')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            currentView === 'tags'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <Tag className="w-4 h-4 inline mr-2" />
+          Tags
+        </button>
       </div>}
 
       {currentView === 'book-detail' && selectedBookId && schoolId && (
@@ -209,6 +221,7 @@ export function BoekerTab() {
         />
       )}
       {currentView === 'analytics' && <BoekerAnalytics schoolId={schoolId} key={refreshTrigger} />}
+      {currentView === 'tags' && <BookTagsSettings schoolId={schoolId} />}
 
       {showQuickScan && (
         <QuickScanModal
