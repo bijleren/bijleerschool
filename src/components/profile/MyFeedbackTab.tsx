@@ -24,8 +24,11 @@ const TYPE_CONFIG: Record<string, { label: string; icon: React.ElementType; colo
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
   'new': { label: 'Nieuw', color: 'text-gray-600', bg: 'bg-gray-100', icon: Clock },
   'in_progress': { label: 'In behandeling', color: 'text-amber-700', bg: 'bg-amber-100', icon: RotateCcw },
-  'resolved': { label: 'Afgehandeld', color: 'text-green-700', bg: 'bg-green-100', icon: CheckCircle },
+  'fixed': { label: 'Opgelost', color: 'text-green-700', bg: 'bg-green-100', icon: CheckCircle },
+  'resolved': { label: 'Opgelost', color: 'text-green-700', bg: 'bg-green-100', icon: CheckCircle },
+  'wontfix': { label: 'Niet opgelost', color: 'text-gray-500', bg: 'bg-gray-100', icon: AlertCircle },
   'replied': { label: 'Beantwoord', color: 'text-teal-700', bg: 'bg-teal-100', icon: MessageSquare },
+  'closed': { label: 'Gesloten', color: 'text-gray-500', bg: 'bg-gray-100', icon: CheckCircle },
 };
 
 function getStatusConfig(status: string | null) {
