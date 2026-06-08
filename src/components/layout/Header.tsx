@@ -619,12 +619,23 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Bedankt!</h3>
                 <p className="text-sm text-gray-500 mb-6">Je feedback is ontvangen. We bekijken het zo snel mogelijk.</p>
-                <button
-                  onClick={() => setShowFeedbackModal(false)}
-                  className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Sluiten
-                </button>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <button
+                    onClick={() => setShowFeedbackModal(false)}
+                    className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Sluiten
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowFeedbackModal(false);
+                      onNavigateToProfile();
+                    }}
+                    className="px-5 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Bekijk mijn meldingen
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="px-6 py-5 space-y-4">
