@@ -17,10 +17,14 @@ interface Profile {
   created_at: string;
 }
 
-export function ProfileTab() {
+interface ProfileTabProps {
+  initialTab?: 'profile' | 'feedback';
+}
+
+export function ProfileTab({ initialTab = 'profile' }: ProfileTabProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'profile' | 'feedback'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'feedback'>(initialTab);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

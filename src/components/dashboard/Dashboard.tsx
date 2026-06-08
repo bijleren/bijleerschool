@@ -64,6 +64,7 @@ export function Dashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr' | 'sporen' | 'leescoach' | 'executieve' | 'onboarding'>('dashboard');
+  const [profileInitialTab, setProfileInitialTab] = useState<'profile' | 'feedback'>('profile');
   const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter' | 'begeleiding'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -274,6 +275,12 @@ export function Dashboard() {
   };
 
   const handleNavigateToProfile = () => {
+    setProfileInitialTab('profile');
+    setActiveTab('profile');
+  };
+
+  const handleNavigateToProfileFeedback = () => {
+    setProfileInitialTab('feedback');
     setActiveTab('profile');
   };
 
@@ -738,6 +745,7 @@ export function Dashboard() {
         onNavigateToSporen={handleNavigateToSporen}
         onNavigateToExecutieveFuncties={handleNavigateToExecutieveFuncties}
         onNavigateToOnboarding={handleNavigateToOnboarding}
+        onNavigateToProfileFeedback={handleNavigateToProfileFeedback}
         focusSchool={focusSchool}
       />
       )}
@@ -765,7 +773,7 @@ export function Dashboard() {
             onFocusSchoolChange={setFocusSchool}
           />
         )}
-        {activeTab === 'profile' && <ProfileTab />}
+        {activeTab === 'profile' && <ProfileTab key={profileInitialTab} initialTab={profileInitialTab} />}
         {activeTab === 'schools' && !selectedSchool && <SchoolsTab />}
         {activeTab === 'behavior' && (
           <BehaviorTab

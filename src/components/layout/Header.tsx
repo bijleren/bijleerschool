@@ -36,10 +36,11 @@ interface HeaderProps {
   onNavigateToSporen: () => void;
   onNavigateToExecutieveFuncties: () => void;
   onNavigateToOnboarding?: () => void;
+  onNavigateToProfileFeedback?: () => void;
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToBegeleiding, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToLeescoach, onNavigateToZoeker, onNavigateToEDI, onNavigateToDigiTools, onNavigateToBlinkQR, onNavigateToSporen, onNavigateToExecutieveFuncties, onNavigateToOnboarding, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToBegeleiding, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToLeescoach, onNavigateToZoeker, onNavigateToEDI, onNavigateToDigiTools, onNavigateToBlinkQR, onNavigateToSporen, onNavigateToExecutieveFuncties, onNavigateToOnboarding, onNavigateToProfileFeedback, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
@@ -608,7 +609,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                 <button
                   onClick={() => {
                     setShowFeedbackModal(false);
-                    onNavigateToProfile();
+                    (onNavigateToProfileFeedback ?? onNavigateToProfile)();
                   }}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                 >
