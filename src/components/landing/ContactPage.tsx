@@ -38,6 +38,8 @@ export function ContactPage() {
     const reasonLabel = CONTACT_REASONS.find((r) => r.value === formState.reason)?.label ?? formState.reason;
     const subject = `${reasonLabel}${formState.school ? ` — ${formState.school}` : ''}`;
 
+    const { data: { user } } = await supabase.auth.getUser();
+
     const { error: dbError } = await supabase.from('contact_messages').insert({
       name: formState.name,
       email: formState.email,
@@ -45,6 +47,7 @@ export function ContactPage() {
       subject,
       message: `School: ${formState.school || '—'}\n\n${formState.message}`,
       platform: 'bijleer.school',
+      ...(user ? { user_id: user.id } : {}),
     });
 
     setLoading(false);

@@ -5,7 +5,8 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
-import { User, Mail, Calendar, ChevronDown, ChevronUp, AlertTriangle, Star, ArrowRight } from 'lucide-react';
+import { MyFeedbackTab } from './MyFeedbackTab';
+import { User, Mail, Calendar, ChevronDown, ChevronUp, AlertTriangle, Star, ArrowRight, MessageSquare } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -19,6 +20,7 @@ interface Profile {
 export function ProfileTab() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'profile' | 'feedback'>('profile');
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -126,12 +128,40 @@ export function ProfileTab() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Mijn Profiel</h1>
-        <p className="text-gray-600">Beheer je persoonlijke informatie</p>
+        <p className="text-gray-600">Beheer je persoonlijke informatie en meldingen</p>
       </div>
 
-      <div className="space-y-6">
+      {/* Sub-navigation */}
+      <div className="flex gap-1 mb-6 bg-gray-100 rounded-lg p-1 w-fit">
+        <button
+          onClick={() => setActiveTab('profile')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+            activeTab === 'profile'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <User className="w-4 h-4" />
+          Mijn profiel
+        </button>
+        <button
+          onClick={() => setActiveTab('feedback')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+            activeTab === 'feedback'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <MessageSquare className="w-4 h-4" />
+          Mijn meldingen
+        </button>
+      </div>
+
+      {activeTab === 'feedback' && <MyFeedbackTab />}
+
+      {activeTab === 'profile' && <div className="space-y-6">
         {/* Profile Overview */}
         <Card>
           <div className="flex items-center space-x-4 mb-6">
@@ -275,7 +305,7 @@ export function ProfileTab() {
             </div>
           )}
         </Card>
-      </div>
+      </div>}
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
