@@ -604,12 +604,24 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                   <p className="text-xs text-gray-500">We lezen elke inzending</p>
                 </div>
               </div>
-              <button
-                onClick={() => setShowFeedbackModal(false)}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setShowFeedbackModal(false);
+                    onNavigateToProfile();
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  <List className="w-3.5 h-3.5" />
+                  Mijn meldingen
+                </button>
+                <button
+                  onClick={() => setShowFeedbackModal(false)}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {feedbackSuccess ? (
