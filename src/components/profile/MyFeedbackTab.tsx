@@ -13,6 +13,7 @@ interface BugReport {
   description: string;
   status: string | null;
   notes: string | null;
+  external_notes: string | null;
 }
 
 const TYPE_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string; bg: string }> = {
@@ -54,7 +55,7 @@ export function MyFeedbackTab() {
     try {
       const { data, error } = await supabase
         .from('bug_reports')
-        .select('id, created_at, type, title, description, status, notes')
+        .select('id, created_at, type, title, description, status, notes, external_notes')
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -102,7 +103,8 @@ export function MyFeedbackTab() {
         const statusConf = getStatusConfig(report.status);
         const TypeIcon = typeConf.icon;
         const StatusIcon = statusConf.icon;
-        const hasReply = !!report.notes;
+        const replyText = report.external_notes || report.notes;
+        const hasReply = !!replyText;
 
         return (
           <div
@@ -147,7 +149,7 @@ export function MyFeedbackTab() {
                       <span className="text-xs font-semibold text-teal-700">Reactie van het team</span>
                     </div>
                     <p className="text-sm text-gray-700 bg-teal-50 border border-teal-100 rounded-lg px-4 py-3 whitespace-pre-wrap">
-                      {report.notes}
+                      {replyText}
                     </p>
                   </div>
                 )}
