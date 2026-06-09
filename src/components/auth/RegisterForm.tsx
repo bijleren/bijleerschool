@@ -15,7 +15,9 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [newsletterOptIn, setNewsletterOptIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -39,13 +41,13 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
       return;
     }
 
-    if (!acceptedTerms) {
-      setError('Gelieve de algemene voorwaarden en het privacybeleid te aanvaarden');
+    if (!acceptedPrivacy || !acceptedTerms) {
+      setError('Gelieve het privacybeleid en de algemene voorwaarden te aanvaarden');
       setLoading(false);
       return;
     }
 
-    const { error } = await signUp(email, password, firstName, lastName);
+    const { error } = await signUp(email, password, firstName, lastName, newsletterOptIn);
 
     if (error) {
       setError(error.message);
@@ -132,35 +134,69 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
           placeholder="••••••••"
         />
 
-        <div className="flex items-start gap-3">
-          <input
-            id="accept-terms"
-            type="checkbox"
-            checked={acceptedTerms}
-            onChange={(e) => setAcceptedTerms(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0 cursor-pointer"
-          />
-          <label htmlFor="accept-terms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
-            Ik ga akkoord met de{' '}
-            <Link
-              to="/algemene-voorwaarden"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-            >
-              algemene voorwaarden
-            </Link>{' '}
-            en het{' '}
-            <Link
-              to="/privacy-policy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-            >
-              privacybeleid
-            </Link>{' '}
-            van bijleer.school.
-          </label>
+        <div className="space-y-3">
+          {/* Privacy policy — required */}
+          <div className="flex items-start gap-3">
+            <input
+              id="accept-privacy"
+              type="checkbox"
+              checked={acceptedPrivacy}
+              onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0 cursor-pointer"
+            />
+            <label htmlFor="accept-privacy" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
+              Ik heb het{' '}
+              <Link
+                to="/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              >
+                privacybeleid
+              </Link>{' '}
+              gelezen en ga ermee akkoord.{' '}
+              <span className="text-red-500">*</span>
+            </label>
+          </div>
+
+          {/* Terms — required */}
+          <div className="flex items-start gap-3">
+            <input
+              id="accept-terms"
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0 cursor-pointer"
+            />
+            <label htmlFor="accept-terms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
+              Ik ga akkoord met de{' '}
+              <Link
+                to="/algemene-voorwaarden"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              >
+                algemene voorwaarden
+              </Link>{' '}
+              van bijleer.school.{' '}
+              <span className="text-red-500">*</span>
+            </label>
+          </div>
+
+          {/* Newsletter opt-in — optional */}
+          <div className="flex items-start gap-3">
+            <input
+              id="newsletter-opt-in"
+              type="checkbox"
+              checked={newsletterOptIn}
+              onChange={(e) => setNewsletterOptIn(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0 cursor-pointer"
+            />
+            <label htmlFor="newsletter-opt-in" className="text-sm text-gray-500 leading-relaxed cursor-pointer">
+              Houd me op de hoogte van nieuwe functies en tips via e-mail.{' '}
+              <span className="text-gray-400">(optioneel)</span>
+            </label>
+          </div>
         </div>
 
         {error && (
@@ -174,7 +210,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
           loading={loading}
           className="w-full"
           size="lg"
-          disabled={!acceptedTerms}
+          disabled={!acceptedPrivacy || !acceptedTerms}
         >
           Account aanmaken
         </Button>

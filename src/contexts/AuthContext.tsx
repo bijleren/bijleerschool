@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, firstName: string, lastName: string, newsletterOptIn?: boolean) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
@@ -38,6 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: user.email!,
             first_name: user.user_metadata?.first_name || '',
             last_name: user.user_metadata?.last_name || '',
+            newsletter_opt_in: user.user_metadata?.newsletter_opt_in === true,
           });
 
         if (createError) {
@@ -68,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
+  const signUp = async (email: string, password: string, firstName: string, lastName: string, newsletterOptIn = false) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -76,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: {
           first_name: firstName,
           last_name: lastName,
+          newsletter_opt_in: newsletterOptIn,
         },
       },
     });
@@ -89,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: data.user.email!,
           first_name: firstName,
           last_name: lastName,
+          newsletter_opt_in: newsletterOptIn,
         });
 
       if (profileError) {
