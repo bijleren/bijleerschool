@@ -6,7 +6,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette, Link, QrCode, RefreshCw, ExternalLink, Download, BookOpen } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, GraduationCap, Calendar, Hash, Heart, Star, Users, Plus, Trash2, AlertTriangle, Clock, MapPin, User, Eye, EyeOff, Upload, Image as ImageIcon, Palette, Link, QrCode, RefreshCw, ExternalLink, Download, BookOpen, LogIn } from 'lucide-react';
 import { ColorPicker } from '../ui/ColorPicker';
 import { ImageCropper } from '../ui/ImageCropper';
 import { StudentWebWijzer } from '../webwijzer/StudentWebWijzer';
@@ -92,6 +92,13 @@ interface BehaviorIncident {
   };
 }
 
+interface StudentLogin {
+  id: string;
+  label: string;
+  url: string;
+  username: string;
+}
+
 interface StudentDetailProps {
   student: Student;
   schoolId: string;
@@ -158,6 +165,19 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   // Boeker states
   const [showBoeker, setShowBoeker] = useState(false);
 
+  // Login states
+  const [studentLogins, setStudentLogins] = useState<StudentLogin[]>([]);
+  const [showAddLogin, setShowAddLogin] = useState(false);
+  const [editingLoginId, setEditingLoginId] = useState<string | null>(null);
+  const [newLoginUrl, setNewLoginUrl] = useState('');
+  const [newLoginLabel, setNewLoginLabel] = useState('');
+  const [newLoginUsername, setNewLoginUsername] = useState('');
+  const [editLoginUrl, setEditLoginUrl] = useState('');
+  const [editLoginLabel, setEditLoginLabel] = useState('');
+  const [editLoginUsername, setEditLoginUsername] = useState('');
+  const [loginUrlError, setLoginUrlError] = useState('');
+  const [editLoginUrlError, setEditLoginUrlError] = useState('');
+
   useEffect(() => {
     fetchStudentGroups();
     fetchAvailableGroups();
@@ -167,11 +187,113 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
     fetchRecentIncidents();
     fetchIncidentStatistics();
     generateQRCode();
+    fetchStudentLogins();
   }, []);
 
   useEffect(() => {
     generateQRCode();
   }, [student.access_hash]);
+
+  const fetchStudentLogins = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('student_logins')
+        .select('*')
+        .eq('student_id', student.id)
+        .order('created_at');
+      if (error) throw error;
+      setStudentLogins(data || []);
+    } catch (error) {
+      console.error('Error fetching student logins:', error);
+    }
+  };
+
+  const extractLabelFromUrl = (url: string) => {
+    try {
+      const hostname = new URL(url).hostname.replace('www.', '');
+      return hostname.split('.')[0].charAt(0).toUpperCase() + hostname.split('.')[0].slice(1);
+    } catch {
+      return url;
+    }
+  };
+
+  const validateUrl = (url: string): string => {
+    if (!url) return 'URL is verplicht';
+    if (!url.startsWith('https://')) return 'URL moet beginnen met https://';
+    try {
+      new URL(url);
+      return '';
+    } catch {
+      return 'Voer een geldige URL in';
+    }
+  };
+
+  const addLogin = async () => {
+    const urlErr = validateUrl(newLoginUrl);
+    if (urlErr) { setLoginUrlError(urlErr); return; }
+    setLoginUrlError('');
+    const label = newLoginLabel.trim() || extractLabelFromUrl(newLoginUrl);
+    try {
+      const { error } = await supabase
+        .from('student_logins')
+        .insert({ student_id: student.id, label, url: newLoginUrl, username: newLoginUsername });
+      if (error) throw error;
+      setNewLoginUrl('');
+      setNewLoginLabel('');
+      setNewLoginUsername('');
+      setShowAddLogin(false);
+      fetchStudentLogins();
+    } catch (error) {
+      console.error('Error adding login:', error);
+    }
+  };
+
+  const startEditLogin = (login: StudentLogin) => {
+    setEditingLoginId(login.id);
+    setEditLoginUrl(login.url);
+    setEditLoginLabel(login.label);
+    setEditLoginUsername(login.username);
+    setEditLoginUrlError('');
+  };
+
+  const saveEditLogin = async (loginId: string) => {
+    const urlErr = validateUrl(editLoginUrl);
+    if (urlErr) { setEditLoginUrlError(urlErr); return; }
+    setEditLoginUrlError('');
+    const label = editLoginLabel.trim() || extractLabelFromUrl(editLoginUrl);
+    try {
+      const { error } = await supabase
+        .from('student_logins')
+        .update({ label, url: editLoginUrl, username: editLoginUsername })
+        .eq('id', loginId);
+      if (error) throw error;
+      setEditingLoginId(null);
+      fetchStudentLogins();
+    } catch (error) {
+      console.error('Error updating login:', error);
+    }
+  };
+
+  const deleteLogin = async (loginId: string) => {
+    try {
+      const { error } = await supabase
+        .from('student_logins')
+        .delete()
+        .eq('id', loginId);
+      if (error) throw error;
+      fetchStudentLogins();
+    } catch (error) {
+      console.error('Error deleting login:', error);
+    }
+  };
+
+  const handleNewLoginUrlChange = (url: string) => {
+    setNewLoginUrl(url);
+    if (loginUrlError) setLoginUrlError('');
+    if (url.startsWith('https://') && !newLoginLabel) {
+      setNewLoginLabel(extractLabelFromUrl(url));
+    }
+  };
 
   const generateQRCode = () => {
     if (student.access_hash) {
@@ -1416,6 +1538,125 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
             {student.first_name} kan hier boeken scannen, leesvoortgang bijhouden en boeken beoordelen.
           </p>
         </div>
+      </Card>
+
+      {/* Student Logins */}
+      <Card className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <LogIn className="w-5 h-5 mr-2" />
+            Logins ({studentLogins.length})
+          </h3>
+          {!showAddLogin && (
+            <Button variant="secondary" size="sm" onClick={() => setShowAddLogin(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Login toevoegen
+            </Button>
+          )}
+        </div>
+
+        {showAddLogin && (
+          <div className="mb-4 p-4 bg-gray-50 rounded-lg space-y-3 border border-gray-200">
+            <h4 className="font-medium text-gray-900 text-sm">Nieuwe login</h4>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Website URL <span className="text-red-500">*</span></label>
+              <Input
+                value={newLoginUrl}
+                onChange={(e) => handleNewLoginUrlChange(e.target.value)}
+                placeholder="https://accounts.google.com"
+              />
+              {loginUrlError && <p className="mt-1 text-xs text-red-600">{loginUrlError}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Label</label>
+              <Input
+                value={newLoginLabel}
+                onChange={(e) => setNewLoginLabel(e.target.value)}
+                placeholder="Automatisch ingevuld op basis van website"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Gebruikersnaam <span className="text-red-500">*</span></label>
+              <Input
+                value={newLoginUsername}
+                onChange={(e) => setNewLoginUsername(e.target.value)}
+                placeholder="gebruikersnaam of e-mailadres"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={addLogin} disabled={!newLoginUrl || !newLoginUsername}>
+                <Plus className="w-4 h-4 mr-1" />
+                Toevoegen
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => { setShowAddLogin(false); setNewLoginUrl(''); setNewLoginLabel(''); setNewLoginUsername(''); setLoginUrlError(''); }}>
+                Annuleren
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {studentLogins.length === 0 && !showAddLogin ? (
+          <p className="text-gray-500 text-center py-8">Nog geen logins toegevoegd</p>
+        ) : (
+          <div className="space-y-2">
+            {studentLogins.map((login) => (
+              editingLoginId === login.id ? (
+                <div key={login.id} className="p-4 bg-gray-50 rounded-lg space-y-3 border border-gray-200">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Website URL <span className="text-red-500">*</span></label>
+                    <Input
+                      value={editLoginUrl}
+                      onChange={(e) => { setEditLoginUrl(e.target.value); if (editLoginUrlError) setEditLoginUrlError(''); }}
+                      placeholder="https://"
+                    />
+                    {editLoginUrlError && <p className="mt-1 text-xs text-red-600">{editLoginUrlError}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Label</label>
+                    <Input
+                      value={editLoginLabel}
+                      onChange={(e) => setEditLoginLabel(e.target.value)}
+                      placeholder="Label"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Gebruikersnaam <span className="text-red-500">*</span></label>
+                    <Input
+                      value={editLoginUsername}
+                      onChange={(e) => setEditLoginUsername(e.target.value)}
+                      placeholder="gebruikersnaam of e-mailadres"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={() => saveEditLogin(login.id)} disabled={!editLoginUrl || !editLoginUsername}>
+                      <Save className="w-4 h-4 mr-1" />
+                      Opslaan
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => setEditingLoginId(null)}>
+                      Annuleren
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div key={login.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-gray-900">{login.label}</p>
+                    <p className="text-sm text-gray-500 truncate">{login.url}</p>
+                    <p className="text-sm text-gray-600 font-mono">{login.username}</p>
+                  </div>
+                  <div className="flex gap-2 ml-3 flex-shrink-0">
+                    <Button variant="secondary" size="sm" onClick={() => startEditLogin(login)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button variant="danger" size="sm" onClick={() => deleteLogin(login.id)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              )
+            ))}
+          </div>
+        )}
       </Card>
 
       {/* Reading Progress */}

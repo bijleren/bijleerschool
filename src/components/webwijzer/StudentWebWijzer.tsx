@@ -3,10 +3,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid2x2 as Grid, Search, Clock } from 'lucide-react';
+import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid2x2 as Grid, Search, Clock, LogIn } from 'lucide-react';
 import { WebWijzerContentViewer } from './WebWijzerContentViewer';
 import { StudentBibliotheekModal } from './StudentBibliotheekModal';
 import { StudentActiviTijdModal } from './StudentActiviTijdModal';
+import { StudentLoginModal } from './StudentLoginModal';
 import { StudentZoekerModal } from '../zoeker/StudentZoekerModal';
 import { BoardSelectionModal } from '../activityboard/BoardSelectionModal';
 import { SwitchBoardModal } from '../activityboard/SwitchBoardModal';
@@ -40,6 +41,13 @@ interface StudentWebWijzerProps {
   onStop?: () => void;
 }
 
+interface StudentLogin {
+  id: string;
+  label: string;
+  url: string;
+  username: string;
+}
+
 export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, onStop }: StudentWebWijzerProps) {
   const { user } = useAuth();
   const [assignments, setAssignments] = useState<ContentAssignment[]>([]);
@@ -64,11 +72,14 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   const [currentBoardName, setCurrentBoardName] = useState<string>('');
   const [showDeactivationNotice, setShowDeactivationNotice] = useState(false);
   const [deactivationCountdown, setDeactivationCountdown] = useState(5);
+  const [studentLogins, setStudentLogins] = useState<StudentLogin[]>([]);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     fetchAssignments();
     fetchStudentSchool();
     checkActiveBoard();
+    fetchStudentLogins();
 
     const interval = setInterval(() => {
       fetchAssignments();
@@ -95,6 +106,19 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
       subscription.unsubscribe();
     };
   }, [studentId, activeBoard]);
+
+  const fetchStudentLogins = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('student_logins')
+        .select('id, label, url, username')
+        .eq('student_id', studentId)
+        .order('created_at');
+      if (!error) setStudentLogins(data || []);
+    } catch {
+      // non-critical, silently ignore
+    }
+  };
 
   const fetchStudentSchool = async () => {
     try {
@@ -708,15 +732,28 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
               </Button>
             )}
           </div>
-          <Button
-            onClick={handleLogout}
-            variant="secondary"
-            className="flex items-center gap-2"
-            aria-label="WebWijzer stoppen en uitloggen"
-          >
-            <LogOut className="w-4 h-4" aria-hidden="true" />
-            Stop
-          </Button>
+          <div className="flex items-center gap-2">
+            {studentLogins.length > 0 && (
+              <Button
+                onClick={() => setShowLoginModal(true)}
+                variant="secondary"
+                className="flex items-center gap-2"
+                aria-label="Open logins overzicht"
+              >
+                <LogIn className="w-4 h-4" aria-hidden="true" />
+                Logins
+              </Button>
+            )}
+            <Button
+              onClick={handleLogout}
+              variant="secondary"
+              className="flex items-center gap-2"
+              aria-label="WebWijzer stoppen en uitloggen"
+            >
+              <LogOut className="w-4 h-4" aria-hidden="true" />
+              Stop
+            </Button>
+          </div>
         </nav>
 
         <div className="text-center mb-8">
@@ -957,6 +994,13 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
           schoolId={schoolId}
           studentName={studentName}
           onClose={() => setShowZoeker(false)}
+        />
+      )}
+
+      {showLoginModal && (
+        <StudentLoginModal
+          logins={studentLogins}
+          onClose={() => setShowLoginModal(false)}
         />
       )}
     </div>
