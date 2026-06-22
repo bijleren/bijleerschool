@@ -76,10 +76,13 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
+    fetchStudentLogins();
+  }, [studentId]);
+
+  useEffect(() => {
     fetchAssignments();
     fetchStudentSchool();
     checkActiveBoard();
-    fetchStudentLogins();
 
     const interval = setInterval(() => {
       fetchAssignments();
@@ -114,9 +117,13 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
         .select('id, label, url, username')
         .eq('student_id', studentId)
         .order('created_at');
-      if (!error) setStudentLogins(data || []);
-    } catch {
-      // non-critical, silently ignore
+      if (error) {
+        console.error('Error fetching student logins:', error);
+      } else {
+        setStudentLogins(data || []);
+      }
+    } catch (err) {
+      console.error('Student logins fetch failed:', err);
     }
   };
 
