@@ -114,12 +114,15 @@ export function PublicWebWijzerAccess() {
   };
 
   const handleStop = () => {
+    if (window.location.search.includes('h=')) {
+      window.history.replaceState({}, '', '/webwijzer');
+    }
     setAuthenticatedStudent(null);
     setStudentCode('');
     setPinCode('');
     setError('');
     setCameraError('');
-    startScanner();
+    setTimeout(() => startScanner(), 100);
   };
 
   if (authenticatedStudent) {
