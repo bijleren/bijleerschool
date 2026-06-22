@@ -114,15 +114,7 @@ export function PublicWebWijzerAccess() {
   };
 
   const handleStop = () => {
-    if (window.location.search.includes('h=')) {
-      window.history.replaceState({}, '', '/webwijzer');
-    }
-    setAuthenticatedStudent(null);
-    setStudentCode('');
-    setPinCode('');
-    setError('');
-    setCameraError('');
-    setTimeout(() => startScanner(), 100);
+    window.location.replace('/webwijzer');
   };
 
   if (authenticatedStudent) {
