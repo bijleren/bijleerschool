@@ -74,6 +74,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   const [deactivationCountdown, setDeactivationCountdown] = useState(5);
   const [studentLogins, setStudentLogins] = useState<StudentLogin[]>([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [schoolHasBooks, setSchoolHasBooks] = useState(false);
 
   useEffect(() => {
     fetchStudentLogins();
@@ -136,7 +137,16 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
         .maybeSingle();
 
       if (error) throw error;
-      if (data) setSchoolId(data.school_id);
+      if (data?.school_id) {
+        setSchoolId(data.school_id);
+
+        const { count } = await supabase
+          .from('books')
+          .select('id', { count: 'exact', head: true })
+          .eq('school_id', data.school_id);
+
+        setSchoolHasBooks((count ?? 0) > 0);
+      }
     } catch (error) {
       console.error('Error fetching student school:', error);
     }
@@ -707,15 +717,17 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
           <div className="flex gap-2" role="group" aria-label="Aanvullende functies">
             {schoolId && (
               <>
-                <Button
-                  onClick={() => setShowBibliotheek(true)}
-                  variant="secondary"
-                  className="flex items-center gap-2"
-                  aria-label="Open bibliotheek voor boeken en materialen"
-                >
-                  <BookOpen className="w-4 h-4" aria-hidden="true" />
-                  Bibliotheek
-                </Button>
+                {schoolHasBooks && (
+                  <Button
+                    onClick={() => setShowBibliotheek(true)}
+                    variant="secondary"
+                    className="flex items-center gap-2"
+                    aria-label="Open bibliotheek voor boeken en materialen"
+                  >
+                    <BookOpen className="w-4 h-4" aria-hidden="true" />
+                    Bibliotheek
+                  </Button>
+                )}
                 <Button
                   onClick={() => setShowZoeker(true)}
                   variant="secondary"
