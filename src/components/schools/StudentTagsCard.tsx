@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
-import { Tag, Plus, X, Clock, Download, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { Tag, Plus, X, Clock, Download, ChevronDown, ChevronUp, Check, Trash2 } from 'lucide-react';
 
 const PRESET_COLORS = [
   '#EF4444', '#F97316', '#EAB308', '#22C55E', '#14B8A6',
@@ -211,8 +211,20 @@ export function StudentTagsCard({ studentId, schoolId }: StudentTagsCardProps) {
     }
   };
 
-  const toggleHistory = async () => {
-    const next = !showHistory;
+  const deleteHistoryEntry = async (entryId: string) => {
+    try {
+      const { error } = await supabase
+        .from('student_tag_log')
+        .delete()
+        .eq('id', entryId);
+      if (error) throw error;
+      setTagLog(prev => prev.filter(e => e.id !== entryId));
+    } catch (err) {
+      console.error('Error deleting tag log entry:', err);
+    }
+  };
+
+  const toggleHistory = async () => {    const next = !showHistory;
     setShowHistory(next);
     if (next && tagLog.length === 0) {
       await fetchHistory();
@@ -474,7 +486,7 @@ export function StudentTagsCard({ studentId, schoolId }: StudentTagsCardProps) {
             ) : (
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {tagLog.map(entry => (
-                  <div key={entry.id} className="flex items-center gap-3 text-sm">
+                  <div key={entry.id} className="flex items-center gap-3 text-sm group/row">
                     <div className="flex items-center gap-1.5 min-w-0 flex-1">
                       <span
                         className={`flex-shrink-0 w-2 h-2 rounded-full ${
@@ -503,6 +515,13 @@ export function StudentTagsCard({ studentId, schoolId }: StudentTagsCardProps) {
                         </p>
                       )}
                     </div>
+                    <button
+                      onClick={() => deleteHistoryEntry(entry.id)}
+                      className="flex-shrink-0 opacity-0 group-hover/row:opacity-100 p-1 rounded text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all"
+                      title="Verwijder uit geschiedenis"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 ))}
               </div>
