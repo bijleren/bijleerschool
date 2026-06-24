@@ -75,6 +75,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   const [studentLogins, setStudentLogins] = useState<StudentLogin[]>([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [schoolHasBooks, setSchoolHasBooks] = useState(false);
+  const [schoolIsPremium, setSchoolIsPremium] = useState(false);
 
   useEffect(() => {
     fetchStudentLogins();
@@ -140,12 +141,20 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
       if (data?.school_id) {
         setSchoolId(data.school_id);
 
-        const { count } = await supabase
-          .from('books')
-          .select('id', { count: 'exact', head: true })
-          .eq('school_id', data.school_id);
+        const [booksResult, schoolResult] = await Promise.all([
+          supabase
+            .from('books')
+            .select('id', { count: 'exact', head: true })
+            .eq('school_id', data.school_id),
+          supabase
+            .from('schools')
+            .select('premium_school')
+            .eq('id', data.school_id)
+            .maybeSingle(),
+        ]);
 
-        setSchoolHasBooks((count ?? 0) > 0);
+        setSchoolHasBooks((booksResult.count ?? 0) > 0);
+        setSchoolIsPremium(schoolResult.data?.premium_school === true);
       }
     } catch (error) {
       console.error('Error fetching student school:', error);
@@ -728,15 +737,17 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
                     Bibliotheek
                   </Button>
                 )}
-                <Button
-                  onClick={() => setShowZoeker(true)}
-                  variant="secondary"
-                  className="flex items-center gap-2"
-                  aria-label="Open zoeker voor informatie zoeken"
-                >
-                  <Search className="w-4 h-4" aria-hidden="true" />
-                  Zoeker
-                </Button>
+                {schoolIsPremium && (
+                  <Button
+                    onClick={() => setShowZoeker(true)}
+                    variant="secondary"
+                    className="flex items-center gap-2"
+                    aria-label="Open zoeker voor informatie zoeken"
+                  >
+                    <Search className="w-4 h-4" aria-hidden="true" />
+                    Zoeker
+                  </Button>
+                )}
               </>
             )}
             {(activeBoard || availableBoards.length > 0) && (
