@@ -14,8 +14,29 @@ export interface BookMetadata {
   source: 'google_books' | 'open_library' | 'easycb' | 'manual';
 }
 
+const DUTCH_ISBN_PREFIXES = ['97890', '97894'];
+
+function isDutchIsbn(isbn: string): boolean {
+  return DUTCH_ISBN_PREFIXES.some(p => isbn.startsWith(p));
+}
+
+// Open Library cover CDN — works by ISBN even when the metadata API has no entry
+function openLibraryCoverUrl(isbn: string): string {
+  return `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
+}
+
 export async function fetchBookMetadata(isbn: string): Promise<BookMetadata | null> {
   const cleanIsbn = isbn.replace(/[^0-9X]/gi, '');
+
+  // For Dutch/Belgian ISBNs try EasyCB first — it's the authoritative Belgian/Dutch database
+  if (isDutchIsbn(cleanIsbn)) {
+    try {
+      const result = await fetchFromEasyCB(cleanIsbn);
+      if (result) return result;
+    } catch {
+      console.log('EasyCB failed for Dutch ISBN, trying other sources');
+    }
+  }
 
   try {
     const result = await fetchFromGoogleBooks(cleanIsbn);
@@ -31,11 +52,14 @@ export async function fetchBookMetadata(isbn: string): Promise<BookMetadata | nu
     console.log('Open Library failed, trying EasyCB');
   }
 
-  try {
-    const result = await fetchFromEasyCB(cleanIsbn);
-    if (result) return result;
-  } catch {
-    console.log('EasyCB failed');
+  // EasyCB as final fallback for non-Dutch ISBNs too
+  if (!isDutchIsbn(cleanIsbn)) {
+    try {
+      const result = await fetchFromEasyCB(cleanIsbn);
+      if (result) return result;
+    } catch {
+      console.log('EasyCB failed');
+    }
   }
 
   return null;
@@ -64,7 +88,7 @@ async function fetchFromGoogleBooks(isbn: string): Promise<BookMetadata | null> 
   const coverUrl = book.imageLinks?.thumbnail || book.imageLinks?.smallThumbnail;
   const highResCover = coverUrl
     ? coverUrl.replace('http:', 'https:').replace('&zoom=1', '&zoom=2').replace('&edge=curl', '')
-    : undefined;
+    : openLibraryCoverUrl(isbn);
 
   return {
     isbn,
@@ -109,7 +133,7 @@ async function fetchFromOpenLibrary(isbn: string): Promise<BookMetadata | null> 
     publishedDate: book.publish_date,
     pageCount: book.number_of_pages,
     description: book.notes || book.subtitle,
-    coverImageUrl: book.cover?.medium || book.cover?.large,
+    coverImageUrl: book.cover?.large || book.cover?.medium || openLibraryCoverUrl(isbn),
     language: undefined,
     categories: book.subjects?.map((s: any) => s.name),
     source: 'open_library',
@@ -117,7 +141,7 @@ async function fetchFromOpenLibrary(isbn: string): Promise<BookMetadata | null> 
 }
 
 // EasyCB: free API for Dutch/Belgian books (Centraal Boekhuis / TitelBank)
-// Response is plain text key:value pairs. Cover images can't be hotlinked so we skip them.
+// Response is plain text key:value pairs.
 async function fetchFromEasyCB(isbn: string): Promise<BookMetadata | null> {
   const response = await fetch(`https://easycbapi.nl/isbn/${isbn}`, {
     headers: { contact: 'boeker@bijleer.be' },
@@ -142,16 +166,26 @@ async function fetchFromEasyCB(isbn: string): Promise<BookMetadata | null> {
 
   const pageCount = fields['DescriptiveDetail.Extent.ExtentValue']
     ? parseInt(fields['DescriptiveDetail.Extent.ExtentValue'], 10)
+    : fields['pages']
+    ? parseInt(fields['pages'], 10)
     : undefined;
 
-  // Description may appear in TextContent blocks; grab the first non-empty one
+  // Description may appear in TextContent blocks or synopsis field
   const description = Object.entries(fields)
-    .find(([k]) => k.includes('TextContent.Text'))?.[1];
+    .find(([k]) => k.includes('TextContent.Text'))?.[1]
+    || fields['synopsis']
+    || undefined;
 
   // Language code is ISO 639-2/B (e.g. "dut" for Dutch), convert to 639-1 where possible
-  const langRaw = fields['DescriptiveDetail.Language.LanguageCode'];
+  const langRaw = fields['DescriptiveDetail.Language.LanguageCode'] || fields['language'];
   const langMap: Record<string, string> = { dut: 'nl', fre: 'fr', ger: 'de', eng: 'en' };
   const language = langRaw ? (langMap[langRaw] ?? langRaw) : undefined;
+
+  // Parse publish date from YYYYMMDD format
+  const rawDate = fields['publishingdate'];
+  const publishedDate = rawDate && rawDate.length === 8
+    ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
+    : rawDate;
 
   return {
     isbn,
@@ -159,11 +193,11 @@ async function fetchFromEasyCB(isbn: string): Promise<BookMetadata | null> {
     isbn_10: isbn.length === 10 ? isbn : undefined,
     title,
     author: fields['author'],
-    publisher: undefined,
-    publishedDate: undefined,
+    publisher: fields['publisher'] || undefined,
+    publishedDate,
     pageCount: isNaN(pageCount!) ? undefined : pageCount,
     description,
-    coverImageUrl: undefined, // EasyCB covers can't be hotlinked
+    coverImageUrl: openLibraryCoverUrl(isbn),
     language,
     categories: undefined,
     source: 'easycb',
