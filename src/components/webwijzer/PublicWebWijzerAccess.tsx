@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { KeyRound, GraduationCap, Globe, X } from 'lucide-react';
+import { KeyRound, GraduationCap, Globe, X, RefreshCw } from 'lucide-react';
 import { StudentWebWijzer } from './StudentWebWijzer';
 import { Html5Qrcode } from 'html5-qrcode';
 
@@ -15,6 +15,8 @@ export function PublicWebWijzerAccess() {
   const [error, setError] = useState('');
   const [cameraError, setCameraError] = useState('');
   const [scannerStarted, setScannerStarted] = useState(false);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
+  const [switchingCamera, setSwitchingCamera] = useState(false);
   const [authenticatedStudent, setAuthenticatedStudent] = useState<{ id: string; name: string } | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const startingRef = useRef(false);
@@ -31,7 +33,7 @@ export function PublicWebWijzerAccess() {
     return () => { stopScanner(); };
   }, []);
 
-  const startScanner = async () => {
+  const startScanner = async (facing: 'user' | 'environment' = facingMode) => {
     if (scannerRef.current || startingRef.current) return;
     startingRef.current = true;
     setCameraError('');
@@ -39,7 +41,7 @@ export function PublicWebWijzerAccess() {
       const scanner = new Html5Qrcode(scannerIdRef.current);
       scannerRef.current = scanner;
       await scanner.start(
-        { facingMode: 'environment' },
+        { facingMode: facing },
         { fps: 10, qrbox: { width: 240, height: 240 } },
         (decodedText) => {
           try {
@@ -54,8 +56,27 @@ export function PublicWebWijzerAccess() {
       startingRef.current = false;
     } catch {
       startingRef.current = false;
-      setCameraError('Camera niet beschikbaar. Gebruik de code om in te loggen.');
+      // If front camera fails, try back camera as fallback
+      if (facing === 'user') {
+        startingRef.current = false;
+        setFacingMode('environment');
+        startScanner('environment');
+      } else {
+        setCameraError('Camera niet beschikbaar. Gebruik de code om in te loggen.');
+      }
     }
+  };
+
+  const switchCamera = async () => {
+    if (switchingCamera) return;
+    setSwitchingCamera(true);
+    const next: 'user' | 'environment' = facingMode === 'user' ? 'environment' : 'user';
+    await stopScanner();
+    setFacingMode(next);
+    // Small delay to let the DOM element reset
+    await new Promise(r => setTimeout(r, 150));
+    await startScanner(next);
+    setSwitchingCamera(false);
   };
 
   const stopScanner = async () => {
@@ -178,19 +199,30 @@ export function PublicWebWijzerAccess() {
                 </div>
                 <p className="text-gray-600 text-sm mb-4">{cameraError}</p>
                 <button
-                  onClick={() => startScanner()}
+                  onClick={() => { setCameraError(''); startScanner(facingMode); }}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                 >
                   Opnieuw proberen
                 </button>
               </div>
             ) : (
-              <div>
+              <div className="relative">
                 <div id={scannerIdRef.current} className="w-full" />
                 {scannerStarted && (
-                  <p className="text-center text-xs text-gray-400 py-3 border-t border-gray-100">
-                    Camera actief — richt op je QR-code
-                  </p>
+                  <div className="flex items-center justify-between px-4 py-2.5 border-t border-gray-100">
+                    <p className="text-xs text-gray-400">
+                      Camera actief — richt op je QR-code
+                    </p>
+                    <button
+                      onClick={switchCamera}
+                      disabled={switchingCamera}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-medium transition-colors disabled:opacity-50"
+                      title={facingMode === 'user' ? 'Schakel naar achtercamera' : 'Schakel naar voorcamera'}
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${switchingCamera ? 'animate-spin' : ''}`} />
+                      {facingMode === 'user' ? 'Achtercamera' : 'Voorcamera'}
+                    </button>
+                  </div>
                 )}
               </div>
             )}

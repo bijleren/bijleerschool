@@ -239,11 +239,9 @@ export function ImageCropper({
                   <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full"></div>
 
                   {/* Aspect ratio label */}
-                  {aspectRatio === 1 && (
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-full shadow-lg">
-                      Vierkant (1:1)
-                    </div>
-                  )}
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-full shadow-lg whitespace-nowrap">
+                    {aspectRatio === 1 ? 'Vierkant (1:1)' : aspectRatio === 2 / 3 ? 'Boekcover (2:3)' : `Verhouding ${aspectRatio.toFixed(2)}`}
+                  </div>
                 </div>
               </>
             )}

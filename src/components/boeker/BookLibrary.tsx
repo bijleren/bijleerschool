@@ -12,6 +12,7 @@ import { fetchBookMetadata, BookMetadata } from '../../utils/bookApi';
 import { Plus, Search, Pencil, Trash2, Camera, BookOpen, Users, X, Scan, Star, MessageSquare, MapPin, SlidersHorizontal, ArrowUpDown, ExternalLink, Download, Tag } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { LocationCombobox } from './LocationCombobox';
+import { ImageCropper } from '../ui/ImageCropper';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('');
 
@@ -102,6 +103,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
   const [customCoverFile, setCustomCoverFile] = useState<File | null>(null);
   const [customCoverPreview, setCustomCoverPreview] = useState<string | null>(null);
   const [useCustomCover, setUseCustomCover] = useState(false);
+  const [cropperFile, setCropperFile] = useState<File | null>(null);
 
   // Letter index
   const [availableLetters, setAvailableLetters] = useState<Set<string>>(new Set());
@@ -373,11 +375,17 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
 
   const handleCustomCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setCustomCoverFile(file);
-      setCustomCoverPreview(URL.createObjectURL(file));
-      setUseCustomCover(true);
+      setCropperFile(e.target.files[0]);
+      // Reset input so the same file can be re-selected after cancelling crop
+      e.target.value = '';
     }
+  };
+
+  const handleCropComplete = (croppedFile: File) => {
+    setCustomCoverFile(croppedFile);
+    setCustomCoverPreview(URL.createObjectURL(croppedFile));
+    setUseCustomCover(true);
+    setCropperFile(null);
   };
 
   const uploadCustomCover = async (file: File): Promise<string | null> => {
@@ -1832,6 +1840,16 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}
+        />
+      )}
+
+      {cropperFile && (
+        <ImageCropper
+          imageFile={cropperFile}
+          aspectRatio={2 / 3}
+          title="Boekcover bijsnijden"
+          onCropComplete={handleCropComplete}
+          onCancel={() => setCropperFile(null)}
         />
       )}
     </div>
