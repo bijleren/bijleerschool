@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
-import { Search, BookOpen, Clock, X, ArrowLeft, Package, Download, Play, Square } from 'lucide-react';
+import { Search, BookOpen, Clock, X, ArrowLeft, Package, Download, Play, Square, Users } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface Student {
@@ -11,6 +11,11 @@ interface Student {
   first_name: string;
   last_name: string;
   student_number: string | null;
+}
+
+interface Group {
+  id: string;
+  name: string;
 }
 
 interface StudentWithStats {
@@ -49,12 +54,19 @@ interface StudentBookManagementProps {
 export function StudentBookManagement({ schoolId, initialStudentId, onClearStudent }: StudentBookManagementProps) {
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<StudentWithStats[]>([]);
+  const [allStudentsWithStats, setAllStudentsWithStats] = useState<StudentWithStats[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<StudentWithStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    fetchGroups();
+  }, [schoolId]);
 
   useEffect(() => {
     fetchStudents();
@@ -68,6 +80,20 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
       }
     }
   }, [initialStudentId, filteredStudents]);
+
+  const fetchGroups = async () => {
+    try {
+      const { data } = await supabase
+        .from('groups')
+        .select('id, name')
+        .eq('school_id', schoolId)
+        .eq('is_active', true)
+        .order('name');
+      setGroups(data || []);
+    } catch {
+      // non-critical — fall back to showing all students
+    }
+  };
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -190,6 +216,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
       );
 
       setStudents(studentsData || []);
+      setAllStudentsWithStats(studentsWithStats);
       setFilteredStudents(studentsWithStats);
     } catch (error) {
       console.error('Error fetching students:', error);
@@ -200,19 +227,34 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
   };
 
   useEffect(() => {
-    if (searchQuery.trim() === '') {
-      return;
+    applyFilters(selectedGroupId, searchQuery);
+  }, [searchQuery, selectedGroupId, allStudentsWithStats]);
+
+  const applyFilters = async (groupId: string | null, query: string) => {
+    let base = allStudentsWithStats;
+
+    if (groupId) {
+      const { data: sg } = await supabase
+        .from('student_groups')
+        .select('student_id')
+        .eq('group_id', groupId)
+        .eq('is_active', true);
+      const ids = new Set((sg || []).map((r: any) => r.student_id));
+      base = base.filter(item => ids.has(item.student.id));
     }
 
-    const query = searchQuery.toLowerCase();
-    const filtered = filteredStudents.filter(
-      (item) =>
-        item.student.first_name.toLowerCase().includes(query) ||
-        item.student.last_name.toLowerCase().includes(query) ||
-        item.student.student_number?.toLowerCase().includes(query)
-    );
-    setFilteredStudents(filtered);
-  }, [searchQuery]);
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      base = base.filter(
+        item =>
+          item.student.first_name.toLowerCase().includes(q) ||
+          item.student.last_name.toLowerCase().includes(q) ||
+          item.student.student_number?.toLowerCase().includes(q)
+      );
+    }
+
+    setFilteredStudents(base);
+  };
 
   if (loading) {
     return (
@@ -405,7 +447,24 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
       <Card>
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Leerlingen</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-bold text-gray-900">Leerlingen</h2>
+              {groups.length > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <select
+                    value={selectedGroupId ?? ''}
+                    onChange={(e) => setSelectedGroupId(e.target.value || null)}
+                    className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 text-gray-700 bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Alle klassen</option>
+                    {groups.map(g => (
+                      <option key={g.id} value={g.id}>{g.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-3">
             <button
               onClick={exportToExcel}
