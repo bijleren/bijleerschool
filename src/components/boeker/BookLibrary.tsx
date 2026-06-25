@@ -413,6 +413,36 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
     }
   };
 
+  const handleIsbnLookupInForm = async (isbn: string) => {
+    if (!isbn || fetchingMetadata) return;
+    setFetchingMetadata(true);
+    setToast({ message: 'Boekgegevens ophalen...', type: 'info' });
+    try {
+      const metadata = await fetchBookMetadata(isbn);
+      if (metadata) {
+        setFormData(prev => ({
+          ...prev,
+          isbn,
+          title: metadata.title,
+          author: metadata.author || '',
+          publisher: metadata.publisher || '',
+          published_date: metadata.publishedDate || '',
+          page_count: metadata.pageCount?.toString() || '',
+          description: metadata.description || '',
+          cover_image_url: metadata.coverImageUrl || '',
+          language: metadata.language || '',
+        }));
+        setToast({ message: 'Boekgegevens gevonden!', type: 'success' });
+      } else {
+        setToast({ message: 'Geen gegevens gevonden. Voer handmatig in.', type: 'info' });
+      }
+    } catch {
+      setToast({ message: 'Fout bij ophalen gegevens', type: 'error' });
+    } finally {
+      setFetchingMetadata(false);
+    }
+  };
+
   const handleIsbnScan = async (isbn: string) => {
     setFetchingMetadata(true);
     setToast({ message: 'Boekgegevens ophalen...', type: 'info' });
@@ -1198,12 +1228,37 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     ISBN *
                   </label>
-                  <Input
-                    value={formData.isbn}
-                    onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
-                    placeholder="9781234567890"
-                    disabled={!!editingBook}
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      value={formData.isbn}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9X]/gi, '');
+                        setFormData({ ...formData, isbn: val });
+                        if ((val.length === 13 || val.length === 10) && !editingBook) {
+                          handleIsbnLookupInForm(val);
+                        }
+                      }}
+                      placeholder="9781234567890"
+                      disabled={!!editingBook}
+                    />
+                    {!editingBook && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (formData.isbn) handleIsbnLookupInForm(formData.isbn);
+                        }}
+                        disabled={fetchingMetadata || !formData.isbn}
+                        className="flex-shrink-0 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        title="Boekgegevens opzoeken"
+                      >
+                        {fetchingMetadata ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Search className="w-4 h-4" />
+                        )}
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div>
