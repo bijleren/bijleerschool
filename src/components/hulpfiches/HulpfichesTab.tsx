@@ -8,7 +8,8 @@ import { Toast } from '../ui/Toast';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
 import {
   FileText, Plus, Pencil, Trash2, Eye, EyeOff, Upload, X, ChevronDown,
-  ChevronRight, Users, Download, Search, ChevronDown as ChevronDownSm
+  ChevronRight, Users, Download, Search, ChevronDown as ChevronDownSm,
+  Layers, ArrowUpRight, BookOpen
 } from 'lucide-react';
 
 const DEFAULT_VAKKEN = [
@@ -377,6 +378,35 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
             <Plus className="w-4 h-4 mr-2" />
             Nieuwe fiche
           </Button>
+        </div>
+      </div>
+
+      {/* Info banner */}
+      <div className="rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-slate-50 p-5">
+        <div className="flex gap-4">
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+            <Layers className="w-5 h-5 text-blue-600" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-sm font-semibold text-gray-900 mb-1">Hulpfiches als verticale leerlijn</h2>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Houd alle hulpmiddelen van je school op één centrale plek bij. Door fiches te koppelen aan een vak en leerjaar bouw je een verticale leerlijn op — tools die doorheen verschillende jaren hergebruikt en verfijnd worden. Wijs een fiche toe aan een leerling of klas zodat de digitale versie automatisch verschijnt in hun WebWijzer.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-4">
+              <div className="flex items-center gap-1.5 text-xs text-blue-700">
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Georganiseerd per vak</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-blue-700">
+                <ArrowUpRight className="w-3.5 h-3.5" />
+                <span>Verticale leerlijn over leerjaren</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-blue-700">
+                <Users className="w-3.5 h-3.5" />
+                <span>Direct zichtbaar in WebWijzer van de leerling</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
