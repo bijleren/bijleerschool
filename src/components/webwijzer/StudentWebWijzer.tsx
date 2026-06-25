@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid2x2 as Grid, Search, Clock, LogIn } from 'lucide-react';
+import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid2x2 as Grid, Search, Clock, LogIn, FileText } from 'lucide-react';
 import { WebWijzerContentViewer } from './WebWijzerContentViewer';
 import { StudentBibliotheekModal } from './StudentBibliotheekModal';
 import { StudentActiviTijdModal } from './StudentActiviTijdModal';
@@ -76,6 +76,8 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [schoolHasBooks, setSchoolHasBooks] = useState(false);
   const [schoolIsPremium, setSchoolIsPremium] = useState(false);
+  const [showFiches, setShowFiches] = useState(false);
+  const [studentFiches, setStudentFiches] = useState<{ id: string; title: string; description: string | null; file_url: string | null; file_name: string | null; file_type: string | null; hulpfiche_vakken: { vak_name: string }[]; hulpfiche_leerjaren: { leerjaar: string }[] }[]>([]);
 
   useEffect(() => {
     fetchStudentLogins();
@@ -84,6 +86,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   useEffect(() => {
     fetchAssignments();
     fetchStudentSchool();
+    fetchStudentFiches();
     checkActiveBoard();
 
     const interval = setInterval(() => {
@@ -158,6 +161,51 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
       }
     } catch (error) {
       console.error('Error fetching student school:', error);
+    }
+  };
+
+  const fetchStudentFiches = async () => {
+    try {
+      // Get groups the student belongs to
+      const { data: groupData } = await supabase
+        .from('student_groups')
+        .select('group_id')
+        .eq('student_id', studentId)
+        .eq('is_active', true);
+      const groupIds = (groupData || []).map((g: { group_id: string }) => g.group_id);
+
+      // Fetch fiches assigned to this student or their groups, that are visible
+      const studentAssigned = await supabase
+        .from('hulpfiche_assignments')
+        .select('fiche_id')
+        .eq('assignable_type', 'student')
+        .eq('assignable_id', studentId);
+
+      const groupAssigned = groupIds.length > 0
+        ? await supabase
+            .from('hulpfiche_assignments')
+            .select('fiche_id')
+            .eq('assignable_type', 'group')
+            .in('assignable_id', groupIds)
+        : { data: [] };
+
+      const ficheIds = [
+        ...((studentAssigned.data || []).map((r: { fiche_id: string }) => r.fiche_id)),
+        ...((groupAssigned.data || []).map((r: { fiche_id: string }) => r.fiche_id)),
+      ];
+      const uniqueIds = [...new Set(ficheIds)];
+
+      if (uniqueIds.length === 0) { setStudentFiches([]); return; }
+
+      const { data: fichesData } = await supabase
+        .from('hulpfiches')
+        .select('id, title, description, file_url, file_name, file_type, hulpfiche_vakken(vak_name), hulpfiche_leerjaren(leerjaar)')
+        .in('id', uniqueIds)
+        .eq('is_visible_to_students', true);
+
+      setStudentFiches(fichesData || []);
+    } catch {
+      // non-critical
     }
   };
 
@@ -726,7 +774,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
           <div className="flex gap-2" role="group" aria-label="Aanvullende functies">
             {schoolId && (
               <>
-                {schoolHasBooks && (
+                  {schoolHasBooks && (
                   <Button
                     onClick={() => setShowBibliotheek(true)}
                     variant="secondary"
@@ -759,6 +807,17 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
               >
                 <Grid className="w-4 h-4" aria-hidden="true" />
                 Activi-tijd
+              </Button>
+            )}
+            {studentFiches.length > 0 && (
+              <Button
+                onClick={() => setShowFiches(true)}
+                variant="secondary"
+                className="flex items-center gap-2"
+                aria-label="Open fiches"
+              >
+                <FileText className="w-4 h-4" aria-hidden="true" />
+                Fiches
               </Button>
             )}
           </div>
@@ -1032,6 +1091,93 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
           logins={studentLogins}
           onClose={() => setShowLoginModal(false)}
         />
+      )}
+
+      {showFiches && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="fiches-modal-title"
+        >
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <h2 id="fiches-modal-title" className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-gray-600" />
+                Mijn Fiches
+              </h2>
+              <button
+                onClick={() => setShowFiches(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Sluiten"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+              {Object.entries(
+                studentFiches.reduce((acc, f) => {
+                  const vakken = f.hulpfiche_vakken.map(v => v.vak_name);
+                  const keys = vakken.length > 0 ? vakken : ['Algemeen'];
+                  keys.forEach(vak => {
+                    if (!acc[vak]) acc[vak] = [];
+                    acc[vak].push(f);
+                  });
+                  return acc;
+                }, {} as Record<string, typeof studentFiches>)
+              ).sort(([a], [b]) => a.localeCompare(b)).map(([vak, vakFiches]) => (
+                <div key={vak}>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1 py-2">{vak}</p>
+                  {vakFiches.map(fiche => (
+                    <div key={fiche.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                        {fiche.file_type?.includes('image') && fiche.file_url ? (
+                          <img src={fiche.file_url} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                        ) : (
+                          <FileText className="w-5 h-5 text-gray-500" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 text-sm">{fiche.title}</p>
+                        {fiche.description && (
+                          <p className="text-xs text-gray-500 truncate">{fiche.description}</p>
+                        )}
+                        <div className="flex gap-1 mt-1 flex-wrap">
+                          {fiche.hulpfiche_leerjaren.map(l => (
+                            <span key={l.leerjaar} className="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">
+                              {l.leerjaar}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      {fiche.file_url && (
+                        <a
+                          href={fiche.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-shrink-0 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                          aria-label={`Open ${fiche.title}`}
+                        >
+                          Openen
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200">
+              <button
+                onClick={() => setShowFiches(false)}
+                className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors"
+              >
+                Sluiten
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

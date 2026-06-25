@@ -20,6 +20,7 @@ import { BlinkQRTab } from '../blinkqr/BlinkQRTab';
 import { SporenTab } from '../sporen/SporenTab';
 import { LeescoachTab } from '../leescoach/LeescoachTab';
 import { ExecutieveFunctiesTab } from '../executieve/ExecutieveFunctiesTab';
+import { HulpfichesTab } from '../hulpfiches/HulpfichesTab';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { SchoolOnboarding } from '../onboarding/SchoolOnboarding';
@@ -63,7 +64,7 @@ export function Dashboard() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr' | 'sporen' | 'leescoach' | 'executieve' | 'onboarding'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'schools' | 'behavior' | 'teaching' | 'schoolday' | 'webwijzer' | 'activityboards' | 'boeker' | 'zoeker' | 'edi' | 'digitools' | 'newsletter' | 'blinkqr' | 'sporen' | 'leescoach' | 'executieve' | 'hulpfiches' | 'onboarding'>('dashboard');
   const [profileInitialTab, setProfileInitialTab] = useState<'profile' | 'feedback'>('profile');
   const [teachingPageOverride, setTeachingPageOverride] = useState<'technieken' | 'faq' | 'vormingen' | 'newsletter' | 'begeleiding'>('technieken');
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
@@ -90,7 +91,7 @@ export function Dashboard() {
     const studentIdParam = queryParams.get('studentId');
 
     if (tabParam) {
-      const validTabs = ['dashboard', 'profile', 'schools', 'behavior', 'teaching', 'schoolday', 'webwijzer', 'activityboards', 'boeker', 'zoeker', 'edi', 'digitools', 'newsletter', 'blinkqr', 'sporen', 'leescoach', 'executieve'];
+      const validTabs = ['dashboard', 'profile', 'schools', 'behavior', 'teaching', 'schoolday', 'webwijzer', 'activityboards', 'boeker', 'zoeker', 'edi', 'digitools', 'newsletter', 'blinkqr', 'sporen', 'leescoach', 'executieve', 'hulpfiches'];
       if (validTabs.includes(tabParam)) {
         setActiveTab(tabParam as typeof activeTab);
 
@@ -398,6 +399,13 @@ export function Dashboard() {
     setSelectedStudent(null);
     setSelectedGroup(null);
     setActiveTab('executieve');
+  };
+
+  const handleNavigateToHulpfiches = () => {
+    setSelectedSchool(null);
+    setSelectedStudent(null);
+    setSelectedGroup(null);
+    setActiveTab('hulpfiches');
   };
 
   const handleNavigateToNewsletter = () => {
@@ -744,6 +752,7 @@ export function Dashboard() {
         onNavigateToBlinkQR={handleNavigateToBlinkQR}
         onNavigateToSporen={handleNavigateToSporen}
         onNavigateToExecutieveFuncties={handleNavigateToExecutieveFuncties}
+        onNavigateToHulpfiches={handleNavigateToHulpfiches}
         onNavigateToOnboarding={handleNavigateToOnboarding}
         onNavigateToProfileFeedback={handleNavigateToProfileFeedback}
         focusSchool={focusSchool}
@@ -789,6 +798,7 @@ export function Dashboard() {
         {activeTab === 'schoolday' && <SchoolDayTab />}
         {activeTab === 'webwijzer' && <WebWijzerTab focusSchool={focusSchool} />}
         {activeTab === 'boeker' && <BoekerTab focusSchool={focusSchool} userSchools={userSchools} />}
+        {activeTab === 'hulpfiches' && <HulpfichesTab focusSchool={focusSchool} userSchools={userSchools} />}
         {activeTab === 'zoeker' && <ZoekerTab focusSchool={focusSchool} />}
         {activeTab === 'edi' && <EDITab />}
         {activeTab === 'digitools' && <DigiToolsTab />}

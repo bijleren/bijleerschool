@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid2x2 as Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library, Star, Brain, MessageSquare, Bug, Lightbulb, X, Send, HandHelping } from 'lucide-react';
+import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid2x2 as Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library, Star, Brain, MessageSquare, Bug, Lightbulb, X, Send, HandHelping, FileText } from 'lucide-react';
 
 interface UserSchool {
   id: string;
@@ -35,12 +35,13 @@ interface HeaderProps {
   onNavigateToBlinkQR: () => void;
   onNavigateToSporen: () => void;
   onNavigateToExecutieveFuncties: () => void;
+  onNavigateToHulpfiches: () => void;
   onNavigateToOnboarding?: () => void;
   onNavigateToProfileFeedback?: () => void;
   focusSchool: { id: string; name: string } | null;
 }
 
-export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToBegeleiding, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToLeescoach, onNavigateToZoeker, onNavigateToEDI, onNavigateToDigiTools, onNavigateToBlinkQR, onNavigateToSporen, onNavigateToExecutieveFuncties, onNavigateToOnboarding, onNavigateToProfileFeedback, focusSchool }: HeaderProps) {
+export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateToSchools, onNavigateToBehavior, onNavigateToBehaviorWithSchool, onNavigateToTeaching, onNavigateToTeachingFAQ, onNavigateToTeachingVormingen, onNavigateToNieuwsbrief, onNavigateToBegeleiding, onNavigateToWebWijzer, onNavigateToActivityBoards, onNavigateToBoeker, onNavigateToLeescoach, onNavigateToZoeker, onNavigateToEDI, onNavigateToDigiTools, onNavigateToBlinkQR, onNavigateToSporen, onNavigateToExecutieveFuncties, onNavigateToHulpfiches, onNavigateToOnboarding, onNavigateToProfileFeedback, focusSchool }: HeaderProps) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
@@ -414,6 +415,16 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     >
                       <Wrench className="w-4 h-4 mr-2" />
                       DigiTools
+                    </button>
+                    <button
+                      onClick={() => {
+                        onNavigateToHulpfiches();
+                        setShowSlimmeICTDropdown(false);
+                      }}
+                      className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                    >
+                      <FileText className="w-4 h-4 mr-2 text-gray-500" />
+                      Fiches
                     </button>
                   </div>
                 </div>
