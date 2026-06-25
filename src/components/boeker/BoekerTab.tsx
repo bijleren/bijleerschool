@@ -9,16 +9,27 @@ import { BoekerAnalytics } from './BoekerAnalytics';
 import { MaterialenTab } from '../materials/MaterialenTab';
 import { QuickScanModal } from './QuickScanModal';
 import { RecentActivity } from './RecentActivity';
-import { Book, Users, BarChart3, Package, Scan, Activity, Tag } from 'lucide-react';
+import { Book, Users, BarChart3, Package, Scan, Activity, Tag, ChevronDown } from 'lucide-react';
 import { BookDetailPage } from './BookDetailPage';
 import { BookTagsSettings } from './BookTagsSettings';
 
 type View = 'library' | 'students' | 'analytics' | 'materials' | 'activity' | 'tags' | 'book-detail';
 
-export function BoekerTab() {
+interface School {
+  id: string;
+  name: string;
+}
+
+interface BoekerTabProps {
+  focusSchool?: School | null;
+  userSchools?: School[];
+}
+
+export function BoekerTab({ focusSchool, userSchools = [] }: BoekerTabProps) {
   const { user } = useAuth();
   const [currentView, setCurrentView] = useState<View>('library');
   const [schoolId, setSchoolId] = useState<string | null>(null);
+  const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -27,8 +38,42 @@ export function BoekerTab() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
-    fetchUserSchool();
-  }, [user]);
+    if (focusSchool) {
+      setSelectedSchool(focusSchool);
+      setSchoolId(focusSchool.id);
+      fetchIsAdmin(focusSchool.id);
+      setLoading(false);
+    } else {
+      fetchUserSchool();
+    }
+  }, [user, focusSchool]);
+
+  // When selected school changes (from switcher), update schoolId and reset view
+  useEffect(() => {
+    if (selectedSchool) {
+      setSchoolId(selectedSchool.id);
+      setCurrentView('library');
+      setSelectedStudentId(null);
+      setSelectedBookId(null);
+      setRefreshTrigger(prev => prev + 1);
+      fetchIsAdmin(selectedSchool.id);
+    }
+  }, [selectedSchool?.id]);
+
+  const fetchIsAdmin = async (sid: string) => {
+    if (!user) return;
+    try {
+      const { data } = await supabase
+        .from('user_schools')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('school_id', sid)
+        .eq('is_active', true)
+        .eq('status', 'approved')
+        .maybeSingle();
+      setIsAdmin(data?.role === 'admin');
+    } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     const handleNavigateToStudents = () => setCurrentView('students');
@@ -61,7 +106,7 @@ export function BoekerTab() {
     try {
       const { data, error } = await supabase
         .from('user_schools')
-        .select('school_id, role')
+        .select('school_id, role, schools(id, name)')
         .eq('user_id', user.id)
         .eq('is_active', true)
         .eq('status', 'approved')
@@ -70,8 +115,10 @@ export function BoekerTab() {
       if (error) throw error;
 
       if (data && data.length > 0) {
+        const school = (data[0].schools as unknown) as School;
         setSchoolId(data[0].school_id);
         setIsAdmin(data[0].role === 'admin');
+        if (school) setSelectedSchool(school);
       }
     } catch (error) {
       console.error('Error fetching school:', error);
@@ -102,7 +149,29 @@ export function BoekerTab() {
     <div className="space-y-6">
       {currentView !== 'book-detail' && (
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Boeker - Digitale Bibliotheek</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900">Boeker - Digitale Bibliotheek</h1>
+            {userSchools.length > 1 && (
+              <div className="relative">
+                <select
+                  value={selectedSchool?.id ?? ''}
+                  onChange={(e) => {
+                    const school = userSchools.find(s => s.id === e.target.value);
+                    if (school) setSelectedSchool(school);
+                  }}
+                  className="appearance-none pl-3 pr-8 py-1.5 text-sm bg-white border border-gray-300 rounded-lg text-gray-700 font-medium cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {userSchools.map(s => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none" />
+              </div>
+            )}
+            {userSchools.length === 1 && selectedSchool && (
+              <span className="text-sm text-gray-500 font-normal">{selectedSchool.name}</span>
+            )}
+          </div>
           <Button onClick={() => setShowQuickScan(true)} variant="primary">
             <Scan className="w-4 h-4 mr-2" />
             Snel Scannen
