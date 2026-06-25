@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Toast } from '../ui/Toast';
-import { Search, BookOpen, Clock, X, ArrowLeft, Package, Download } from 'lucide-react';
+import { Search, BookOpen, Clock, X, ArrowLeft, Package, Download, Play, Square } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface Student {
@@ -36,6 +36,8 @@ interface StudentWithStats {
     material_code: string;
     loaned_at: string;
   }>;
+  latest_audio_url: string | null;
+  latest_audio_date: string | null;
 }
 
 interface StudentBookManagementProps {
@@ -51,6 +53,8 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
   const [selectedStudent, setSelectedStudent] = useState<StudentWithStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     fetchStudents();
@@ -126,6 +130,15 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
             .select('id')
             .eq('student_id', student.id);
 
+          const { data: latestAudio } = await supabase
+            .from('reading_sessions')
+            .select('audio_url, start_time')
+            .eq('student_id', student.id)
+            .not('audio_url', 'is', null)
+            .order('start_time', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
           const currentMaterialsDetails = (currentMaterials || []).map((ml: any) => ({
             id: ml.id,
             material_title: ml.school_materials.title,
@@ -169,7 +182,9 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
             current_materials: currentMaterials?.length || 0,
             total_materials: allMaterials?.length || 0,
             current_books_details: currentBooksDetails,
-            current_materials_details: currentMaterialsDetails
+            current_materials_details: currentMaterialsDetails,
+            latest_audio_url: latestAudio?.audio_url || null,
+            latest_audio_date: latestAudio?.start_time || null,
           };
         })
       );
@@ -457,6 +472,9 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
                     <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Totaal materiaal
                     </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Audio
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -501,6 +519,44 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span className="text-sm text-gray-900">{item.total_materials}</span>
+                      </td>
+                      <td className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                        {item.latest_audio_url ? (() => {
+                          const isToday = item.latest_audio_date
+                            ? new Date(item.latest_audio_date).toDateString() === new Date().toDateString()
+                            : false;
+                          const isPlaying = playingAudioId === item.student.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (isPlaying) {
+                                  audioRef.current?.pause();
+                                  setPlayingAudioId(null);
+                                } else {
+                                  if (audioRef.current) {
+                                    audioRef.current.pause();
+                                  }
+                                  const audio = new Audio(item.latest_audio_url!);
+                                  audioRef.current = audio;
+                                  audio.play();
+                                  setPlayingAudioId(item.student.id);
+                                  audio.onended = () => setPlayingAudioId(null);
+                                }
+                              }}
+                              className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
+                                isToday
+                                  ? 'bg-green-100 text-green-600 hover:bg-green-200'
+                                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                              }`}
+                              title={isToday ? 'Audio van vandaag afspelen' : 'Laatste audio afspelen'}
+                            >
+                              {isPlaying
+                                ? <Square className="w-3 h-3 fill-current" />
+                                : <Play className="w-3 h-3 fill-current" />
+                              }
+                            </button>
+                          );
+                        })() : null}
                       </td>
                     </tr>
                   ))}
