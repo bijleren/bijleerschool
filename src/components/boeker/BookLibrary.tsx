@@ -1154,6 +1154,37 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
         />
       )}
 
+      {fetchingMetadata && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]">
+          <div className="bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center gap-5 max-w-xs w-full mx-4">
+            <div className="relative flex items-center justify-center w-20 h-20">
+              <svg className="absolute inset-0 w-full h-full animate-spin" viewBox="0 0 80 80" fill="none">
+                <circle cx="40" cy="40" r="34" stroke="#e5e7eb" strokeWidth="6" />
+                <circle cx="40" cy="40" r="34" stroke="#2563eb" strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeDasharray="60 154"
+                  strokeDashoffset="0"
+                />
+              </svg>
+              <BookOpen className="w-8 h-8 text-blue-600" />
+            </div>
+            <div className="text-center">
+              <p className="text-gray-900 font-semibold text-base">Boekgegevens ophalen</p>
+              <p className="text-gray-500 text-sm mt-1">Even geduld...</p>
+            </div>
+            <div className="flex gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className="w-2 h-2 rounded-full bg-blue-500"
+                  style={{ animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
