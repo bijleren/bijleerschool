@@ -4,6 +4,7 @@ import { Users, BarChart3, Globe, ArrowRight, Grid2x2 as Grid, BookMarked, Searc
 import { Button } from '../ui/Button';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
+import { BijlerenLogo } from './BijlerenLogo';
 
 const APPS = [
   {
@@ -160,29 +161,32 @@ export function LandingPage() {
 
 function Hero({ navigate }: { navigate: (path: string) => void }) {
   return (
-    <div className="relative bg-white border-b border-line overflow-hidden">
-      {/* Honeycomb pattern background */}
+    <div className="relative bg-cream border-b border-line overflow-hidden">
+      {/* Isometric cube pattern background */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.06]"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='56' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M28 0L56 16.7V50V83.3L28 100L0 83.3V50V16.7L28 0z' fill='none' stroke='%23946B29' stroke-width='1.5'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='92' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23946B29' stroke-width='1.2'%3E%3Cpath d='M40 0L80 23V69L40 92L0 69V23L40 0z'/%3E%3Cpath d='M40 23L80 46M40 23L0 46M40 23V46'/%3E%3C/g%3E%3C/svg%3E")`,
           backgroundRepeat: 'repeat',
+          opacity: 0.08,
         }}
       />
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
         <div className="max-w-3xl mx-auto text-center">
-          <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-brand-soft/40">
-            Gebouwd vanuit echte noden van scholen
-          </span>
-          <h1 className="text-5xl font-heading font-bold text-ink mb-6 leading-tight">
-            Leerwinst en tijdswinst via slimme didactiek en handige ICT-tools
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <BijlerenLogo size={72} />
+          </div>
+          {/* Title */}
+          <h1 className="text-5xl sm:text-6xl font-heading font-bold text-ink mb-6 leading-tight">
+            bijleer.school
           </h1>
-          <p className="text-xl text-gray-500 mb-10 leading-relaxed">
-           Met de bijleer.school zetten we bijleren centraal. Met onze apps en platformen zet je ICT didactisch in. Gebouwd op vraag van scholen, voor scholen.
+          <p className="text-xl text-ink-soft mb-10 leading-relaxed max-w-2xl mx-auto">
+            Leerwinst en tijdswinst via slimme didactiek en handige ICT-tools. Gebouwd op vraag van scholen, voor scholen.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button onClick={() => navigate('/login')} size="lg">
-              Start oefenen
+              Gratis uitproberen
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <a
