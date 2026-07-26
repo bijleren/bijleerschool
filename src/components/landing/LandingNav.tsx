@@ -38,8 +38,8 @@ export function LandingNav({ navigate }: LandingNavProps) {
                 to={link.to}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm font-semibold transition-colors ${
                   isActive
-                    ? 'border-brand-soft text-brand'
-                    : 'border-ink/15 hover:border-brand text-ink hover:text-brand bg-white'
+                    ? 'border-brand-soft text-brand bg-brand-tint'
+                    : 'border-[#2F2A22]/20 hover:border-brand text-ink hover:text-brand bg-white'
                 }`}
               >
                 {Icon && <Icon className="w-4 h-4" />}
@@ -61,7 +61,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
                   className={`px-3 py-1.5 rounded-xl border text-sm font-semibold transition-colors ${
                     isActive
                       ? 'border-brand text-brand bg-brand-tint'
-                      : 'border-ink/15 hover:border-brand text-ink hover:text-brand bg-white'
+                      : 'border-[#2F2A22]/20 hover:border-brand text-ink hover:text-brand bg-white'
                   }`}
                 >
                   {link.label}
@@ -70,7 +70,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
             })}
           </div>
           {/* NL flag dropdown */}
-          <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-ink/15 hover:border-brand transition-colors bg-white text-sm font-semibold text-ink" aria-label="Select language">
+          <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-[#2F2A22]/20 hover:border-brand transition-colors bg-white text-sm font-semibold text-ink" aria-label="Select language">
             <span className="text-base leading-none">🇳🇱🇧🇪</span>
             <span className="hidden sm:inline text-xs font-bold text-ink-soft">NL</span>
             <ChevronDown className="w-3 h-3 text-ink-soft" />
@@ -78,7 +78,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
           {/* Login button */}
           <button
             onClick={() => navigate('/login')}
-            className="flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-dark text-white font-fredoka font-semibold text-sm rounded-xl shadow-md hover:shadow-lg transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-[#946B29] hover:bg-[#74531F] text-white font-fredoka font-semibold text-sm rounded-xl shadow-md hover:shadow-lg transition-all"
           >
             <LogIn className="w-4 h-4" />
             Inloggen

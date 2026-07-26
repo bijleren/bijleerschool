@@ -205,7 +205,7 @@ function Hero({ navigate }: { navigate: (path: string) => void }) {
         <div className="flex flex-wrap items-center justify-center gap-3">
           <button
             onClick={() => navigate('/login')}
-            className="inline-flex items-center gap-2 px-8 py-3.5 bg-brand hover:bg-brand-dark text-white font-fredoka font-semibold text-lg rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#946B29] hover:bg-[#74531F] text-white font-fredoka font-semibold text-lg rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5"
           >
             Gratis uitproberen
             <ArrowRight className="w-5 h-5" />
