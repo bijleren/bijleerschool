@@ -60,10 +60,10 @@ const APP_SAVINGS = [
   {
     id: 'sporen',
     name: 'Sporen',
-    color: 'bg-blue-500',
-    lightColor: 'bg-blue-100',
-    textColor: 'text-blue-700',
-    borderColor: 'border-blue-200',
+    color: 'bg-brand',
+    lightColor: 'bg-brand-tint',
+    textColor: 'text-brand',
+    borderColor: 'border-brand-soft/40',
     minutesPerWeek: 30,
     learningBenefit: 'Differentiatie wordt inzichtelijk en beheersbaar',
     description: 'Overzicht van leertrajecten altijd beschikbaar, geen losse notities',
@@ -136,10 +136,10 @@ export function TimeSavingsCalculator() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="max-w-2xl mx-auto text-center mb-14">
-          <span className="inline-block bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-5 border border-blue-100">
+          <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-4 py-1.5 rounded-full mb-5 border border-brand-soft/40">
             Leer- &amp; tijdswinst
           </span>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-heading font-bold text-ink mb-4">
             Elke klas die bijleer.school gebruikt, versterkt de volgende.
           </h2>
           <p className="text-gray-500 text-lg leading-relaxed">
@@ -193,7 +193,7 @@ export function TimeSavingsCalculator() {
             {/* Stat cards */}
             <div className="grid grid-cols-3 gap-4">
               {[
-                { icon: <Zap className="w-5 h-5 text-blue-600" />, bg: 'bg-blue-50', label: 'Per week', fmt: weeklyFmt },
+                { icon: <Zap className="w-5 h-5 text-brand" />, bg: 'bg-brand-tint', label: 'Per week', fmt: weeklyFmt },
                 { icon: <Clock className="w-5 h-5 text-emerald-600" />, bg: 'bg-emerald-50', label: 'Per schooljaar', fmt: yearlyFmt },
                 { icon: <TrendingUp className="w-5 h-5 text-orange-600" />, bg: 'bg-orange-50', label: `Over ${classes} ${classes === 1 ? 'klas' : 'klassen'}`, fmt: totalFmt },
               ].map((s) => (
@@ -217,7 +217,7 @@ export function TimeSavingsCalculator() {
                   <Users className="w-4 h-4 text-gray-500" />
                   <span className="text-sm font-semibold text-gray-700">Aantal klassen op school</span>
                 </div>
-                <span className="text-sm font-bold text-blue-600">{classes} {classes === 1 ? 'klas' : 'klassen'}</span>
+                <span className="text-sm font-bold text-brand">{classes} {classes === 1 ? 'klas' : 'klassen'}</span>
               </div>
               <p className="text-xs text-gray-400 mb-4">Elke extra klas die de tools gebruikt, bespaart extra tijd voor het hele team.</p>
               <input
@@ -226,7 +226,7 @@ export function TimeSavingsCalculator() {
                 max={20}
                 value={classes}
                 onChange={(e) => setClasses(Number(e.target.value))}
-                className="w-full h-2 bg-blue-200 rounded-full appearance-none cursor-pointer accent-blue-600"
+                className="w-full h-2 bg-brand-soft/40 rounded-full appearance-none cursor-pointer accent-brand"
               />
               <div className="flex justify-between text-xs text-gray-400 mt-2">
                 <span>1 klas</span>
@@ -260,7 +260,7 @@ export function TimeSavingsCalculator() {
                 <span className="text-sm font-semibold text-gray-700">Cumulatieve tijdswinst per klas</span>
                 {classes > 1 && selected.size > 0 && (
                   <div className="ml-auto flex items-center gap-3 text-xs">
-                    <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-blue-400"></span> Basiswinst</span>
+                    <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-brand-soft"></span> Basiswinst</span>
                     <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm bg-amber-400"></span> Doorstroombonus</span>
                   </div>
                 )}
@@ -284,7 +284,7 @@ export function TimeSavingsCalculator() {
                         </span>
                         <div className="flex-1 flex h-6 rounded-full overflow-hidden bg-gray-100">
                           <div
-                            className="h-full bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-end transition-all duration-500"
+                            className="h-full bg-gradient-to-r from-brand to-brand-soft flex items-center justify-end transition-all duration-500"
                             style={{ width: `${Math.max(basePct, 4)}%` }}
                           />
                           {item.fam > 0 && (

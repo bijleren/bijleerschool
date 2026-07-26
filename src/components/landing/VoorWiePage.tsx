@@ -26,10 +26,10 @@ const SCHOOL_TYPES = [
     ],
   },
   {
-    icon: <BookOpen className="w-7 h-7 text-blue-600" />,
-    bg: 'bg-blue-50',
-    border: 'border-blue-100',
-    badge: 'bg-blue-100 text-blue-700',
+    icon: <BookOpen className="w-7 h-7 text-brand" />,
+    bg: 'bg-brand-tint',
+    border: 'border-brand-soft/40',
+    badge: 'bg-brand-tint text-brand',
     badgeLabel: 'Lager onderwijs',
     title: 'Lagere school',
     subtitle: 'Van 6 tot 12 jaar',
@@ -168,19 +168,19 @@ const OTHER_AUDIENCES = [
 
 const PRINCIPLES = [
   {
-    icon: <Shuffle className="w-5 h-5 text-blue-600" />,
+    icon: <Shuffle className="w-5 h-5 text-brand" />,
     title: 'Netneutraal',
     description:
       'bijleer.school is niet gebonden aan een specifiek onderwijsnet — noch gemeentelijk, noch vrij, noch provinciaal. Elke school is welkom, ongeacht de inrichtende macht.',
   },
   {
-    icon: <Building2 className="w-5 h-5 text-blue-600" />,
+    icon: <Building2 className="w-5 h-5 text-brand" />,
     title: 'Methodeneutraal',
     description:
       'We werken niet vanuit één didactische methode of visie. Of je school nu kiest voor ervaringsgericht onderwijs, directe instructie of een eigen mix — bijleer.school past zich aan.',
   },
   {
-    icon: <Star className="w-5 h-5 text-blue-600" />,
+    icon: <Star className="w-5 h-5 text-brand" />,
     title: 'Gebouwd door scholen',
     description:
       'Elke app in bijleer.school is ontstaan vanuit een concrete vraag van een leerkracht of schoolteam. Geen generiek softwarepakket, maar tools die echt gebruikt worden in de klas.',
@@ -192,17 +192,17 @@ export function VoorWiePage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cream">
       <LandingNav navigate={navigate} />
 
       {/* Hero */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-block bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-100">
+            <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-brand-soft/40">
               Voor elke school
             </span>
-            <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-5xl font-heading font-bold text-ink mb-6 leading-tight">
               Voor wie is bijleer.school?
             </h1>
             <p className="text-xl text-gray-500 leading-relaxed mb-10">
@@ -213,7 +213,7 @@ export function VoorWiePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/auth')}
-                className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold px-7 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-brand text-white font-semibold px-7 py-3 rounded-lg hover:bg-brand-dark transition-colors"
               >
                 Gratis uitproberen
                 <ArrowRight className="w-5 h-5" />
@@ -230,10 +230,10 @@ export function VoorWiePage() {
       </div>
 
       {/* School types */}
-      <div className="py-24 bg-gray-50">
+      <div className="py-24 bg-cream-soft/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Voor elk schooltype</h2>
+            <h2 className="text-3xl font-heading font-bold text-ink mb-4">Voor elk schooltype</h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
               Of je nu kleuteronderwijs geeft of met complexe zorgprofielen werkt — bijleer.school biedt
               tools die passen bij de noden van jouw school.
@@ -329,7 +329,7 @@ export function VoorWiePage() {
           <div className="grid md:grid-cols-3 gap-8">
             {PRINCIPLES.map((p) => (
               <div key={p.title} className="text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 mb-5">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-tint mb-5">
                   {p.icon}
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{p.title}</h3>
@@ -343,25 +343,25 @@ export function VoorWiePage() {
       {/* CTA */}
       <div className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-blue-600 rounded-2xl p-12 text-center text-white">
-            <h2 className="text-3xl font-bold mb-4">
+          <div className="bg-brand rounded-2xl p-12 text-center text-white">
+            <h2 className="text-3xl font-heading font-bold mb-4">
               Is bijleer.school iets voor jouw school?
             </h2>
-            <p className="text-lg mb-8 text-blue-100 max-w-xl mx-auto">
+            <p className="text-lg mb-8 text-brand-tint max-w-xl mx-auto">
               Probeer het gratis uit. Geen kredietkaart, geen engagement.
               Ontdek of het past bij jouw team en leerlingen.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/auth')}
-                className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-white text-brand font-semibold px-8 py-3 rounded-lg hover:bg-brand-tint transition-colors"
               >
                 Gratis starten
                 <ArrowRight className="w-5 h-5" />
               </button>
               <Link
                 to="/contact"
-                className="inline-flex items-center justify-center gap-2 border border-blue-400 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center justify-center gap-2 border border-brand-soft text-white font-semibold px-8 py-3 rounded-lg hover:bg-brand-dark transition-colors"
               >
                 Stel een vraag
               </Link>

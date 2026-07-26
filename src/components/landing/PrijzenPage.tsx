@@ -70,10 +70,10 @@ const plans = [
 const timelineSteps = [
   {
     icon: Rocket,
-    color: 'bg-blue-600',
-    lightColor: 'bg-blue-50',
-    textColor: 'text-blue-600',
-    borderColor: 'border-blue-200',
+    color: 'bg-brand',
+    lightColor: 'bg-brand-tint',
+    textColor: 'text-brand',
+    borderColor: 'border-brand-soft/40',
     step: '01',
     title: 'Start gratis — volledig platform',
     body: 'Je krijgt meteen toegang tot het volledige platform. Geen creditcard, geen verplichtingen. Tijdens de gratis periode zijn er limieten op de hoeveelheid data die je kunt opslaan, maar alle functies staan voor je open.',
@@ -162,15 +162,15 @@ export function PrijzenPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cream flex flex-col">
       <LandingNav navigate={navigate} />
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="bg-gray-50 border-b border-gray-100 py-16 sm:py-20">
+        <section className="bg-cream-soft/40 border-b border-gray-100 py-16 sm:py-20">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <span className="inline-block text-xs font-semibold tracking-widest text-blue-600 uppercase mb-4">Prijzen</span>
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-5">
+            <span className="inline-block text-xs font-semibold tracking-widest text-brand uppercase mb-4">Prijzen</span>
+            <h1 className="text-4xl sm:text-5xl font-heading font-bold text-ink leading-tight mb-5">
               Eenvoudige, transparante prijzen
             </h1>
             <p className="text-lg text-gray-500 max-w-xl mx-auto">
@@ -215,13 +215,13 @@ export function PrijzenPage() {
                   key={plan.name}
                   className={`rounded-2xl border p-8 flex flex-col ${
                     plan.highlight
-                      ? 'border-blue-600 ring-2 ring-blue-600 bg-white'
+                      ? 'border-brand ring-2 ring-brand bg-white'
                       : 'border-gray-200 bg-white'
                   }`}
                 >
                   {plan.highlight && (
                     <div className="mb-4">
-                      <span className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                      <span className="inline-flex items-center gap-1.5 bg-brand text-white text-xs font-semibold px-3 py-1 rounded-full">
                         <Star className="w-3 h-3" /> Ga voor impact
                       </span>
                     </div>
@@ -275,10 +275,10 @@ export function PrijzenPage() {
         </section>
 
         {/* Data storage section */}
-        <section className="py-20 bg-gray-50 border-t border-gray-100">
+        <section className="py-20 bg-cream-soft/40 border-t border-gray-100">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row gap-10 items-start">
-              <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center shadow-md mt-1">
+              <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-brand flex items-center justify-center shadow-md mt-1">
                 <HardDrive className="w-7 h-7 text-white" />
               </div>
               <div>
@@ -314,8 +314,8 @@ export function PrijzenPage() {
         <section className="py-20 bg-white border-t border-gray-100">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="inline-block text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Hoe werkt het?</span>
-              <h2 className="text-3xl font-bold text-gray-900">Van gratis start tot volledig platform</h2>
+              <span className="inline-block text-xs font-semibold tracking-widest text-brand uppercase mb-3">Hoe werkt het?</span>
+              <h2 className="text-3xl font-heading font-bold text-ink">Van gratis start tot volledig platform</h2>
               <p className="text-gray-500 mt-3 max-w-lg mx-auto">
                 We begeleiden elke school stap voor stap — geen stress, geen verplichtingen van bij het begin.
               </p>
@@ -352,10 +352,10 @@ export function PrijzenPage() {
         </section>
 
         {/* FAQ */}
-        <section className="py-24 bg-gray-50 border-t border-gray-100">
+        <section className="py-24 bg-cream-soft/40 border-t border-gray-100">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Veelgestelde vragen</h2>
+              <h2 className="text-3xl font-heading font-bold text-ink mb-4">Veelgestelde vragen</h2>
               <p className="text-gray-500 text-lg">Staat jouw vraag er niet bij? Neem gerust contact op.</p>
             </div>
             <div className="space-y-3">
@@ -387,23 +387,23 @@ export function PrijzenPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-20 bg-blue-600">
+        <section className="py-20 bg-brand">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Klaar om te starten?</h2>
-            <p className="text-blue-100 text-lg mb-8">
+            <p className="text-brand-tint text-lg mb-8">
               Begin vandaag gratis. Geen creditcard, geen verplichtingen.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/login')}
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-brand font-semibold rounded-xl hover:bg-brand-tint transition-colors"
               >
                 Start gratis
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => navigate('/contact')}
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-blue-700 text-white font-semibold rounded-xl hover:bg-blue-800 transition-colors border border-blue-500"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-brand-dark text-white font-semibold rounded-xl hover:bg-ink transition-colors border border-brand-soft"
               >
                 Neem contact op
               </button>

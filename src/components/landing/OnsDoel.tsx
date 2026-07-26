@@ -7,10 +7,10 @@ import { LandingFooter } from './LandingFooter';
 const GOALS = [
   {
     number: '01',
-    icon: <Monitor className="w-8 h-8 text-blue-600" />,
-    bg: 'bg-blue-50',
-    border: 'border-blue-100',
-    accent: 'text-blue-600',
+    icon: <Monitor className="w-8 h-8 text-brand" />,
+    bg: 'bg-brand-tint',
+    border: 'border-brand-soft/40',
+    accent: 'text-brand',
     title: 'ICT didactisch gebruiken',
     subtitle: 'Technologie als middel, niet als doel',
     description:
@@ -68,16 +68,16 @@ export function OnsDoel() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cream">
       <LandingNav navigate={navigate} />
 
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-block bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-100">
+            <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-brand-soft/40">
               Onze visie
             </span>
-            <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-5xl font-heading font-bold text-ink mb-6 leading-tight">
               Ons doel
             </h1>
             <p className="text-xl text-gray-500 leading-relaxed mb-10">
@@ -86,7 +86,7 @@ export function OnsDoel() {
             <div className="flex flex-wrap justify-center gap-6">
               {STATS.map((s) => (
                 <div key={s.label} className="flex items-center gap-2.5 bg-gray-50 border border-gray-200 rounded-xl px-5 py-3">
-                  <div className="text-blue-600">{s.icon}</div>
+                  <div className="text-brand">{s.icon}</div>
                   <div className="text-left">
                     <div className="font-bold text-gray-900 text-sm">{s.value}</div>
                     <div className="text-xs text-gray-500">{s.label}</div>
@@ -98,7 +98,7 @@ export function OnsDoel() {
         </div>
       </div>
 
-      <div className="py-20 bg-gray-50">
+      <div className="py-20 bg-cream-soft/40">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           {GOALS.map((goal, i) => (
             <div
@@ -152,8 +152,8 @@ export function OnsDoel() {
 
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             <div className="bg-gray-50 rounded-2xl border border-gray-200 p-8 flex flex-col items-start">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 mb-5">
-                <Heart className="w-6 h-6 text-blue-600" />
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-tint mb-5">
+                <Heart className="w-6 h-6 text-brand" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-3">Scholen samenbrengen</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
@@ -189,24 +189,24 @@ export function OnsDoel() {
         </div>
       </div>
 
-      <div className="py-20 bg-gray-50 border-t border-gray-100">
+      <div className="py-20 bg-cream-soft/40 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-blue-600 rounded-2xl p-12 text-center text-white">
-            <h2 className="text-3xl font-bold mb-4">Kom bij de community!</h2>
-            <p className="text-blue-100 text-lg max-w-xl mx-auto mb-8">
+          <div className="bg-brand rounded-2xl p-12 text-center text-white">
+            <h2 className="text-3xl font-heading font-bold mb-4">Kom bij de community!</h2>
+            <p className="text-brand-tint text-lg max-w-xl mx-auto mb-8">
               bijleer.school groeit samen met de scholen die het gebruiken. Jouw input, noden en ideeën maken het platform beter voor iedereen.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/login')}
-                className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-white text-brand font-semibold px-8 py-3 rounded-lg hover:bg-brand-tint transition-colors"
               >
                 Gratis starten
                 <ArrowRight className="w-5 h-5" />
               </button>
               <button
                 onClick={() => navigate('/contact')}
-                className="inline-flex items-center justify-center gap-2 border border-blue-400 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center justify-center gap-2 border border-brand-soft text-white font-semibold px-8 py-3 rounded-lg hover:bg-brand-dark transition-colors"
               >
                 Neem contact op
               </button>

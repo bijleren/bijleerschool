@@ -8,16 +8,16 @@ export function LandingFooter() {
   };
 
   return (
-    <footer className="bg-gray-900 text-gray-400">
+    <footer className="bg-ink text-gray-400">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 bg-brand rounded-lg flex items-center justify-center flex-shrink-0">
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-white">bijleer.school</span>
+              <span className="font-heading font-bold text-white">bijleer.school</span>
             </div>
             <p className="text-sm leading-relaxed text-gray-400 mb-4">
              Gebouwd op vraag van scholen, voor scholen.

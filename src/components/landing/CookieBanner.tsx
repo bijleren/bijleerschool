@@ -29,17 +29,17 @@ export function CookieBanner() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
-      <div className="w-full bg-gray-900 border-t border-gray-700 shadow-2xl pointer-events-auto">
+      <div className="w-full bg-ink border-t border-gray-700 shadow-2xl pointer-events-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-          <Cookie className="w-4 h-4 text-blue-400 flex-shrink-0" />
+          <Cookie className="w-4 h-4 text-brand-soft flex-shrink-0" />
           <p className="text-gray-400 text-xs leading-relaxed flex-1 min-w-0">
             Wij gebruiken functionele cookies voor sessiebeheer en authenticatie.{' '}
-            <Link to="/privacy-policy" className="text-blue-400 hover:underline">Privacybeleid</Link>.
+            <Link to="/privacy-policy" className="text-brand-soft hover:underline">Privacybeleid</Link>.
           </p>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={accept}
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors"
+              className="px-3 py-1.5 bg-brand hover:bg-brand-dark text-white text-xs font-semibold rounded-lg transition-colors"
             >
               Accepteren
             </button>

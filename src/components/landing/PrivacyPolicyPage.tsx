@@ -7,28 +7,28 @@ export function PrivacyPolicyPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cream">
       <LandingNav navigate={navigate} />
 
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="inline-block bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-100">
+            <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-brand-soft/40">
               Juridisch
             </span>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Privacybeleid</h1>
+            <h1 className="text-4xl font-heading font-bold text-ink mb-4">Privacybeleid</h1>
             <p className="text-gray-500">Laatste update: februari 2026</p>
           </div>
         </div>
       </div>
 
-      <div className="py-16 bg-gray-50">
+      <div className="py-16 bg-cream-soft/40">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-2xl border border-gray-200 p-10 prose prose-gray max-w-none">
 
             <Section title="1. Verwerkingsverantwoordelijke">
               <p><strong>bijleren.eu</strong> is de verwerkingsverantwoordelijke voor de persoonsgegevens die via het platform bijleer.school worden verwerkt.</p>
-              <p>Contactadres: <a href="mailto:info@bijleren.eu" className="text-blue-600 hover:underline">info@bijleren.eu</a></p>
+              <p>Contactadres: <a href="mailto:info@bijleren.eu" className="text-brand hover:underline">info@bijleren.eu</a></p>
             </Section>
 
             <Section title="2. Welke gegevens verwerken wij?">
@@ -89,7 +89,7 @@ export function PrivacyPolicyPage() {
                 <li>Recht op overdraagbaarheid van gegevens.</li>
                 <li>Recht om bezwaar te maken tegen verwerking.</li>
               </ul>
-              <p>U kunt uw rechten uitoefenen door contact op te nemen via <a href="mailto:info@bijleren.eu" className="text-blue-600 hover:underline">info@bijleren.eu</a>. Wij reageren binnen 30 dagen.</p>
+              <p>U kunt uw rechten uitoefenen door contact op te nemen via <a href="mailto:info@bijleren.eu" className="text-brand hover:underline">info@bijleren.eu</a>. Wij reageren binnen 30 dagen.</p>
             </Section>
 
             <Section title="10. Cookies">
@@ -97,7 +97,7 @@ export function PrivacyPolicyPage() {
             </Section>
 
             <Section title="11. Klachten">
-              <p>Als u meent dat wij uw persoonsgegevens niet correct verwerken, kunt u een klacht indienen bij de Gegevensbeschermingsautoriteit (GBA) via <a href="https://www.gegevensbeschermingsautoriteit.be" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">www.gegevensbeschermingsautoriteit.be</a>.</p>
+              <p>Als u meent dat wij uw persoonsgegevens niet correct verwerken, kunt u een klacht indienen bij de Gegevensbeschermingsautoriteit (GBA) via <a href="https://www.gegevensbeschermingsautoriteit.be" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">www.gegevensbeschermingsautoriteit.be</a>.</p>
             </Section>
 
             <Section title="12. Wijzigingen">
@@ -116,7 +116,7 @@ export function PrivacyPolicyPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-3">{title}</h2>
+      <h2 className="text-xl font-heading font-bold text-ink mb-3">{title}</h2>
       <div className="text-gray-600 leading-relaxed space-y-3 text-sm">{children}</div>
     </div>
   );

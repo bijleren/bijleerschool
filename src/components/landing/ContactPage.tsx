@@ -61,17 +61,17 @@ export function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cream">
       <LandingNav navigate={navigate} />
 
       {/* Hero */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="inline-block bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-100">
+            <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-brand-soft/40">
               Contact
             </span>
-            <h1 className="text-4xl font-bold text-gray-900 mb-5">
+            <h1 className="text-4xl font-heading font-bold text-ink mb-5">
               We staan klaar om te helpen
             </h1>
             <p className="text-lg text-gray-500 leading-relaxed">
@@ -83,7 +83,7 @@ export function ContactPage() {
       </div>
 
       {/* Contact grid */}
-      <div className="py-20 bg-gray-50">
+      <div className="py-20 bg-cream-soft/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-5 gap-12 items-start">
 
@@ -98,19 +98,19 @@ export function ContactPage() {
 
               <div className="space-y-5">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 rounded-lg bg-brand-tint flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5 text-brand" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900 text-sm mb-0.5">E-mail</p>
-                    <a href="mailto:info@bijleren.eu" className="text-blue-600 hover:underline text-sm">
+                    <a href="mailto:info@bijleren.eu" className="text-brand hover:underline text-sm">
                       info@bijleren.eu
                     </a>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                    <School className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 rounded-lg bg-brand-tint flex items-center justify-center flex-shrink-0">
+                    <School className="w-5 h-5 text-brand" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900 text-sm mb-0.5">Ondersteuning op school</p>
@@ -118,8 +118,8 @@ export function ContactPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                    <Lightbulb className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 rounded-lg bg-brand-tint flex items-center justify-center flex-shrink-0">
+                    <Lightbulb className="w-5 h-5 text-brand" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900 text-sm mb-0.5">Nieuwe app aanvragen</p>
@@ -128,12 +128,12 @@ export function ContactPage() {
                 </div>
               </div>
 
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-6">
+              <div className="bg-brand-tint border border-brand-soft/40 rounded-xl p-6">
                 <div className="flex items-center gap-2 mb-2">
-                  <MessageSquare className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-semibold text-blue-700">Vorming op maat en of live demolessen in de klas.</span>
+                  <MessageSquare className="w-4 h-4 text-brand" />
+                  <span className="text-sm font-semibold text-brand">Vorming op maat en of live demolessen in de klas.</span>
                 </div>
-                <p className="text-sm text-blue-700 leading-relaxed">
+                <p className="text-sm text-brand leading-relaxed">
                  Zet ons in voor een unieke vorming op maat.
                 </p>
               </div>
@@ -150,7 +150,7 @@ export function ContactPage() {
                   <p className="text-gray-500 mb-6">We hebben je bericht goed ontvangen en reageren zo snel mogelijk.</p>
                   <button
                     onClick={() => navigate('/')}
-                    className="inline-flex items-center gap-2 text-blue-600 font-medium hover:underline"
+                    className="inline-flex items-center gap-2 text-brand font-medium hover:underline"
                   >
                     Terug naar home <ArrowRight className="w-4 h-4" />
                   </button>
@@ -167,7 +167,7 @@ export function ContactPage() {
                         value={formState.name}
                         onChange={handleChange}
                         placeholder="Jouw naam"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-soft focus:border-transparent"
                       />
                     </div>
                     <div>
@@ -178,7 +178,7 @@ export function ContactPage() {
                         value={formState.school}
                         onChange={handleChange}
                         placeholder="Naam van je school"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-soft focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -192,7 +192,7 @@ export function ContactPage() {
                       value={formState.email}
                       onChange={handleChange}
                       placeholder="jouw@school.be"
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-soft focus:border-transparent"
                     />
                   </div>
 
@@ -203,7 +203,7 @@ export function ContactPage() {
                       required
                       value={formState.reason}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-soft focus:border-transparent bg-white"
                     >
                       <option value="">Selecteer een reden</option>
                       {CONTACT_REASONS.map((r) => (
@@ -221,7 +221,7 @@ export function ContactPage() {
                       onChange={handleChange}
                       rows={5}
                       placeholder="Vertel ons meer..."
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-soft focus:border-transparent resize-none"
                     />
                   </div>
 
@@ -231,7 +231,7 @@ export function ContactPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full py-3 bg-brand text-white font-semibold rounded-lg hover:bg-brand-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <>
@@ -247,7 +247,7 @@ export function ContactPage() {
                   </button>
                   <p className="text-xs text-gray-400 text-center">
                     Je kunt ook rechtstreeks mailen naar{' '}
-                    <a href="mailto:info@bijleren.eu" className="text-blue-500 hover:underline">info@bijleren.eu</a>.
+                    <a href="mailto:info@bijleren.eu" className="text-brand hover:underline">info@bijleren.eu</a>.
                   </p>
                 </form>
               )}

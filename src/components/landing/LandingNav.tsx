@@ -38,10 +38,10 @@ export function LandingNav({ navigate }: LandingNavProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-9 h-9 bg-brand rounded-lg flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">bijleer.school</span>
+            <span className="text-xl font-heading font-bold text-ink">bijleer.school</span>
           </Link>
 
           {/* Desktop nav */}
@@ -50,8 +50,8 @@ export function LandingNav({ navigate }: LandingNavProps) {
               to="/"
               className={`px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${
                 location.pathname === '/'
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'text-brand bg-brand-tint'
+                  : 'text-gray-600 hover:text-ink hover:bg-gray-50'
               }`}
             >
               Start
@@ -72,8 +72,8 @@ export function LandingNav({ navigate }: LandingNavProps) {
                   to={link.to}
                   className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     location.pathname === link.to
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'text-brand bg-brand-tint'
+                      : 'text-gray-600 hover:text-ink hover:bg-gray-50'
                   }`}
                 >
                   {link.label}
@@ -86,7 +86,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
             <div className="relative">
               <button
                 onClick={() => navigate('/login')}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-brand text-white text-sm font-semibold rounded-lg hover:bg-brand-dark transition-colors"
               >
                 Leerkracht Login
               </button>
@@ -143,7 +143,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
           ))}
           <button
             onClick={() => { navigate('/login'); setMenuOpen(false); }}
-            className="w-full mt-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            className="w-full mt-2 px-4 py-2.5 bg-brand text-white text-sm font-semibold rounded-lg hover:bg-brand-dark transition-colors"
           >
             Leerkracht Login
           </button>

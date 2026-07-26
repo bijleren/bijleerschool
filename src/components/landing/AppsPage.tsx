@@ -1,10 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Globe, Grid, BookMarked, Search, QrCode, Users,
-  BookCheck, Layers, Clock, BarChart3, Lightbulb, ArrowRight, CheckCircle,
-  Baby, AlignLeft, Monitor, Wrench, ChevronLeft, ChevronRight
-} from 'lucide-react';
+import { Globe, Grid2x2 as Grid, BookMarked, Search, QrCode, Users, BookCheck, Layers, Clock, BarChart3, Lightbulb, ArrowRight, CheckCircle, Baby, AlignLeft, Monitor, Wrench, ChevronLeft, ChevronRight } from 'lucide-react';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
 import { TimeSavingsCalculator } from './TimeSavingsCalculator';
@@ -251,17 +247,17 @@ export function AppsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cream">
       <LandingNav navigate={navigate} />
 
       {/* Hero */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="inline-block bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-100">
+            <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-brand-soft/40">
               Alle leerapps
             </span>
-            <h1 className="text-4xl font-bold text-gray-900 mb-5">
+            <h1 className="text-4xl font-heading font-bold text-ink mb-5">
               Eén abonnement. Alle apps.
             </h1>
             <p className="text-lg text-gray-500 leading-relaxed mb-8">
@@ -282,7 +278,7 @@ export function AppsPage() {
       </div>
 
       {/* Filter + horizontal scroll */}
-      <div className="py-16 bg-gray-50 overflow-hidden">
+      <div className="py-16 bg-cream-soft/40 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Filter tabs */}
           <div className="flex flex-wrap gap-2 mb-10">
@@ -292,7 +288,7 @@ export function AppsPage() {
                 onClick={() => setActiveFilter(tag)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                   activeFilter === tag
-                    ? 'bg-blue-600 text-white border-blue-600'
+                    ? 'bg-brand text-white border-brand'
                     : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
                 }`}
               >
@@ -366,7 +362,7 @@ export function AppsPage() {
                     Elke app is gebouwd op vraag van een school. Neem contact op en beschrijf wat je mist of welke vragen je hebt — we luisteren.
                   </p>
                   <button
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:underline"
                     onClick={() => window.location.href = '/contact'}
                   >
                     App aanvragen <ArrowRight className="w-4 h-4" />
@@ -384,14 +380,14 @@ export function AppsPage() {
       {/* CTA */}
       <div className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-blue-600 rounded-2xl p-12 text-center text-white">
-            <h2 className="text-3xl font-bold mb-4">Probeer alle apps gratis</h2>
-            <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">
+          <div className="bg-brand rounded-2xl p-12 text-center text-white">
+            <h2 className="text-3xl font-heading font-bold mb-4">Probeer alle apps gratis</h2>
+            <p className="text-brand-tint text-lg mb-8 max-w-xl mx-auto">
               Maak een gratis account aan en ontdek elke app. Geen verplichtingen, maar we raden je wel aan je te laten ondersteunen zodat je de app echt volledig leert kennen.
             </p>
             <button
               onClick={() => navigate('/login')}
-              className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-white text-brand font-semibold px-8 py-3 rounded-lg hover:bg-brand-tint transition-colors"
             >
               Gratis starten <ArrowRight className="w-5 h-5" />
             </button>

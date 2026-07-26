@@ -7,28 +7,28 @@ export function AlgemeneVoorwaardenPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cream">
       <LandingNav navigate={navigate} />
 
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="inline-block bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-100">
+            <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-brand-soft/40">
               Juridisch
             </span>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Algemene Voorwaarden</h1>
+            <h1 className="text-4xl font-heading font-bold text-ink mb-4">Algemene Voorwaarden</h1>
             <p className="text-gray-500">Laatste update: februari 2026</p>
           </div>
         </div>
       </div>
 
-      <div className="py-16 bg-gray-50">
+      <div className="py-16 bg-cream-soft/40">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-2xl border border-gray-200 p-10 prose prose-gray max-w-none">
 
             <Section title="1. Partijen">
               <p>Deze Algemene Voorwaarden zijn van toepassing op alle diensten aangeboden door <strong>bijleren.eu</strong>, eigenaar en exploitant van het platform <strong>bijleer.school</strong>.</p>
-              <p>Contactgegevens: <a href="mailto:info@bijleren.eu" className="text-blue-600 hover:underline">info@bijleren.eu</a></p>
+              <p>Contactgegevens: <a href="mailto:info@bijleren.eu" className="text-brand hover:underline">info@bijleren.eu</a></p>
             </Section>
 
             <Section title="2. Definities">
@@ -78,7 +78,7 @@ export function AlgemeneVoorwaardenPage() {
             </Section>
 
             <Section title="9. Beëindiging">
-              <p>U kunt uw account op elk moment opzeggen via de instellingen of door contact op te nemen met <a href="mailto:info@bijleren.eu" className="text-blue-600 hover:underline">info@bijleren.eu</a>. Na opzegging worden uw gegevens conform ons Privacybeleid verwijderd.</p>
+              <p>U kunt uw account op elk moment opzeggen via de instellingen of door contact op te nemen met <a href="mailto:info@bijleren.eu" className="text-brand hover:underline">info@bijleren.eu</a>. Na opzegging worden uw gegevens conform ons Privacybeleid verwijderd.</p>
               <p>bijleer.school kan uw account beëindigen bij schending van deze voorwaarden, na voorafgaande kennisgeving.</p>
             </Section>
 
@@ -91,7 +91,7 @@ export function AlgemeneVoorwaardenPage() {
             </Section>
 
             <Section title="12. Contact">
-              <p>Voor vragen over deze Algemene Voorwaarden kunt u contact opnemen via <a href="mailto:info@bijleren.eu" className="text-blue-600 hover:underline">info@bijleren.eu</a>.</p>
+              <p>Voor vragen over deze Algemene Voorwaarden kunt u contact opnemen via <a href="mailto:info@bijleren.eu" className="text-brand hover:underline">info@bijleren.eu</a>.</p>
             </Section>
 
           </div>
@@ -106,7 +106,7 @@ export function AlgemeneVoorwaardenPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-3">{title}</h2>
+      <h2 className="text-xl font-heading font-bold text-ink mb-3">{title}</h2>
       <div className="text-gray-600 leading-relaxed space-y-3 text-sm">{children}</div>
     </div>
   );

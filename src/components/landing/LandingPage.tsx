@@ -1,11 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Users, BarChart3, Globe, ArrowRight, Grid,
-  BookMarked, Search, QrCode, ChevronDown, ChevronUp,
-  CheckCircle, XCircle, MessageSquare, Lightbulb, Rocket, MapPin, Star,
-  BookCheck, Layers, Clock, Wrench, MonitorSmartphone, BookOpen, Type, ChevronLeft, ChevronRight, Tag
-} from 'lucide-react';
+import { Users, BarChart3, Globe, ArrowRight, Grid2x2 as Grid, BookMarked, Search, QrCode, ChevronDown, ChevronUp, CheckCircle, XCircle, MessageSquare, Lightbulb, Rocket, MapPin, Star, BookCheck, Layers, Clock, Wrench, MonitorSmartphone, BookOpen, Type, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
@@ -149,7 +144,7 @@ export function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cream">
       <LandingNav navigate={navigate} />
       <Hero navigate={navigate} />
       <AppsSection />
@@ -168,10 +163,10 @@ function Hero({ navigate }: { navigate: (path: string) => void }) {
     <div className="bg-white border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="max-w-3xl mx-auto text-center">
-          <span className="inline-block bg-blue-50 text-blue-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-blue-100">
+          <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-brand-soft/40">
             Gebouwd vanuit echte noden van scholen
           </span>
-          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-5xl font-heading font-bold text-ink mb-6 leading-tight">
             Leerwinst en tijdswinst via slimme didactiek en handige ICT-tools
           </h1>
           <p className="text-xl text-gray-500 mb-10 leading-relaxed">
@@ -217,10 +212,10 @@ function AppsSection() {
   ];
 
   return (
-    <div className="py-24 bg-gray-50 overflow-hidden">
+    <div className="py-24 bg-cream-soft/40 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Alle leerapps inbegrepen</h2>
+          <h2 className="text-3xl font-heading font-bold text-ink mb-4">Alle leerapps inbegrepen</h2>
           <p className="text-lg text-gray-500 max-w-2xl mx-auto">
             Eén abonnement geeft toegang tot alle huidige en toekomstige leerapps.
             De tools die vertrekken vanuit jullie noden.
@@ -280,17 +275,17 @@ function AppsSection() {
 function HowItBuilt() {
   const steps = [
     {
-      icon: <MessageSquare className="w-6 h-6 text-blue-600" />,
+      icon: <MessageSquare className="w-6 h-6 text-brand" />,
       title: 'Wij luisteren',
       description: 'Scholen melden hun noden. Een probleem in de klas, een ontbrekende tool, een idee dat het leven van leerkrachten makkelijker maakt.',
     },
     {
-      icon: <Lightbulb className="w-6 h-6 text-blue-600" />,
+      icon: <Lightbulb className="w-6 h-6 text-brand" />,
       title: 'Wij bouwen een prototype',
       description: 'Samen met de aanvragende school wordt een eerste versie gebouwd en getest in een echte klasomgeving.',
     },
     {
-      icon: <Rocket className="w-6 h-6 text-blue-600" />,
+      icon: <Rocket className="w-6 h-6 text-brand" />,
       title: 'Iedereen profiteert',
       description: 'De nieuwe app wordt uitgerold naar alle scholen op het platform. Elke school betaalt mee aan de groei van het geheel.',
     },
@@ -311,10 +306,10 @@ function HowItBuilt() {
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((step, i) => (
             <div key={i} className="text-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-blue-50 mb-5">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-brand-tint mb-5">
                 {step.icon}
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">{step.title}</h3>
+              <h3 className="text-lg font-heading font-semibold text-ink mb-3">{step.title}</h3>
               <p className="text-gray-500 leading-relaxed">{step.description}</p>
             </div>
           ))}
@@ -322,7 +317,7 @@ function HowItBuilt() {
         <div className="mt-12 text-center">
           <a
             href="mailto:info@bijleren.eu"
-            className="inline-flex items-center gap-2 text-blue-600 font-medium hover:underline"
+            className="inline-flex items-center gap-2 text-brand font-medium hover:underline"
           >
             <MapPin className="w-4 h-4" />
             Vraag een nieuwe app aan voor jouw school
@@ -335,14 +330,14 @@ function HowItBuilt() {
 
 function TryFreeSection({ navigate }: { navigate: (path: string) => void }) {
   return (
-    <div className="py-24 bg-gray-50 border-b border-gray-100">
+    <div className="py-24 bg-cream-soft/40 border-b border-gray-100">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl border border-gray-200 p-10 sm:p-14">
           <div className="max-w-2xl">
-            <span className="inline-block bg-green-50 text-green-700 text-sm font-semibold px-3 py-1 rounded-full mb-5 border border-green-100">
+            <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-3 py-1 rounded-full mb-5 border border-brand-soft/40">
               Didactiek centraal
             </span>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-heading font-bold text-ink mb-4">
 Niet gewoon een app, maar echte didactiek</h2>
             <p className="text-gray-500 text-lg mb-6 leading-relaxed">
               Wij hebben een menu-kaart van apps voor je klaarstaan. Voor elke school zijn er tools om de planlast te verlagen, meer leerwinst mogelijk te maken en tijdwinst centraal te zetten. Bouw een krachtige verticale leerlijn over heel je school.
@@ -438,7 +433,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
     <div id="pricing" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Eenvoudige, transparante prijzen</h2>
+          <h2 className="text-3xl font-heading font-bold text-ink mb-4">Eenvoudige, transparante prijzen</h2>
           <p className="text-lg text-gray-500 max-w-xl mx-auto">
            Alle apps inbegrepen. De enige kost die er nog bij komt, is de opslagruimte die je zelf gebruikt.
           </p>
@@ -476,13 +471,13 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
               key={plan.name}
               className={`rounded-2xl border p-8 flex flex-col ${
                 plan.highlight
-                  ? 'border-blue-600 ring-2 ring-blue-600 bg-white'
+                  ? 'border-brand ring-2 ring-brand bg-white'
                   : 'border-gray-200 bg-white'
               }`}
             >
               {plan.highlight && (
                 <div className="mb-4">
-                  <span className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1.5 bg-brand text-white text-xs font-semibold px-3 py-1 rounded-full">
                     <Star className="w-3 h-3" /> Ga voor impact
                   </span>
                 </div>
@@ -527,7 +522,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
                 )}
                 <button
                   onClick={() => navigate('/prijzen')}
-                  className="w-full text-center py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                  className="w-full text-center py-2 text-sm font-medium text-brand hover:text-brand-dark hover:underline transition-colors"
                 >
                   Meer info
                 </button>
@@ -547,10 +542,10 @@ function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <div className="py-24 bg-gray-50">
+    <div className="py-24 bg-cream-soft/40">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Veelgestelde vragen</h2>
+          <h2 className="text-3xl font-heading font-bold text-ink mb-4">Veelgestelde vragen</h2>
           <p className="text-gray-500 text-lg">Staat jouw vraag er niet bij? Neem gerust contact op.</p>
         </div>
         <div className="space-y-3">
@@ -587,24 +582,24 @@ function CTASection({ navigate }: { navigate: (path: string) => void }) {
   return (
     <div className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-blue-600 rounded-2xl p-12 text-center text-white">
-          <h2 className="text-3xl font-bold mb-4">
+        <div className="bg-brand rounded-2xl p-12 text-center text-white">
+          <h2 className="text-3xl font-heading font-bold mb-4">
             Klaar om te starten?
           </h2>
-          <p className="text-lg mb-8 text-blue-100 max-w-xl mx-auto">
+          <p className="text-lg mb-8 text-brand-tint max-w-xl mx-auto">
             Sluit je aan bij de scholen die bijleer.school gebruiken. Maak vandaag nog een gratis account aan en ontdek alle leerapps.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => navigate('/login')}
-              className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-white text-brand font-semibold px-8 py-3 rounded-lg hover:bg-brand-tint transition-colors"
             >
               Gratis starten
               <ArrowRight className="w-5 h-5" />
             </button>
             <a
               href="mailto:info@bijleren.eu"
-              className="inline-flex items-center justify-center gap-2 border border-blue-400 text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center justify-center gap-2 border border-brand-soft text-white font-semibold px-8 py-3 rounded-lg hover:bg-brand-dark transition-colors"
             >
               Contact opnemen
             </a>

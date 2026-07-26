@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #FAF6EE;
+    color: #2F2A22;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fredoka', sans-serif;
+  }
+}
+
 /* Hide the injected header/footer UI from html5-qrcode */
 [id^="webwijzer-qr-"] > #qr-reader__header_message,
 [id^="webwijzer-qr-"] > #qr-reader__status_span,
@@ -65,7 +76,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: #946B29;
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -75,16 +86,16 @@ input[type="range"]::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: #946B29;
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  background: #2563eb;
+  background: #74531F;
 }
 
 input[type="range"]::-moz-range-thumb:hover {
-  background: #2563eb;
+  background: #74531F;
 }
