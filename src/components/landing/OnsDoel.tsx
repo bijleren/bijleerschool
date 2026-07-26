@@ -71,10 +71,18 @@ export function OnsDoel() {
     <div className="min-h-screen bg-cream">
       <LandingNav navigate={navigate} />
 
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="relative overflow-hidden bg-white border-b border-gray-100">
+        {/* Honeycomb pattern background */}
+        <div
+          className="absolute inset-0 opacity-[0.06] pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23946B29' stroke-width='1.5'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%23946B29' stroke-width='1.5'/%3E%3C/svg%3E")`,
+            backgroundSize: '56px 100px',
+          }}
+        />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-brand-soft/40">
+            <span className="inline-block bg-brand-tint text-[#946B29] text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-brand-soft/40">
               Onze visie
             </span>
             <h1 className="text-5xl font-heading font-bold text-ink mb-6 leading-tight">
@@ -199,7 +207,7 @@ export function OnsDoel() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/login')}
-                className="inline-flex items-center justify-center gap-2 bg-white text-brand font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-brand-tint transition-all shadow-sm hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 bg-white text-[#946B29] font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-brand-tint transition-all shadow-sm hover:-translate-y-0.5"
               >
                 Gratis starten
                 <ArrowRight className="w-5 h-5" />
