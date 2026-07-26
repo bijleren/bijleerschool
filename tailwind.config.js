@@ -22,6 +22,7 @@ export default {
       fontFamily: {
         heading: ['Fredoka', 'sans-serif'],
         body: ['Nunito', 'sans-serif'],
+        fredoka: ['Fredoka', 'sans-serif'],
       },
     },
   },

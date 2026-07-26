@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, BarChart3, Globe, ArrowRight, Grid2x2 as Grid, BookMarked, Search, QrCode, ChevronDown, ChevronUp, CheckCircle, XCircle, MessageSquare, Lightbulb, Rocket, MapPin, Star, BookCheck, Layers, Clock, Wrench, MonitorSmartphone, BookOpen, Type, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
+import { Users, BarChart3, Globe, ArrowRight, Grid2x2 as Grid, BookMarked, Search, QrCode, ChevronDown, ChevronUp, CheckCircle, XCircle, MessageSquare, Lightbulb, Rocket, MapPin, Star, BookCheck, Layers, Clock, Wrench, MonitorSmartphone, BookOpen, Type, ChevronLeft, ChevronRight, Tag, Maximize2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
@@ -155,50 +155,83 @@ export function LandingPage() {
       <FAQSection />
       <CTASection navigate={navigate} />
       <LandingFooter />
+      <FullscreenButton />
     </div>
+  );
+}
+
+function FullscreenButton() {
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  };
+
+  return (
+    <button
+      title="Volledig scherm"
+      onClick={toggleFullscreen}
+      className="fixed bottom-4 left-4 z-[110] w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-line shadow-md text-ink-soft hover:text-brand hover:border-brand-soft hover:bg-brand-tint transition-all duration-150 hover:scale-105"
+    >
+      <Maximize2 className="w-4 h-4" />
+    </button>
   );
 }
 
 function Hero({ navigate }: { navigate: (path: string) => void }) {
   return (
-    <div className="relative bg-cream border-b border-line overflow-hidden">
-      {/* Isometric cube pattern background */}
+    <section className="relative overflow-hidden">
+      {/* Honeycomb pattern background */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 opacity-[0.06] pointer-events-none"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='92' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23946B29' stroke-width='1.2'%3E%3Cpath d='M40 0L80 23V69L40 92L0 69V23L40 0z'/%3E%3Cpath d='M40 23L80 46M40 23L0 46M40 23V46'/%3E%3C/g%3E%3C/svg%3E")`,
-          backgroundRepeat: 'repeat',
-          opacity: 0.08,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23946B29' stroke-width='1.5'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%23946B29' stroke-width='1.5'/%3E%3C/svg%3E")`,
+          backgroundSize: '56px 100px',
         }}
       />
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
-        <div className="max-w-3xl mx-auto text-center">
-          {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <BijlerenLogo size={72} />
-          </div>
-          {/* Title */}
-          <h1 className="text-5xl sm:text-6xl font-heading font-bold text-ink mb-6 leading-tight">
-            bijleer.school
-          </h1>
-          <p className="text-xl text-ink-soft mb-10 leading-relaxed max-w-2xl mx-auto">
-            Leerwinst en tijdswinst via slimme didactiek en handige ICT-tools. Gebouwd op vraag van scholen, voor scholen.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button onClick={() => navigate('/login')} size="lg">
-              Gratis uitproberen
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-            <a
-              href="#pricing"
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-2xl border border-line text-ink font-heading font-semibold hover:bg-brand-tint hover:border-brand-soft transition-all text-base shadow-sm hover:-translate-y-0.5"
-            >
-              Bekijk prijzen
-            </a>
-          </div>
+      <div className="relative max-w-3xl mx-auto px-6 py-20 text-center">
+        {/* Logo */}
+        <a href="https://bijleren.eu" target="_blank" rel="noopener noreferrer" className="inline-block mb-8">
+          <BijlerenLogo size={64} className="mx-auto" />
+        </a>
+        {/* Title */}
+        <h1 className="font-fredoka font-bold text-5xl sm:text-6xl text-ink leading-tight mb-5">
+          bijleer.school
+        </h1>
+        {/* Subtitle */}
+        <p className="text-lg sm:text-xl font-semibold text-ink-soft max-w-xl mx-auto mb-10 leading-relaxed">
+          <span className="text-brand font-bold">Leerwinst en tijdswinst</span> via slimme didactiek en handige ICT-tools. Gebouwd op vraag van scholen, voor scholen.
+        </p>
+        {/* CTAs */}
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <button
+            onClick={() => navigate('/login')}
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-brand hover:bg-brand-dark text-white font-fredoka font-semibold text-lg rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+          >
+            Gratis uitproberen
+            <ArrowRight className="w-5 h-5" />
+          </button>
+          <a
+            href="#pricing"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-white hover:bg-brand-tint text-ink font-fredoka font-semibold text-lg rounded-2xl border border-line shadow-sm transition-all duration-200 hover:-translate-y-0.5"
+          >
+            Bekijk prijzen
+          </a>
         </div>
+        <p className="mt-5 text-sm font-semibold text-ink-soft">
+          Geen account nodig om te starten —{' '}
+          <button onClick={() => navigate('/login')} className="text-brand hover:text-brand-dark underline">
+            log in
+          </button>{' '}
+          om resultaten bij te houden ·{' '}
+          <a href="#pricing" className="text-brand hover:text-brand-dark underline">
+            bekijk prijzen
+          </a>
+        </p>
       </div>
-    </div>
+    </section>
   );
 }
 
