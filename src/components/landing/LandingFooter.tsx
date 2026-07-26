@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { GraduationCap, ExternalLink } from 'lucide-react';
 
 export function LandingFooter() {
   const scrollToTop = () => {
@@ -8,83 +7,33 @@ export function LandingFooter() {
   };
 
   return (
-    <footer className="bg-ink text-gray-400">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-          {/* Brand */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-brand rounded-lg flex items-center justify-center flex-shrink-0">
-                <GraduationCap className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-heading font-bold text-white">bijleer.school</span>
-            </div>
-            <p className="text-sm leading-relaxed text-gray-400 mb-4">
-             Gebouwd op vraag van scholen, voor scholen.
-            </p>
+    <footer className="bg-cream border-t border-line">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs font-semibold text-ink-soft">
+            <Link to="/algemene-voorwaarden" onClick={scrollToTop} className="hover:text-ink transition-colors">
+              Algemene voorwaarden
+            </Link>
+            <span className="opacity-40">•</span>
+            <Link to="/privacy-policy" onClick={scrollToTop} className="hover:text-ink transition-colors">
+              Privacybeleid
+            </Link>
+            <span className="opacity-40">•</span>
+            <Link to="/contact" onClick={scrollToTop} className="hover:text-ink transition-colors">
+              Contact
+            </Link>
+          </div>
+          <p className="text-xs font-semibold text-ink-soft">
+            © {new Date().getFullYear()} bijleer.school v1.0 —{' '}
             <a
               href="https://bijleren.eu"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              <ExternalLink className="w-3 h-3" />
-              een app van bijleren.eu
-            </a>
-          </div>
-
-          {/* Platform */}
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-4">Platform</h4>
-            <ul className="space-y-3 text-sm">
-              <li><Link to="/apps" onClick={scrollToTop} className="hover:text-white transition-colors">Alle apps</Link></li>
-              <li><Link to="/voor-wie" onClick={scrollToTop} className="hover:text-white transition-colors">Voor wie?</Link></li>
-              <li><Link to="/hoe-werkt-het" onClick={scrollToTop} className="hover:text-white transition-colors">Hoe werkt het?</Link></li>
-              <li><Link to="/ons-doel" onClick={scrollToTop} className="hover:text-white transition-colors">Ons doel</Link></li>
-              <li><Link to="/prijzen" onClick={scrollToTop} className="hover:text-white transition-colors">Prijzen</Link></li>
-              <li><Link to="/contact" onClick={scrollToTop} className="hover:text-white transition-colors">Aanvraag nieuwe app</Link></li>
-            </ul>
-          </div>
-
-          {/* School */}
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-4">School</h4>
-            <ul className="space-y-3 text-sm">
-              <li><Link to="/login" onClick={scrollToTop} className="hover:text-white transition-colors">Leerkracht login</Link></li>
-              <li><Link to="/webwijzer" onClick={scrollToTop} className="hover:text-white transition-colors">WebWijzer voor leerlingen</Link></li>
-              <li><Link to="/contact" onClick={scrollToTop} className="hover:text-white transition-colors">Ondersteuning op school</Link></li>
-              <li><Link to="/contact" onClick={scrollToTop} className="hover:text-white transition-colors">Contact</Link></li>
-            </ul>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-4">Juridisch</h4>
-            <ul className="space-y-3 text-sm">
-              <li><Link to="/algemene-voorwaarden" onClick={scrollToTop} className="hover:text-white transition-colors">Algemene voorwaarden</Link></li>
-              <li><Link to="/privacy-policy" onClick={scrollToTop} className="hover:text-white transition-colors">Privacybeleid</Link></li>
-              <li><a href="mailto:info@bijleren.eu" className="hover:text-white transition-colors">info@bijleren.eu</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex flex-col sm:flex-row items-center gap-3 text-sm text-gray-500">
-            <p>© {new Date().getFullYear()} bijleer.school. Alle rechten voorbehouden.</p>
-            <span className="hidden sm:inline text-gray-700">·</span>
-            <a
-              href="https://bijleren.eu"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-gray-300 transition-colors"
+              className="hover:text-ink transition-colors"
             >
               een app van bijleren.eu
             </a>
-          </div>
-          <div className="flex items-center gap-6 text-sm">
-            <Link to="/algemene-voorwaarden" onClick={scrollToTop} className="hover:text-white transition-colors">Algemene voorwaarden</Link>
-            <Link to="/privacy-policy" onClick={scrollToTop} className="hover:text-white transition-colors">Privacybeleid</Link>
-          </div>
+          </p>
         </div>
       </div>
     </footer>

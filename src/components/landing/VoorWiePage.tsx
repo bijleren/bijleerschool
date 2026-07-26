@@ -213,14 +213,14 @@ export function VoorWiePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/auth')}
-                className="inline-flex items-center justify-center gap-2 bg-brand text-white font-semibold px-7 py-3 rounded-lg hover:bg-brand-dark transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-brand text-white font-heading font-semibold px-7 py-3 rounded-2xl hover:bg-brand-dark transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
               >
                 Gratis uitproberen
                 <ArrowRight className="w-5 h-5" />
               </button>
               <Link
                 to="/apps"
-                className="inline-flex items-center justify-center px-7 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center justify-center px-7 py-3 rounded-2xl border border-line text-ink font-heading font-semibold hover:bg-brand-tint hover:border-brand-soft transition-all shadow-sm hover:-translate-y-0.5"
               >
                 Bekijk alle apps
               </Link>
@@ -354,14 +354,14 @@ export function VoorWiePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/auth')}
-                className="inline-flex items-center justify-center gap-2 bg-white text-brand font-semibold px-8 py-3 rounded-lg hover:bg-brand-tint transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-white text-brand font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-brand-tint transition-all shadow-sm hover:-translate-y-0.5"
               >
                 Gratis starten
                 <ArrowRight className="w-5 h-5" />
               </button>
               <Link
                 to="/contact"
-                className="inline-flex items-center justify-center gap-2 border border-brand-soft text-white font-semibold px-8 py-3 rounded-lg hover:bg-brand-dark transition-colors"
+                className="inline-flex items-center justify-center gap-2 border border-brand-soft text-white font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-brand-dark transition-all shadow-sm hover:-translate-y-0.5"
               >
                 Stel een vraag
               </Link>

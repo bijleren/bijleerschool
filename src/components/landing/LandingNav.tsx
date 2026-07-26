@@ -34,7 +34,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
   };
 
   return (
-    <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 bg-white border-b border-line shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center gap-2">
@@ -48,10 +48,10 @@ export function LandingNav({ navigate }: LandingNavProps) {
           <div className="hidden md:flex items-center gap-1">
             <Link
               to="/"
-              className={`px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${
+              className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-heading font-semibold rounded-xl border transition-all ${
                 location.pathname === '/'
-                  ? 'text-brand bg-brand-tint'
-                  : 'text-gray-600 hover:text-ink hover:bg-gray-50'
+                  ? 'text-brand bg-brand-tint border-brand-soft'
+                  : 'text-ink-soft border-transparent hover:text-brand hover:border-brand-soft hover:bg-brand-tint/50'
               }`}
             >
               Start
@@ -62,7 +62,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
                   key={link.label}
                   href={link.to}
                   onClick={(e) => handleAnchorClick(e, link.anchor!)}
-                  className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-heading font-semibold rounded-xl border border-transparent text-ink-soft hover:text-brand hover:border-brand-soft hover:bg-brand-tint/50 transition-all cursor-pointer"
                 >
                   {link.label}
                 </a>
@@ -70,10 +70,10 @@ export function LandingNav({ navigate }: LandingNavProps) {
                 <Link
                   key={link.label}
                   to={link.to}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-heading font-semibold rounded-xl border transition-all ${
                     location.pathname === link.to
-                      ? 'text-brand bg-brand-tint'
-                      : 'text-gray-600 hover:text-ink hover:bg-gray-50'
+                      ? 'text-brand bg-brand-tint border-brand-soft'
+                      : 'text-ink-soft border-transparent hover:text-brand hover:border-brand-soft hover:bg-brand-tint/50'
                   }`}
                 >
                   {link.label}
@@ -86,7 +86,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
             <div className="relative">
               <button
                 onClick={() => navigate('/login')}
-                className="px-4 py-2 bg-brand text-white text-sm font-semibold rounded-lg hover:bg-brand-dark transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand text-white text-sm font-heading font-semibold rounded-xl shadow-sm hover:bg-brand-dark hover:-translate-y-0.5 hover:shadow-md transition-all"
               >
                 Leerkracht Login
               </button>
@@ -102,7 +102,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-xl text-ink-soft hover:bg-brand-tint hover:text-brand transition-colors"
             onClick={() => setMenuOpen(!menuOpen)}
           >
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -112,10 +112,10 @@ export function LandingNav({ navigate }: LandingNavProps) {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-4 pb-4 pt-2 space-y-1">
+        <div className="md:hidden border-t border-line bg-white px-4 pb-4 pt-2 space-y-1">
           <Link
             to="/"
-            className="block px-3 py-2.5 text-sm font-semibold text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="block px-3 py-2.5 text-sm font-heading font-semibold text-ink-soft rounded-xl hover:bg-brand-tint hover:text-brand transition-colors"
             onClick={() => setMenuOpen(false)}
           >
             Start
@@ -125,7 +125,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
               <a
                 key={link.label}
                 href={link.to}
-                className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                className="block px-3 py-2.5 text-sm font-heading font-semibold text-ink-soft rounded-xl hover:bg-brand-tint hover:text-brand transition-colors cursor-pointer"
                 onClick={(e) => { handleAnchorClick(e, link.anchor!); setMenuOpen(false); }}
               >
                 {link.label}
@@ -134,7 +134,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
               <Link
                 key={link.label}
                 to={link.to}
-                className="block px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="block px-3 py-2.5 text-sm font-heading font-semibold text-ink-soft rounded-xl hover:bg-brand-tint hover:text-brand transition-colors"
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
@@ -143,7 +143,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
           ))}
           <button
             onClick={() => { navigate('/login'); setMenuOpen(false); }}
-            className="w-full mt-2 px-4 py-2.5 bg-brand text-white text-sm font-semibold rounded-lg hover:bg-brand-dark transition-colors"
+            className="w-full mt-2 px-4 py-2.5 bg-brand text-white text-sm font-heading font-semibold rounded-xl shadow-sm hover:bg-brand-dark hover:-translate-y-0.5 hover:shadow-md transition-all"
           >
             Leerkracht Login
           </button>

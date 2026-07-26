@@ -259,7 +259,7 @@ export function PrijzenPage() {
                         href={plan.bestelUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full text-center py-2.5 px-4 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="w-full text-center py-2.5 px-4 rounded-xl border border-line text-sm font-heading font-semibold text-ink-soft hover:bg-brand-tint hover:text-brand hover:border-brand-soft transition-all"
                       >
                         Bestel nu
                       </a>
@@ -275,7 +275,7 @@ export function PrijzenPage() {
         </section>
 
         {/* Data storage section */}
-        <section className="py-20 bg-cream-soft/40 border-t border-gray-100">
+        <section className="py-20 bg-cream-soft/40 border-t border-line">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row gap-10 items-start">
               <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-brand flex items-center justify-center shadow-md mt-1">
@@ -311,7 +311,7 @@ export function PrijzenPage() {
         </section>
 
         {/* How it works — timeline */}
-        <section className="py-20 bg-white border-t border-gray-100">
+        <section className="py-20 bg-white border-t border-line">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
               <span className="inline-block text-xs font-semibold tracking-widest text-brand uppercase mb-3">Hoe werkt het?</span>
@@ -352,7 +352,7 @@ export function PrijzenPage() {
         </section>
 
         {/* FAQ */}
-        <section className="py-24 bg-cream-soft/40 border-t border-gray-100">
+        <section className="py-24 bg-cream-soft/40 border-t border-line">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
               <h2 className="text-3xl font-heading font-bold text-ink mb-4">Veelgestelde vragen</h2>
@@ -389,21 +389,21 @@ export function PrijzenPage() {
         {/* CTA */}
         <section className="py-20 bg-brand">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Klaar om te starten?</h2>
+            <h2 className="text-3xl font-heading font-bold text-white mb-4">Klaar om te starten?</h2>
             <p className="text-brand-tint text-lg mb-8">
               Begin vandaag gratis. Geen creditcard, geen verplichtingen.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/login')}
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-brand font-semibold rounded-xl hover:bg-brand-tint transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-brand font-heading font-semibold rounded-2xl hover:bg-brand-tint transition-all shadow-sm hover:-translate-y-0.5"
               >
                 Start gratis
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => navigate('/contact')}
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-brand-dark text-white font-semibold rounded-xl hover:bg-ink transition-colors border border-brand-soft"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-brand-dark text-white font-heading font-semibold rounded-2xl hover:bg-ink transition-all border border-brand-soft shadow-sm hover:-translate-y-0.5"
               >
                 Neem contact op
               </button>

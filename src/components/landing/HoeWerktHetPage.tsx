@@ -287,13 +287,13 @@ export function HoeWerktHetPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/login')}
-                className="inline-flex items-center justify-center gap-2 bg-white text-brand font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-white text-brand font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-brand-tint transition-all shadow-sm hover:-translate-y-0.5"
               >
                 Gratis starten <ArrowRight className="w-5 h-5" />
               </button>
               <button
                 onClick={() => navigate('/contact')}
-                className="inline-flex items-center justify-center gap-2 border border-brand-soft text-white font-semibold px-8 py-3 rounded-lg hover:bg-brand-dark transition-colors"
+                className="inline-flex items-center justify-center gap-2 border border-brand-soft text-white font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-brand-dark transition-all shadow-sm hover:-translate-y-0.5"
               >
                 Stel een vraag
               </button>

@@ -160,8 +160,16 @@ export function LandingPage() {
 
 function Hero({ navigate }: { navigate: (path: string) => void }) {
   return (
-    <div className="bg-white border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+    <div className="relative bg-white border-b border-line overflow-hidden">
+      {/* Honeycomb pattern background */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.06]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='56' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M28 0L56 16.7V50V83.3L28 100L0 83.3V50V16.7L28 0z' fill='none' stroke='%23946B29' stroke-width='1.5'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat',
+        }}
+      />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="max-w-3xl mx-auto text-center">
           <span className="inline-block bg-brand-tint text-brand text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-brand-soft/40">
             Gebouwd vanuit echte noden van scholen
@@ -174,12 +182,12 @@ function Hero({ navigate }: { navigate: (path: string) => void }) {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button onClick={() => navigate('/login')} size="lg">
-              Gratis uitproberen
+              Start oefenen
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <a
               href="#pricing"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors text-base"
+              className="inline-flex items-center justify-center px-8 py-3.5 rounded-2xl border border-line text-ink font-heading font-semibold hover:bg-brand-tint hover:border-brand-soft transition-all text-base shadow-sm hover:-translate-y-0.5"
             >
               Bekijk prijzen
             </a>
@@ -471,7 +479,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
               key={plan.name}
               className={`rounded-2xl border p-8 flex flex-col ${
                 plan.highlight
-                  ? 'border-brand ring-2 ring-brand bg-white'
+                  ? 'border-brand ring-2 ring-brand-soft bg-white'
                   : 'border-gray-200 bg-white'
               }`}
             >
@@ -515,14 +523,14 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
                     href={plan.bestelUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full text-center py-2.5 px-4 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full text-center py-2.5 px-4 rounded-xl border border-line text-sm font-heading font-semibold text-ink-soft hover:bg-brand-tint hover:text-brand hover:border-brand-soft transition-all"
                   >
                     Bestel nu
                   </a>
                 )}
                 <button
                   onClick={() => navigate('/prijzen')}
-                  className="w-full text-center py-2 text-sm font-medium text-brand hover:text-brand-dark hover:underline transition-colors"
+                  className="w-full text-center py-2 text-sm font-heading font-semibold text-brand hover:text-brand-dark hover:underline transition-colors"
                 >
                   Meer info
                 </button>
@@ -592,14 +600,14 @@ function CTASection({ navigate }: { navigate: (path: string) => void }) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => navigate('/login')}
-              className="inline-flex items-center justify-center gap-2 bg-white text-brand font-semibold px-8 py-3 rounded-lg hover:bg-brand-tint transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-white text-brand font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-brand-tint transition-all shadow-sm hover:-translate-y-0.5"
             >
               Gratis starten
               <ArrowRight className="w-5 h-5" />
             </button>
             <a
               href="mailto:info@bijleren.eu"
-              className="inline-flex items-center justify-center gap-2 border border-brand-soft text-white font-semibold px-8 py-3 rounded-lg hover:bg-brand-dark transition-colors"
+              className="inline-flex items-center justify-center gap-2 border border-brand-soft text-white font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-brand-dark transition-all shadow-sm hover:-translate-y-0.5"
             >
               Contact opnemen
             </a>

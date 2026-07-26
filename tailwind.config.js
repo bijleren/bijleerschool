@@ -13,6 +13,8 @@ export default {
         cream: '#FAF6EE',
         'cream-soft': '#E8DDC8',
         ink: '#2F2A22',
+        'ink-soft': '#6B6457',
+        line: '#E5DDD0',
         terracotta: '#D9663F',
         'terracotta-soft': '#F7D9D2',
         sage: '#756A58',

@@ -387,7 +387,7 @@ export function AppsPage() {
             </p>
             <button
               onClick={() => navigate('/login')}
-              className="inline-flex items-center justify-center gap-2 bg-white text-brand font-semibold px-8 py-3 rounded-lg hover:bg-brand-tint transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-white text-brand font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-brand-tint transition-all shadow-sm hover:-translate-y-0.5"
             >
               Gratis starten <ArrowRight className="w-5 h-5" />
             </button>
