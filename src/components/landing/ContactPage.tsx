@@ -231,7 +231,7 @@ export function ContactPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 bg-brand text-white font-heading font-semibold rounded-2xl hover:bg-brand-dark transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                    className="w-full py-3 bg-[#946B29] text-white font-heading font-semibold rounded-2xl hover:bg-brand-dark transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg hover:-translate-y-0.5"
                   >
                     {loading ? (
                       <>

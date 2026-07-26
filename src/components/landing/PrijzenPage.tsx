@@ -70,7 +70,7 @@ const plans = [
 const timelineSteps = [
   {
     icon: Rocket,
-    color: 'bg-brand',
+    color: 'bg-[#946B29]',
     lightColor: 'bg-brand-tint',
     textColor: 'text-brand',
     borderColor: 'border-brand-soft/40',
@@ -221,7 +221,7 @@ export function PrijzenPage() {
                 >
                   {plan.highlight && (
                     <div className="mb-4">
-                      <span className="inline-flex items-center gap-1.5 bg-brand text-white text-xs font-semibold px-3 py-1 rounded-full">
+                      <span className="inline-flex items-center gap-1.5 bg-[#946B29] text-white text-xs font-semibold px-3 py-1 rounded-full">
                         <Star className="w-3 h-3" /> Ga voor impact
                       </span>
                     </div>
@@ -278,7 +278,7 @@ export function PrijzenPage() {
         <section className="py-20 bg-cream-soft/40 border-t border-line">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row gap-10 items-start">
-              <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-brand flex items-center justify-center shadow-md mt-1">
+              <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-[#946B29] flex items-center justify-center shadow-md mt-1">
                 <HardDrive className="w-7 h-7 text-white" />
               </div>
               <div>
@@ -387,7 +387,7 @@ export function PrijzenPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-20 bg-brand">
+        <section className="py-20 bg-[#946B29]">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-heading font-bold text-white mb-4">Klaar om te starten?</h2>
             <p className="text-brand-tint text-lg mb-8">

@@ -213,7 +213,7 @@ export function VoorWiePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/auth')}
-                className="inline-flex items-center justify-center gap-2 bg-brand text-white font-heading font-semibold px-7 py-3 rounded-2xl hover:bg-brand-dark transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 bg-[#946B29] text-white font-heading font-semibold px-7 py-3 rounded-2xl hover:bg-brand-dark transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
               >
                 Gratis uitproberen
                 <ArrowRight className="w-5 h-5" />
@@ -343,7 +343,7 @@ export function VoorWiePage() {
       {/* CTA */}
       <div className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-brand rounded-2xl p-12 text-center text-white">
+          <div className="bg-[#946B29] rounded-2xl p-12 text-center text-white">
             <h2 className="text-3xl font-heading font-bold mb-4">
               Is bijleer.school iets voor jouw school?
             </h2>

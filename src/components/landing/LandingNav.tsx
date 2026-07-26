@@ -114,7 +114,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
           })}
           <button
             onClick={() => { navigate('/login'); setMenuOpen(false); }}
-            className="w-full mt-2 px-4 py-2.5 bg-brand text-white text-sm font-fredoka font-semibold rounded-xl shadow-sm hover:bg-brand-dark transition-all"
+            className="w-full mt-2 px-4 py-2.5 bg-[#946B29] text-white text-sm font-fredoka font-semibold rounded-xl shadow-sm hover:bg-brand-dark transition-all"
           >
             Inloggen
           </button>

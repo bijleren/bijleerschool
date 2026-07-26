@@ -288,7 +288,7 @@ export function AppsPage() {
                 onClick={() => setActiveFilter(tag)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                   activeFilter === tag
-                    ? 'bg-brand text-white border-brand'
+                    ? 'bg-[#946B29] text-white border-[#946B29]'
                     : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
                 }`}
               >
@@ -380,7 +380,7 @@ export function AppsPage() {
       {/* CTA */}
       <div className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-brand rounded-2xl p-12 text-center text-white">
+          <div className="bg-[#946B29] rounded-2xl p-12 text-center text-white">
             <h2 className="text-3xl font-heading font-bold mb-4">Probeer alle apps gratis</h2>
             <p className="text-brand-tint text-lg mb-8 max-w-xl mx-auto">
               Maak een gratis account aan en ontdek elke app. Geen verplichtingen, maar we raden je wel aan je te laten ondersteunen zodat je de app echt volledig leert kennen.

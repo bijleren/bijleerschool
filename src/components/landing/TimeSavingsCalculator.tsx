@@ -60,7 +60,7 @@ const APP_SAVINGS = [
   {
     id: 'sporen',
     name: 'Sporen',
-    color: 'bg-brand',
+    color: 'bg-[#946B29]',
     lightColor: 'bg-brand-tint',
     textColor: 'text-brand',
     borderColor: 'border-brand-soft/40',
@@ -284,7 +284,7 @@ export function TimeSavingsCalculator() {
                         </span>
                         <div className="flex-1 flex h-6 rounded-full overflow-hidden bg-gray-100">
                           <div
-                            className="h-full bg-gradient-to-r from-brand to-brand-soft flex items-center justify-end transition-all duration-500"
+                            className="h-full bg-gradient-to-r from-[#946B29] to-brand-soft flex items-center justify-end transition-all duration-500"
                             style={{ width: `${Math.max(basePct, 4)}%` }}
                           />
                           {item.fam > 0 && (

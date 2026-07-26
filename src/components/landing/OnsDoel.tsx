@@ -191,7 +191,7 @@ export function OnsDoel() {
 
       <div className="py-20 bg-cream-soft/40 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-brand rounded-2xl p-12 text-center text-white">
+          <div className="bg-[#946B29] rounded-2xl p-12 text-center text-white">
             <h2 className="text-3xl font-heading font-bold mb-4">Kom bij de community!</h2>
             <p className="text-brand-tint text-lg max-w-xl mx-auto mb-8">
               bijleer.school groeit samen met de scholen die het gebruiken. Jouw input, noden en ideeën maken het platform beter voor iedereen.

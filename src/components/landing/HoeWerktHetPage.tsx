@@ -279,7 +279,7 @@ export function HoeWerktHetPage() {
       {/* CTA */}
       <div className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-brand rounded-2xl p-12 text-center text-white">
+          <div className="bg-[#946B29] rounded-2xl p-12 text-center text-white">
             <h2 className="text-3xl font-heading font-bold mb-4">Klaar om te starten?</h2>
             <p className="text-brand-tint text-lg mb-8 max-w-xl mx-auto">
               Maak vandaag nog een gratis account aan en maak een nieuwe school of koppel je aan een bestaande. Geen verplichtingen.
