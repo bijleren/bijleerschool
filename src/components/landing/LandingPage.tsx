@@ -519,7 +519,7 @@ function PricingSection({ navigate }: { navigate: (path: string) => void }) {
             >
               {plan.highlight && (
                 <div className="mb-4">
-                  <span className="inline-flex items-center gap-1.5 bg-brand text-white text-xs font-semibold px-3 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1.5 bg-[#946B29] text-white text-xs font-semibold px-3 py-1 rounded-full">
                     <Star className="w-3 h-3" /> Ga voor impact
                   </span>
                 </div>
@@ -624,7 +624,7 @@ function CTASection({ navigate }: { navigate: (path: string) => void }) {
   return (
     <div className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-brand rounded-2xl p-12 text-center text-white">
+        <div className="bg-[#946B29] rounded-2xl p-12 text-center text-white">
           <h2 className="text-3xl font-heading font-bold mb-4">
             Klaar om te starten?
           </h2>
@@ -634,14 +634,14 @@ function CTASection({ navigate }: { navigate: (path: string) => void }) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => navigate('/login')}
-              className="inline-flex items-center justify-center gap-2 bg-white text-brand font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-brand-tint transition-all shadow-sm hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 bg-white text-[#946B29] font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-[#F3E9D6] transition-all shadow-sm hover:-translate-y-0.5"
             >
               Gratis starten
               <ArrowRight className="w-5 h-5" />
             </button>
             <a
               href="mailto:info@bijleren.eu"
-              className="inline-flex items-center justify-center gap-2 border border-brand-soft text-white font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-brand-dark transition-all shadow-sm hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 border border-white/40 text-white font-heading font-semibold px-8 py-3 rounded-2xl hover:bg-[#74531F] transition-all shadow-sm hover:-translate-y-0.5"
             >
               Contact opnemen
             </a>
