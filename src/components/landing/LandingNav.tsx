@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Grid3x3, HelpCircle, Tag, Menu, X, ChevronDown, LogIn } from 'lucide-react';
-import { BijlerenLogo } from './BijlerenLogo';
+
 
 interface LandingNavProps {
   navigate: (path: string) => void;
@@ -26,7 +26,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
         {/* Left: logo + app name */}
         <div className="flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <BijlerenLogo size={32} />
+            <span className="font-fredoka font-bold text-xl text-brand">bijleren.eu</span>
             <span className="font-fredoka font-bold text-xl text-ink hidden sm:block">bijleer.school</span>
           </Link>
           {NAV_LINKS.slice(0, 3).map((link) => {
@@ -39,7 +39,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm font-semibold transition-colors ${
                   isActive
                     ? 'border-brand-soft text-brand'
-                    : 'border-line hover:border-brand-soft text-ink-soft hover:text-brand'
+                    : 'border-ink/15 hover:border-brand text-ink hover:text-brand bg-white'
                 }`}
               >
                 {Icon && <Icon className="w-4 h-4" />}
@@ -60,8 +60,8 @@ export function LandingNav({ navigate }: LandingNavProps) {
                   to={link.to}
                   className={`px-3 py-1.5 rounded-xl border text-sm font-semibold transition-colors ${
                     isActive
-                      ? 'border-brand-soft text-brand'
-                      : 'border-line hover:border-brand-soft text-ink-soft hover:text-brand'
+                      ? 'border-brand text-brand bg-brand-tint'
+                      : 'border-ink/15 hover:border-brand text-ink hover:text-brand bg-white'
                   }`}
                 >
                   {link.label}
@@ -70,7 +70,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
             })}
           </div>
           {/* NL flag dropdown */}
-          <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-line hover:border-brand-soft transition-colors bg-white text-sm font-semibold text-ink" aria-label="Select language">
+          <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-ink/15 hover:border-brand transition-colors bg-white text-sm font-semibold text-ink" aria-label="Select language">
             <span className="text-base leading-none">🇳🇱🇧🇪</span>
             <span className="hidden sm:inline text-xs font-bold text-ink-soft">NL</span>
             <ChevronDown className="w-3 h-3 text-ink-soft" />
@@ -78,7 +78,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
           {/* Login button */}
           <button
             onClick={() => navigate('/login')}
-            className="flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-dark text-white font-fredoka font-semibold text-sm rounded-xl transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-dark text-white font-fredoka font-semibold text-sm rounded-xl shadow-md hover:shadow-lg transition-all"
           >
             <LogIn className="w-4 h-4" />
             Inloggen

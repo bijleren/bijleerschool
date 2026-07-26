@@ -4,7 +4,6 @@ import { Users, BarChart3, Globe, ArrowRight, Grid2x2 as Grid, BookMarked, Searc
 import { Button } from '../ui/Button';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
-import { BijlerenLogo } from './BijlerenLogo';
 
 const APPS = [
   {
@@ -192,10 +191,8 @@ function Hero({ navigate }: { navigate: (path: string) => void }) {
         }}
       />
       <div className="relative max-w-3xl mx-auto px-6 py-20 text-center">
-        {/* Logo */}
-        <a href="https://bijleren.eu" target="_blank" rel="noopener noreferrer" className="inline-block mb-8">
-          <BijlerenLogo size={64} className="mx-auto" />
-        </a>
+        {/* Logo placeholder — better version coming later */}
+        <div className="mb-8" />
         {/* Title */}
         <h1 className="font-fredoka font-bold text-5xl sm:text-6xl text-ink leading-tight mb-5">
           bijleer.school
