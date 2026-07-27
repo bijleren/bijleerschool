@@ -26,7 +26,7 @@ export function GedragskaartCard({
     <div
       className={`relative flex flex-col items-center rounded-2xl border-2 transition-all select-none
         ${isActive
-          ? 'border-amber-300 bg-white shadow-md'
+          ? 'border-blue-300 bg-white shadow-md'
           : 'border-gray-200 bg-gray-50 opacity-60'}
         ${bouncing ? 'scale-95' : 'scale-100'}
         w-36 min-h-[160px] p-3 gap-2`}
@@ -35,7 +35,7 @@ export function GedragskaartCard({
       <button
         onClick={onToggle}
         className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors
-          ${isActive ? 'border-amber-500 bg-amber-500' : 'border-gray-300 bg-white'}`}
+          ${isActive ? 'border-blue-400 bg-blue-400' : 'border-gray-300 bg-white'}`}
         title={isActive ? 'Deactiveer kaart' : 'Activeer kaart'}
       >
         {isActive && (
@@ -55,7 +55,7 @@ export function GedragskaartCard({
 
       {/* Count badge */}
       <div className={`text-lg font-bold tabular-nums leading-none
-        ${count > 0 ? (isDeductMode ? 'text-red-500' : 'text-#946B29') : 'text-gray-300'}`}>
+        ${count > 0 ? (isDeductMode ? 'text-red-500' : 'text-blue-600') : 'text-gray-300'}`}>
         {count}
       </div>
 
@@ -68,7 +68,7 @@ export function GedragskaartCard({
             ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
             : isDeductMode
               ? 'bg-red-50 text-red-600 hover:bg-red-100 active:scale-95 border border-red-200'
-              : 'bg-amber-50 text-#946B29 hover:bg-amber-100 active:scale-95 border border-amber-200'
+              : 'bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 border border-blue-200'
           }`}
         title={!hasStudent ? 'Selecteer eerst een leerling' : undefined}
       >

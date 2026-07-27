@@ -21,7 +21,7 @@ const EMOTIONS = [
   { value: 'happy', label: 'Blij', icon: Smile, color: 'text-yellow-500' },
   { value: 'love', label: 'Hou ervan', icon: Heart, color: 'text-red-500' },
   { value: 'neutral', label: 'Neutraal', icon: Meh, color: 'text-gray-500' },
-  { value: 'sad', label: 'Verdrietig', icon: Frown, color: 'text-amber-500' }
+  { value: 'sad', label: 'Verdrietig', icon: Frown, color: 'text-blue-500' }
 ];
 
 export function ReadingSessionModal({ book, studentId, onClose, onComplete }: ReadingSessionModalProps) {
@@ -233,11 +233,11 @@ export function ReadingSessionModal({ book, studentId, onClose, onComplete }: Re
                 onClick={() => setIsTimerMode(true)}
                 className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
                   isTimerMode
-                    ? 'border-amber-500 bg-amber-50'
+                    ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <Play className="w-6 h-6 mx-auto mb-2 text-#946B29" />
+                <Play className="w-6 h-6 mx-auto mb-2 text-blue-600" />
                 <div className="font-medium">Timer</div>
               </button>
               <button
@@ -245,7 +245,7 @@ export function ReadingSessionModal({ book, studentId, onClose, onComplete }: Re
                 disabled={sessionStarted}
                 className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
                   !isTimerMode
-                    ? 'border-amber-500 bg-amber-50'
+                    ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
                 } ${sessionStarted ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
@@ -285,7 +285,7 @@ export function ReadingSessionModal({ book, studentId, onClose, onComplete }: Re
                 value={manualMinutes}
                 onChange={(e) => setManualMinutes(e.target.value)}
                 placeholder="Bijvoorbeeld: 15"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           )}
@@ -300,7 +300,7 @@ export function ReadingSessionModal({ book, studentId, onClose, onComplete }: Re
               value={endPage}
               onChange={(e) => setEndPage(e.target.value)}
               placeholder="Bijvoorbeeld: 42"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
@@ -317,7 +317,7 @@ export function ReadingSessionModal({ book, studentId, onClose, onComplete }: Re
                     onClick={() => setEmotion(emo.value)}
                     className={`p-4 rounded-lg border-2 transition-colors ${
                       emotion === emo.value
-                        ? 'border-amber-500 bg-amber-50'
+                        ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
@@ -338,7 +338,7 @@ export function ReadingSessionModal({ book, studentId, onClose, onComplete }: Re
                 {!isRecording ? (
                   <button
                     onClick={startRecording}
-                    className="inline-flex items-center px-6 py-3 bg-#946B29 text-white rounded-lg hover:bg-#74531F transition-colors"
+                    className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     <Mic className="w-5 h-5 mr-2" />
                     Start Opname
@@ -364,7 +364,7 @@ export function ReadingSessionModal({ book, studentId, onClose, onComplete }: Re
                 <audio src={audioUrl} controls className="w-full" />
                 <button
                   onClick={retryRecording}
-                  className="text-sm text-#946B29 hover:text-#74531F font-medium"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Opnieuw opnemen
                 </button>

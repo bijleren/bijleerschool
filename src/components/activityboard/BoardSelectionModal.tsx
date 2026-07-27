@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { X, Clock, Grid2x2 as Grid, AlertCircle } from 'lucide-react';
+import { X, Clock, Grid, AlertCircle } from 'lucide-react';
 
 interface ActiveBoard {
   id: string;
@@ -96,7 +96,7 @@ export function BoardSelectionModal({
                   >
                     <div className="flex flex-col h-full p-4">
                       <div className="flex items-start gap-3 mb-3">
-                        <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                           {board.icon_url ? (
                             <img
                               src={board.icon_url}
@@ -104,7 +104,7 @@ export function BoardSelectionModal({
                               className="w-full h-full object-cover rounded-lg"
                             />
                           ) : (
-                            <Grid className="w-6 h-6 text-#946B29" />
+                            <Grid className="w-6 h-6 text-blue-600" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">

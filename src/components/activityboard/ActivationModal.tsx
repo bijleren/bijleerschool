@@ -161,7 +161,7 @@ export function ActivationModal({
                   disabled={submitting}
                   className={`px-4 py-3 border-2 rounded-lg font-medium transition-all ${
                     selectedDuration === preset.value && !useCustom
-                      ? 'border-amber-500 bg-amber-50 text-#74531F'
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
                       : 'border-gray-200 hover:border-gray-300 text-gray-700'
                   } ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
@@ -182,9 +182,9 @@ export function ActivationModal({
                 min="5"
                 max="240"
                 disabled={submitting}
-                className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent w-32 ${
+                className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-32 ${
                   useCustom && selectedDuration
-                    ? 'border-amber-500 bg-amber-50'
+                    ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-300'
                 }`}
               />

@@ -160,7 +160,7 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
 
   if (activeStep === 'join') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-cyan-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card>
             <div className="flex justify-end mb-4">
@@ -175,7 +175,7 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
               </Button>
             </div>
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-#946B29 rounded-2xl mb-4 shadow-lg">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg">
                 <UserPlus className="w-8 h-8 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">School toevoegen</h1>
@@ -230,7 +230,7 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
 
   if (activeStep === 'create') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-cyan-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card>
             <div className="flex justify-end mb-4">
@@ -319,7 +319,7 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-cyan-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         {/* Welcome Header */}
         <div className="text-center mb-12">
@@ -333,7 +333,7 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
               Uitloggen
             </Button>
           </div>
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-#946B29 rounded-3xl mb-6 shadow-lg">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-indigo-600 rounded-3xl mb-6 shadow-lg">
             <GraduationCap className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Welkom bij bijleer.school!</h1>
@@ -350,8 +350,8 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
           {/* Join Existing School */}
           <Card className="hover:shadow-lg transition-shadow cursor-pointer group" onClick={() => setActiveStep('join')}>
             <div className="text-center p-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-2xl mb-4 group-hover:bg-amber-200 transition-colors">
-                <UserPlus className="w-8 h-8 text-#946B29" />
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-2xl mb-4 group-hover:bg-blue-200 transition-colors">
+                <UserPlus className="w-8 h-8 text-blue-600" />
               </div>
               <h2 className="text-xl font-bold text-gray-900 mb-3">School toevoegen</h2>
               <p className="text-gray-600 mb-6">
@@ -372,7 +372,7 @@ export function SchoolOnboarding({ onSchoolConnected }: SchoolOnboardingProps) {
                 </div>
               </div>
               <div className="mt-6">
-                <Button variant="secondary" className="w-full group-hover:bg-#946B29 group-hover:text-white transition-colors">
+                <Button variant="secondary" className="w-full group-hover:bg-blue-600 group-hover:text-white transition-colors">
                   Schoolcode invoeren
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>

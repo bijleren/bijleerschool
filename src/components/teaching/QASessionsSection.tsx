@@ -164,10 +164,10 @@ export function QASessionsSection({ isAdmin }: Props) {
       {/* Section header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Video className="w-5 h-5 text-#946B29" />
+          <Video className="w-5 h-5 text-blue-600" />
           <h2 className="text-base font-semibold text-gray-900">Aankomende Q&A sessies</h2>
           {sessions.length > 0 && (
-            <span className="text-xs bg-amber-100 text-#74531F px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
               {sessions.length}
             </span>
           )}
@@ -175,7 +175,7 @@ export function QASessionsSection({ isAdmin }: Props) {
         {isAdmin && (
           <button
             onClick={() => { setShowModal(true); setError(null); setForm(EMPTY_FORM); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-#946B29 hover:bg-#74531F text-white rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
           >
             <Plus className="w-4 h-4" />
             Sessie toevoegen
@@ -289,7 +289,7 @@ export function QASessionsSection({ isAdmin }: Props) {
                   value={form.date}
                   onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
                   min={new Date().toISOString().slice(0, 10)}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -300,7 +300,7 @@ export function QASessionsSection({ isAdmin }: Props) {
                     type="time"
                     value={form.start_time}
                     onChange={e => setForm(f => ({ ...f, start_time: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -309,7 +309,7 @@ export function QASessionsSection({ isAdmin }: Props) {
                     type="time"
                     value={form.end_time}
                     onChange={e => setForm(f => ({ ...f, end_time: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -321,7 +321,7 @@ export function QASessionsSection({ isAdmin }: Props) {
                   placeholder="https://teams.microsoft.com/..."
                   value={form.teams_link}
                   onChange={e => setForm(f => ({ ...f, teams_link: e.target.value }))}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -334,7 +334,7 @@ export function QASessionsSection({ isAdmin }: Props) {
                   placeholder="Automatisch gegenereerd als leeg"
                   value={form.title}
                   onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -351,7 +351,7 @@ export function QASessionsSection({ isAdmin }: Props) {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 px-4 py-2 bg-#946B29 hover:bg-#74531F text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
               >
                 {saving ? 'Opslaan...' : 'Opslaan'}
               </button>

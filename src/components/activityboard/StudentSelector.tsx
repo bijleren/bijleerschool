@@ -200,7 +200,7 @@ export function StudentSelector({
                 placeholder="Zoek op naam, nummer of groep..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 autoFocus
               />
 
@@ -220,7 +220,7 @@ export function StudentSelector({
                     <button
                       key={student.id}
                       onClick={() => onSelectStudent(student.id, activityOption.id)}
-                      className="w-full flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-amber-500 hover:bg-amber-50 transition-colors text-left"
+                      className="w-full flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
                     >
                       <div
                         className="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium"

@@ -362,7 +362,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
   if (loading && students.length === 0 && selectedGroupId) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
       </div>
     );
   }
@@ -373,7 +373,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Brain className="w-7 h-7 text-#946B29" />
+            <Brain className="w-7 h-7 text-blue-600" />
             Executieve Functies
           </h1>
           <p className="text-gray-500 mt-1">{schoolName} — beoordeel leerlingen per executieve functie</p>
@@ -396,7 +396,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
           </button>
           <button
             onClick={onNavigateToGedragskaart}
-            className="flex items-center gap-2 px-4 py-2 bg-#946B29 hover:bg-#74531F text-white rounded-lg transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
           >
             <LayoutGrid className="w-4 h-4" />
             Gedragskaart
@@ -405,12 +405,12 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
       </div>
 
       {/* Info block */}
-      <div className="bg-white rounded-xl border border-amber-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-blue-100 shadow-sm overflow-hidden">
         <button
           onClick={() => setInfoOpen(o => !o)}
-          className="w-full flex items-center justify-between px-5 py-4 hover:bg-amber-50 transition-colors"
+          className="w-full flex items-center justify-between px-5 py-4 hover:bg-blue-50 transition-colors"
         >
-          <div className="flex items-center gap-2 text-#74531F font-semibold text-sm">
+          <div className="flex items-center gap-2 text-blue-700 font-semibold text-sm">
             <Info className="w-4 h-4 flex-shrink-0" />
             Wat is het doel van deze pagina?
           </div>
@@ -418,7 +418,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
         </button>
 
         {infoOpen && (
-          <div className="px-5 pb-6 border-t border-amber-50">
+          <div className="px-5 pb-6 border-t border-blue-50">
             <div className="flex flex-col lg:flex-row gap-8 pt-5">
               {/* Text column */}
               <div className="flex-1 space-y-4 text-sm text-gray-600 leading-relaxed">
@@ -431,7 +431,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
                 </p>
                 <ul className="space-y-2 pl-1">
                   <li className="flex items-start gap-2">
-                    <span className="mt-0.5 w-3 h-3 rounded-full bg-amber-500 flex-shrink-0" />
+                    <span className="mt-0.5 w-3 h-3 rounded-full bg-blue-500 flex-shrink-0" />
                     <span><strong className="text-gray-800">Vermogen</strong> — hoe sterk is de leerling in deze functie?</span>
                   </li>
                   <li className="flex items-start gap-2">
@@ -462,7 +462,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
                 })()}
                 <div className="flex gap-5 mt-3 text-xs text-gray-400">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-3.5 h-0.5 bg-amber-500 inline-block rounded" />
+                    <span className="w-3.5 h-0.5 bg-blue-500 inline-block rounded" />
                     Vermogen
                   </span>
                   <span className="flex items-center gap-1.5">
@@ -483,7 +483,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
           <select
             value={selectedGroupId}
             onChange={e => { setSelectedGroupId(e.target.value); setExpandedStudent(null); }}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {groups.map(g => (
               <option key={g.id} value={g.id}>{g.name}</option>
@@ -496,14 +496,14 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
         <div className="flex rounded-lg border border-gray-200 overflow-hidden bg-white text-sm font-medium">
           <button
             onClick={() => setActiveTab('beoordeling')}
-            className={`flex items-center gap-1.5 px-4 py-2 transition-colors ${activeTab === 'beoordeling' ? 'bg-#946B29 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+            className={`flex items-center gap-1.5 px-4 py-2 transition-colors ${activeTab === 'beoordeling' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
           >
             <Users className="w-3.5 h-3.5" />
             Beoordeling
           </button>
           <button
             onClick={() => setActiveTab('profielen')}
-            className={`flex items-center gap-1.5 px-4 py-2 transition-colors ${activeTab === 'profielen' ? 'bg-#946B29 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+            className={`flex items-center gap-1.5 px-4 py-2 transition-colors ${activeTab === 'profielen' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
           >
             <Brain className="w-3.5 h-3.5" />
             Profielen
@@ -520,9 +520,9 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
                 <button
                   key={student.id}
                   onClick={() => onNavigateToStudent(student.id, `${student.first_name} ${student.last_name}`)}
-                  className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col items-center hover:shadow-md hover:border-amber-200 transition-all group text-left"
+                  className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col items-center hover:shadow-md hover:border-blue-200 transition-all group text-left"
                 >
-                  <div className="w-10 h-10 rounded-full bg-amber-100 text-#74531F flex items-center justify-center text-sm font-bold mb-3 group-hover:bg-amber-200 transition-colors flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-bold mb-3 group-hover:bg-blue-200 transition-colors flex-shrink-0">
                     {getInitials(student)}
                   </div>
                   <p className="text-xs font-semibold text-gray-800 text-center mb-4 leading-tight">
@@ -536,7 +536,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
                   />
                   <div className="flex gap-3 mt-3 text-[10px] text-gray-400">
                     <span className="flex items-center gap-1">
-                      <span className="w-3 h-0.5 bg-amber-500 inline-block rounded" />
+                      <span className="w-3 h-0.5 bg-blue-500 inline-block rounded" />
                       Vermogen
                     </span>
                     <span className="flex items-center gap-1">
@@ -583,12 +583,12 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
               <div key={student.id} className="border-b border-gray-50 last:border-0">
                 {/* Compact row */}
                 <div
-                  className={`px-4 py-2.5 items-center cursor-pointer transition-colors min-w-max ${isExpanded ? 'bg-amber-50' : 'hover:bg-gray-50'}`}
+                  className={`px-4 py-2.5 items-center cursor-pointer transition-colors min-w-max ${isExpanded ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
                   style={{ display: 'grid', gridTemplateColumns: `minmax(160px,1fr) repeat(${executiveFunctions.length}, 2.5rem)`, gap: '0.25rem' }}
                   onClick={() => setExpandedStudent(isExpanded ? null : student.id)}
                 >
                   <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-8 h-8 rounded-full bg-amber-100 text-#74531F flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                       {getInitials(student)}
                     </div>
                     <div className="min-w-0">
@@ -611,12 +611,12 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
 
                 {/* Expanded rating panel */}
                 {isExpanded && (
-                  <div className="bg-amber-50 border-t border-amber-100 px-4 py-4">
+                  <div className="bg-blue-50 border-t border-blue-100 px-4 py-4">
                     {/* Top bar */}
                     <div className="flex items-center justify-between mb-4">
                       <button
                         onClick={() => onNavigateToStudent(student.id, `${student.first_name} ${student.last_name}`)}
-                        className="text-sm text-#946B29 hover:text-#5C4118 font-medium flex items-center gap-1 transition-colors"
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors"
                       >
                         Volledig profiel <ChevronRight className="w-3 h-3" />
                       </button>
@@ -625,7 +625,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
                         disabled={!hasChanges || isSaving}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                           hasChanges && !isSaving
-                            ? 'bg-#946B29 text-white hover:bg-#74531F'
+                            ? 'bg-blue-600 text-white hover:bg-blue-700'
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         }`}
                       >
@@ -645,7 +645,7 @@ export function ExecutieveFunctiesOverview({ schoolId, schoolName, onNavigateToS
                         />
                         <div className="flex gap-4 mt-2 text-xs text-gray-400">
                           <span className="flex items-center gap-1">
-                            <span className="w-3 h-0.5 bg-amber-500 inline-block rounded" />
+                            <span className="w-3 h-0.5 bg-blue-500 inline-block rounded" />
                             Vermogen
                           </span>
                           <span className="flex items-center gap-1">

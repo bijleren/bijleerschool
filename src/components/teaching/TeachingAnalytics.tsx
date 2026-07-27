@@ -326,7 +326,7 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -353,7 +353,7 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
             <select
               value={selectedSchoolId}
               onChange={(e) => setSelectedSchoolId(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               {userSchools.map((school) => (
                 <option key={school.id} value={school.id}>
@@ -365,7 +365,7 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="7">Laatste 7 dagen</option>
             <option value="30">Laatste 30 dagen</option>
@@ -379,8 +379,8 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         <Card>
           <div className="flex items-center">
-            <div className="p-2 bg-amber-100 rounded-lg">
-              <BarChart3 className="w-6 h-6 text-#946B29" />
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <BarChart3 className="w-6 h-6 text-blue-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Technieken</p>
@@ -403,8 +403,8 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
 
         <Card>
           <div className="flex items-center">
-            <div className="p-2 bg-amber-100 rounded-lg">
-              <Users className="w-6 h-6 text-#946B29" />
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Users className="w-6 h-6 text-purple-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Actieve leerkrachten</p>
@@ -427,8 +427,8 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
 
         <Card>
           <div className="flex items-center">
-            <div className="p-2 bg-amber-100 rounded-lg">
-              <MessageCircle className="w-6 h-6 text-#946B29" />
+            <div className="p-2 bg-indigo-100 rounded-lg">
+              <MessageCircle className="w-6 h-6 text-indigo-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Reacties</p>
@@ -460,8 +460,8 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
             {techniqueUsageStats.slice(0, 10).map((technique, index) => (
               <div key={technique.technique_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-#946B29">{index + 1}</span>
+                  <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-indigo-600">{index + 1}</span>
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{technique.technique_title}</p>
@@ -546,7 +546,7 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
                     </span>
                   )}
                   {coaching.experience_breakdown.intermediate > 0 && (
-                    <span className="px-2 py-1 bg-amber-100 text-#5C4118 text-xs rounded-full">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                       {coaching.experience_breakdown.intermediate} Gemiddeld
                     </span>
                   )}
@@ -570,9 +570,9 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
             Trends en inzichten
           </h3>
           <div className="space-y-4">
-            <div className="p-4 bg-amber-50 rounded-lg">
-              <h4 className="font-medium text-#3D2B10 mb-2">Adoptie rate</h4>
-              <p className="text-#5C4118">
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-2">Adoptie rate</h4>
+              <p className="text-blue-800">
                 {overallStats.total_techniques > 0 
                   ? `${Math.round((overallStats.techniques_with_usage / overallStats.total_techniques) * 100)}%`
                   : '0%'
@@ -600,9 +600,9 @@ export function TeachingAnalytics({ onBack, userSchools }: TeachingAnalyticsProp
               </p>
             </div>
 
-            <div className="p-4 bg-amber-50 rounded-lg">
-              <h4 className="font-medium text-#3D2B10 mb-2">Engagement</h4>
-              <p className="text-#5C4118">
+            <div className="p-4 bg-purple-50 rounded-lg">
+              <h4 className="font-medium text-purple-900 mb-2">Engagement</h4>
+              <p className="text-purple-800">
                 {overallStats.total_usage_logs > 0 
                   ? `${Math.round(overallStats.total_comments / overallStats.total_usage_logs * 100)}%`
                   : '0%'

@@ -180,9 +180,9 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
       return <ArrowUpDown className="w-4 h-4 text-gray-400" />;
     }
     return sortDirection === 'asc' ? (
-      <ArrowUp className="w-4 h-4 text-#946B29" />
+      <ArrowUp className="w-4 h-4 text-blue-600" />
     ) : (
-      <ArrowDown className="w-4 h-4 text-#946B29" />
+      <ArrowDown className="w-4 h-4 text-blue-600" />
     );
   };
 
@@ -248,8 +248,8 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-amber-50 rounded-lg">
-                <Users className="w-6 h-6 text-#946B29" />
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <Users className="w-6 h-6 text-blue-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Totaal bezoeken</p>
@@ -272,8 +272,8 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
 
           <Card>
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-amber-50 rounded-lg">
-                <MousePointer className="w-6 h-6 text-#946B29" />
+              <div className="p-3 bg-purple-50 rounded-lg">
+                <MousePointer className="w-6 h-6 text-purple-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Handmatig</p>
@@ -311,8 +311,8 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
                         <QrCode className="w-5 h-5 text-green-600" />
                       </div>
                     ) : (
-                      <div className="p-2 bg-amber-100 rounded-lg">
-                        <MousePointer className="w-5 h-5 text-#946B29" />
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <MousePointer className="w-5 h-5 text-purple-600" />
                       </div>
                     )}
                     <div>
@@ -349,8 +349,8 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-amber-50 rounded-lg">
-              <Users className="w-6 h-6 text-#946B29" />
+            <div className="p-3 bg-blue-50 rounded-lg">
+              <Users className="w-6 h-6 text-blue-600" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Totaal bezoeken</p>
@@ -375,8 +375,8 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
 
         <Card>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-amber-50 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-#946B29" />
+            <div className="p-3 bg-purple-50 rounded-lg">
+              <TrendingUp className="w-6 h-6 text-purple-600" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Betrokkenheid</p>
@@ -445,7 +445,7 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
 
         {loading ? (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="text-gray-600 mt-4">Gegevens laden...</p>
           </div>
         ) : filteredAccess.length === 0 ? (
@@ -512,8 +512,8 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
                   <tr key={student.student_id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-#946B29" />
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-blue-600" />
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">{student.student_name}</div>
@@ -532,7 +532,7 @@ export function StudentAccessAnalytics({ onBack }: { onBack: () => void }) {
                           <QrCode className="w-3 h-3 mr-1" />
                           {student.qr_visits}
                         </span>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-#5C4118">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                           <MousePointer className="w-3 h-3 mr-1" />
                           {student.manual_visits}
                         </span>

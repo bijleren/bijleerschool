@@ -498,7 +498,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack, initialBoardId }: 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -524,7 +524,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack, initialBoardId }: 
           <select
             value={selectedBoard}
             onChange={(e) => setSelectedBoard(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="all">Alle borden</option>
             {boards.map((board) => (
@@ -537,7 +537,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack, initialBoardId }: 
           <select
             value={selectedStudent}
             onChange={(e) => setSelectedStudent(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="all">Alle leerlingen</option>
             {students.map((student) => (
@@ -550,7 +550,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack, initialBoardId }: 
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value as any)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="today">Vandaag</option>
             <option value="week">Afgelopen week</option>
@@ -564,7 +564,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack, initialBoardId }: 
         <Card>
           <div className="p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <BarChart3 className="w-5 h-5 text-#946B29" />
+              <BarChart3 className="w-5 h-5 text-blue-600" />
               <h2 className="text-lg font-semibold text-gray-900">
                 {selectedStudent !== 'all' ? 'Activiteitstijd per activiteit' : 'Activiteitsstatistieken'}
               </h2>
@@ -631,7 +631,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack, initialBoardId }: 
           <Card>
             <div className="p-6">
               <div className="flex items-center space-x-3 mb-4">
-                <Users className="w-5 h-5 text-#946B29" />
+                <Users className="w-5 h-5 text-blue-600" />
                 <h2 className="text-lg font-semibold text-gray-900">
                   Samenwerking met andere leerlingen
                 </h2>
@@ -683,7 +683,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack, initialBoardId }: 
           <Card>
             <div className="p-6">
               <div className="flex items-center space-x-3 mb-4">
-                <Clock className="w-5 h-5 text-#946B29" />
+                <Clock className="w-5 h-5 text-blue-600" />
                 <h2 className="text-lg font-semibold text-gray-900">
                   Gedetailleerd logboek
                 </h2>
@@ -704,7 +704,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack, initialBoardId }: 
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium text-#946B29">
+                        <p className="text-sm font-medium text-blue-600">
                           {log.endTime ? formatDuration(log.durationMinutes) : 'Bezig'}
                         </p>
                         {log.feedbackRating && (
@@ -730,7 +730,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack, initialBoardId }: 
           <Card>
             <div className="p-6">
               <div className="flex items-center space-x-3 mb-4">
-                <User className="w-5 h-5 text-#946B29" />
+                <User className="w-5 h-5 text-blue-600" />
                 <h2 className="text-lg font-semibold text-gray-900">Leerlingoverzicht</h2>
               </div>
 
@@ -747,7 +747,7 @@ export function ActivityAnalytics({ schoolId, boards, onBack, initialBoardId }: 
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-#946B29 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                          <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                             {index + 1}
                           </div>
                           <div>

@@ -1075,7 +1075,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                       }}
                       placeholder="Typ om student te zoeken..."
                       required={!selectedStudent.student_id}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                     
                     {/* Dropdown with filtered students */}
@@ -1112,7 +1112,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                       value={selectedStudent.role_id}
                       onChange={(e) => updateStudent(index, 'role_id', e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     >
                       <option value="">Selecteer rol</option>
                       {studentRoles.map((role) => (
@@ -1187,7 +1187,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                     onClick={() => handleSeveritySelect(level.id)}
                     className={`p-4 rounded-lg border-2 transition-all duration-200 text-center ${
                       selectedSeverityLevel === level.id
-                        ? 'border-amber-500 bg-amber-50'
+                        ? 'border-indigo-500 bg-indigo-50'
                         : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -1223,7 +1223,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                       onClick={() => setSelectedBehaviorItem(item.id)}
                       className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 ${
                         selectedBehaviorItem === item.id
-                          ? 'bg-amber-50 text-#74531F font-medium'
+                          ? 'bg-indigo-50 text-indigo-700 font-medium'
                           : 'text-gray-900'
                       }`}
                     >
@@ -1260,7 +1260,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                       value="manual"
                       checked={timeSelectionMode === 'manual'}
                       onChange={(e) => setTimeSelectionMode(e.target.value as 'manual' | 'lesson')}
-                      className="h-4 w-4 text-#946B29 focus:ring-amber-500 border-gray-300"
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
                     />
                     <span className="ml-2 text-sm text-gray-700">Handmatig</span>
                   </label>
@@ -1271,7 +1271,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                       value="lesson"
                       checked={timeSelectionMode === 'lesson'}
                       onChange={(e) => setTimeSelectionMode(e.target.value as 'manual' | 'lesson')}
-                      className="h-4 w-4 text-#946B29 focus:ring-amber-500 border-gray-300"
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
                     />
                     <span className="ml-2 text-sm text-gray-700">Lesblok</span>
                   </label>
@@ -1304,7 +1304,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                         setSelectedLessonBlock('');
                       }}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     >
                       <option value="">Selecteer klas/groep</option>
                       {groupsWithTemplates.map((group) => (
@@ -1323,12 +1323,12 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
 
                   {/* Template Info */}
                   {selectedTemplate && (
-                    <div className="p-3 bg-amber-50 rounded-lg">
-                      <p className="text-sm font-medium text-#3D2B10">
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <p className="text-sm font-medium text-blue-900">
                         Dagschema: {selectedTemplate.name}
                       </p>
                       {selectedTemplate.description && (
-                        <p className="text-sm text-#74531F">{selectedTemplate.description}</p>
+                        <p className="text-sm text-blue-700">{selectedTemplate.description}</p>
                       )}
                     </div>
                   )}
@@ -1357,7 +1357,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                           value={selectedLessonBlock}
                           onChange={(e) => setSelectedLessonBlock(e.target.value)}
                           required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         >
                           <option value="">Selecteer lesblok</option>
                           {availableLessonBlocks.map((block) => (
@@ -1394,7 +1394,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
               onChange={(e) => setDescription(e.target.value)}
               required
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Beschrijf wat er gebeurd is..."
             />
           </div>
@@ -1426,7 +1426,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                         value={actie.consequence_id}
                         onChange={(e) => updateEersteActie(index, 'consequence_id', e.target.value)}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       >
                         <option value="">Selecteer actie</option>
                         {consequences.map((consequence) => (
@@ -1453,7 +1453,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                       value={actie.notes}
                       onChange={(e) => updateEersteActie(index, 'notes', e.target.value)}
                       rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Voeg eventuele notities toe voor deze actie..."
                     />
                   </div>
@@ -1477,7 +1477,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                 }
                 setStatus(newStatus);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="pending">Melding</option>
               <option value="in_progress">Onderzoek</option>
@@ -1489,7 +1489,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
           <div className={`flex items-center space-x-3 p-4 border rounded-lg ${
             status === 'resolved'
               ? 'bg-gray-100 border-gray-300 opacity-60'
-              : 'bg-amber-50 border-amber-200'
+              : 'bg-blue-50 border-blue-200'
           }`}>
             <input
               type="checkbox"
@@ -1497,7 +1497,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
               checked={followUpRequired}
               onChange={(e) => setFollowUpRequired(e.target.checked)}
               disabled={status === 'resolved'}
-              className="h-5 w-5 text-#946B29 focus:ring-amber-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <label
               htmlFor="followUpRequired"
@@ -1530,13 +1530,13 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
               ) : (
                 <div className="space-y-3">
                   {followupConsequences.map((consequence, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 bg-amber-50 rounded-lg">
+                    <div key={index} className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
                       <div className="flex-1">
                         <select
                           value={consequence.consequence_id}
                           onChange={(e) => updateFollowupConsequence(index, e.target.value)}
                           required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         >
                           <option value="">Selecteer consequentie</option>
                           {consequences.map((cons) => (
@@ -1573,7 +1573,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                   multiple
                   accept="image/*,.pdf,.txt"
                   onChange={handleFileUpload}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-#74531F hover:file:bg-amber-100"
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Toegestane bestanden: afbeeldingen, PDF, tekstbestanden (max 10MB per bestand)
@@ -1630,7 +1630,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                       e.target.value = '';
                     }
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 >
                   <option value="">Selecteer leerkracht om toe te voegen</option>
                   {teachers.map((teacher) => (
@@ -1652,7 +1652,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                       e.target.value = '';
                     }
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 >
                   <option value="">Selecteer groep om leerkrachten toe te voegen</option>
                   {groups.map((group) => (
@@ -1667,7 +1667,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-gray-600">Geselecteerde notificaties:</label>
                   {selectedNotifications.map((notification, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-amber-50 rounded border">
+                    <div key={index} className="flex items-center justify-between p-2 bg-blue-50 rounded border">
                       <span className="text-sm">
                         {notification.type === 'teacher' 
                           ? `Docent: ${teachers.find(t => t.id === notification.id)?.first_name} ${teachers.find(t => t.id === notification.id)?.last_name}`

@@ -262,7 +262,7 @@ export function EFSchoolAnalytics({ schoolId, schoolName, onNavigateBack, onNavi
           <button
             onClick={() => setScope('class')}
             className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium transition-colors ${
-              scope === 'class' ? 'bg-#946B29 text-white' : 'text-gray-600 hover:bg-gray-50'
+              scope === 'class' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
@@ -271,7 +271,7 @@ export function EFSchoolAnalytics({ schoolId, schoolName, onNavigateBack, onNavi
           <button
             onClick={() => setScope('school')}
             className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium transition-colors ${
-              scope === 'school' ? 'bg-#946B29 text-white' : 'text-gray-600 hover:bg-gray-50'
+              scope === 'school' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'
             }`}
           >
             <School className="w-3.5 h-3.5" />
@@ -283,7 +283,7 @@ export function EFSchoolAnalytics({ schoolId, schoolName, onNavigateBack, onNavi
           <select
             value={selectedGroupId}
             onChange={e => setSelectedGroupId(e.target.value)}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {groups.map(g => (
               <option key={g.id} value={g.id}>{g.name}</option>
@@ -294,7 +294,7 @@ export function EFSchoolAnalytics({ schoolId, schoolName, onNavigateBack, onNavi
 
       {loading ? (
         <div className="flex items-center justify-center h-48">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
@@ -315,7 +315,7 @@ export function EFSchoolAnalytics({ schoolId, schoolName, onNavigateBack, onNavi
             return (
               <div key={stat.functionId} className="border-b border-gray-50 last:border-0">
                 <div
-                  className={`grid grid-cols-[2fr_3fr_3fr_auto] gap-4 px-5 py-3.5 items-center cursor-pointer transition-colors ${isExpanded ? 'bg-amber-50' : 'hover:bg-gray-50'}`}
+                  className={`grid grid-cols-[2fr_3fr_3fr_auto] gap-4 px-5 py-3.5 items-center cursor-pointer transition-colors ${isExpanded ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
                   onClick={() => setExpandedFunction(isExpanded ? null : stat.functionId)}
                 >
                   <div className="flex items-center gap-2">
@@ -335,7 +335,7 @@ export function EFSchoolAnalytics({ schoolId, schoolName, onNavigateBack, onNavi
 
                 {/* Expanded: student ranking */}
                 {isExpanded && (
-                  <div className="bg-amber-50 border-t border-amber-100 px-5 py-3">
+                  <div className="bg-blue-50 border-t border-blue-100 px-5 py-3">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
                       Scores per leerling — {fn.name}
                     </p>
@@ -349,7 +349,7 @@ export function EFSchoolAnalytics({ schoolId, schoolName, onNavigateBack, onNavi
                             className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 cursor-pointer hover:shadow-sm transition-shadow"
                             onClick={() => onNavigateToStudent(s.studentId, s.studentName)}
                           >
-                            <div className="w-7 h-7 rounded-full bg-amber-100 text-#74531F flex items-center justify-center text-xs font-bold flex-shrink-0">
+                            <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                               {s.studentName.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase()}
                             </div>
                             <span className="flex-1 text-sm font-medium text-gray-900 truncate">{s.studentName}</span>

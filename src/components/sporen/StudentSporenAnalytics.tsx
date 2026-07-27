@@ -240,8 +240,8 @@ export function StudentSporenAnalytics({ schoolId, groups }: StudentSporenAnalyt
     <div className="space-y-5">
       <div className="bg-white rounded-xl border border-gray-200 p-5">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-            <User className="w-4 h-4 text-#946B29" />
+          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+            <User className="w-4 h-4 text-blue-600" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-gray-900">Leerling selecteren</h3>
@@ -257,7 +257,7 @@ export function StudentSporenAnalytics({ schoolId, groups }: StudentSporenAnalyt
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Naam of leerlingnummer..."
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <div>
@@ -269,7 +269,7 @@ export function StudentSporenAnalytics({ schoolId, groups }: StudentSporenAnalyt
                 setExpandedSubjectId(null);
               }}
               disabled={loadingStudents}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400"
             >
               <option value="">
                 {loadingStudents ? 'Laden...' : `Selecteer een leerling (${filteredStudents.length})`}
@@ -293,7 +293,7 @@ export function StudentSporenAnalytics({ schoolId, groups }: StudentSporenAnalyt
 
       {selectedStudentId && loading && (
         <div className="flex items-center justify-center py-16">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       )}
 
@@ -442,7 +442,7 @@ export function StudentSporenAnalytics({ schoolId, groups }: StudentSporenAnalyt
                               key={i}
                               className={`flex items-start gap-3 p-3 rounded-lg border ${
                                 session.is_current
-                                  ? 'bg-amber-50 border-amber-200'
+                                  ? 'bg-blue-50 border-blue-200'
                                   : 'bg-white border-gray-200'
                               }`}
                             >
@@ -459,7 +459,7 @@ export function StudentSporenAnalytics({ schoolId, groups }: StudentSporenAnalyt
                                     {session.spoor_name}
                                   </span>
                                   {session.is_current && (
-                                    <span className="text-xs text-#946B29 font-medium">Huidig</span>
+                                    <span className="text-xs text-blue-600 font-medium">Huidig</span>
                                   )}
                                   {session.needs_attention && (
                                     <span className="flex items-center gap-1 text-xs text-red-600">

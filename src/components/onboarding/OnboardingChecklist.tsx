@@ -197,14 +197,14 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Welcome hero */}
-      <div className="rounded-2xl bg-#946B29 px-8 py-10 text-white">
+      <div className="rounded-2xl bg-blue-600 px-8 py-10 text-white">
         <div>
           <div className="flex items-center space-x-2 mb-3">
-            <Sparkles className="w-5 h-5 text-amber-200" />
-            <span className="text-amber-200 text-sm font-medium uppercase tracking-wide">Welkom bij bijleer.school</span>
+            <Sparkles className="w-5 h-5 text-blue-200" />
+            <span className="text-blue-200 text-sm font-medium uppercase tracking-wide">Welkom bij bijleer.school</span>
           </div>
           <h1 className="text-3xl font-bold mb-2">Ontdek bijleer.school</h1>
-          <p className="text-amber-100 text-lg leading-relaxed max-w-lg">
+          <p className="text-blue-100 text-lg leading-relaxed max-w-lg">
             Laten we samen jouw school klaarzetten. Volg de stappen hieronder om alles in te stellen — het duurt maar een paar minuten.
           </p>
         </div>
@@ -217,11 +217,11 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
             <h2 className="font-semibold text-gray-900">Voortgang instellen</h2>
             <p className="text-sm text-gray-500">{completedCount} van {totalCount} stappen voltooid</p>
           </div>
-          <span className="text-2xl font-bold text-#946B29">{progressPercent}%</span>
+          <span className="text-2xl font-bold text-blue-600">{progressPercent}%</span>
         </div>
         <div className="w-full bg-gray-100 rounded-full h-2.5">
           <div
-            className="bg-#946B29 h-2.5 rounded-full transition-all duration-700"
+            className="bg-blue-600 h-2.5 rounded-full transition-all duration-700"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -266,7 +266,7 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
                 item.done
                   ? 'border-green-200 bg-green-50'
                   : expandedItem === item.id
-                  ? 'border-amber-200 bg-amber-50'
+                  ? 'border-blue-200 bg-blue-50'
                   : 'border-gray-200 bg-white hover:border-gray-300'
               }`}
             >
@@ -284,7 +284,7 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
                   )}
                 </div>
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  item.done ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-#946B29'
+                  item.done ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'
                 }`}>
                   {item.icon}
                 </div>
@@ -305,11 +305,11 @@ export function OnboardingChecklist({ focusSchool, onNavigateToSchools, onNaviga
                 <div className="px-5 pb-5">
                   <div className="border-t border-gray-200 pt-4 space-y-4">
                     <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
-                    <div className="bg-amber-50 border border-amber-100 rounded-lg px-4 py-3 flex items-start space-x-3">
-                      <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 flex items-start space-x-3">
+                      <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                         <span className="text-white text-xs font-bold">!</span>
                       </div>
-                      <p className="text-#5C4118 text-sm">{item.tip}</p>
+                      <p className="text-blue-800 text-sm">{item.tip}</p>
                     </div>
                     {!item.done && (
                       <Button size="sm" onClick={item.onAction}>

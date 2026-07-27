@@ -226,7 +226,7 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
 
             {loading ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29 mx-auto"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
               </div>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -243,7 +243,7 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
                           type="checkbox"
                           checked={selectedStudents.has(student.id)}
                           onChange={() => handleStudentToggle(student.id)}
-                          className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
+                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                         />
                         <div className="flex-1">
                           <p className="font-medium text-gray-900">
@@ -272,7 +272,7 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
                           type="checkbox"
                           checked={selectedGroups.has(group.id)}
                           onChange={() => handleGroupToggle(group.id)}
-                          className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
+                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                         />
                         <Users className="w-5 h-5 text-gray-400" />
                         <div className="flex-1">
@@ -300,7 +300,7 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
                   type="checkbox"
                   checked={isPush}
                   onChange={(e) => setIsPush(e.target.checked)}
-                  className="mt-1 w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
+                  className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                 />
                 <div>
                   <div className="flex items-center gap-2">
@@ -316,7 +316,7 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
                   type="checkbox"
                   checked={isFavorite}
                   onChange={(e) => setIsFavorite(e.target.checked)}
-                  className="mt-1 w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
+                  className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                 />
                 <div>
                   <div className="flex items-center gap-2">
@@ -336,11 +336,11 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
                       setHasClickLimit(e.target.checked);
                       if (!e.target.checked) setClickLimit(null);
                     }}
-                    className="mt-1 w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
+                    className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                   />
                   <div>
                     <div className="flex items-center gap-2">
-                      <Hash className="w-4 h-4 text-amber-500" />
+                      <Hash className="w-4 h-4 text-blue-500" />
                       <span className="font-medium text-gray-900">Click Limit</span>
                     </div>
                     <p className="text-sm text-gray-600">Limit number of times content can be accessed</p>

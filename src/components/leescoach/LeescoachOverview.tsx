@@ -4,7 +4,18 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { Plus, BarChart3, Settings, List, Grid2x2 as Grid, Search, Calendar, Book, User, Download } from 'lucide-react';
+import {
+  Plus,
+  BarChart3,
+  Settings,
+  List,
+  Grid,
+  Search,
+  Calendar,
+  Book,
+  User,
+  Download
+} from 'lucide-react';
 import { SessionDetailsModal } from './SessionDetailsModal';
 
 interface Session {
@@ -304,7 +315,7 @@ export function LeescoachOverview({
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="7">Laatste 7 dagen</option>
             <option value="30">Laatste 30 dagen</option>
@@ -315,13 +326,13 @@ export function LeescoachOverview({
           <div className="flex gap-2 border border-gray-300 rounded-lg p-1">
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded ${viewMode === 'list' ? 'bg-amber-100 text-#74531F' : 'text-gray-600'}`}
+              className={`p-2 rounded ${viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'text-gray-600'}`}
             >
               <List className="w-5 h-5" />
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded ${viewMode === 'grid' ? 'bg-amber-100 text-#74531F' : 'text-gray-600'}`}
+              className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'text-gray-600'}`}
             >
               <Grid className="w-5 h-5" />
             </button>
@@ -456,7 +467,7 @@ export function LeescoachOverview({
                           Laatste sessie: {daysSince === 0 ? 'Vandaag' : `${daysSince} dagen geleden`}
                         </p>
                         {student.next_session_date && (
-                          <p className="text-#946B29 font-medium">
+                          <p className="text-blue-600 font-medium">
                             Volgende: {new Date(student.next_session_date).toLocaleDateString('nl-NL')}
                           </p>
                         )}

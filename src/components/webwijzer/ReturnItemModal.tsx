@@ -22,7 +22,7 @@ const EMOTIONS = [
   { value: 'happy', label: 'Blij', icon: Smile, color: 'text-yellow-500' },
   { value: 'love', label: 'Geweldig', icon: Heart, color: 'text-red-500' },
   { value: 'neutral', label: 'Oké', icon: Meh, color: 'text-gray-500' },
-  { value: 'sad', label: 'Niet leuk', icon: Frown, color: 'text-amber-500' }
+  { value: 'sad', label: 'Niet leuk', icon: Frown, color: 'text-blue-500' }
 ];
 
 export function ReturnItemModal({ item, studentId, onClose, onComplete }: ReturnItemModalProps) {
@@ -292,7 +292,7 @@ export function ReturnItemModal({ item, studentId, onClose, onComplete }: Return
                         onClick={() => setEmotion(emo.value)}
                         className={`p-4 rounded-lg border-2 transition-colors ${
                           emotion === emo.value
-                            ? 'border-amber-500 bg-amber-50'
+                            ? 'border-blue-500 bg-blue-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
@@ -315,7 +315,7 @@ export function ReturnItemModal({ item, studentId, onClose, onComplete }: Return
               onChange={(e) => setTextFeedback(e.target.value)}
               placeholder="Wat vond je ervan? Zou je het aanraden aan anderen?"
               rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
@@ -328,7 +328,7 @@ export function ReturnItemModal({ item, studentId, onClose, onComplete }: Return
                 {!isRecording ? (
                   <button
                     onClick={startRecording}
-                    className="inline-flex items-center px-6 py-3 bg-#946B29 text-white rounded-lg hover:bg-#74531F transition-colors"
+                    className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     <Mic className="w-5 h-5 mr-2" />
                     Start Opname
@@ -354,7 +354,7 @@ export function ReturnItemModal({ item, studentId, onClose, onComplete }: Return
                 <audio src={audioUrl} controls className="w-full" />
                 <button
                   onClick={retryRecording}
-                  className="text-sm text-#946B29 hover:text-#74531F font-medium"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Opnieuw opnemen
                 </button>
@@ -379,7 +379,7 @@ export function ReturnItemModal({ item, studentId, onClose, onComplete }: Return
                   />
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="inline-flex items-center px-6 py-3 bg-#946B29 text-white rounded-lg hover:bg-#74531F transition-colors"
+                    className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     <Camera className="w-5 h-5 mr-2" />
                     Foto maken
@@ -394,7 +394,7 @@ export function ReturnItemModal({ item, studentId, onClose, onComplete }: Return
                   />
                   <button
                     onClick={removePhoto}
-                    className="text-sm text-#946B29 hover:text-#74531F font-medium"
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                   >
                     Andere foto kiezen
                   </button>

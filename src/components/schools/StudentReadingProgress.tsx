@@ -171,7 +171,7 @@ export function StudentReadingProgress({ studentId, schoolId }: StudentReadingPr
     return (
       <Card>
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-#946B29"></div>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
         </div>
       </Card>
     );
@@ -189,7 +189,7 @@ export function StudentReadingProgress({ studentId, schoolId }: StudentReadingPr
             onClick={() => setViewMode('time')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               viewMode === 'time'
-                ? 'bg-white text-#946B29 shadow-sm'
+                ? 'bg-white text-blue-600 shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -200,7 +200,7 @@ export function StudentReadingProgress({ studentId, schoolId }: StudentReadingPr
             onClick={() => setViewMode('book')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               viewMode === 'book'
-                ? 'bg-white text-#946B29 shadow-sm'
+                ? 'bg-white text-blue-600 shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -211,12 +211,12 @@ export function StudentReadingProgress({ studentId, schoolId }: StudentReadingPr
       </div>
 
       <div className="grid grid-cols-5 gap-4 mb-6">
-        <div className="bg-amber-50 rounded-lg p-4">
+        <div className="bg-blue-50 rounded-lg p-4">
           <div className="flex items-center space-x-2 mb-2">
-            <BookOpen className="w-4 h-4 text-#946B29" />
-            <p className="text-xs text-#946B29 font-medium">Sessies</p>
+            <BookOpen className="w-4 h-4 text-blue-600" />
+            <p className="text-xs text-blue-600 font-medium">Sessies</p>
           </div>
-          <p className="text-2xl font-bold text-#3D2B10">{stats.totalSessions}</p>
+          <p className="text-2xl font-bold text-blue-900">{stats.totalSessions}</p>
         </div>
 
         <div className="bg-green-50 rounded-lg p-4">
@@ -243,12 +243,12 @@ export function StudentReadingProgress({ studentId, schoolId }: StudentReadingPr
           <p className="text-2xl font-bold text-pink-900">{stats.uniqueBooks}</p>
         </div>
 
-        <div className="bg-amber-50 rounded-lg p-4">
+        <div className="bg-purple-50 rounded-lg p-4">
           <div className="flex items-center space-x-2 mb-2">
-            <BarChart3 className="w-4 h-4 text-#946B29" />
-            <p className="text-xs text-#946B29 font-medium">Gem. sessie</p>
+            <BarChart3 className="w-4 h-4 text-purple-600" />
+            <p className="text-xs text-purple-600 font-medium">Gem. sessie</p>
           </div>
-          <p className="text-2xl font-bold text-#3D2B10">{formatDuration(stats.averageSessionMinutes)}</p>
+          <p className="text-2xl font-bold text-purple-900">{formatDuration(stats.averageSessionMinutes)}</p>
         </div>
       </div>
 
@@ -284,7 +284,7 @@ export function StudentReadingProgress({ studentId, schoolId }: StudentReadingPr
                           )}
                         </div>
                         {session.duration_minutes && (
-                          <span className="px-3 py-1 bg-amber-100 text-#74531F rounded-full text-sm font-medium">
+                          <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                             {formatDuration(session.duration_minutes)}
                           </span>
                         )}
@@ -364,9 +364,9 @@ export function StudentReadingProgress({ studentId, schoolId }: StudentReadingPr
                       </div>
 
                       <div className="grid grid-cols-4 gap-4">
-                        <div className="bg-amber-50 rounded p-3">
-                          <p className="text-xs text-#946B29 mb-1">Sessies</p>
-                          <p className="text-lg font-bold text-#3D2B10">{book.total_sessions}</p>
+                        <div className="bg-blue-50 rounded p-3">
+                          <p className="text-xs text-blue-600 mb-1">Sessies</p>
+                          <p className="text-lg font-bold text-blue-900">{book.total_sessions}</p>
                         </div>
 
                         <div className="bg-green-50 rounded p-3">
@@ -381,9 +381,9 @@ export function StudentReadingProgress({ studentId, schoolId }: StudentReadingPr
                           <p className="text-lg font-bold text-orange-900">{book.total_pages_read}</p>
                         </div>
 
-                        <div className="bg-amber-50 rounded p-3">
-                          <p className="text-xs text-#946B29 mb-1">Gem. per sessie</p>
-                          <p className="text-lg font-bold text-#3D2B10">
+                        <div className="bg-purple-50 rounded p-3">
+                          <p className="text-xs text-purple-600 mb-1">Gem. per sessie</p>
+                          <p className="text-lg font-bold text-purple-900">
                             {formatDuration(Math.round(book.total_duration_minutes / book.total_sessions))}
                           </p>
                         </div>

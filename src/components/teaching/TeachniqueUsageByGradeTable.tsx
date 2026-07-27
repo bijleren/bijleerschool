@@ -155,7 +155,7 @@ export function TechniqueUsageByGradeTable({ schoolId, dateRange }: TechniqueUsa
   if (loading) {
     return (
       <div className="flex items-center justify-center h-32">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -192,8 +192,8 @@ export function TechniqueUsageByGradeTable({ schoolId, dateRange }: TechniqueUsa
             <tr key={technique.technique_id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
               <td className="px-6 py-4">
                 <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <BookOpen className="w-5 h-5 text-#946B29" />
+                  <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                    <BookOpen className="w-5 h-5 text-indigo-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
@@ -232,14 +232,14 @@ export function TechniqueUsageByGradeTable({ schoolId, dateRange }: TechniqueUsa
                   <td key={grade.id} className="px-3 py-4 text-center">
                     <div className="flex flex-col items-center">
                       <span className={`text-sm font-bold ${
-                        count > 0 ? 'text-#946B29' : 'text-gray-300'
+                        count > 0 ? 'text-indigo-600' : 'text-gray-300'
                       }`}>
                         {count > 0 ? `${count} (${teacherCount})` : '0'}
                       </span>
                       {count > 0 && (
                         <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
                           <div 
-                            className="bg-#946B29 h-1 rounded-full"
+                            className="bg-indigo-600 h-1 rounded-full"
                             style={{ 
                               width: `${Math.min(100, (count / Math.max(...Object.values(technique.grade_usage))) * 100)}%` 
                             }}

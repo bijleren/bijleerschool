@@ -242,7 +242,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -264,7 +264,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="7">Laatste 7 dagen</option>
             <option value="30">Laatste 30 dagen</option>
@@ -278,8 +278,8 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card>
           <div className="flex items-center">
-            <div className="p-2 bg-amber-100 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-#946B29" />
+            <div className="p-2 bg-indigo-100 rounded-lg">
+              <TrendingUp className="w-6 h-6 text-indigo-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Totaal incidenten</p>
@@ -336,14 +336,14 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
             {studentFrequencies.slice(0, 10).map((student, index) => (
               <div key={student.student_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-#946B29">{index + 1}</span>
+                  <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-indigo-600">{index + 1}</span>
                   </div>
                   <div>
                     {onNavigateToStudent ? (
                       <button
                         onClick={() => onNavigateToStudent(schoolId, student.student_id)}
-                        className="font-medium text-gray-900 hover:text-#946B29 transition-colors text-left"
+                        className="font-medium text-gray-900 hover:text-indigo-600 transition-colors text-left"
                       >
                         {student.student_name}
                       </button>
@@ -482,14 +482,14 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
             Recente trends
           </h3>
           <div className="space-y-4">
-            <div className="p-4 bg-amber-50 rounded-lg">
-              <h4 className="font-medium text-#3D2B10 mb-2">Meest voorkomende gedrag</h4>
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-2">Meest voorkomende gedrag</h4>
               {categoryStats.length > 0 ? (
-                <p className="text-#5C4118">
+                <p className="text-blue-800">
                   {categoryStats[0].category_name} ({categoryStats[0].incident_count} incidenten)
                 </p>
               ) : (
-                <p className="text-#5C4118">Geen data beschikbaar</p>
+                <p className="text-blue-800">Geen data beschikbaar</p>
               )}
             </div>
             
@@ -524,7 +524,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
       {/* Time of Day Analysis */}
       <Card className="mt-8">
         <div className="flex items-center mb-4">
-          <Clock className="w-5 h-5 text-#946B29 mr-2" />
+          <Clock className="w-5 h-5 text-blue-600 mr-2" />
           <h3 className="text-lg font-semibold text-gray-900">
             Incidenten per tijdstip
           </h3>
@@ -566,7 +566,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
                     }}
                     className={`transition-colors ${
                       stat.incident_count > 0
-                        ? 'hover:bg-amber-50 cursor-pointer'
+                        ? 'hover:bg-blue-50 cursor-pointer'
                         : 'opacity-50'
                     }`}
                   >
@@ -595,7 +595,7 @@ export function BehaviorAnalytics({ schoolId, onBack, onNavigateToStudent, onFil
                           }}
                         >
                           {stat.incident_count > 0 && (
-                            <span className="text-xs font-medium text-#3D2B10">
+                            <span className="text-xs font-medium text-blue-900">
                               {stat.incident_count}
                             </span>
                           )}

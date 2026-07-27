@@ -317,7 +317,7 @@ export function TemplateConnections({ schoolId, onBack, templates }: TemplateCon
                     value={selectedTemplateId}
                     onChange={(e) => setSelectedTemplateId(e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   >
                     <option value="">Selecteer template</option>
                     {templates.map((template) => (
@@ -336,7 +336,7 @@ export function TemplateConnections({ schoolId, onBack, templates }: TemplateCon
                       type="date"
                       value={effectiveFrom}
                       onChange={(e) => setEffectiveFrom(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
                   <div>
@@ -347,7 +347,7 @@ export function TemplateConnections({ schoolId, onBack, templates }: TemplateCon
                       type="date"
                       value={effectiveUntil}
                       onChange={(e) => setEffectiveUntil(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
                 </div>
@@ -357,7 +357,7 @@ export function TemplateConnections({ schoolId, onBack, templates }: TemplateCon
                     id="schoolDefault"
                     checked={isDefault}
                     onChange={(e) => setIsDefault(e.target.checked)}
-                    className="h-4 w-4 text-#946B29 focus:ring-amber-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                   />
                   <label htmlFor="schoolDefault" className="ml-2 block text-sm text-gray-900">
                     Standaard template voor school
@@ -447,7 +447,7 @@ export function TemplateConnections({ schoolId, onBack, templates }: TemplateCon
                       value={selectedGroupId}
                       onChange={(e) => setSelectedGroupId(e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     >
                       <option value="">Selecteer groep</option>
                       {groups.map((group) => (
@@ -465,7 +465,7 @@ export function TemplateConnections({ schoolId, onBack, templates }: TemplateCon
                       value={selectedTemplateId}
                       onChange={(e) => setSelectedTemplateId(e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     >
                       <option value="">Selecteer template</option>
                       {templates.map((template) => (
@@ -485,7 +485,7 @@ export function TemplateConnections({ schoolId, onBack, templates }: TemplateCon
                       type="date"
                       value={effectiveFrom}
                       onChange={(e) => setEffectiveFrom(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
                   <div>
@@ -496,7 +496,7 @@ export function TemplateConnections({ schoolId, onBack, templates }: TemplateCon
                       type="date"
                       value={effectiveUntil}
                       onChange={(e) => setEffectiveUntil(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
                 </div>
@@ -506,7 +506,7 @@ export function TemplateConnections({ schoolId, onBack, templates }: TemplateCon
                     id="groupDefault"
                     checked={isDefault}
                     onChange={(e) => setIsDefault(e.target.checked)}
-                    className="h-4 w-4 text-#946B29 focus:ring-amber-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                   />
                   <label htmlFor="groupDefault" className="ml-2 block text-sm text-gray-900">
                     Standaard template voor groep

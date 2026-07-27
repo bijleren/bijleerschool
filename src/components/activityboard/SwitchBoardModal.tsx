@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { X, AlertTriangle, Grid2x2 as Grid } from 'lucide-react';
+import { X, AlertTriangle, Grid } from 'lucide-react';
 
 interface SwitchBoardModalProps {
   currentBoardName: string;
@@ -68,10 +68,10 @@ export function SwitchBoardModal({
               <div className="w-8 h-8 mx-auto text-gray-400">↓</div>
             </div>
 
-            <div className="bg-amber-50 rounded-lg p-3">
-              <p className="text-xs text-#946B29 mb-1">Nieuw bord</p>
+            <div className="bg-blue-50 rounded-lg p-3">
+              <p className="text-xs text-blue-600 mb-1">Nieuw bord</p>
               <div className="flex items-center gap-2">
-                <Grid className="w-4 h-4 text-amber-500" />
+                <Grid className="w-4 h-4 text-blue-500" />
                 <p className="font-medium text-gray-900">{newBoardName}</p>
               </div>
             </div>

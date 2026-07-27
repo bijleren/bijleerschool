@@ -44,7 +44,7 @@ interface FloatingLabel {
 const CATEGORIES = ['Alle', 'Werkgeheugen', 'Inhibitie', 'Flexibiliteit', 'Planning', 'Taakinitiatie', 'Emotieregulatie', 'Zelfmonitoring', 'Timemanagement'];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Werkgeheugen: 'bg-amber-100 text-#74531F',
+  Werkgeheugen: 'bg-blue-100 text-blue-700',
   Inhibitie: 'bg-red-100 text-red-700',
   Flexibiliteit: 'bg-green-100 text-green-700',
   Planning: 'bg-amber-100 text-amber-700',
@@ -300,7 +300,7 @@ export function GedragskaartTab({ focusSchool }: { focusSchool: { id: string; na
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
       </div>
     );
   }
@@ -325,7 +325,7 @@ export function GedragskaartTab({ focusSchool }: { focusSchool: { id: string; na
 
           {/* Group selector */}
           <div className="relative">
-            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm cursor-pointer hover:border-amber-500 transition-colors min-w-[160px]">
+            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm cursor-pointer hover:border-blue-400 transition-colors min-w-[160px]">
               <Users className="w-4 h-4 text-gray-400 flex-shrink-0" />
               <select
                 value={selectedGroupId}
@@ -351,8 +351,8 @@ export function GedragskaartTab({ focusSchool }: { focusSchool: { id: string; na
               disabled={!selectedGroupId}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm border transition-colors min-w-[180px]
                 ${selectedStudentId
-                  ? 'bg-amber-50 border-amber-300 text-#74531F'
-                  : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-amber-300 disabled:opacity-40 disabled:cursor-not-allowed'}`}
+                  ? 'bg-blue-50 border-blue-300 text-blue-700'
+                  : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-blue-300 disabled:opacity-40 disabled:cursor-not-allowed'}`}
             >
               {selectedStudentId && selectedStudent ? (
                 <>
@@ -367,7 +367,7 @@ export function GedragskaartTab({ focusSchool }: { focusSchool: { id: string; na
                   </span>
                   <button
                     onClick={e => { e.stopPropagation(); setSelectedStudentId(''); }}
-                    className="text-amber-500 hover:text-#946B29"
+                    className="text-blue-400 hover:text-blue-600"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -391,7 +391,7 @@ export function GedragskaartTab({ focusSchool }: { focusSchool: { id: string; na
                       key={s.id}
                       onClick={() => { setSelectedStudentId(s.id); setShowStudentPicker(false); }}
                       className={`w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-left
-                        ${selectedStudentId === s.id ? 'bg-amber-50' : ''}`}
+                        ${selectedStudentId === s.id ? 'bg-blue-50' : ''}`}
                     >
                       <div
                         className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
@@ -493,7 +493,7 @@ export function GedragskaartTab({ focusSchool }: { focusSchool: { id: string; na
           <button
             onClick={() => setShowFocusMode(true)}
             disabled={activeCards.length === 0 || !selectedStudentId}
-            className="px-3 py-1.5 text-xs font-semibold bg-#946B29 text-white rounded-lg hover:bg-#74531F disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
+            className="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
           >
             <Target className="w-3.5 h-3.5" />
             Focus ({activeCards.length})
@@ -544,7 +544,7 @@ export function GedragskaartTab({ focusSchool }: { focusSchool: { id: string; na
           {selectedStudentId && selectedStudent && (
             <>
               <span>·</span>
-              <span className="text-#946B29 font-semibold">
+              <span className="text-blue-600 font-semibold">
                 {selectedStudent.first_name} {selectedStudent.last_name}
               </span>
             </>

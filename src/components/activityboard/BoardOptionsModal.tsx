@@ -50,14 +50,14 @@ export function BoardOptionsModal({
                   onClick={() => onModeChange('teacher')}
                   className={`p-4 rounded-lg border-2 transition-all ${
                     mode === 'teacher'
-                      ? 'border-amber-500 bg-amber-50'
+                      ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        mode === 'teacher' ? 'bg-amber-500' : 'bg-gray-200'
+                        mode === 'teacher' ? 'bg-blue-500' : 'bg-gray-200'
                       }`}
                     >
                       <User
@@ -77,14 +77,14 @@ export function BoardOptionsModal({
                   onClick={() => onModeChange('student')}
                   className={`p-4 rounded-lg border-2 transition-all ${
                     mode === 'student'
-                      ? 'border-amber-500 bg-amber-50'
+                      ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        mode === 'student' ? 'bg-amber-500' : 'bg-gray-200'
+                        mode === 'student' ? 'bg-blue-500' : 'bg-gray-200'
                       }`}
                     >
                       <UsersIcon
@@ -113,7 +113,7 @@ export function BoardOptionsModal({
                   <button
                     onClick={onToggleScanner}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      showScanner ? 'bg-#946B29' : 'bg-gray-200'
+                      showScanner ? 'bg-blue-600' : 'bg-gray-200'
                     }`}
                   >
                     <span

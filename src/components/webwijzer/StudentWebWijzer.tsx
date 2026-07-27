@@ -632,7 +632,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-green-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4">
       {showTimeoutWarning && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
@@ -854,7 +854,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
 
         {loading ? (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-#946B29 mx-auto"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
           </div>
         ) : (
           <div className="space-y-8">
@@ -910,7 +910,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
                       <button
                         key={assignment.id}
                         onClick={() => handleContentClick(assignment)}
-                        className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 focus:ring-4 focus:ring-amber-300 focus:outline-none"
+                        className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 focus:ring-4 focus:ring-blue-300 focus:outline-none"
                         style={{ borderTop: `6px solid ${assignment.webwijzer_content.color}` }}
                         aria-label={`Open ${assignment.webwijzer_content.title}`}
                         role="listitem"
@@ -1056,7 +1056,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
                     Dit activiteitenbord is beëindigd door je leerkracht
                   </p>
                 </div>
-                <div className="text-4xl font-bold text-#946B29" aria-live="polite" aria-atomic="true">
+                <div className="text-4xl font-bold text-blue-600" aria-live="polite" aria-atomic="true">
                   {deactivationCountdown}
                 </div>
                 <Button
@@ -1145,7 +1145,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
                         )}
                         <div className="flex gap-1 mt-1 flex-wrap">
                           {fiche.hulpfiche_leerjaren.map(l => (
-                            <span key={l.leerjaar} className="text-xs bg-amber-50 text-#946B29 px-1.5 py-0.5 rounded-full">
+                            <span key={l.leerjaar} className="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">
                               {l.leerjaar}
                             </span>
                           ))}
@@ -1156,7 +1156,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
                           href={fiche.file_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-shrink-0 px-3 py-1.5 bg-#946B29 text-white text-sm font-medium rounded-lg hover:bg-#74531F transition-colors"
+                          className="flex-shrink-0 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                           aria-label={`Open ${fiche.title}`}
                         >
                           Openen

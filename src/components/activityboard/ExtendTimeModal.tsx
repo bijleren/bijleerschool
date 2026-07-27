@@ -103,8 +103,8 @@ export function ExtendTimeModal({
         </div>
 
         <div className="p-6 space-y-6">
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-sm text-#5C4118">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-sm text-blue-800">
               <Clock className="w-4 h-4" />
               <span>Huidige eindtijd:</span>
               <span className="font-semibold">
@@ -115,7 +115,7 @@ export function ExtendTimeModal({
               </span>
             </div>
             {newEndTime && (
-              <div className="flex items-center gap-2 text-sm text-#3D2B10 mt-2 font-medium">
+              <div className="flex items-center gap-2 text-sm text-blue-900 mt-2 font-medium">
                 <Plus className="w-4 h-4" />
                 <span>Nieuwe eindtijd:</span>
                 <span className="font-bold">{newEndTime}</span>
@@ -136,7 +136,7 @@ export function ExtendTimeModal({
                   disabled={submitting}
                   className={`px-4 py-3 border-2 rounded-lg font-medium transition-all ${
                     selectedDuration === preset.value && !useCustom
-                      ? 'border-amber-500 bg-amber-50 text-#74531F'
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
                       : 'border-gray-200 hover:border-gray-300 text-gray-700'
                   } ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
@@ -157,9 +157,9 @@ export function ExtendTimeModal({
                 min="1"
                 max="120"
                 disabled={submitting}
-                className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent w-32 ${
+                className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-32 ${
                   useCustom && selectedDuration
-                    ? 'border-amber-500 bg-amber-50'
+                    ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-300'
                 }`}
               />

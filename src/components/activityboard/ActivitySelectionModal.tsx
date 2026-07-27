@@ -62,8 +62,8 @@ export function ActivitySelectionModal({
                 className="w-10 h-10 rounded-full object-cover"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                <span className="text-#946B29 font-medium">
+              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <span className="text-blue-600 font-medium">
                   {student.first_name[0]}
                   {student.last_name[0]}
                 </span>
@@ -106,7 +106,7 @@ export function ActivitySelectionModal({
                     onClick={() => setSelectedActivity(activity.id)}
                     className={`p-4 rounded-lg border-2 transition-all text-left ${
                       selectedActivity === activity.id
-                        ? 'border-amber-500 bg-amber-50'
+                        ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >

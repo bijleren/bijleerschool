@@ -259,7 +259,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -291,7 +291,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
           <Card>
             <div className="p-4">
               <p className="text-sm text-gray-600 mb-1">Huidige boeken</p>
-              <p className="text-3xl font-bold text-#946B29">{selectedStudent.current_books}</p>
+              <p className="text-3xl font-bold text-blue-600">{selectedStudent.current_books}</p>
             </div>
           </Card>
           <Card>
@@ -309,7 +309,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
           <Card>
             <div className="p-4">
               <p className="text-sm text-gray-600 mb-1">Pagina's gelezen</p>
-              <p className="text-3xl font-bold text-#946B29">{selectedStudent.total_pages}</p>
+              <p className="text-3xl font-bold text-purple-600">{selectedStudent.total_pages}</p>
             </div>
           </Card>
           <Card>
@@ -331,7 +331,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
             <Card>
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-#946B29" />
+                  <BookOpen className="w-5 h-5 text-blue-600" />
                   Huidige boeken
                 </h3>
               <div className="space-y-4">
@@ -353,7 +353,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
                       </div>
                       {book.current_page && (
                         <div className="text-right">
-                          <p className="text-sm font-semibold text-#946B29">
+                          <p className="text-sm font-semibold text-blue-600">
                             Pagina {book.current_page}
                             {book.total_pages && ` / ${book.total_pages}`}
                           </p>
@@ -369,7 +369,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className="bg-#946B29 h-2 rounded-full transition-all"
+                            className="bg-blue-600 h-2 rounded-full transition-all"
                             style={{ width: `${book.progress_percentage}%` }}
                           />
                         </div>
@@ -455,7 +455,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
                   <select
                     value={selectedGroupId ?? ''}
                     onChange={(e) => setSelectedGroupId(e.target.value || null)}
-                    className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 text-gray-700 bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 text-gray-700 bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Alle klassen</option>
                     {groups.map(g => (
@@ -544,7 +544,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
                       className="hover:bg-gray-50 cursor-pointer transition-colors"
                     >
                       <td className="px-4 py-3">
-                        <div className="text-sm font-medium text-gray-900 hover:text-#946B29">
+                        <div className="text-sm font-medium text-gray-900 hover:text-blue-600">
                           {item.student.first_name} {item.student.last_name}
                         </div>
                       </td>
@@ -552,7 +552,7 @@ export function StudentBookManagement({ schoolId, initialStudentId, onClearStude
                         <div className="text-sm text-gray-500">{item.student.student_number || '-'}</div>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-semibold text-#946B29 bg-amber-50 rounded-full">
+                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full">
                           {item.current_books}
                         </span>
                       </td>

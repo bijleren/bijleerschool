@@ -102,8 +102,8 @@ export function BlinkQRDownloadModal({ code, title, onClose }: BlinkQRDownloadMo
                     onClick={() => setSelectedSize(option.size)}
                     className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
                       selectedSize === option.size
-                        ? 'border-#946B29 bg-amber-50'
-                        : 'border-gray-200 hover:border-amber-300'
+                        ? 'border-blue-600 bg-blue-50'
+                        : 'border-gray-200 hover:border-blue-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -117,7 +117,7 @@ export function BlinkQRDownloadModal({ code, title, onClose }: BlinkQRDownloadMo
                         </p>
                       </div>
                       {selectedSize === option.size && (
-                        <div className="w-5 h-5 bg-#946B29 rounded-full flex items-center justify-center">
+                        <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
                           <div className="w-2 h-2 bg-white rounded-full" />
                         </div>
                       )}
@@ -161,7 +161,7 @@ export function BlinkQRDownloadModal({ code, title, onClose }: BlinkQRDownloadMo
               <div className="bg-gray-50 rounded-lg p-6 flex items-center justify-center min-h-[400px]">
                 {loading ? (
                   <div className="flex flex-col items-center">
-                    <Loader2 className="w-8 h-8 text-#946B29 animate-spin mb-3" />
+                    <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
                     <p className="text-sm text-gray-600">Genereren...</p>
                   </div>
                 ) : previewUrl ? (
@@ -178,9 +178,9 @@ export function BlinkQRDownloadModal({ code, title, onClose }: BlinkQRDownloadMo
                 )}
               </div>
 
-              <div className="mt-4 p-4 bg-amber-50 rounded-lg">
-                <h4 className="text-sm font-semibold text-#3D2B10 mb-2">Tips voor gebruik:</h4>
-                <ul className="text-xs text-#5C4118 space-y-1">
+              <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                <h4 className="text-sm font-semibold text-blue-900 mb-2">Tips voor gebruik:</h4>
+                <ul className="text-xs text-blue-800 space-y-1">
                   <li>• Klein (300px): Perfect voor websites en digitale displays</li>
                   <li>• Normaal (600px): Ideaal voor social media posts</li>
                   <li>• Groot (1200px): Optimaal voor A5/A4 prints</li>

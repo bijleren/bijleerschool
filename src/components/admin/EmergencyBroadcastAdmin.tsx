@@ -27,11 +27,11 @@ const TYPES = [
   {
     value: 'info' as const,
     label: 'Info',
-    bg: 'bg-#946B29',
+    bg: 'bg-blue-600',
     text: 'text-white',
     Icon: Info,
-    preview: 'border-amber-300 bg-amber-50',
-    iconColor: 'text-#946B29',
+    preview: 'border-blue-300 bg-blue-50',
+    iconColor: 'text-blue-600',
   },
   {
     value: 'warning' as const,
@@ -54,7 +54,7 @@ const TYPES = [
 ];
 
 const bannerThemes = {
-  info: { bg: 'bg-#946B29', iconBg: 'bg-amber-500', Icon: Info },
+  info: { bg: 'bg-blue-600', iconBg: 'bg-blue-500', Icon: Info },
   warning: { bg: 'bg-amber-500', iconBg: 'bg-amber-400', Icon: AlertTriangle },
   danger: { bg: 'bg-red-600', iconBg: 'bg-red-500', Icon: Megaphone },
 };
@@ -269,7 +269,7 @@ export function EmergencyBroadcastAdmin() {
               value={formTitle}
               onChange={e => setFormTitle(e.target.value)}
               placeholder="Korte, duidelijke titel..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -298,7 +298,7 @@ export function EmergencyBroadcastAdmin() {
                   type="datetime-local"
                   value={formStartsAt}
                   onChange={e => setFormStartsAt(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -307,7 +307,7 @@ export function EmergencyBroadcastAdmin() {
                   type="datetime-local"
                   value={formEndsAt}
                   onChange={e => setFormEndsAt(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
