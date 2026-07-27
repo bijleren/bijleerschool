@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
-import { GraduationCap, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 export function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -20,9 +20,6 @@ export function AuthPage() {
       <div className="w-full max-w-md">
         {/* Logo and Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl mb-4 shadow-lg">
-            <GraduationCap className="w-8 h-8 text-white" />
-          </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">bijleer.school</h1>
           <p className="text-lg text-gray-600">Didactische toolkit voor leerkracht en leerling</p>
         </div>

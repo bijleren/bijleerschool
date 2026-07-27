@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { GraduationCap, LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid2x2 as Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library, Star, Brain, MessageSquare, Bug, Lightbulb, X, Send, HandHelping, FileText } from 'lucide-react';
+import { LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid2x2 as Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library, Star, Brain, MessageSquare, Bug, Lightbulb, X, Send, HandHelping, FileText } from 'lucide-react';
 
 interface UserSchool {
   id: string;
@@ -164,20 +164,17 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm">
+    <header className="bg-white border-b border-[#E8DCC8] shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-indigo-600 rounded-xl">
-              <GraduationCap className="w-6 h-6 text-white" />
-            </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h1 className="text-xl font-bold text-gray-900">bijleer.school</h1>
+                <h1 className="text-xl font-fredoka font-bold text-[#946B29]">bijleer.school</h1>
                 <button
                   onClick={() => setShowVersionModal(true)}
-                  className="flex items-center space-x-1 px-2 py-0.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-full hover:bg-indigo-100 transition-colors"
+                  className="flex items-center space-x-1 px-2 py-0.5 text-xs font-medium text-[#946B29] bg-amber-50 rounded-full hover:bg-amber-100 transition-colors"
                 >
                   <span>V1.4</span>
                   <Info className="w-3 h-3" />
@@ -191,7 +188,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
           <div className="flex items-center space-x-8">
             <button
               onClick={onNavigateToDashboard}
-              className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+              className="flex items-center space-x-2 text-gray-700 hover:text-[#946B29] transition-colors font-medium"
             >
               <BarChart3 className="w-5 h-5" />
               <span>Dashboard</span>
@@ -201,7 +198,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
             <div className="relative" ref={appsDropdownRef}>
               <button
                 onClick={() => setShowAppsDropdown(!showAppsDropdown)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+                className="flex items-center space-x-2 text-gray-700 hover:text-[#946B29] transition-colors font-medium"
               >
                 <Grid className="w-5 h-5" />
                 <span>Leerapps</span>
@@ -285,7 +282,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                       }}
                       className="w-full flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
                     >
-                      <GraduationCap className="w-4 h-4 mr-2" />
+                      <School className="w-4 h-4 mr-2" />
                       EDI
                     </button>
                     <button
@@ -331,7 +328,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
             <div className="relative" ref={slimmeICTDropdownRef}>
               <button
                 onClick={() => setShowSlimmeICTDropdown(!showSlimmeICTDropdown)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+                className="flex items-center space-x-2 text-gray-700 hover:text-[#946B29] transition-colors font-medium"
               >
                 <Sparkles className="w-5 h-5" />
                 <span>Slim delen</span>
@@ -434,7 +431,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
             <div className="relative" ref={didactiekDropdownRef}>
               <button
                 onClick={() => setShowDidactiekDropdown(!showDidactiekDropdown)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors font-medium"
+                className="flex items-center space-x-2 text-gray-700 hover:text-[#946B29] transition-colors font-medium"
               >
                 <BookOpen className="w-5 h-5" />
                 <span>Didactiek</span>
@@ -501,10 +498,10 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors p-2 rounded-lg hover:bg-gray-50"
+                className="flex items-center space-x-2 text-gray-700 hover:text-[#946B29] transition-colors p-2 rounded-lg hover:bg-amber-50"
               >
-                <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-indigo-600" />
+                <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-[#946B29]" />
                 </div>
                 <ChevronDown className={`w-4 h-4 transition-transform ${showProfileDropdown ? 'rotate-180' : ''}`} />
               </button>
