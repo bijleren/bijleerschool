@@ -130,7 +130,7 @@ export function BoekerTab({ focusSchool, userSchools = [] }: BoekerTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -159,7 +159,7 @@ export function BoekerTab({ focusSchool, userSchools = [] }: BoekerTabProps) {
                     const school = userSchools.find(s => s.id === e.target.value);
                     if (school) setSelectedSchool(school);
                   }}
-                  className="appearance-none pl-3 pr-8 py-1.5 text-sm bg-white border border-gray-300 rounded-lg text-gray-700 font-medium cursor-pointer hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="appearance-none pl-3 pr-8 py-1.5 text-sm bg-white border border-gray-300 rounded-lg text-gray-700 font-medium cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   {userSchools.map(s => (
                     <option key={s.id} value={s.id}>{s.name}</option>
@@ -184,7 +184,7 @@ export function BoekerTab({ focusSchool, userSchools = [] }: BoekerTabProps) {
           onClick={() => setCurrentView('library')}
           className={`px-4 py-2 font-medium transition-colors ${
             currentView === 'library'
-              ? 'text-#946B29 border-b-2 border-#946B29'
+              ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -195,7 +195,7 @@ export function BoekerTab({ focusSchool, userSchools = [] }: BoekerTabProps) {
           onClick={() => setCurrentView('materials')}
           className={`px-4 py-2 font-medium transition-colors ${
             currentView === 'materials'
-              ? 'text-#946B29 border-b-2 border-#946B29'
+              ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -206,7 +206,7 @@ export function BoekerTab({ focusSchool, userSchools = [] }: BoekerTabProps) {
           onClick={() => setCurrentView('students')}
           className={`px-4 py-2 font-medium transition-colors ${
             currentView === 'students'
-              ? 'text-#946B29 border-b-2 border-#946B29'
+              ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -217,7 +217,7 @@ export function BoekerTab({ focusSchool, userSchools = [] }: BoekerTabProps) {
           onClick={() => setCurrentView('activity')}
           className={`px-4 py-2 font-medium transition-colors ${
             currentView === 'activity'
-              ? 'text-#946B29 border-b-2 border-#946B29'
+              ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -228,7 +228,7 @@ export function BoekerTab({ focusSchool, userSchools = [] }: BoekerTabProps) {
           onClick={() => setCurrentView('analytics')}
           className={`px-4 py-2 font-medium transition-colors ${
             currentView === 'analytics'
-              ? 'text-#946B29 border-b-2 border-#946B29'
+              ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -239,7 +239,7 @@ export function BoekerTab({ focusSchool, userSchools = [] }: BoekerTabProps) {
           onClick={() => setCurrentView('tags')}
           className={`px-4 py-2 font-medium transition-colors ${
             currentView === 'tags'
-              ? 'text-#946B29 border-b-2 border-#946B29'
+              ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >

@@ -317,7 +317,7 @@ export function BlinkQRTab() {
               <p className="text-sm text-gray-600">School BlinkQRs</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">{schoolQRs.length}</p>
             </div>
-            <QrCode className="w-8 h-8 text-#946B29" />
+            <QrCode className="w-8 h-8 text-blue-600" />
           </div>
         </Card>
         <Card className="p-4">
@@ -344,7 +344,7 @@ export function BlinkQRTab() {
               <p className="text-sm text-gray-600">Deze Week</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">{recentQRsCount}</p>
             </div>
-            <BarChart3 className="w-8 h-8 text-#946B29" />
+            <BarChart3 className="w-8 h-8 text-purple-600" />
           </div>
         </Card>
       </div>
@@ -355,12 +355,12 @@ export function BlinkQRTab() {
             onClick={() => setActiveTab('school')}
             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
               activeTab === 'school'
-                ? 'border-#946B29 text-#946B29'
+                ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
             School BlinkQRs
-            <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-amber-100 text-#946B29">
+            <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-600">
               {schoolQRs.length}
             </span>
           </button>
@@ -368,7 +368,7 @@ export function BlinkQRTab() {
             onClick={() => setActiveTab('user')}
             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
               activeTab === 'user'
-                ? 'border-#946B29 text-#946B29'
+                ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -400,7 +400,7 @@ export function BlinkQRTab() {
           <Filter className="w-4 h-4 mr-2" />
           Filters
           {getActiveFilterCount() > 0 && (
-            <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-#946B29 text-white">
+            <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-blue-600 text-white">
               {getActiveFilterCount()}
             </span>
           )}
@@ -431,8 +431,8 @@ export function BlinkQRTab() {
                     }}
                     className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
                       selectedContentTypes.includes(type)
-                        ? 'bg-#946B29 text-white border-#946B29'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-#946B29'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-blue-600'
                     }`}
                   >
                     <span className="flex items-center space-x-1">
@@ -450,7 +450,7 @@ export function BlinkQRTab() {
                   type="checkbox"
                   checked={showPaperOnly}
                   onChange={(e) => setShowPaperOnly(e.target.checked)}
-                  className="rounded border-gray-300 text-#946B29 focus:ring-amber-500"
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-700">Alleen papier QR</span>
               </label>
@@ -459,7 +459,7 @@ export function BlinkQRTab() {
                   type="checkbox"
                   checked={showLockedOnly}
                   onChange={(e) => setShowLockedOnly(e.target.checked)}
-                  className="rounded border-gray-300 text-#946B29 focus:ring-amber-500"
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-700">Alleen vergrendeld</span>
               </label>
@@ -468,7 +468,7 @@ export function BlinkQRTab() {
                   type="checkbox"
                   checked={showTeamEditableOnly}
                   onChange={(e) => setShowTeamEditableOnly(e.target.checked)}
-                  className="rounded border-gray-300 text-#946B29 focus:ring-amber-500"
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-700">Alleen team bewerkbaar</span>
               </label>
@@ -479,7 +479,7 @@ export function BlinkQRTab() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="newest">Nieuwste eerst</option>
                 <option value="oldest">Oudste eerst</option>
@@ -504,7 +504,7 @@ export function BlinkQRTab() {
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       ) : filteredQRs.length === 0 ? (
         <Card className="p-8 text-center">

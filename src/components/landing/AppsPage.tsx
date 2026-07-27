@@ -55,12 +55,12 @@ const APPS = [
     ],
   },
   {
-    icon: <Search className="w-7 h-7 text-#946B29" />,
-    bg: 'bg-amber-50',
-    accent: 'border-amber-200',
+    icon: <Search className="w-7 h-7 text-blue-600" />,
+    bg: 'bg-blue-50',
+    accent: 'border-blue-200',
     title: 'Zoeker',
     tag: 'Leerlingen',
-    tagColor: 'bg-amber-100 text-#74531F',
+    tagColor: 'bg-blue-100 text-blue-700',
     problem: 'Hoe zorg je dat leerlingen veilig en gericht online opzoeken?',
     description: 'Een veilige start om online te zoeken op leerlingen-niveau. Jij als leerkracht kan zoekopdrachten bijsturen. Leerlingen kiezen eenvoudig welke bron ze raadplegen. Hou eenvoudig zicht op wat leerlingen zoeken.',
     features: [
@@ -119,12 +119,12 @@ const APPS = [
     ],
   },
   {
-    icon: <Layers className="w-7 h-7 text-#946B29" />,
-    bg: 'bg-amber-50',
-    accent: 'border-amber-200',
+    icon: <Layers className="w-7 h-7 text-violet-600" />,
+    bg: 'bg-violet-50',
+    accent: 'border-violet-200',
     title: 'Sporen',
     tag: 'Leerlingbegeleiding',
-    tagColor: 'bg-amber-100 text-#74531F',
+    tagColor: 'bg-violet-100 text-violet-700',
     problem: 'Hoe maak je leertrajecten zichtbaar voor leerkracht en leerling?',
     description: 'Visueel overzicht van leertrajecten. Wijs leerlingen toe aan groeisporen en volg hun individueel pad op. Handig voor differentiatie en zorgniveaus.',
     features: [

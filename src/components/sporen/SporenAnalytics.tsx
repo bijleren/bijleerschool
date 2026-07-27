@@ -145,7 +145,7 @@ export function SporenAnalytics({
               onClick={() => setView(tab.key)}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
                 view === tab.key
-                  ? 'border-amber-500 text-#946B29'
+                  ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'
               }`}
             >
@@ -170,7 +170,7 @@ export function SporenAnalytics({
                   <select
                     value={selectedGroupId}
                     onChange={(e) => setSelectedGroupId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Selecteer een klas</option>
                     {groups.map((g) => (
@@ -185,7 +185,7 @@ export function SporenAnalytics({
                   <select
                     value={selectedSubjectId}
                     onChange={(e) => setSelectedSubjectId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Selecteer een vak</option>
                     {subjects.map((s) => (
@@ -199,7 +199,7 @@ export function SporenAnalytics({
                 <>
                   {loadingSporen ? (
                     <div className="flex items-center justify-center py-12">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     </div>
                   ) : view === 'overview' ? (
                     <SporenOverview

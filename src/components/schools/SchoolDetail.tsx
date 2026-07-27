@@ -702,7 +702,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             onClick={() => setActiveTab('students')}
             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'students'
-                ? 'border-amber-500 text-#946B29'
+                ? 'border-indigo-500 text-indigo-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -713,7 +713,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             onClick={() => setActiveTab('groups')}
             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'groups'
-                ? 'border-amber-500 text-#946B29'
+                ? 'border-indigo-500 text-indigo-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -724,7 +724,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             onClick={() => setActiveTab('grades')}
             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'grades'
-                ? 'border-amber-500 text-#946B29'
+                ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -735,7 +735,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             onClick={() => setActiveTab('subjects')}
             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'subjects'
-                ? 'border-amber-500 text-#946B29'
+                ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -746,7 +746,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             onClick={() => setActiveTab('teamleden')}
             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'teamleden'
-                ? 'border-amber-500 text-#946B29'
+                ? 'border-indigo-500 text-indigo-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -759,7 +759,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'datagebruik'
-                ? 'border-amber-500 text-#946B29'
+                ? 'border-indigo-500 text-indigo-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -773,7 +773,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'schooldag'
-                ? 'border-amber-500 text-#946B29'
+                ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -784,7 +784,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             onClick={() => setActiveTab('tags')}
             className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
               activeTab === 'tags'
-                ? 'border-amber-500 text-#946B29'
+                ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -985,11 +985,11 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                             className={`relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 cursor-pointer group ${quickUploadingId === student.id ? 'opacity-60 cursor-not-allowed' : ''}`}
                             title="Klik om profielfoto te uploaden"
                           >
-                            <div className="w-full h-full bg-amber-100 flex items-center justify-center">
+                            <div className="w-full h-full bg-blue-100 flex items-center justify-center">
                               {student.profile_picture_url ? (
                                 <img src={student.profile_picture_url} alt="" className="w-full h-full object-cover" />
                               ) : (
-                                <GraduationCap className="w-6 h-6 text-#946B29" />
+                                <GraduationCap className="w-6 h-6 text-blue-600" />
                               )}
                             </div>
                             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
@@ -1008,7 +1008,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                             />
                           </label>
                         ) : (
-                          <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                             {student.profile_picture_url ? (
                               <img
                                 src={student.profile_picture_url}
@@ -1016,7 +1016,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <GraduationCap className="w-6 h-6 text-#946B29" />
+                              <GraduationCap className="w-6 h-6 text-blue-600" />
                             )}
                           </div>
                         )}
@@ -1092,13 +1092,13 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                           </div>
                         )}
                         {quickUploadingId === student.id && (
-                          <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                         )}
                       </div>
                       <div>
                         <button
                           onClick={() => handleStudentClick(student)}
-                          className="font-semibold text-gray-900 hover:text-#946B29 transition-colors text-left"
+                          className="font-semibold text-gray-900 hover:text-blue-600 transition-colors text-left"
                         >
                           {student.first_name} {student.last_name}
                         </button>
@@ -1234,7 +1234,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                       <div>
                         <button
                           onClick={() => handleGroupClick(group)}
-                          className="font-semibold text-gray-900 hover:text-#946B29 transition-colors text-left"
+                          className="font-semibold text-gray-900 hover:text-indigo-600 transition-colors text-left"
                         >
                           {group.name}
                         </button>
@@ -1334,8 +1334,8 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                   <Card key={schoolUser.id} className="hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-                          <UserPlus className="w-6 h-6 text-#946B29" />
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                          <UserPlus className="w-6 h-6 text-blue-600" />
                         </div>
                         <div>
                           <div className="flex items-center space-x-2">
@@ -1351,7 +1351,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                               schoolUser.role === 'admin'
                                 ? 'bg-amber-100 text-amber-800'
-                                : 'bg-amber-100 text-#5C4118'
+                                : 'bg-blue-100 text-blue-800'
                             }`}>
                               {schoolUser.role === 'admin' ? 'Beheerder' : 'Teammember'}
                             </span>

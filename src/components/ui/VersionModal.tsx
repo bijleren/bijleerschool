@@ -34,12 +34,12 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">WebWijzer - Deel met je leerlingen</h3>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start">
-                  <span className="text-#946B29 mr-2">•</span>
+                  <span className="text-indigo-600 mr-2">•</span>
                   <span>Betere analyse en betere iconen</span>
                 </li>
                
                 <li className="flex items-start">
-                  <span className="text-#946B29 mr-2">•</span>
+                  <span className="text-indigo-600 mr-2">•</span>
                   <span>Leerlingen kunnen gebruik maken van de webwijzer login QR-code via hun platform</span>
                 </li>
                
@@ -49,12 +49,12 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Zoeker</h3>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start">
-                  <span className="text-#946B29 mr-2">•</span>
+                  <span className="text-indigo-600 mr-2">•</span>
                   <span>Oefen op prompten met leerlingen</span>
                 </li>
                
                 <li className="flex items-start">
-                  <span className="text-#946B29 mr-2">•</span>
+                  <span className="text-indigo-600 mr-2">•</span>
                   <span>Leerlingen kunnen sneller en veiliger zoeken.</span>
                 </li>
                
@@ -65,19 +65,19 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Gevolgen systeem</h3>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start">
-                  <span className="text-#946B29 mr-2">•</span>
+                  <span className="text-indigo-600 mr-2">•</span>
                   <span>Je kan meerdere consequenties toevoegen aan één incident.</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-#946B29 mr-2">•</span>
+                  <span className="text-indigo-600 mr-2">•</span>
                   <span>Je kan na het maken van een incident follow-upconsequenties toevoegen.</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-#946B29 mr-2">•</span>
+                  <span className="text-indigo-600 mr-2">•</span>
                   <span>Mogelijkheid om notities toe te voegen</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="text-#946B29 mr-2">•</span>
+                  <span className="text-indigo-600 mr-2">•</span>
                   <span>Datumregistratie voor follow-up acties</span>
                 </li>
               </ul>
@@ -89,11 +89,11 @@ export function VersionModal({ isOpen, onClose }: VersionModalProps) {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Gebruikersinterface</h3>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start">
-                  <span className="text-#946B29 mr-2">•</span>
+                  <span className="text-indigo-600 mr-2">•</span>
                   <span>Betere groepcreatie.</span>
                 </li>
                  <li className="flex items-start">
-                  <span className="text-#946B29 mr-2">•</span>
+                  <span className="text-indigo-600 mr-2">•</span>
                   <span>Opslagruimte zichtbaar.</span>
                 </li>
                 

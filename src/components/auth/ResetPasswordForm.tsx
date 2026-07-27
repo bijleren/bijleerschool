@@ -175,14 +175,14 @@ export function ResetPasswordForm() {
     return (
       <Card className="w-full max-w-md">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-full mb-4">
-            <Lock className="w-8 h-8 text-#946B29 animate-pulse" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+            <Lock className="w-8 h-8 text-blue-600 animate-pulse" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Link wordt geverifieerd...</h1>
           <p className="text-gray-600 mb-6">
             Een moment geduld terwijl we je wachtwoord herstel link controleren.
           </p>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
         </div>
       </Card>
     );
@@ -210,8 +210,8 @@ export function ResetPasswordForm() {
   return (
     <Card className="w-full max-w-md">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-12 h-12 bg-amber-100 rounded-full mb-4">
-          <Lock className="w-6 h-6 text-#946B29" />
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-4">
+          <Lock className="w-6 h-6 text-blue-600" />
         </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Nieuw wachtwoord instellen</h1>
         <p className="text-gray-600">
@@ -287,9 +287,9 @@ export function ResetPasswordForm() {
           </div>
         )}
 
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-          <p className="text-sm text-#74531F font-medium mb-1">Tips voor een sterk wachtwoord:</p>
-          <ul className="text-sm text-#946B29 space-y-1">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <p className="text-sm text-blue-700 font-medium mb-1">Tips voor een sterk wachtwoord:</p>
+          <ul className="text-sm text-blue-600 space-y-1">
             <li>• Minimaal 8 karakters lang</li>
             <li>• Combinatie van hoofd- en kleine letters</li>
             <li>• Bevat cijfers en speciale tekens</li>

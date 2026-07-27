@@ -242,7 +242,7 @@ export function SpoorNotesModal({
             <select
               value={teamMemberId || ''}
               onChange={(e) => setTeamMemberId(e.target.value || null)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Geen coach geselecteerd</option>
               {teamMembers.map(member => (
@@ -263,7 +263,7 @@ export function SpoorNotesModal({
             <textarea
               value={begeleidingKlas}
               onChange={(e) => setBegeleidingKlas(e.target.value)}
-              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               placeholder="Beschrijf hoe leerlingen in dit spoor worden begeleid in de klas..."
             />
           </div>
@@ -275,7 +275,7 @@ export function SpoorNotesModal({
             <textarea
               value={begeleidingThuis}
               onChange={(e) => setBegeleidingThuis(e.target.value)}
-              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               placeholder="Beschrijf hoe ouders thuis kunnen ondersteunen bij dit spoor..."
             />
           </div>
@@ -287,7 +287,7 @@ export function SpoorNotesModal({
             <textarea
               value={evaluatie}
               onChange={(e) => setEvaluatie(e.target.value)}
-              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               placeholder="Evalueer de aanpak en resultaten van dit spoor..."
             />
           </div>
@@ -299,7 +299,7 @@ export function SpoorNotesModal({
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               placeholder="Extra notities voor dit spoor..."
             />
           </div>

@@ -58,13 +58,13 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
   const getStorageColor = () => {
     if (percentageUsed >= 90) return 'bg-red-500';
     if (percentageUsed >= 75) return 'bg-orange-500';
-    return 'bg-amber-500';
+    return 'bg-blue-500';
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -87,8 +87,8 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
     <div className="max-w-2xl">
       <Card>
         <div className="flex items-center gap-4 mb-6">
-          <div className={`p-4 ${isPremium ? 'bg-yellow-50' : 'bg-amber-50'} rounded-xl`}>
-            <HardDrive className={`w-8 h-8 ${isPremium ? 'text-yellow-600' : 'text-#946B29'}`} />
+          <div className={`p-4 ${isPremium ? 'bg-yellow-50' : 'bg-blue-50'} rounded-xl`}>
+            <HardDrive className={`w-8 h-8 ${isPremium ? 'text-yellow-600' : 'text-blue-600'}`} />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Opslaggebruik</h2>
@@ -110,7 +110,7 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
                     ? 'bg-red-100 text-red-800'
                     : percentageUsed >= 75
                     ? 'bg-orange-100 text-orange-800'
-                    : 'bg-amber-100 text-#5C4118'
+                    : 'bg-blue-100 text-blue-800'
                 }`}
               >
                 {percentageUsed.toFixed(1)}%

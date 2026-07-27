@@ -292,9 +292,9 @@ export function ReadingSession({ studentBook, student, onClose }: ReadingSession
               )}
 
               <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-amber-50 p-4 rounded-lg">
-                  <p className="text-sm text-#946B29 font-medium">Totaal gelezen</p>
-                  <p className="text-2xl font-bold text-#3D2B10">{totalMinutesRead} min</p>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <p className="text-sm text-blue-600 font-medium">Totaal gelezen</p>
+                  <p className="text-2xl font-bold text-blue-900">{totalMinutesRead} min</p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg">
                   <p className="text-sm text-green-600 font-medium">Pagina's gelezen</p>
@@ -310,7 +310,7 @@ export function ReadingSession({ studentBook, student, onClose }: ReadingSession
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
                     <div
-                      className="bg-#946B29 h-3 rounded-full transition-all duration-300"
+                      className="bg-blue-600 h-3 rounded-full transition-all duration-300"
                       style={{ width: `${progressPercentage}%` }}
                     />
                   </div>
@@ -336,7 +336,7 @@ export function ReadingSession({ studentBook, student, onClose }: ReadingSession
                     type="checkbox"
                     checked={useTimer}
                     onChange={(e) => setUseTimer(e.target.checked)}
-                    className="w-4 h-4 text-#946B29"
+                    className="w-4 h-4 text-blue-600"
                   />
                   <span className="text-sm font-medium text-gray-700">Timer gebruiken</span>
                 </label>
@@ -354,7 +354,7 @@ export function ReadingSession({ studentBook, student, onClose }: ReadingSession
                         onClick={() => setTimerMinutes(mins)}
                         className={`px-4 py-2 rounded-lg border-2 transition-colors ${
                           timerMinutes === mins
-                            ? 'border-#946B29 bg-amber-50 text-#946B29'
+                            ? 'border-blue-600 bg-blue-50 text-blue-600'
                             : 'border-gray-300 hover:border-gray-400'
                         }`}
                       >
@@ -394,7 +394,7 @@ export function ReadingSession({ studentBook, student, onClose }: ReadingSession
         <Card>
           <div className="p-6">
             <div className="text-center mb-8">
-              <Clock className="w-16 h-16 text-#946B29 mx-auto mb-4" />
+              <Clock className="w-16 h-16 text-blue-600 mx-auto mb-4" />
               <div className="text-6xl font-bold text-gray-900 mb-2">
                 {formatTime(elapsedSeconds)}
               </div>
@@ -471,7 +471,7 @@ export function ReadingSession({ studentBook, student, onClose }: ReadingSession
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-#946B29">
+                    <p className="font-bold text-blue-600">
                       {session.duration_minutes} min
                     </p>
                   </div>
@@ -519,7 +519,7 @@ export function ReadingSession({ studentBook, student, onClose }: ReadingSession
                 onChange={(e) => setReviewText(e.target.value)}
                 placeholder="Schrijf wat je ervan vond..."
                 rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 

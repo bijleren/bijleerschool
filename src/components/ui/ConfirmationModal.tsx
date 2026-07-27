@@ -39,8 +39,8 @@ export function ConfirmationModal({
       button: 'secondary' as const,
     },
     info: {
-      icon: 'text-#946B29',
-      iconBg: 'bg-amber-100',
+      icon: 'text-blue-600',
+      iconBg: 'bg-blue-100',
       button: 'primary' as const,
     },
   };
@@ -61,7 +61,7 @@ export function ConfirmationModal({
           <div className="absolute right-0 top-0 pr-4 pt-4">
             <button
               type="button"
-              className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+              className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               onClick={onClose}
             >
               <X className="h-6 w-6" />

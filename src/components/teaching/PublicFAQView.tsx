@@ -63,9 +63,9 @@ export function PublicFAQView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-cyan-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">FAQ wordt geladen...</p>
         </div>
       </div>
@@ -74,7 +74,7 @@ export function PublicFAQView() {
 
   if (error || !faq) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-cyan-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 flex items-center justify-center p-4">
         <Card className="max-w-md w-full text-center p-8">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <HelpCircle className="w-8 h-8 text-red-600" />
@@ -91,12 +91,12 @@ export function PublicFAQView() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-#946B29 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
                 <GraduationCap className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -125,12 +125,12 @@ export function PublicFAQView() {
 
         <Card className="p-8">
           <div className="flex items-start gap-4 mb-6">
-            <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <HelpCircle className="w-6 h-6 text-#946B29" />
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <HelpCircle className="w-6 h-6 text-blue-600" />
             </div>
             <div className="flex-1">
               <div className="mb-3">
-                <span className="text-xs px-3 py-1 bg-amber-100 text-#74531F rounded-full">
+                <span className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
                   {faq.category}
                 </span>
               </div>
@@ -144,14 +144,14 @@ export function PublicFAQView() {
         </Card>
 
         <div className="mt-8 text-center">
-          <Card className="p-6 bg-amber-50 border-amber-200">
+          <Card className="p-6 bg-blue-50 border-blue-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Meer vragen over didactiek?
             </h3>
             <p className="text-gray-600 mb-4">
               Log in om toegang te krijgen tot alle FAQs en didactische technieken.
             </p>
-            <Button onClick={handleLogin} className="bg-#946B29 hover:bg-#74531F">
+            <Button onClick={handleLogin} className="bg-blue-600 hover:bg-blue-700">
               <LogIn className="w-4 h-4 mr-2" />
               Inloggen voor volledige toegang
             </Button>

@@ -275,7 +275,7 @@ export function StudentTagsCard({ studentId, schoolId }: StudentTagsCardProps) {
               setPopoverSearch('');
               setShowQuickCreate(false);
             }}
-            className="flex items-center gap-1.5 text-sm text-#946B29 hover:text-#74531F px-2 py-1 rounded-lg hover:bg-amber-50 transition-colors"
+            className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Tag toevoegen
@@ -321,10 +321,10 @@ export function StudentTagsCard({ studentId, schoolId }: StudentTagsCardProps) {
                           setQuickCreateDesc('');
                           setShowQuickCreate(true);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-amber-50 text-left border-t border-gray-100 transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-blue-50 text-left border-t border-gray-100 transition-colors"
                       >
-                        <Plus className="w-3.5 h-3.5 text-#946B29 flex-shrink-0" />
-                        <span className="text-sm text-#946B29">
+                        <Plus className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                        <span className="text-sm text-blue-600">
                           Nieuwe tag "<span className="font-medium">{popoverSearch}</span>" aanmaken
                         </span>
                       </button>
@@ -337,10 +337,10 @@ export function StudentTagsCard({ studentId, schoolId }: StudentTagsCardProps) {
                           setQuickCreateDesc('');
                           setShowQuickCreate(true);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-amber-50 text-left border-t border-gray-100 transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-blue-50 text-left border-t border-gray-100 transition-colors"
                       >
-                        <Plus className="w-3.5 h-3.5 text-#946B29 flex-shrink-0" />
-                        <span className="text-sm text-#946B29">Nieuwe tag aanmaken</span>
+                        <Plus className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                        <span className="text-sm text-blue-600">Nieuwe tag aanmaken</span>
                       </button>
                     )}
                   </div>
@@ -406,7 +406,7 @@ export function StudentTagsCard({ studentId, schoolId }: StudentTagsCardProps) {
                     <button
                       onClick={quickCreateAndAssign}
                       disabled={!quickCreateName.trim() || quickCreateSaving}
-                      className="flex-1 text-xs bg-#946B29 text-white py-1.5 rounded-lg hover:bg-#74531F disabled:opacity-50 transition-colors flex items-center justify-center gap-1"
+                      className="flex-1 text-xs bg-blue-600 text-white py-1.5 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-1"
                     >
                       {quickCreateSaving ? (
                         <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
@@ -426,7 +426,7 @@ export function StudentTagsCard({ studentId, schoolId }: StudentTagsCardProps) {
       {/* Assigned tags */}
       {loading ? (
         <div className="flex items-center gap-2 py-2">
-          <div className="w-4 h-4 border-2 border-#946B29 border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
           <span className="text-sm text-gray-400">Laden...</span>
         </div>
       ) : assignments.length === 0 ? (
@@ -466,7 +466,7 @@ export function StudentTagsCard({ studentId, schoolId }: StudentTagsCardProps) {
           {showHistory && tagLog.length > 0 && (
             <button
               onClick={exportCSV}
-              className="flex items-center gap-1 text-xs text-#946B29 hover:text-#74531F transition-colors px-2 py-1 rounded-lg hover:bg-amber-50"
+              className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 transition-colors px-2 py-1 rounded-lg hover:bg-blue-50"
             >
               <Download className="w-3.5 h-3.5" />
               Exporteer CSV
@@ -478,7 +478,7 @@ export function StudentTagsCard({ studentId, schoolId }: StudentTagsCardProps) {
           <div className="mt-3">
             {historyLoading ? (
               <div className="flex items-center gap-2 py-2">
-                <div className="w-4 h-4 border-2 border-#946B29 border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                 <span className="text-sm text-gray-400">Laden...</span>
               </div>
             ) : tagLog.length === 0 ? (

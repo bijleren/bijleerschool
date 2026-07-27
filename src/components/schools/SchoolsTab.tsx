@@ -221,7 +221,7 @@ export function SchoolsTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -324,7 +324,7 @@ export function SchoolsTab() {
               <select
                 value={newSchoolCountry}
                 onChange={(e) => setNewSchoolCountry(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
               >
                 <option value="België">België</option>
                 <option value="Nederland">Nederland</option>
@@ -361,15 +361,15 @@ export function SchoolsTab() {
             <Card key={userSchool.id}>
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <School className="w-6 h-6 text-#946B29" />
+                  <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                    <School className="w-6 h-6 text-indigo-600" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
                       {userSchool.schools.name}
                     </h3>
                     <div className="flex items-center mt-2">
-                      <span className={`${userSchool.role === 'admin' ? 'bg-amber-100 text-#5C4118' : 'bg-amber-100 text-#5C4118'} px-2 py-1 rounded-full text-xs font-medium mr-3`}>
+                      <span className={`${userSchool.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'} px-2 py-1 rounded-full text-xs font-medium mr-3`}>
                         {userSchool.role === 'admin' ? 'Beheerder' : 'Teammember'}
                       </span>
                       <span>Code: {userSchool.schools.school_code}</span>

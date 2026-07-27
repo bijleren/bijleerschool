@@ -96,7 +96,7 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Laden...</p>
         </div>
       </div>
@@ -137,8 +137,8 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-              <GitBranch className="w-6 h-6 text-#946B29" />
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <GitBranch className="w-6 h-6 text-blue-600" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Sporen</h1>
@@ -175,7 +175,7 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
             <select
               value={selectedGroupId}
               onChange={(e) => setSelectedGroupId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Selecteer een klas</option>
               {groups.map((group) => (
@@ -193,7 +193,7 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
             <select
               value={selectedSubjectId}
               onChange={(e) => setSelectedSubjectId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Selecteer een vak</option>
               {subjects.map((subject) => (
@@ -228,8 +228,8 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <Settings className="w-5 h-5 text-#946B29" />
+                <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Settings className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900">Beheer Sporen</h2>

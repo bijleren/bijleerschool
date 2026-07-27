@@ -212,7 +212,7 @@ export function SporenOverview({ schoolId, groupId, subjectId, groupName, subjec
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -226,7 +226,7 @@ export function SporenOverview({ schoolId, groupId, subjectId, groupName, subjec
             <button
               onClick={() => setSortBy('spoor')}
               className={`px-3 py-1.5 text-sm transition-colors ${
-                sortBy === 'spoor' ? 'bg-#946B29 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+                sortBy === 'spoor' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
               Per spoor
@@ -234,7 +234,7 @@ export function SporenOverview({ schoolId, groupId, subjectId, groupName, subjec
             <button
               onClick={() => setSortBy('name')}
               className={`px-3 py-1.5 text-sm border-l border-gray-300 transition-colors ${
-                sortBy === 'name' ? 'bg-#946B29 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+                sortBy === 'name' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
               Op naam

@@ -91,7 +91,7 @@ export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
                 type="button"
                 onClick={() => handleColorSelect(color)}
                 className={`w-10 h-10 rounded border-2 transition-all hover:scale-110 ${
-                  value === color ? 'border-gray-900 ring-2 ring-amber-500' : 'border-gray-300'
+                  value === color ? 'border-gray-900 ring-2 ring-blue-500' : 'border-gray-300'
                 }`}
                 style={{ backgroundColor: color }}
                 title={color}
@@ -110,7 +110,7 @@ export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
                 onChange={(e) => handleHexInputChange(e.target.value)}
                 placeholder="#000000"
                 maxLength={7}
-                className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               <div
                 className="w-8 h-8 rounded border border-gray-300"

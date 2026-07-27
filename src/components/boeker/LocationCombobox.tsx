@@ -161,7 +161,7 @@ export function LocationCombobox({ schoolId, value, onChange }: LocationCombobox
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder="Zoek of maak locatie aan..."
-          className="w-full pl-9 pr-16 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+          className="w-full pl-9 pr-16 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <div className="absolute right-2 flex items-center gap-1">
           {value && (
@@ -207,7 +207,7 @@ export function LocationCombobox({ schoolId, value, onChange }: LocationCombobox
               onMouseEnter={() => setHighlightedIndex(i)}
               className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors ${
                 highlightedIndex === i
-                  ? 'bg-amber-50 text-#74531F'
+                  ? 'bg-blue-50 text-blue-700'
                   : 'text-gray-700 hover:bg-gray-50'
               } ${value === loc.id ? 'font-medium' : ''}`}
             >

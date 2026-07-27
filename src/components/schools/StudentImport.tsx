@@ -306,7 +306,7 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
                   {importResults.success} leerlingen succesvol geïmporteerd
                 </p>
                 {importResults.groupsCreated > 0 && (
-                  <p className="text-#74531F flex items-center justify-center gap-2">
+                  <p className="text-blue-700 flex items-center justify-center gap-2">
                     <Plus className="w-4 h-4" />
                     {importResults.groupsCreated} klassen aangemaakt
                   </p>
@@ -358,8 +358,8 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
 
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-4 h-4 text-#946B29" />
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <Users className="w-4 h-4 text-blue-600" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">Klassen gevonden in je import</h2>
               </div>
@@ -370,7 +370,7 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
 
             {/* Summary badges */}
             <div className="flex gap-3 mb-5 ml-0">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-amber-50 text-#74531F border border-amber-200">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200">
                 <Users className="w-3.5 h-3.5" />
                 {validCount} leerling{validCount !== 1 ? 'en' : ''}
               </span>
@@ -421,7 +421,7 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
                     type="checkbox"
                     checked={createMissingGroups}
                     onChange={e => setCreateMissingGroups(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 text-#946B29 rounded border-gray-300"
+                    className="mt-0.5 w-4 h-4 text-blue-600 rounded border-gray-300"
                   />
                   <div>
                     <p className="text-sm font-medium text-gray-900">
@@ -438,7 +438,7 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
                   type="checkbox"
                   checked={assignToGroups}
                   onChange={e => setAssignToGroups(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 text-#946B29 rounded border-gray-300"
+                  className="mt-0.5 w-4 h-4 text-blue-600 rounded border-gray-300"
                 />
                 <div>
                   <p className="text-sm font-medium text-gray-900">Koppel leerlingen automatisch aan hun klas</p>
@@ -504,10 +504,10 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
           </div>
 
           <div className="space-y-5">
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-start">
-                <FileText className="w-5 h-5 text-#946B29 mt-0.5 mr-3 flex-shrink-0" />
-                <div className="text-sm text-#5C4118">
+                <FileText className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
+                <div className="text-sm text-blue-800">
                   <p className="font-semibold mb-1.5">Instructies:</p>
                   <ul className="space-y-1">
                     <li>• Selecteer je data in Excel inclusief headers</li>
@@ -523,7 +523,7 @@ export function StudentImport({ schoolId, onImportComplete, onClose }: StudentIm
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Excel/CSV Data</label>
               <textarea
-                className="w-full h-64 px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 resize-none font-mono text-sm"
+                className="w-full h-64 px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none font-mono text-sm"
                 placeholder={`Plak hier je Excel data (komma, puntkomma of tab gescheiden)...\n\nVoorbeeld:\nVoornaam\tAchternaam\tLeerlingnummer\tKlas\tGeboortedatum\nJan\tJansen\t12345\t3A\t01-01-2010\nMarie\tPietersen\t12346\t3A\t15-03-2010`}
                 value={csvData}
                 onChange={e => { setCsvData(e.target.value); setHeaderErrors(null); }}

@@ -339,7 +339,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Extra informatie over het materiaal"
               />
             </div>
@@ -356,7 +356,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
                     className="w-32 h-32 object-cover rounded-lg border border-gray-200"
                   />
                 )}
-                <label className="flex items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg hover:border-amber-500 cursor-pointer">
+                <label className="flex items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 cursor-pointer">
                   <div className="text-center">
                     <Camera className="w-8 h-8 mx-auto text-gray-400" />
                     <span className="text-xs text-gray-500 mt-1">Upload foto</span>
@@ -502,7 +502,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
               placeholder="Zoek op titel of code..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -555,7 +555,7 @@ export function MaterialenTab({ schoolId }: MaterialenTabProps) {
                 </div>
                 <div className="p-2">
                   <h3
-                    className="font-semibold text-gray-900 text-xs mb-0.5 line-clamp-2 min-h-[2rem] cursor-pointer hover:text-#946B29"
+                    className="font-semibold text-gray-900 text-xs mb-0.5 line-clamp-2 min-h-[2rem] cursor-pointer hover:text-blue-600"
                     onClick={() => {
                       setSelectedMaterial(material);
                       setViewMode('detail');
@@ -795,7 +795,7 @@ function MaterialDetail({
                     <Button
                       size="sm"
                       onClick={() => handleReturn(loan.id)}
-                      className="bg-#946B29 hover:bg-#74531F"
+                      className="bg-blue-600 hover:bg-blue-700"
                     >
                       <UserX className="w-3 h-3 mr-1" />
                       Retourneer
@@ -1023,12 +1023,12 @@ function MaterialLoanView({
             <h3 className="text-sm font-medium text-gray-700 mb-2">Momenteel uitgeleend</h3>
             <div className="space-y-2">
               {activeLoans.map((loan) => (
-                <div key={loan.id} className="flex items-center justify-between p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <div key={loan.id} className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <div>
-                    <p className="font-medium text-#3D2B10">
+                    <p className="font-medium text-blue-900">
                       {loan.students.first_name} {loan.students.last_name}
                     </p>
-                    <p className="text-xs text-#946B29">
+                    <p className="text-xs text-blue-600">
                       Sinds {new Date(loan.loaned_at).toLocaleDateString('nl-NL')}
                     </p>
                   </div>
@@ -1074,7 +1074,7 @@ function MaterialLoanView({
                   value={student.id}
                   checked={selectedStudent === student.id}
                   onChange={(e) => setSelectedStudent(e.target.value)}
-                  className="w-4 h-4 text-#946B29"
+                  className="w-4 h-4 text-blue-600"
                 />
                 <span className="ml-3 text-gray-900">
                   {student.first_name} {student.last_name}
@@ -1091,7 +1091,7 @@ function MaterialLoanView({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               placeholder="Bijv. Voor project natuurkunde"
             />
           </div>

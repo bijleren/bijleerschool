@@ -429,7 +429,7 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -451,7 +451,7 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
           <select
             value={selectedGroup || ''}
             onChange={(e) => setSelectedGroup(e.target.value)}
-            className="px-4 py-2 border-2 border-amber-500 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300"
+            className="px-4 py-2 border-2 border-blue-500 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-300"
           >
             {groups.map(group => (
               <option key={group.id} value={group.id}>{group.name}</option>
@@ -462,9 +462,9 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
 
       {/* New Requests Notification */}
       {newRequestsCount > 0 && (
-        <div className="bg-amber-50 border-2 border-amber-500 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-blue-50 border-2 border-blue-500 rounded-lg p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-lg">{newRequestsCount}</span>
             </div>
             <div>
@@ -476,7 +476,7 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
               </p>
             </div>
           </div>
-          <Button onClick={handleRefreshData} className="bg-amber-500 hover:bg-#946B29">
+          <Button onClick={handleRefreshData} className="bg-blue-500 hover:bg-blue-600">
             Vernieuwen
           </Button>
         </div>
@@ -521,9 +521,9 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm font-semibold">Vandaag</p>
-              <p className="text-4xl font-bold text-amber-500 mt-2">{todayCount}</p>
+              <p className="text-4xl font-bold text-blue-500 mt-2">{todayCount}</p>
             </div>
-            <TrendingUp className="w-12 h-12 text-amber-500 opacity-20" />
+            <TrendingUp className="w-12 h-12 text-blue-500 opacity-20" />
           </div>
         </Card>
       </div>
@@ -543,7 +543,7 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
                 className={`p-4 transition-all ${
                   student.status === 'waiting' ? 'border-2 border-orange-400 bg-orange-50' :
                   student.status === 'approved' ? 'border-2 border-green-400 bg-green-50' :
-                  student.status === 'needs_work' ? 'border-2 border-amber-500 bg-amber-50' :
+                  student.status === 'needs_work' ? 'border-2 border-blue-400 bg-blue-50' :
                   ''
                 }`}
               >
@@ -553,7 +553,7 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${
                       student.status === 'waiting' ? 'bg-orange-500' :
                       student.status === 'approved' ? 'bg-green-500' :
-                      student.status === 'needs_work' ? 'bg-amber-500' :
+                      student.status === 'needs_work' ? 'bg-blue-500' :
                       'bg-gray-400'
                     }`}
                   >
@@ -613,7 +613,7 @@ export function ZoekerTab({ focusSchool }: ZoekerTabProps = {}) {
                       <Button
                         size="sm"
                         onClick={() => handleRespond(student.pending_request!.id, 'improve')}
-                        className="flex-1 bg-amber-500 hover:bg-#946B29"
+                        className="flex-1 bg-blue-500 hover:bg-blue-600"
                       >
                         <Edit3 className="w-3 h-3 mr-1" />
                         ✏️

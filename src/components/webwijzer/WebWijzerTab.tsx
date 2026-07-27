@@ -377,7 +377,7 @@ export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
                   setShowOnlyMyContent(e.target.checked);
                   fetchContents();
                 }}
-                className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
               />
               <span className="text-sm font-medium text-gray-700">
                 Toon alleen mijn content
@@ -420,15 +420,15 @@ export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
             )}
           </div>
           {selectedStudent && (
-            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-4 py-2 rounded-lg">
-              <span className="text-sm font-medium text-#3D2B10">
+            <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 px-4 py-2 rounded-lg">
+              <span className="text-sm font-medium text-blue-900">
                 {selectedStudent.first_name} {selectedStudent.last_name}
               </span>
               <button
                 onClick={() => setSelectedStudent(null)}
-                className="p-1 hover:bg-amber-100 rounded transition-colors"
+                className="p-1 hover:bg-blue-100 rounded transition-colors"
               >
-                <X className="w-4 h-4 text-#74531F" />
+                <X className="w-4 h-4 text-blue-700" />
               </button>
             </div>
           )}
@@ -438,7 +438,7 @@ export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="text-gray-600 mt-4">Content laden...</p>
         </div>
       ) : contents.length === 0 ? (
@@ -484,7 +484,7 @@ export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
 
               <button
                 onClick={() => window.open(content.content_url, '_blank')}
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-#946B29 mb-4 transition-colors"
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 mb-4 transition-colors"
               >
                 {getContentIcon(content.content_type)}
                 <span className="capitalize">{content.content_type}</span>
@@ -493,7 +493,7 @@ export function WebWijzerTab({ focusSchool }: WebWijzerTabProps) {
               {/* Statistics */}
               <div className="grid grid-cols-2 gap-2 mb-4 pb-4 border-b border-gray-200">
                 <div className="flex items-center gap-2 text-sm">
-                  <Users className="w-4 h-4 text-#946B29" />
+                  <Users className="w-4 h-4 text-blue-600" />
                   <span className="font-medium">{content.student_count || 0}</span>
                   <span className="text-gray-600">students</span>
                 </div>

@@ -8,7 +8,7 @@ export function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-cyan-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center p-4">
       <Link
         to="/"
         className="fixed top-4 left-4 flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow text-sm font-medium"
@@ -39,7 +39,7 @@ export function AuthPage() {
               href="https://bijleren.eu"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-#946B29 hover:text-#74531F hover:underline"
+              className="text-blue-600 hover:text-blue-700 hover:underline"
             >
               bijleren.eu
             </a>

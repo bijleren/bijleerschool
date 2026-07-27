@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { Plus, Search, ExternalLink, CreditCard as Edit2, Trash2, Sparkles, X } from 'lucide-react';
+import { Plus, Search, ExternalLink, Edit2, Trash2, Sparkles, X } from 'lucide-react';
 
 interface DigiTool {
   id: string;
@@ -214,7 +214,7 @@ export function DigiToolsTab() {
           <p className="text-gray-600 mt-1">Ontdek digitale tools en bronnen</p>
         </div>
         {isAdmin && (
-          <Button onClick={openModal} className="bg-#946B29 hover:bg-#74531F text-white">
+          <Button onClick={openModal} className="bg-blue-600 hover:bg-blue-700 text-white">
             <Plus className="w-4 h-4 mr-2" />
             Tool Toevoegen
           </Button>
@@ -222,13 +222,13 @@ export function DigiToolsTab() {
       </div>
 
       {isAdmin && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-#3D2B10">Admin Functies</h3>
-              <p className="text-sm text-#74531F">Beheer digitale tools voor alle gebruikers</p>
+              <h3 className="font-semibold text-blue-900">Admin Functies</h3>
+              <p className="text-sm text-blue-700">Beheer digitale tools voor alle gebruikers</p>
             </div>
-            <Button onClick={openModal} className="bg-#946B29 hover:bg-#74531F text-white">
+            <Button onClick={openModal} className="bg-blue-600 hover:bg-blue-700 text-white">
               <Plus className="w-5 h-5 mr-2" />
               Nieuwe Tool Toevoegen
             </Button>
@@ -237,10 +237,10 @@ export function DigiToolsTab() {
       )}
 
       {spotlightTool && (
-        <Card className="bg-gradient-to-r from-amber-50 to-amber-50 border-2 border-amber-200">
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
           <div className="p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-5 h-5 text-#946B29" />
+              <Sparkles className="w-5 h-5 text-blue-600" />
               <h2 className="text-xl font-bold text-gray-900">Tool in de Kijker</h2>
             </div>
             <div className="flex gap-6">
@@ -283,7 +283,7 @@ export function DigiToolsTab() {
             placeholder="Zoek tools..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
       </div>
@@ -358,7 +358,7 @@ export function DigiToolsTab() {
                         </span>
                       )}
                       {tool.requires_premium && (
-                        <span className="px-2 py-1 bg-amber-100 text-#74531F text-xs font-semibold rounded">
+                        <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded">
                           PREMIUM
                         </span>
                       )}
@@ -445,7 +445,7 @@ export function DigiToolsTab() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -482,7 +482,7 @@ export function DigiToolsTab() {
                         type="checkbox"
                         checked={formData.is_new}
                         onChange={(e) => setFormData({ ...formData, is_new: e.target.checked })}
-                        className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
                       <span className="text-sm font-medium text-gray-700">Markeer als Nieuw</span>
                     </label>
@@ -492,7 +492,7 @@ export function DigiToolsTab() {
                         type="checkbox"
                         checked={formData.is_beta}
                         onChange={(e) => setFormData({ ...formData, is_beta: e.target.checked })}
-                        className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
                       <span className="text-sm font-medium text-gray-700">Markeer als Beta</span>
                     </label>
@@ -502,7 +502,7 @@ export function DigiToolsTab() {
                         type="checkbox"
                         checked={formData.is_active}
                         onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                        className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
                       <span className="text-sm font-medium text-gray-700">Actief</span>
                     </label>
@@ -514,7 +514,7 @@ export function DigiToolsTab() {
                         type="checkbox"
                         checked={formData.visible_to_users}
                         onChange={(e) => setFormData({ ...formData, visible_to_users: e.target.checked })}
-                        className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
                       <span className="text-sm font-medium text-gray-700">Zichtbaar voor Eindgebruikers</span>
                     </label>
@@ -524,7 +524,7 @@ export function DigiToolsTab() {
                         type="checkbox"
                         checked={formData.requires_premium}
                         onChange={(e) => setFormData({ ...formData, requires_premium: e.target.checked })}
-                        className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                       />
                       <span className="text-sm font-medium text-gray-700">Vereist Premium School</span>
                     </label>

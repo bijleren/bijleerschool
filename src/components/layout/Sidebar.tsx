@@ -31,12 +31,12 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                   className={`
                     w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200
                     ${isActive
-                      ? 'bg-amber-50 text-#74531F border-r-2 border-#946B29'
+                      ? 'bg-indigo-50 text-indigo-700 border-r-2 border-indigo-600'
                       : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                     }
                   `}
                 >
-                  <Icon className={`mr-3 h-5 w-5 ${isActive ? 'text-amber-500' : 'text-gray-400'}`} />
+                  <Icon className={`mr-3 h-5 w-5 ${isActive ? 'text-indigo-500' : 'text-gray-400'}`} />
                   {item.name}
                 </button>
               </li>

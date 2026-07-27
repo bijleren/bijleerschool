@@ -117,7 +117,7 @@ export function ProfileTab({ initialTab = 'profile' }: ProfileTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -169,8 +169,8 @@ export function ProfileTab({ initialTab = 'profile' }: ProfileTabProps) {
         {/* Profile Overview */}
         <Card>
           <div className="flex items-center space-x-4 mb-6">
-            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-#946B29" />
+            <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
+              <User className="w-8 h-8 text-indigo-600" />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-900">

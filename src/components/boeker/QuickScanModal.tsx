@@ -640,8 +640,8 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
               </div>
 
               {showScanner && (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                  <p className="text-sm text-#5C4118">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-800">
                     <strong>💡 Tip:</strong> Scan een boek of materiaal om deze direct in te leveren, of scan een leerling om uit te lenen.
                   </p>
                 </div>
@@ -852,7 +852,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                               value={holder.loan_id}
                               checked={selectedReturnHolder === holder.loan_id}
                               onChange={(e) => setSelectedReturnHolder(e.target.value)}
-                              className="w-4 h-4 text-#946B29 mr-3"
+                              className="w-4 h-4 text-blue-600 mr-3"
                             />
                             <span className="text-gray-900">
                               {holder.first_name} {holder.last_name}
@@ -862,24 +862,24 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
                       </div>
                     </div>
                   ) : pendingItem.currentHolder ? (
-                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-3">
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-3">
                       <div className="flex items-start">
-                        <BookOpen className="w-5 h-5 text-#946B29 mr-2 flex-shrink-0 mt-0.5" />
+                        <BookOpen className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-medium text-#3D2B10">Momenteel uitgeleend aan</p>
-                          <p className="text-sm text-#74531F mt-1">
+                          <p className="text-sm font-medium text-blue-900">Momenteel uitgeleend aan</p>
+                          <p className="text-sm text-blue-700 mt-1">
                             <strong>{pendingItem.currentHolder.first_name} {pendingItem.currentHolder.last_name}</strong>
                           </p>
                         </div>
                       </div>
                     </div>
                   ) : pendingItem.currentHolders && pendingItem.currentHolders.length === 1 ? (
-                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-3">
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-3">
                       <div className="flex items-start">
-                        <BookOpen className="w-5 h-5 text-#946B29 mr-2 flex-shrink-0 mt-0.5" />
+                        <BookOpen className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-medium text-#3D2B10">Momenteel uitgeleend aan</p>
-                          <p className="text-sm text-#74531F mt-1">
+                          <p className="text-sm font-medium text-blue-900">Momenteel uitgeleend aan</p>
+                          <p className="text-sm text-blue-700 mt-1">
                             <strong>{pendingItem.currentHolders[0].first_name} {pendingItem.currentHolders[0].last_name}</strong>
                           </p>
                         </div>
@@ -974,7 +974,7 @@ export function QuickScanModal({ schoolId, onClose, onBookProcessed }: QuickScan
               <p className="text-gray-700 mb-3">
                 Wil je wisselen naar:
               </p>
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="font-medium text-gray-900">
                   {pendingStudentSwitch.student.first_name} {pendingStudentSwitch.student.last_name}
                 </p>

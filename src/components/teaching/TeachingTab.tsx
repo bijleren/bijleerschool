@@ -393,8 +393,8 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
         onClick={() => setActivePage('technieken')}
         className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
           activePage === 'technieken'
-            ? 'text-#946B29 border-b-2 border-#946B29 font-medium'
-            : 'text-gray-700 hover:text-#946B29'
+            ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+            : 'text-gray-700 hover:text-blue-600'
         }`}
       >
         <BookOpen className="w-4 h-4" />
@@ -404,8 +404,8 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
         onClick={() => setActivePage('faq')}
         className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
           activePage === 'faq'
-            ? 'text-#946B29 border-b-2 border-#946B29 font-medium'
-            : 'text-gray-700 hover:text-#946B29'
+            ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+            : 'text-gray-700 hover:text-blue-600'
         }`}
       >
         <HelpCircle className="w-4 h-4" />
@@ -415,8 +415,8 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
         onClick={() => setActivePage('vormingen')}
         className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
           activePage === 'vormingen'
-            ? 'text-#946B29 border-b-2 border-#946B29 font-medium'
-            : 'text-gray-700 hover:text-#946B29'
+            ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+            : 'text-gray-700 hover:text-blue-600'
         }`}
       >
         <Video className="w-4 h-4" />
@@ -426,8 +426,8 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
         onClick={() => setActivePage('newsletter')}
         className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
           activePage === 'newsletter'
-            ? 'text-#946B29 border-b-2 border-#946B29 font-medium'
-            : 'text-gray-700 hover:text-#946B29'
+            ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+            : 'text-gray-700 hover:text-blue-600'
         }`}
       >
         <FileText className="w-4 h-4" />
@@ -437,8 +437,8 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
         onClick={() => setActivePage('begeleiding')}
         className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
           activePage === 'begeleiding'
-            ? 'text-#946B29 border-b-2 border-#946B29 font-medium'
-            : 'text-gray-700 hover:text-#946B29'
+            ? 'text-blue-600 border-b-2 border-blue-600 font-medium'
+            : 'text-gray-700 hover:text-blue-600'
         }`}
       >
         <HandHelping className="w-4 h-4" />
@@ -487,7 +487,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -498,13 +498,13 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
       {renderTabNav()}
 
       {!isAdmin && !isPremium && (
-        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3">
-          <Info className="w-5 h-5 text-#946B29 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-#3D2B10">
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
+          <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-blue-900">
             <p className="font-semibold mb-1">Volledige toegang met een bijleer.school-licentie</p>
-            <p className="text-#5C4118">
+            <p className="text-blue-800">
               Deze didactische items zijn enkel beschikbaar voor scholen met een volledige bijleer.school-licentie. De items met een slotje zijn vergrendeld voor jouw school. De items die je wel kunt openen zijn gratis voorbeelditems.
-              Neem contact op via <a href="mailto:info@bijleren.eu" className="font-medium underline hover:text-#946B29">info@bijleren.eu</a> voor meer informatie over een licentie voor jouw hele school.
+              Neem contact op via <a href="mailto:info@bijleren.eu" className="font-medium underline hover:text-blue-600">info@bijleren.eu</a> voor meer informatie over een licentie voor jouw hele school.
             </p>
           </div>
         </div>
@@ -564,7 +564,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
           <select
             value={selectedAgeGroup}
             onChange={(e) => setSelectedAgeGroup(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="all">Alle leeftijdsgroepen</option>
             {ageGroups.map((group) => (
@@ -576,7 +576,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
           <select
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="all">Alle vakken</option>
             {subjects.map((subject) => (
@@ -588,7 +588,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
           <select
             value={selectedMaterial}
             onChange={(e) => setSelectedMaterial(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="all">Alle materialen</option>
             {materials.map((material) => (
@@ -600,7 +600,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="all">Alle categorieën</option>
             {techniqueCategories.map((category) => (
@@ -645,7 +645,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center overflow-hidden">
+                      <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center overflow-hidden">
                         {technique.photo_url ? (
                           <img
                             src={technique.photo_url}
@@ -653,7 +653,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <BookOpen className="w-6 h-6 text-#946B29" />
+                          <BookOpen className="w-6 h-6 text-indigo-600" />
                         )}
                       </div>
                       <div className="flex-1">
@@ -687,7 +687,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
                           {technique.teaching_technique_age_groups.filter(tag => tag.age_groups).map((tag) => (
                             <span
                               key={tag.age_groups.id}
-                              className="px-2 py-1 bg-amber-100 text-#5C4118 text-xs rounded-full"
+                              className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
                             >
                               <Users className="w-3 h-3 inline mr-1" />
                               {tag.age_groups.name}
@@ -705,7 +705,7 @@ export function TeachingTab({ initialPage = 'technieken' }: TeachingTabProps = {
                           {technique.teaching_technique_materials.filter(tm => tm.materials).map((tm) => (
                             <span
                               key={tm.materials.id}
-                              className="px-2 py-1 bg-amber-50 text-#74531F text-xs rounded-full"
+                              className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full"
                             >
                               <Wrench className="w-3 h-3 inline mr-1" />
                               {tm.materials.name}

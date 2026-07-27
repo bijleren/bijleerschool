@@ -237,7 +237,7 @@ export function SpoorForm({ schoolId, subjects, editingSpoor, onClose }: SpoorFo
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Bijv. Basis, Verdieping, Uitdaging"
               required
             />
@@ -339,7 +339,7 @@ export function SpoorForm({ schoolId, subjects, editingSpoor, onClose }: SpoorFo
                         onClick={() => setIcon(iconName)}
                         className={`p-3 rounded-lg border-2 transition-all flex items-center justify-center ${
                           icon === iconName
-                            ? 'border-amber-500 bg-amber-50'
+                            ? 'border-blue-500 bg-blue-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
@@ -371,7 +371,7 @@ export function SpoorForm({ schoolId, subjects, editingSpoor, onClose }: SpoorFo
                       type="checkbox"
                       checked={selectedSubjects.includes(subject.id)}
                       onChange={() => toggleSubject(subject.id)}
-                      className="w-4 h-4 text-#946B29 border-gray-300 rounded focus:ring-amber-500"
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className="text-sm text-gray-700">{subject.name}</span>
                   </label>

@@ -879,11 +879,11 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                 placeholder="Zoek op titel, auteur of ISBN..."
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               {searchLoading && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-#946B29" />
+                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-blue-600" />
                 </div>
               )}
             </div>
@@ -893,14 +893,14 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
               onClick={handleOpenFilters}
               className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition-colors ${
                 showFilters || activeFilterCount > 0 || viewMode === 'browse'
-                  ? 'bg-amber-50 border-amber-300 text-#74531F'
+                  ? 'bg-blue-50 border-blue-300 text-blue-700'
                   : 'border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
             >
               <SlidersHorizontal className="w-4 h-4" />
               {viewMode === 'recent' && activeFilterCount === 0 ? 'Bladeren' : 'Filters'}
               {activeFilterCount > 0 && (
-                <span className="ml-0.5 bg-#946B29 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                <span className="ml-0.5 bg-blue-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                   {activeFilterCount}
                 </span>
               )}
@@ -953,8 +953,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                       onClick={() => { switchToBrowse(); setAvailFilter(val); }}
                       className={`px-3 py-1.5 text-xs rounded-full border font-medium transition-colors ${
                         availFilter === val
-                          ? 'bg-#946B29 border-#946B29 text-white'
-                          : 'border-gray-300 text-gray-600 hover:border-amber-500 hover:text-#946B29'
+                          ? 'bg-blue-600 border-blue-600 text-white'
+                          : 'border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600'
                       }`}
                     >
                       {label}
@@ -1003,8 +1003,8 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                         onClick={() => toggleSort(val)}
                         className={`px-3 py-1.5 text-xs rounded-full border font-medium transition-colors flex items-center gap-1 ${
                           isActive
-                            ? 'bg-#946B29 border-#946B29 text-white'
-                            : 'border-gray-300 text-gray-600 hover:border-amber-500 hover:text-#946B29'
+                            ? 'bg-blue-600 border-blue-600 text-white'
+                            : 'border-gray-300 text-gray-600 hover:border-blue-400 hover:text-blue-600'
                         }`}
                       >
                         {label}
@@ -1039,9 +1039,9 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                     disabled={!has}
                     className={`w-8 h-8 text-sm font-semibold rounded transition-colors ${
                       activeLetter === letter
-                        ? 'bg-#946B29 text-white shadow-sm'
+                        ? 'bg-blue-600 text-white shadow-sm'
                         : has
-                          ? 'bg-gray-100 text-#946B29 hover:bg-amber-50'
+                          ? 'bg-gray-100 text-blue-600 hover:bg-blue-50'
                           : 'text-gray-300 cursor-default'
                     }`}
                   >
@@ -1067,7 +1067,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
 
           {loading ? (
             <div className="flex items-center justify-center h-48">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : displayedBooks.length === 0 ? (
             <div className="text-center py-12">
@@ -1114,7 +1114,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                   </div>
                   <div className="p-2">
                     <h3
-                      className="font-semibold text-gray-900 text-xs mb-0.5 line-clamp-2 min-h-[2rem] cursor-pointer hover:text-#946B29"
+                      className="font-semibold text-gray-900 text-xs mb-0.5 line-clamp-2 min-h-[2rem] cursor-pointer hover:text-blue-600"
                       onClick={() => window.dispatchEvent(new CustomEvent('navigateToBoekerBookDetail', { detail: { bookId: book.id } }))}
                     >
                       {book.title}
@@ -1126,7 +1126,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                       <div className="line-clamp-1">ISBN: {book.isbn}</div>
                       <div>Beschikbaar: {book.available_copies}/{book.total_copies}</div>
                       {book.book_locations?.name && (
-                        <div className="flex items-center gap-0.5 text-#946B29 mt-0.5">
+                        <div className="flex items-center gap-0.5 text-blue-600 mt-0.5">
                           <MapPin className="w-2.5 h-2.5 flex-shrink-0" />
                           <span className="line-clamp-1">{book.book_locations.name}</span>
                         </div>
@@ -1157,7 +1157,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                     <div className="flex gap-1">
                       <button
                         onClick={() => window.dispatchEvent(new CustomEvent('navigateToBoekerBookDetail', { detail: { bookId: book.id } }))}
-                        className="flex-1 px-2 py-1 text-[10px] bg-amber-50 hover:bg-amber-100 text-#946B29 rounded transition-colors flex items-center justify-center"
+                        className="flex-1 px-2 py-1 text-[10px] bg-blue-50 hover:bg-blue-100 text-blue-600 rounded transition-colors flex items-center justify-center"
                         title="Details bekijken"
                       >
                         <ExternalLink className="w-3 h-3" />
@@ -1204,7 +1204,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                   strokeDashoffset="0"
                 />
               </svg>
-              <BookOpen className="w-8 h-8 text-#946B29" />
+              <BookOpen className="w-8 h-8 text-blue-600" />
             </div>
             <div className="text-center">
               <p className="text-gray-900 font-semibold text-base">Boekgegevens ophalen</p>
@@ -1214,7 +1214,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
-                  className="w-2 h-2 rounded-full bg-amber-500"
+                  className="w-2 h-2 rounded-full bg-blue-500"
                   style={{ animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }}
                 />
               ))}
@@ -1256,7 +1256,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                           if (formData.isbn) handleIsbnLookupInForm(formData.isbn);
                         }}
                         disabled={fetchingMetadata || !formData.isbn}
-                        className="flex-shrink-0 px-3 py-2 text-sm bg-#946B29 text-white rounded-lg hover:bg-#74531F disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex-shrink-0 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         title="Boekgegevens opzoeken"
                       >
                         {fetchingMetadata ? (
@@ -1427,7 +1427,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                                 setCustomCoverFile(null);
                                 setCustomCoverPreview(null);
                               }}
-                              className="text-xs text-#946B29 hover:text-#74531F mt-1"
+                              className="text-xs text-blue-600 hover:text-blue-700 mt-1"
                             >
                               Gebruik API cover
                             </button>
@@ -1447,7 +1447,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Korte beschrijving..."
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
@@ -1537,7 +1537,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                         Beschikbaar: {viewingBook.available_copies}/{viewingBook.total_copies}
                       </p>
                       {viewingBook.book_locations?.name && (
-                        <p className="flex items-center gap-1 text-#946B29">
+                        <p className="flex items-center gap-1 text-blue-600">
                           <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
                           {viewingBook.book_locations.name}
                         </p>
@@ -1591,7 +1591,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
 
               <div className="border-t pt-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <Users className="w-5 h-5 text-#946B29" />
+                  <Users className="w-5 h-5 text-blue-600" />
                   <h3 className="text-lg font-semibold text-gray-900">
                     Huidige Leners ({currentBorrowers.length})
                   </h3>
@@ -1650,7 +1650,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
                               <h4
-                                className="font-semibold text-gray-900 hover:text-#946B29 cursor-pointer"
+                                className="font-semibold text-gray-900 hover:text-blue-600 cursor-pointer"
                                 onClick={() => {
                                   if (onViewStudent) {
                                     setViewingBook(null);
@@ -1671,7 +1671,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                             <div className="flex items-center gap-2">
                               {borrower.current_page && (
                                 <div className="text-right">
-                                  <p className="text-sm font-semibold text-#946B29">
+                                  <p className="text-sm font-semibold text-blue-600">
                                     Pagina {borrower.current_page}
                                     {viewingBook.page_count && ` / ${viewingBook.page_count}`}
                                   </p>
@@ -1710,7 +1710,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                                     setToast({ message: 'Fout bij retourneren', type: 'error' });
                                   }
                                 }}
-                                className="px-3 py-1 text-xs bg-#946B29 text-white rounded hover:bg-#74531F transition-colors flex items-center gap-1"
+                                className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-1"
                               >
                                 <X className="w-3 h-3" />
                                 Retourneer
@@ -1726,7 +1726,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                               </div>
                               <div className="w-full bg-gray-200 rounded-full h-2">
                                 <div
-                                  className="bg-#946B29 h-2 rounded-full transition-all"
+                                  className="bg-blue-600 h-2 rounded-full transition-all"
                                   style={{ width: `${progressPercentage}%` }}
                                 />
                               </div>
@@ -1768,7 +1768,7 @@ export function BookLibrary({ schoolId, onViewStudent }: BookLibraryProps) {
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h4
-                                className="font-semibold text-gray-900 hover:text-#946B29 cursor-pointer"
+                                className="font-semibold text-gray-900 hover:text-blue-600 cursor-pointer"
                                 onClick={() => {
                                   if (onViewStudent) {
                                     setViewingBook(null);
