@@ -26,8 +26,7 @@ export function LandingNav({ navigate }: LandingNavProps) {
         {/* Left: logo + app name */}
         <div className="flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <span className="font-fredoka font-bold text-xl text-brand">bijleren.eu</span>
-            <span className="font-fredoka font-bold text-xl text-ink hidden sm:block">bijleer.school</span>
+            <span className="font-fredoka font-bold text-xl text-ink">bijleer.school</span>
           </Link>
           {NAV_LINKS.slice(0, 3).map((link) => {
             const Icon = link.icon;
