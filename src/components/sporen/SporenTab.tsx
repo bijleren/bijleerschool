@@ -137,8 +137,8 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <GitBranch className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center">
+              <GitBranch className="w-6 h-6 text-brand" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Sporen</h1>
@@ -228,8 +228,8 @@ export function SporenTab({ focusSchool }: SporenTabProps) {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Settings className="w-5 h-5 text-blue-600" />
+                <div className="w-9 h-9 bg-gray-700 rounded-lg flex items-center justify-center">
+                  <Settings className="w-5 h-5 text-brand" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900">Beheer Sporen</h2>
