@@ -110,7 +110,7 @@ export function FeedbackModal({
                     disabled={submitting}
                     className={`flex flex-col items-center p-3 border-2 rounded-lg transition-all ${
                       rating === option.value
-                        ? 'border-blue-500 bg-blue-50'
+                        ? 'border-amber-500 bg-amber-50'
                         : 'border-gray-200 hover:border-gray-300'
                     } ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
@@ -138,7 +138,7 @@ export function FeedbackModal({
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Voeg notities toe over de activiteit..."
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               />
             </div>
           )}
@@ -151,7 +151,7 @@ export function FeedbackModal({
               <select
                 value={switchTo || ''}
                 onChange={(e) => setSwitchTo(e.target.value || null)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               >
                 <option value="">Nee, alleen afsluiten</option>
                 {otherOptions.map((option) => (

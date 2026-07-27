@@ -57,7 +57,7 @@ export function WebWijzerContentViewer({ content, onClose }: WebWijzerContentVie
               href={content.content_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:underline focus:ring-4 focus:ring-blue-300 focus:outline-none rounded"
+              className="text-#946B29 hover:underline focus:ring-4 focus:ring-amber-300 focus:outline-none rounded"
               aria-label="Video openen in nieuw tabblad"
             >
               Video openen in nieuw tabblad
@@ -133,7 +133,7 @@ export function WebWijzerContentViewer({ content, onClose }: WebWijzerContentVie
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4" role="main">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-green-50 p-4" role="main">
       <div className="max-w-6xl mx-auto">
         <header className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">

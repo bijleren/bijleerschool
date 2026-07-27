@@ -114,7 +114,7 @@ export function LeescoachAnalytics({ schoolId, onNavigateBack }: LeescoachAnalyt
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="p-6">
-            <div className="text-3xl font-bold text-blue-600 mb-2">{analytics.totalSessions}</div>
+            <div className="text-3xl font-bold text-#946B29 mb-2">{analytics.totalSessions}</div>
             <div className="text-gray-600">Totaal Sessies</div>
           </Card>
           <Card className="p-6">
@@ -139,7 +139,7 @@ export function LeescoachAnalytics({ schoolId, onNavigateBack }: LeescoachAnalyt
                   <div className="flex items-center gap-3">
                     <div className="w-32 bg-gray-200 rounded-full h-4">
                       <div
-                        className="bg-blue-500 h-4 rounded-full"
+                        className="bg-amber-500 h-4 rounded-full"
                         style={{ width: `${(count / analytics.totalSessions) * 100}%` }}
                       />
                     </div>
@@ -199,7 +199,7 @@ export function LeescoachAnalytics({ schoolId, onNavigateBack }: LeescoachAnalyt
                   <div className="flex items-center gap-3">
                     <div className="w-32 bg-gray-200 rounded-full h-4">
                       <div
-                        className="bg-purple-500 h-4 rounded-full"
+                        className="bg-amber-500 h-4 rounded-full"
                         style={{ width: `${(count / analytics.totalSessions) * 100}%` }}
                       />
                     </div>

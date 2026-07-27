@@ -83,7 +83,7 @@ function AudioPlayer({ url }: { url: string }) {
   };
 
   return (
-    <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mt-2">
+    <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2">
       <audio
         ref={audioRef}
         src={url}
@@ -99,7 +99,7 @@ function AudioPlayer({ url }: { url: string }) {
       <button
         onClick={toggle}
         disabled={loading}
-        className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors flex-shrink-0 disabled:opacity-50"
+        className="w-7 h-7 rounded-full bg-#946B29 text-white flex items-center justify-center hover:bg-#74531F transition-colors flex-shrink-0 disabled:opacity-50"
       >
         {loading ? (
           <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -110,14 +110,14 @@ function AudioPlayer({ url }: { url: string }) {
         )}
       </button>
       <div className="flex-1">
-        <div className="w-full h-1.5 bg-blue-200 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-amber-200 rounded-full overflow-hidden">
           <div
-            className="h-full bg-blue-600 rounded-full transition-all"
+            className="h-full bg-#946B29 rounded-full transition-all"
             style={{ width: `${progress * 100}%` }}
           />
         </div>
       </div>
-      <span className="text-[11px] text-blue-600 font-medium tabular-nums flex-shrink-0">
+      <span className="text-[11px] text-#946B29 font-medium tabular-nums flex-shrink-0">
         {duration > 0 ? formatTime(duration) : <Mic className="w-3.5 h-3.5" />}
       </span>
     </div>
@@ -255,7 +255,7 @@ export function RecentActivity({ schoolId, onViewStudent }: RecentActivityProps)
 
   const GroupSelector = (
     <div className="relative">
-      <div className="flex items-center gap-2 pl-3 pr-8 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-400 transition-colors min-w-[180px]">
+      <div className="flex items-center gap-2 pl-3 pr-8 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-amber-500 transition-colors min-w-[180px]">
         <Users className="w-4 h-4 text-gray-400 flex-shrink-0" />
         <select
           value={selectedGroupId}
@@ -281,7 +281,7 @@ export function RecentActivity({ schoolId, onViewStudent }: RecentActivityProps)
       <div className="space-y-4">
         <div className="flex items-center justify-between">{GroupSelector}</div>
         <div className="flex items-center justify-center h-48">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29" />
         </div>
       </div>
     );
@@ -343,7 +343,7 @@ export function RecentActivity({ schoolId, onViewStudent }: RecentActivityProps)
                       {latest.students.first_name} {latest.students.last_name}
                     </span>
                     {hasAudio && (
-                      <span className="flex items-center gap-1 text-[11px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">
+                      <span className="flex items-center gap-1 text-[11px] bg-amber-100 text-#74531F px-1.5 py-0.5 rounded-full font-medium">
                         <Mic className="w-3 h-3" />
                         opname
                       </span>
@@ -380,7 +380,7 @@ export function RecentActivity({ schoolId, onViewStudent }: RecentActivityProps)
                 {/* Go-to-student button */}
                 <button
                   onClick={(e) => { e.stopPropagation(); onViewStudent(studentId); }}
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors flex-shrink-0"
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-#946B29 border border-amber-200 rounded-lg hover:bg-amber-50 transition-colors flex-shrink-0"
                 >
                   Leerling
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -453,7 +453,7 @@ export function RecentActivity({ schoolId, onViewStudent }: RecentActivityProps)
                               <div className="mt-2 flex items-center gap-2">
                                 <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                                   <div
-                                    className="h-full bg-blue-500 rounded-full"
+                                    className="h-full bg-amber-500 rounded-full"
                                     style={{ width: `${Math.min(progressPct, 100)}%` }}
                                   />
                                 </div>

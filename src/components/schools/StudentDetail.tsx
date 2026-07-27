@@ -891,7 +891,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'in_progress': return 'bg-blue-100 text-blue-800';
+      case 'in_progress': return 'bg-amber-100 text-#5C4118';
       case 'resolved': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -1015,7 +1015,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                 <select
                   value={editSelectedLeerjaar}
                   onChange={(e) => setEditSelectedLeerjaar(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 >
                   <option value="">Selecteer leerjaar</option>
                   {schoolGrades.map((grade) => (
@@ -1243,14 +1243,14 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
 
         <div className="grid grid-cols-4 gap-6">
           {/* Total Incidents */}
-          <div className="bg-blue-50 rounded-lg p-4">
+          <div className="bg-amber-50 rounded-lg p-4">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <AlertTriangle className="w-6 h-6 text-blue-600" />
+              <div className="p-2 bg-amber-100 rounded-lg">
+                <AlertTriangle className="w-6 h-6 text-#946B29" />
               </div>
               <div>
-                <p className="text-sm text-blue-600 font-medium">Totaal incidenten</p>
-                <p className="text-2xl font-bold text-blue-900">{incidentStats.total}</p>
+                <p className="text-sm text-#946B29 font-medium">Totaal incidenten</p>
+                <p className="text-2xl font-bold text-#3D2B10">{incidentStats.total}</p>
               </div>
             </div>
           </div>
@@ -1343,7 +1343,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
 
         {incidentsLoading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-#946B29"></div>
           </div>
         ) : recentIncidents.length === 0 ? (
           <div className="text-center py-8">
@@ -1470,12 +1470,12 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">QR Code</label>
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
               <div className="flex items-start gap-4">
                 {qrCodeUrl ? (
                   <div className="flex-shrink-0">
                     <div
-                      className="bg-white p-2 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow border-2 border-transparent hover:border-blue-300"
+                      className="bg-white p-2 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow border-2 border-transparent hover:border-amber-300"
                       onClick={downloadQRCode}
                       title="Click to download QR code"
                     >
@@ -1497,13 +1497,13 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                   </div>
                 )}
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-blue-900 mb-2">
+                  <p className="text-sm font-medium text-#3D2B10 mb-2">
                     https://bijleer.school/webwijzer?h={accessHash || '...'}
                   </p>
-                  <p className="text-xs text-blue-700 mb-2">
+                  <p className="text-xs text-#74531F mb-2">
                     Students can scan this QR code for instant access to their WebWijzer
                   </p>
-                  <p className="text-xs text-blue-600 font-medium">
+                  <p className="text-xs text-#946B29 font-medium">
                     Click the QR code to download it
                   </p>
                 </div>
@@ -1530,11 +1530,11 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
           </Button>
         </div>
 
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-          <p className="text-sm text-blue-900 mb-2">
+        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+          <p className="text-sm text-#3D2B10 mb-2">
             <strong>Digitale Bibliotheek</strong>
           </p>
-          <p className="text-xs text-blue-700">
+          <p className="text-xs text-#74531F">
             {student.first_name} kan hier boeken scannen, leesvoortgang bijhouden en boeken beoordelen.
           </p>
         </div>
@@ -1712,7 +1712,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                   {studentGrades.map((studentGrade) => (
                     <span
                       key={studentGrade.id}
-                      className="px-2 py-1 bg-purple-100 text-purple-800 text-sm rounded-full"
+                      className="px-2 py-1 bg-amber-100 text-#5C4118 text-sm rounded-full"
                     >
                       {studentGrade.school_grades.name}
                     </span>

@@ -109,7 +109,7 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <div className="flex items-center gap-2">
-            <Camera className="w-5 h-5 text-blue-600" />
+            <Camera className="w-5 h-5 text-#946B29" />
             <h2 className="text-lg font-semibold text-gray-900">ISBN barcode scannen</h2>
           </div>
           <button
@@ -132,12 +132,12 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
                 style={{ width: '72%', height: '38%', boxShadow: '0 0 0 9999px rgba(0,0,0,0.45)' }}
               >
                 {/* Corner accents */}
-                <span className="absolute -top-0.5 -left-0.5 w-5 h-5 border-t-4 border-l-4 border-blue-400 rounded-tl-md" />
-                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 border-t-4 border-r-4 border-blue-400 rounded-tr-md" />
-                <span className="absolute -bottom-0.5 -left-0.5 w-5 h-5 border-b-4 border-l-4 border-blue-400 rounded-bl-md" />
-                <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 border-b-4 border-r-4 border-blue-400 rounded-br-md" />
+                <span className="absolute -top-0.5 -left-0.5 w-5 h-5 border-t-4 border-l-4 border-amber-500 rounded-tl-md" />
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 border-t-4 border-r-4 border-amber-500 rounded-tr-md" />
+                <span className="absolute -bottom-0.5 -left-0.5 w-5 h-5 border-b-4 border-l-4 border-amber-500 rounded-bl-md" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 border-b-4 border-r-4 border-amber-500 rounded-br-md" />
                 {/* Scan line */}
-                <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 h-0.5 bg-blue-400/80 animate-pulse" />
+                <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 h-0.5 bg-amber-500/80 animate-pulse" />
               </div>
             </div>
           )}

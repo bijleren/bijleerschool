@@ -231,7 +231,7 @@ export function SchoolTagsSettings({ schoolId, onTagsChanged }: SchoolTagsSettin
 
       {/* Create form */}
       {showCreateForm && (
-        <Card className="border-2 border-blue-100 bg-blue-50/30">
+        <Card className="border-2 border-amber-100 bg-amber-50/30">
           <h5 className="text-sm font-semibold text-gray-800 mb-3">Nieuwe tag aanmaken</h5>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -315,7 +315,7 @@ export function SchoolTagsSettings({ schoolId, onTagsChanged }: SchoolTagsSettin
       {/* Tag list */}
       {loading ? (
         <div className="flex items-center justify-center py-8">
-          <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-#946B29 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : tags.length === 0 ? (
         <Card className="text-center py-10">

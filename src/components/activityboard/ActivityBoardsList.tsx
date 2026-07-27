@@ -6,7 +6,7 @@ import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { ActivationModal } from './ActivationModal';
 import { StopBoardModal } from './StopBoardModal';
 import { ExtendTimeModal } from './ExtendTimeModal';
-import { Plus, Grid, Edit, Trash2, BarChart3, Eye, Users, Archive, ArchiveRestore, Play, Square, Clock, AlertTriangle } from 'lucide-react';
+import { Plus, Grid2x2 as Grid, CreditCard as Edit, Trash2, BarChart3, Eye, Users, Archive, ArchiveRestore, Play, Square, Clock, AlertTriangle } from 'lucide-react';
 
 interface ActivityBoard {
   id: string;
@@ -323,7 +323,7 @@ export function ActivityBoardsList({
             <select
               value={schoolId}
               onChange={(e) => onSchoolChange(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             >
               {schools.map((school) => (
                 <option key={school.id} value={school.id}>
@@ -423,7 +423,7 @@ export function ActivityBoardsList({
                     </Button>
                     <button
                       onClick={() => onViewBoard(board)}
-                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-600 hover:text-#946B29 hover:bg-gray-50 rounded-lg transition-colors"
                       title="Bekijken"
                     >
                       <Eye className="w-4 h-4" />
@@ -479,7 +479,7 @@ export function ActivityBoardsList({
                               )}
                               <div className="flex items-center gap-2 mt-1">
                                 {activeCounts[board.id] > 0 && (
-                                  <div className="flex items-center space-x-1 text-sm text-blue-600 font-medium">
+                                  <div className="flex items-center space-x-1 text-sm text-#946B29 font-medium">
                                     <Users className="w-3 h-3" />
                                     <span>{activeCounts[board.id]} actief</span>
                                   </div>
@@ -527,7 +527,7 @@ export function ActivityBoardsList({
                             </Button>
                             <button
                               onClick={() => onEditBoard(board)}
-                              className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors"
+                              className="p-2 text-gray-600 hover:text-#946B29 hover:bg-gray-50 rounded-lg transition-colors"
                             >
                               <Edit className="w-4 h-4" />
                             </button>

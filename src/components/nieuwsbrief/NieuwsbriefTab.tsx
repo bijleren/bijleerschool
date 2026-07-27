@@ -209,7 +209,7 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
       </div>
     );
   }
@@ -217,13 +217,13 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
   return (
     <div className="p-8 max-w-7xl mx-auto">
       {!isAdmin && !isPremium && (
-        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
-          <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-blue-900">
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3">
+          <Info className="w-5 h-5 text-#946B29 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-#3D2B10">
             <p className="font-semibold mb-1">Volledige toegang met een bijleer.school-licentie</p>
-            <p className="text-blue-800">
+            <p className="text-#5C4118">
               Deze didactische items zijn enkel beschikbaar voor scholen met een volledige bijleer.school-licentie. De items met een slotje zijn vergrendeld voor jouw school. De items die je wel kunt openen zijn gratis voorbeelditems.
-              Neem contact op via <a href="mailto:info@bijleren.eu" className="font-medium underline hover:text-blue-600">info@bijleren.eu</a> voor meer informatie over een licentie voor jouw hele school.
+              Neem contact op via <a href="mailto:info@bijleren.eu" className="font-medium underline hover:text-#946B29">info@bijleren.eu</a> voor meer informatie over een licentie voor jouw hele school.
             </p>
           </div>
         </div>
@@ -232,7 +232,7 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-            <Newspaper className="w-8 h-8 mr-3 text-blue-600" />
+            <Newspaper className="w-8 h-8 mr-3 text-#946B29" />
             Nieuwsbrief
           </h1>
           <p className="text-gray-600 mt-2">
@@ -262,7 +262,7 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
               placeholder="Zoek nieuwsbrieven..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -319,7 +319,7 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
                           <Button
                             onClick={() => !locked && handleDownload(newsletter)}
                             disabled={locked}
-                            className={locked ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}
+                            className={locked ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-#946B29 hover:bg-#74531F text-white'}
                           >
                             {locked ? <Lock className="w-4 h-4 mr-2" /> : <Download className="w-4 h-4 mr-2" />}
                             {locked ? 'Vergrendeld' : 'Download PDF'}
@@ -384,7 +384,7 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
                     onChange={(e) => setNewNewsletter({ ...newNewsletter, description: e.target.value })}
                     placeholder="Korte beschrijving van de nieuwsbrief..."
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -393,7 +393,7 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     PDF Bestand
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-amber-500 transition-colors">
                     <input
                       type="file"
                       accept=".pdf"
@@ -413,7 +413,7 @@ export function NieuwsbriefTab({ isPremium = false, isAdmin: isAdminProp }: Nieu
                       <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                       <p className="text-sm text-gray-600">
                         {newNewsletter.file ? (
-                          <span className="text-blue-600 font-medium">{newNewsletter.file.name}</span>
+                          <span className="text-#946B29 font-medium">{newNewsletter.file.name}</span>
                         ) : (
                           <>
                             Klik om een PDF te selecteren

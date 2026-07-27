@@ -118,9 +118,9 @@ export function PublicTechniqueView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-cyan-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto mb-4"></div>
           <p className="text-gray-600">Techniek wordt geladen...</p>
         </div>
       </div>
@@ -129,7 +129,7 @@ export function PublicTechniqueView() {
 
   if (error || !technique) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-cyan-50 flex items-center justify-center p-4">
         <Card className="max-w-md w-full text-center p-8">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <BookOpen className="w-8 h-8 text-red-600" />
@@ -146,12 +146,12 @@ export function PublicTechniqueView() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-cyan-50">
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-#946B29 rounded-xl flex items-center justify-center">
                 <GraduationCap className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -203,8 +203,8 @@ export function PublicTechniqueView() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               {technique.teaching_technique_age_groups.length > 0 && (
-                <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
-                  <Users className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-lg">
+                  <Users className="w-5 h-5 text-#946B29 mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-gray-700 mb-1">Leeftijdsgroepen</p>
                     <div className="flex flex-wrap gap-1">
@@ -267,7 +267,7 @@ export function PublicTechniqueView() {
           {(technique.teacher_video_url || technique.student_video_url) && (
             <div className="mb-8 space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <Play className="w-6 h-6 text-blue-600" />
+                <Play className="w-6 h-6 text-#946B29" />
                 Video's
               </h2>
 
@@ -289,7 +289,7 @@ export function PublicTechniqueView() {
                           href={technique.teacher_video_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-white flex items-center gap-2 hover:text-blue-300"
+                          className="text-white flex items-center gap-2 hover:text-amber-300"
                         >
                           <ExternalLink className="w-5 h-5" />
                           Open video in nieuwe tab
@@ -318,7 +318,7 @@ export function PublicTechniqueView() {
                           href={technique.student_video_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-white flex items-center gap-2 hover:text-blue-300"
+                          className="text-white flex items-center gap-2 hover:text-amber-300"
                         >
                           <ExternalLink className="w-5 h-5" />
                           Open video in nieuwe tab
@@ -337,14 +337,14 @@ export function PublicTechniqueView() {
         </Card>
 
         <div className="mt-8 text-center">
-          <Card className="p-6 bg-blue-50 border-blue-200">
+          <Card className="p-6 bg-amber-50 border-amber-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Wil je meer technieken bekijken?
             </h3>
             <p className="text-gray-600 mb-4">
               Log in om toegang te krijgen tot alle didactische technieken en tools.
             </p>
-            <Button onClick={handleLogin} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleLogin} className="bg-#946B29 hover:bg-#74531F">
               <LogIn className="w-4 h-4 mr-2" />
               Inloggen voor volledige toegang
             </Button>

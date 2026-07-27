@@ -242,10 +242,10 @@ export function StudentWebWijzerManager({ onBack, onEditContent }: StudentWebWij
           <div className="flex gap-2">
             <button
               onClick={() => window.open(content.content_url, '_blank')}
-              className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+              className="p-2 hover:bg-amber-50 rounded-lg transition-colors"
               title="Bekijk content"
             >
-              <Eye className="w-4 h-4 text-blue-600" />
+              <Eye className="w-4 h-4 text-#946B29" />
             </button>
             {onEditContent && (
               <button
@@ -282,7 +282,7 @@ export function StudentWebWijzerManager({ onBack, onEditContent }: StudentWebWij
               Direct toegewezen
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-sm text-blue-700">
+            <div className="flex items-center gap-2 text-sm text-#74531F">
               <Users className="w-4 h-4" />
               Via groep: {content.group_name}
             </div>
@@ -324,7 +324,7 @@ export function StudentWebWijzerManager({ onBack, onEditContent }: StudentWebWij
 
         {loading ? (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto"></div>
           </div>
         ) : studentContents.length === 0 ? (
           <Card className="text-center py-12">
@@ -408,7 +408,7 @@ export function StudentWebWijzerManager({ onBack, onEditContent }: StudentWebWij
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto"></div>
         </div>
       ) : filteredStudents.length === 0 ? (
         <Card className="text-center py-12">

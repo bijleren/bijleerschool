@@ -476,15 +476,15 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
     const info = infoContent[activeTab];
 
     return (
-      <Card className="mb-6 bg-blue-50 border-blue-200">
+      <Card className="mb-6 bg-amber-50 border-amber-200">
         <div className="flex items-start space-x-3">
-          <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+          <Info className="w-5 h-5 text-#946B29 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-blue-900 mb-2">{info.title}</h3>
-            <p className="text-blue-800 mb-3">{info.description}</p>
+            <h3 className="font-semibold text-#3D2B10 mb-2">{info.title}</h3>
+            <p className="text-#5C4118 mb-3">{info.description}</p>
             <div>
-              <p className="text-sm font-medium text-blue-900 mb-1">Voorbeelden:</p>
-              <ul className="text-sm text-blue-800 space-y-1">
+              <p className="text-sm font-medium text-#3D2B10 mb-1">Voorbeelden:</p>
+              <ul className="text-sm text-#5C4118 space-y-1">
                 {info.examples.map((example, index) => (
                   <li key={index}>• {example}</li>
                 ))}
@@ -527,7 +527,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 placeholder="Beschrijf deze categorie..."
               />
             </div>
@@ -539,7 +539,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                 <select
                   value={formData.icon || 'Tag'}
                   onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 >
                   <option value="Tag">Tag</option>
                   <option value="AlertTriangle">AlertTriangle</option>
@@ -792,7 +792,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 placeholder="Beschrijf dit ernst niveau..."
               />
             </div>
@@ -881,7 +881,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 placeholder="Beschrijf dit gedragsitem..."
               />
             </div>
@@ -894,7 +894,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                   value={formData.category_id || ''}
                   onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 >
                   <option value="">Selecteer categorie</option>
                   {categories.map((category) => (
@@ -912,7 +912,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                   value={formData.severity_level_id || ''}
                   onChange={(e) => setFormData({ ...formData, severity_level_id: e.target.value })}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 >
                   <option value="">Selecteer ernst niveau</option>
                   {severityLevels.map((level) => (
@@ -1090,7 +1090,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 placeholder="Beschrijf deze rol..."
               />
             </div>
@@ -1113,7 +1113,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                     id="isDefault"
                     checked={formData.is_default || false}
                     onChange={(e) => setFormData({ ...formData, is_default: e.target.checked })}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-#946B29 focus:ring-amber-500 border-gray-300 rounded"
                   />
                   <label htmlFor="isDefault" className="ml-2 block text-sm text-gray-900">
                     Standaard rol
@@ -1125,7 +1125,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                     id="countInAnalytics"
                     checked={formData.count_in_analytics !== false}
                     onChange={(e) => setFormData({ ...formData, count_in_analytics: e.target.checked })}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-#946B29 focus:ring-amber-500 border-gray-300 rounded"
                   />
                   <label htmlFor="countInAnalytics" className="ml-2 block text-sm text-gray-900">
                     Tellen in analytics
@@ -1173,7 +1173,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                         </span>
                       )}
                       {role.count_in_analytics && (
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                        <span className="px-2 py-1 bg-amber-100 text-#5C4118 text-xs rounded-full">
                           Tellen in analytics
                         </span>
                       )}
@@ -1242,7 +1242,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 placeholder="Beschrijf deze consequentie..."
               />
             </div>
@@ -1345,7 +1345,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'categories'
-                ? 'border-indigo-500 text-indigo-600'
+                ? 'border-amber-500 text-#946B29'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -1359,7 +1359,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'levels'
-                ? 'border-indigo-500 text-indigo-600'
+                ? 'border-amber-500 text-#946B29'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -1373,7 +1373,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'items'
-                ? 'border-indigo-500 text-indigo-600'
+                ? 'border-amber-500 text-#946B29'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -1387,7 +1387,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'roles'
-                ? 'border-indigo-500 text-indigo-600'
+                ? 'border-amber-500 text-#946B29'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -1401,7 +1401,7 @@ export function BehaviorSettings({ schoolId, onBack }: BehaviorSettingsProps) {
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'consequences'
-                ? 'border-indigo-500 text-indigo-600'
+                ? 'border-amber-500 text-#946B29'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >

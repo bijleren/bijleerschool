@@ -209,8 +209,8 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <Eye className="w-6 h-6 text-blue-600" />
+              <div className="p-3 bg-amber-50 rounded-lg">
+                <Eye className="w-6 h-6 text-#946B29" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Totaal Weergaven</p>
@@ -233,8 +233,8 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
 
           <Card>
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-purple-50 rounded-lg">
-                <Users className="w-6 h-6 text-purple-600" />
+              <div className="p-3 bg-amber-50 rounded-lg">
+                <Users className="w-6 h-6 text-#946B29" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Totaal Toegang</p>
@@ -270,7 +270,7 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
                 {selectedContent.viewsByStudent.map((student, idx) => (
                   <div key={student.student_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-semibold text-blue-700">
+                      <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-sm font-semibold text-#74531F">
                         {idx + 1}
                       </div>
                       <div>
@@ -295,8 +295,8 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
             ) : (
               <div className="space-y-3">
                 {selectedContent.recentViews.map((view, idx) => (
-                  <div key={idx} className="flex items-center gap-3 p-3 border-l-4 border-blue-500 bg-blue-50">
-                    <Clock className="w-5 h-5 text-blue-600" />
+                  <div key={idx} className="flex items-center gap-3 p-3 border-l-4 border-amber-500 bg-amber-50">
+                    <Clock className="w-5 h-5 text-#946B29" />
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{view.student_name}</p>
                       <p className="text-sm text-gray-600">{formatDate(view.viewed_at)}</p>
@@ -340,7 +340,7 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto"></div>
           <p className="text-gray-600 mt-4">Analytics laden...</p>
         </div>
       ) : analyticsData.length === 0 ? (
@@ -399,7 +399,7 @@ export function WebWijzerAnalytics({ onBack, initialContentId }: WebWijzerAnalyt
                 </div>
                 <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-blue-600 rounded-full transition-all"
+                    className="h-full bg-#946B29 rounded-full transition-all"
                     style={{
                       width: `${data.totalStudentsWithAccess > 0
                         ? Math.round((data.uniqueStudents / data.totalStudentsWithAccess) * 100)

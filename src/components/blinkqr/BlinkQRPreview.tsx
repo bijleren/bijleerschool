@@ -64,7 +64,7 @@ export function BlinkQRPreview({ code, onClick, className = '' }: BlinkQRPreview
   return (
     <button
       onClick={onClick}
-      className={`w-32 h-32 rounded-lg overflow-hidden border-2 border-gray-200 hover:border-blue-500 transition-all hover:shadow-md cursor-pointer ${className}`}
+      className={`w-32 h-32 rounded-lg overflow-hidden border-2 border-gray-200 hover:border-amber-500 transition-all hover:shadow-md cursor-pointer ${className}`}
       title="Click to download QR code"
     >
       <img

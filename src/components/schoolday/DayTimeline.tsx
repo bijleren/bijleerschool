@@ -94,7 +94,7 @@ const BLOCK_TYPE_ICONS = {
 };
 
 const BLOCK_TYPE_COLORS = {
-  lesson: 'bg-blue-100 text-blue-800 border-blue-200',
+  lesson: 'bg-amber-100 text-#5C4118 border-amber-200',
   break: 'bg-green-100 text-green-800 border-green-200',
   lunch: 'bg-orange-100 text-orange-800 border-orange-200',
   other: 'bg-gray-100 text-gray-800 border-gray-200',
@@ -827,7 +827,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
       </div>
     );
   }
@@ -838,7 +838,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
         <div className={`p-4 rounded-lg ${
           message.includes('succesvol') || message.includes('geregistreerd')
             ? 'bg-green-50 border border-green-200 text-green-700'
-            : 'bg-blue-50 border border-blue-200 text-blue-700'
+            : 'bg-amber-50 border border-amber-200 text-#74531F'
         }`}>
           {message}
         </div>
@@ -871,7 +871,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
               type="date"
               value={selectedDate.toISOString().split('T')[0]}
               onChange={(e) => setSelectedDate(new Date(e.target.value))}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             />
             {groups.length > 0 && (
               <select
@@ -880,7 +880,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                   const group = groups.find(g => g.id === e.target.value);
                   setSelectedGroup(group || null);
                 }}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
               >
                 <option value="">School algemeen</option>
                 {groups.map((group) => (
@@ -933,7 +933,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                 <div className="flex flex-col items-center mr-4">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 ${
                     isPast ? 'bg-green-500 border-green-500 text-white' :
-                    isActive ? 'bg-blue-500 border-blue-500 text-white' :
+                    isActive ? 'bg-amber-500 border-amber-500 text-white' :
                     'bg-gray-200 border-gray-300 text-gray-600'
                   }`}>
                     <Icon className="w-5 h-5" />
@@ -943,7 +943,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                 {/* Block content */}
                 <div 
                   className={`flex-1 bg-white rounded-lg border p-4 cursor-pointer transition-all hover:shadow-md mb-4 ${
-                    isActive ? 'border-blue-300 bg-blue-50' : 
+                    isActive ? 'border-amber-300 bg-amber-50' : 
                     isPast ? 'border-green-200' : 'border-gray-200'
                   }`}
                   onClick={() => handleBlockClick(block)}
@@ -975,8 +975,8 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                               
                               let bgColor = 'bg-gray-300';
                               if (subblock.name === 'Start') bgColor = 'bg-green-500';
-                              else if (subblock.name.includes('Main')) bgColor = 'bg-blue-500';
-                              else if (subblock.name === 'End') bgColor = 'bg-purple-500';
+                              else if (subblock.name.includes('Main')) bgColor = 'bg-amber-500';
+                              else if (subblock.name === 'End') bgColor = 'bg-amber-500';
                               
                               return (
                                 <div
@@ -1032,7 +1032,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                                         subblockProgress >= 100 
                                           ? 'bg-green-500' 
                                           : subblockProgress > 0 
-                                          ? 'bg-blue-500' 
+                                          ? 'bg-amber-500' 
                                           : 'bg-gray-300'
                                       }`}
                                       style={{ width: `${Math.min(100, Math.max(0, subblockProgress))}%` }}
@@ -1100,7 +1100,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                                 </div>
                               )}
                               {activity.activity_type === 'note' && (
-                                <div className="flex items-center space-x-1 text-blue-700">
+                                <div className="flex items-center space-x-1 text-#74531F">
                                   <Clock className="w-3 h-3" />
                                   <span>{activity.notes}</span>
                                 </div>
@@ -1170,7 +1170,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                                     <div 
                                       className={`h-2 rounded-full transition-all duration-1000 ${
                                         isSubblockComplete ? 'bg-green-500' :
-                                        isSubblockActive ? 'bg-blue-500' : 'bg-gray-300'
+                                        isSubblockActive ? 'bg-amber-500' : 'bg-gray-300'
                                       }`}
                                       style={{ width: `${subblockProgress}%` }}
                                     />
@@ -1219,14 +1219,14 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                       )}
                       {isActive && (
                         <div className="mt-1">
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                          <span className="px-2 py-1 bg-amber-100 text-#5C4118 rounded-full text-xs font-medium">
                             Actief
                           </span>
                         </div>
                       )}
                       {activities.length > 0 && (
                         <div className="mt-1">
-                          <span className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs">
+                          <span className="px-2 py-1 bg-amber-100 text-#5C4118 rounded-full text-xs">
                             {activities.length} activiteit{activities.length !== 1 ? 'en' : ''}
                           </span>
                         </div>
@@ -1377,13 +1377,13 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                         onClick={() => setSelectedTechnique(technique)}
                         className={`w-full text-left p-3 rounded-lg border transition-colors ${
                           selectedTechnique?.id === technique.id
-                            ? 'border-indigo-500 bg-indigo-50'
+                            ? 'border-amber-500 bg-amber-50'
                             : 'border-gray-200 hover:bg-gray-50'
                         }`}
                       >
                         <div className="flex items-start space-x-3">
-                          <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                            <BookOpenIcon className="w-5 h-5 text-indigo-600" />
+                          <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                            <BookOpenIcon className="w-5 h-5 text-#946B29" />
                           </div>
                           <div className="flex-1">
                             <h4 className="font-medium text-gray-900">{technique.title}</h4>
@@ -1439,7 +1439,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                                   subblockProgress >= 100 
                                     ? 'bg-green-500' 
                                     : isSubblockActive 
-                                    ? 'bg-blue-500' 
+                                    ? 'bg-amber-500' 
                                     : 'bg-gray-300'
                                 }`}
                                 style={{ width: `${Math.min(100, Math.max(0, subblockProgress))}%` }}
@@ -1447,7 +1447,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                             </div>
                             <div className="absolute -top-1 text-xs text-gray-500" style={{ left: `${Math.min(100, Math.max(0, subblockProgress))}%` }}>
                               {isSubblockActive && (
-                                <div className="w-1 h-4 bg-blue-600 rounded-full transform -translate-x-1/2" />
+                                <div className="w-1 h-4 bg-#946B29 rounded-full transform -translate-x-1/2" />
                               )}
                             </div>
                           </div>
@@ -1462,7 +1462,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                                 setSelectedBlock({ ...selectedBlock, subblock });
                                 setShowActivityForm(true);
                               }}
-                              className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                              className="p-1 text-gray-400 hover:text-#946B29 hover:bg-amber-50 rounded transition-colors"
                               title="Techniek toevoegen"
                             >
                               <Target className="w-3 h-3" />
@@ -1512,7 +1512,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                                onClick={() => setSelectedGradeId(grade.id)}
                                className={`w-full text-left p-3 rounded border transition-colors ${
                                  selectedGradeId === grade.id
-                                   ? 'border-indigo-500 bg-indigo-50'
+                                   ? 'border-amber-500 bg-amber-50'
                                    : 'border-gray-200 hover:bg-gray-50'
                                }`}
                              >
@@ -1556,7 +1556,7 @@ export function DayTimeline({ schoolId, templates, onEditTemplate }: DayTimeline
                           value={techniqueNotes}
                           onChange={(e) => setTechniqueNotes(e.target.value)}
                           rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                           placeholder="Hoe ging het? Wat werkte goed?"
                         />
                       </div>

@@ -142,7 +142,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
               type="checkbox"
               checked={acceptedPrivacy}
               onChange={(e) => setAcceptedPrivacy(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0 cursor-pointer"
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-#946B29 focus:ring-amber-500 flex-shrink-0 cursor-pointer"
             />
             <label htmlFor="accept-privacy" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
               Ik heb het{' '}
@@ -150,7 +150,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
                 to="/privacy-policy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                className="font-medium text-#946B29 hover:text-amber-500 transition-colors"
               >
                 privacybeleid
               </Link>{' '}
@@ -166,7 +166,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
               type="checkbox"
               checked={acceptedTerms}
               onChange={(e) => setAcceptedTerms(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0 cursor-pointer"
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-#946B29 focus:ring-amber-500 flex-shrink-0 cursor-pointer"
             />
             <label htmlFor="accept-terms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
               Ik ga akkoord met de{' '}
@@ -174,7 +174,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
                 to="/algemene-voorwaarden"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                className="font-medium text-#946B29 hover:text-amber-500 transition-colors"
               >
                 algemene voorwaarden
               </Link>{' '}
@@ -190,7 +190,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
               type="checkbox"
               checked={newsletterOptIn}
               onChange={(e) => setNewsletterOptIn(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0 cursor-pointer"
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-#946B29 focus:ring-amber-500 flex-shrink-0 cursor-pointer"
             />
             <label htmlFor="newsletter-opt-in" className="text-sm text-gray-500 leading-relaxed cursor-pointer">
               Houd me op de hoogte van nieuwe functies en tips via e-mail.{' '}
@@ -221,7 +221,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
           Al een account?{' '}
           <button
             onClick={onToggleMode}
-            className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            className="font-medium text-#946B29 hover:text-amber-500 transition-colors"
           >
             Log hier in
           </button>

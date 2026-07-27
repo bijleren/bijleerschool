@@ -66,7 +66,7 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
           <div className="mt-2 text-right">
             <a
               href="/forgot-password"
-              className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              className="text-sm font-medium text-#946B29 hover:text-amber-500 transition-colors"
             >
               Wachtwoord vergeten?
             </a>
@@ -94,7 +94,7 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
           Nog geen account?{' '}
           <button
             onClick={onToggleMode}
-            className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+            className="font-medium text-#946B29 hover:text-amber-500 transition-colors"
           >
             Registreer hier
           </button>

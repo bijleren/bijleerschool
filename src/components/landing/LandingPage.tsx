@@ -41,8 +41,8 @@ const APPS = [
     description: 'Digitaal bibliotheeksysteem voor het beheren van schoolboeken en leenregistraties.',
   },
   {
-    icon: <Search className="w-6 h-6 text-blue-600" />,
-    bg: 'bg-blue-50',
+    icon: <Search className="w-6 h-6 text-#946B29" />,
+    bg: 'bg-amber-50',
     title: 'Zoeker',
     problem: 'Hoe zorg je dat leerlingen veilig en gericht online opzoeken?',
     description: 'Krachtige zoekomgeving die leerlingen begeleidt naar goedgekeurde online bronnen.',
@@ -69,8 +69,8 @@ const APPS = [
     description: 'Begeleide leesgesprekken en leesregistraties om de leesontwikkeling van leerlingen te ondersteunen.',
   },
   {
-    icon: <Layers className="w-6 h-6 text-violet-600" />,
-    bg: 'bg-violet-50',
+    icon: <Layers className="w-6 h-6 text-#946B29" />,
+    bg: 'bg-amber-50',
     title: 'Sporen',
     problem: 'Hoe maak je het spoorenbeleid en opvolging zichtbaar voor leerkrachten?',
     description: 'Visueel overzicht van leertrajecten en individuele groeipaden per leerling.',

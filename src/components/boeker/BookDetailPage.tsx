@@ -278,7 +278,7 @@ export function BookDetailPage({ bookId, schoolId, isAdmin, onBack, onViewStuden
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29" />
       </div>
     );
   }
@@ -378,7 +378,7 @@ export function BookDetailPage({ bookId, schoolId, isAdmin, onBack, onViewStuden
                 <div>
                   <span className="text-gray-400 text-xs uppercase tracking-wide">Locatie</span>
                   <p className="text-gray-800 font-medium flex items-center gap-1">
-                    <MapPin className="w-3 h-3 text-blue-500" />
+                    <MapPin className="w-3 h-3 text-amber-500" />
                     {book.book_locations.name}
                   </p>
                 </div>
@@ -393,7 +393,7 @@ export function BookDetailPage({ bookId, schoolId, isAdmin, onBack, onViewStuden
             {book.categories && book.categories.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-4">
                 {book.categories.map(c => (
-                  <span key={c} className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
+                  <span key={c} className="px-2 py-0.5 bg-amber-50 text-#74531F rounded-full text-xs font-medium">
                     {c}
                   </span>
                 ))}
@@ -409,7 +409,7 @@ export function BookDetailPage({ bookId, schoolId, isAdmin, onBack, onViewStuden
                 {book.description.length > 200 && (
                   <button
                     onClick={() => setShowFullDesc(v => !v)}
-                    className="mt-1 text-xs text-blue-600 hover:underline flex items-center gap-1"
+                    className="mt-1 text-xs text-#946B29 hover:underline flex items-center gap-1"
                   >
                     {showFullDesc ? (<><ChevronUp className="w-3 h-3" /> Minder</>)
                       : (<><ChevronDown className="w-3 h-3" /> Meer lezen</>)}
@@ -423,7 +423,7 @@ export function BookDetailPage({ bookId, schoolId, isAdmin, onBack, onViewStuden
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard label="Uitleen (totaal)" value={borrowRecords.length} icon={BookMarked} color="bg-blue-50 text-blue-600" />
+        <StatCard label="Uitleen (totaal)" value={borrowRecords.length} icon={BookMarked} color="bg-amber-50 text-#946B29" />
         <StatCard label="Nu uitgeleend" value={currentBorrowers.length} icon={Users} color="bg-amber-50 text-amber-600" />
         <StatCard label="Leesminuten" value={totalReadingMinutes >= 60 ? `${Math.round(totalReadingMinutes / 60)}u` : `${totalReadingMinutes}m`} icon={Clock} color="bg-emerald-50 text-emerald-600" />
         <StatCard label="Pagina's gelezen" value={totalPagesRead} icon={TrendingUp} color="bg-rose-50 text-rose-600" />
@@ -434,7 +434,7 @@ export function BookDetailPage({ bookId, schoolId, isAdmin, onBack, onViewStuden
         <Card>
           <div className="p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Calendar className="w-4 h-4 text-blue-500" />
+              <Calendar className="w-4 h-4 text-amber-500" />
               <h2 className="font-semibold text-gray-900 text-sm">Uitleen per maand</h2>
               <span className="text-xs text-gray-400 ml-auto">laatste 12 maanden</span>
             </div>
@@ -497,7 +497,7 @@ export function BookDetailPage({ bookId, schoolId, isAdmin, onBack, onViewStuden
                       </div>
                       <div className="flex-1 min-w-0">
                         <button
-                          className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                          className="text-sm font-medium text-gray-900 hover:text-#946B29 transition-colors"
                           onClick={() => onViewStudent?.(r.students.id)}
                         >
                           {r.students.first_name} {r.students.last_name}
@@ -519,7 +519,7 @@ export function BookDetailPage({ bookId, schoolId, isAdmin, onBack, onViewStuden
               {borrowRecords.length > 5 && (
                 <button
                   onClick={() => setShowAllBorrows(v => !v)}
-                  className="mt-3 w-full text-xs text-blue-600 hover:underline flex items-center justify-center gap-1"
+                  className="mt-3 w-full text-xs text-#946B29 hover:underline flex items-center justify-center gap-1"
                 >
                   {showAllBorrows
                     ? (<><ChevronUp className="w-3 h-3" /> Minder tonen</>)
@@ -590,7 +590,7 @@ export function BookDetailPage({ bookId, schoolId, isAdmin, onBack, onViewStuden
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <button
-                        className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+                        className="text-sm font-semibold text-gray-900 hover:text-#946B29 transition-colors"
                         onClick={() => onViewStudent?.(r.students.id)}
                       >
                         {r.students.first_name} {r.students.last_name}

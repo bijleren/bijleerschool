@@ -370,7 +370,7 @@ export function StudentZoekerModal({ studentId, schoolId, studentName, onClose }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-gradient-to-br from-amber-50 to-green-50 rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Zoeker</h2>
@@ -392,14 +392,14 @@ export function StudentZoekerModal({ studentId, schoolId, studentName, onClose }
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Typ je zoekopdracht..."
-                  className="w-full px-4 py-3 pr-10 rounded-full border-2 border-transparent focus:border-blue-500 bg-white shadow-md outline-none text-lg"
+                  className="w-full px-4 py-3 pr-10 rounded-full border-2 border-transparent focus:border-amber-500 bg-white shadow-md outline-none text-lg"
                   autoFocus
                 />
                 <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
               <button
                 onClick={() => setShowTemplates(!showTemplates)}
-                className={`w-11 h-11 rounded-full border-2 border-blue-500 ${showTemplates ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'} flex items-center justify-center hover:bg-blue-500 hover:text-white transition-colors`}
+                className={`w-11 h-11 rounded-full border-2 border-amber-500 ${showTemplates ? 'bg-amber-500 text-white' : 'bg-white text-amber-500'} flex items-center justify-center hover:bg-amber-500 hover:text-white transition-colors`}
               >
                 <HelpCircle className="w-5 h-5" />
               </button>
@@ -416,7 +416,7 @@ export function StudentZoekerModal({ studentId, schoolId, studentName, onClose }
                         setQuery(template.template);
                         setShowTemplates(false);
                       }}
-                      className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:border-amber-500 hover:text-#946B29 hover:bg-amber-50 transition-colors"
                     >
                       {template.label}
                     </button>
@@ -436,7 +436,7 @@ export function StudentZoekerModal({ studentId, schoolId, studentName, onClose }
                   onClick={() => setSelectedTarget(key)}
                   className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
                     selectedTarget === key
-                      ? 'border-blue-500 bg-blue-50 shadow-lg scale-105'
+                      ? 'border-amber-500 bg-amber-50 shadow-lg scale-105'
                       : 'border-transparent bg-white hover:border-gray-300 hover:shadow-md'
                   }`}
                 >
@@ -453,7 +453,7 @@ export function StudentZoekerModal({ studentId, schoolId, studentName, onClose }
               <Button
                 onClick={handleSearchNow}
                 disabled={!query.trim() || !selectedTarget}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                className="flex items-center gap-2 bg-#946B29 hover:bg-#74531F"
               >
                 <Search className="w-4 h-4" />
                 Ga meteen
@@ -483,7 +483,7 @@ export function StudentZoekerModal({ studentId, schoolId, studentName, onClose }
                     className={`flex items-start gap-2 p-2 rounded-lg text-sm ${
                       item.type === 'success' ? 'bg-green-50 text-green-700' :
                       item.type === 'warning' ? 'bg-yellow-50 text-yellow-700' :
-                      'bg-blue-50 text-blue-700'
+                      'bg-amber-50 text-#74531F'
                     }`}
                   >
                     <FeedbackIcon type={item.type} />
@@ -496,7 +496,7 @@ export function StudentZoekerModal({ studentId, schoolId, studentName, onClose }
 
           {/* Pending Teacher Feedback */}
           {pendingRequests.length > 0 && (
-            <Card className="p-4 bg-white border-l-4 border-blue-500">
+            <Card className="p-4 bg-white border-l-4 border-amber-500">
               <h3 className="font-bold text-gray-900 mb-3">Feedback van je leerkracht</h3>
               <div className="space-y-3">
                 {pendingRequests.map((request) => (
@@ -505,7 +505,7 @@ export function StudentZoekerModal({ studentId, schoolId, studentName, onClose }
                     className={`p-3 rounded-lg ${
                       request.status === 'approved' ? 'bg-green-50 border border-green-200' :
                       request.status === 'needs_improvement' ? 'bg-yellow-50 border border-yellow-200' :
-                      'bg-blue-50 border border-blue-200'
+                      'bg-amber-50 border border-amber-200'
                     }`}
                   >
                     <p className="font-semibold mb-1">"{request.modified_query || request.query}"</p>
@@ -550,12 +550,12 @@ export function StudentZoekerModal({ studentId, schoolId, studentName, onClose }
           <div>
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className="w-full flex items-center justify-center gap-2 p-3 border border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors"
+              className="w-full flex items-center justify-center gap-2 p-3 border border-dashed border-gray-300 rounded-lg hover:border-amber-500 hover:text-#946B29 transition-colors"
             >
               <History className="w-4 h-4" />
               <span className="font-semibold">Je zoekgeschiedenis</span>
               {history.length > 0 && (
-                <span className="px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full">{history.length}</span>
+                <span className="px-2 py-0.5 bg-amber-500 text-white text-xs rounded-full">{history.length}</span>
               )}
             </button>
             {showHistory && (
@@ -573,7 +573,7 @@ export function StudentZoekerModal({ studentId, schoolId, studentName, onClose }
                         {item.target !== 'prompt' && (
                           <button
                             onClick={() => handleReSearch(item)}
-                            className="ml-2 p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors flex-shrink-0"
+                            className="ml-2 p-2 rounded-full bg-amber-500 text-white hover:bg-#946B29 transition-colors flex-shrink-0"
                           >
                             <Search className="w-3 h-3" />
                           </button>

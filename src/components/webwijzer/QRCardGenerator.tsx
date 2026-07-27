@@ -536,7 +536,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
               <select
                 value={selectedGroupId}
                 onChange={(e) => setSelectedGroupId(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
               >
                 <option value="all">Alle klassen</option>
                 {groups.map((group) => (
@@ -550,7 +550,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
                 placeholder="Zoek leerlingen..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               />
               <Button variant="secondary" onClick={selectAll}>
                 Alles Selecteren
@@ -573,7 +573,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
                   key={student.id}
                   className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-colors ${
                     selectedStudents.has(student.id)
-                      ? 'border-blue-500 bg-blue-50'
+                      ? 'border-amber-500 bg-amber-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
@@ -581,7 +581,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
                     type="checkbox"
                     checked={selectedStudents.has(student.id)}
                     onChange={() => toggleStudent(student.id)}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 truncate">

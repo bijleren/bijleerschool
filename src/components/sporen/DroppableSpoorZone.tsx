@@ -70,7 +70,7 @@ export function DroppableSpoorZone({
     <div
       ref={setNodeRef}
       className={`bg-white rounded-lg border-2 transition-all ${
-        isOver ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+        isOver ? 'border-amber-500 bg-amber-50' : 'border-gray-200'
       }`}
     >
       <div

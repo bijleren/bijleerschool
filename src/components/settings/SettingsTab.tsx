@@ -14,8 +14,8 @@ export function SettingsTab() {
         {/* Account Settings */}
         <Card>
           <div className="flex items-start space-x-4">
-            <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 text-indigo-600" />
+            <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+              <Shield className="w-5 h-5 text-#946B29" />
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Account beveiliging</h3>
@@ -54,8 +54,8 @@ export function SettingsTab() {
         {/* Data Management */}
         <Card>
           <div className="flex items-start space-x-4">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Database className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+              <Database className="w-5 h-5 text-#946B29" />
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Gegevensbeheer</h3>

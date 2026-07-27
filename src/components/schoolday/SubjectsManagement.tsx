@@ -4,15 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { 
-  X, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save,
-  BookOpen,
-  Palette
-} from 'lucide-react';
+import { X, Plus, CreditCard as Edit, Trash2, Save, BookOpen, Palette } from 'lucide-react';
 
 interface SchoolSubject {
   id: string;
@@ -208,7 +200,7 @@ export function SubjectsManagement({ schoolId, onClose, inline = false, onCountC
                 <select
                   value={formData.icon}
                   onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 >
                   {COMMON_ICONS.map((icon) => (
                     <option key={icon} value={icon}>
@@ -357,7 +349,7 @@ export function SubjectsManagement({ schoolId, onClose, inline = false, onCountC
           <div className="absolute right-0 top-0 pr-4 pt-4">
             <button
               type="button"
-              className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
               onClick={onClose}
             >
               <X className="h-6 w-6" />

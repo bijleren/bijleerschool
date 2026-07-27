@@ -45,7 +45,7 @@ export function GedragskaartCardEditor({ onSave, onClose }: GedragskaartCardEdit
               value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder="bv. Goed luisteren"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
 
@@ -56,7 +56,7 @@ export function GedragskaartCardEditor({ onSave, onClose }: GedragskaartCardEdit
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="Korte omschrijving..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
 
@@ -65,7 +65,7 @@ export function GedragskaartCardEditor({ onSave, onClose }: GedragskaartCardEdit
             <select
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -79,7 +79,7 @@ export function GedragskaartCardEditor({ onSave, onClose }: GedragskaartCardEdit
                   key={ic}
                   onClick={() => setIcon(ic)}
                   className={`text-2xl w-10 h-10 rounded-lg flex items-center justify-center transition-colors
-                    ${icon === ic ? 'bg-blue-100 border-2 border-blue-400' : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'}`}
+                    ${icon === ic ? 'bg-amber-100 border-2 border-amber-500' : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'}`}
                 >
                   {ic}
                 </button>
@@ -115,7 +115,7 @@ export function GedragskaartCardEditor({ onSave, onClose }: GedragskaartCardEdit
           <button
             onClick={handleSave}
             disabled={!title.trim() || saving}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="flex-1 px-4 py-2 bg-#946B29 text-white rounded-lg text-sm font-medium hover:bg-#74531F disabled:opacity-50 transition-colors"
           >
             {saving ? 'Opslaan...' : 'Kaart aanmaken'}
           </button>

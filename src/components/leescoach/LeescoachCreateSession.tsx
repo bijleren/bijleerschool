@@ -326,7 +326,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
                     <select
                       value={selectedGroupId}
                       onChange={(e) => handleGroupChange(e.target.value)}
-                      className="w-full appearance-none px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                      className="w-full appearance-none px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900"
                     >
                       <option value="">Alle leerlingen</option>
                       {groups.map(group => (
@@ -338,7 +338,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
                   {selectedGroup && (
-                    <p className="mt-1.5 text-sm text-blue-600 flex items-center gap-1.5">
+                    <p className="mt-1.5 text-sm text-#946B29 flex items-center gap-1.5">
                       <Users className="w-3.5 h-3.5" />
                       {filteredStudents.length} leerling{filteredStudents.length !== 1 ? 'en' : ''} in {selectedGroup.name}
                     </p>
@@ -505,7 +505,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
               onChange={(e) => setGeneralObservations(e.target.value)}
               placeholder="Wat viel je op tijdens deze sessie?"
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
             />
             <p className="text-sm text-gray-500 mt-1">{generalObservations.length} / 1000</p>
           </Card>
@@ -526,7 +526,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
                   onChange={(e) => setLeesniveauObservations(e.target.value)}
                   placeholder="Opmerkingen over leesniveau..."
                   rows={2}
-                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
                 />
               </div>
 
@@ -543,7 +543,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
                   onChange={(e) => setBegripObservations(e.target.value)}
                   placeholder="Opmerkingen over begrip..."
                   rows={2}
-                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
                 />
               </div>
 
@@ -560,7 +560,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
                   onChange={(e) => setMotivatieObservations(e.target.value)}
                   placeholder="Opmerkingen over motivatie..."
                   rows={2}
-                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
                 />
               </div>
 
@@ -577,7 +577,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
                   onChange={(e) => setSmaakontwikkelingObservations(e.target.value)}
                   placeholder="Opmerkingen over smaakontwikkeling..."
                   rows={2}
-                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
                 />
               </div>
             </div>
@@ -630,7 +630,7 @@ export function LeescoachCreateSession({ schoolId, onSessionCreated, onCancel }:
               onChange={(e) => setCustomInterventionNotes(e.target.value)}
               placeholder="Andere interventies of aantekeningen..."
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
             />
           </Card>
 

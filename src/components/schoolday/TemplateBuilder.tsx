@@ -5,19 +5,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { 
-  ArrowLeft, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save, 
-  X,
-  Clock,
-  BookOpen,
-  Coffee,
-  Utensils,
-  MoreHorizontal
-} from 'lucide-react';
+import { ArrowLeft, Plus, CreditCard as Edit, Trash2, Save, X, Clock, BookOpen, Coffee, Utensils, MoreHorizontal } from 'lucide-react';
 
 interface DayTemplate {
   id: string;
@@ -75,7 +63,7 @@ const DAYS_OF_WEEK = [
 ];
 
 const BLOCK_TYPES = [
-  { value: 'lesson', label: 'Les', icon: BookOpen, color: 'bg-blue-100 text-blue-800' },
+  { value: 'lesson', label: 'Les', icon: BookOpen, color: 'bg-amber-100 text-#5C4118' },
   { value: 'break', label: 'Pauze', icon: Coffee, color: 'bg-green-100 text-green-800' },
   { value: 'lunch', label: 'Lunch', icon: Utensils, color: 'bg-orange-100 text-orange-800' },
   { value: 'other', label: 'Overig', icon: MoreHorizontal, color: 'bg-gray-100 text-gray-800' },
@@ -440,7 +428,7 @@ export function TemplateBuilder({
                     value={templateDescription}
                     onChange={(e) => setTemplateDescription(e.target.value)}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   />
                 </div>
                 <div className="flex justify-end space-x-3">
@@ -462,7 +450,7 @@ export function TemplateBuilder({
                 key={template.id} 
                 className={`cursor-pointer transition-all ${
                   selectedTemplate?.id === template.id 
-                    ? 'ring-2 ring-indigo-500 bg-indigo-50' 
+                    ? 'ring-2 ring-amber-500 bg-amber-50' 
                     : 'hover:shadow-md'
                 }`}
                 onClick={() => {
@@ -544,7 +532,7 @@ export function TemplateBuilder({
                         <select
                           value={blockData.day_of_week}
                           onChange={(e) => setBlockData({ ...blockData, day_of_week: parseInt(e.target.value) })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                         >
                           {DAYS_OF_WEEK.map((day) => (
                             <option key={day.value} value={day.value}>
@@ -560,7 +548,7 @@ export function TemplateBuilder({
                         <select
                           value={blockData.block_type}
                           onChange={(e) => setBlockData({ ...blockData, block_type: e.target.value as any })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                         >
                           {BLOCK_TYPES.map((type) => (
                             <option key={type.value} value={type.value}>
@@ -600,7 +588,7 @@ export function TemplateBuilder({
                         <select
                           value={blockData.subject_id}
                           onChange={(e) => setBlockData({ ...blockData, subject_id: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                         >
                           <option value="">Selecteer vak</option>
                           {schoolSubjects.map((subject) => (
@@ -619,7 +607,7 @@ export function TemplateBuilder({
                         value={blockData.description}
                         onChange={(e) => setBlockData({ ...blockData, description: e.target.value })}
                         rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                       />
                     </div>
                     <div className="flex justify-end space-x-3">

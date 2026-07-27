@@ -56,12 +56,12 @@ export function GedragskaartPresetModal({
                 onChange={e => setNewName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSave()}
                 placeholder="Naam preset..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
               <button
                 onClick={handleSave}
                 disabled={!newName.trim() || saving}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="px-4 py-2 bg-#946B29 text-white rounded-lg text-sm font-medium hover:bg-#74531F disabled:opacity-50 transition-colors"
               >
                 {saving ? '...' : 'Opslaan'}
               </button>
@@ -84,7 +84,7 @@ export function GedragskaartPresetModal({
                     </button>
                     <button
                       onClick={() => onApply(preset.id)}
-                      className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      className="p-1.5 text-#946B29 hover:bg-amber-50 rounded-md transition-colors"
                       title="Toepassen"
                     >
                       <Check className="w-4 h-4" />

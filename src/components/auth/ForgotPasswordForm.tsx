@@ -55,7 +55,7 @@ export function ForgotPasswordForm() {
           </p>
           <Link
             to="/auth"
-            className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            className="inline-flex items-center text-sm font-medium text-#946B29 hover:text-amber-500 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Terug naar inloggen
@@ -68,8 +68,8 @@ export function ForgotPasswordForm() {
   return (
     <Card className="w-full max-w-md">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-4">
-          <Mail className="w-6 h-6 text-blue-600" />
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-amber-100 rounded-full mb-4">
+          <Mail className="w-6 h-6 text-#946B29" />
         </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Wachtwoord vergeten?</h1>
         <p className="text-gray-600">

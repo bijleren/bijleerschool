@@ -487,7 +487,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                       onClick={() => setFormData({ ...formData, content_type: 'video' })}
                       className={`p-4 border-2 rounded-lg flex flex-col items-center gap-2 transition-colors ${
                         formData.content_type === 'video'
-                          ? 'border-blue-500 bg-blue-50'
+                          ? 'border-amber-500 bg-amber-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -499,7 +499,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                       onClick={() => setFormData({ ...formData, content_type: 'file' })}
                       className={`p-4 border-2 rounded-lg flex flex-col items-center gap-2 transition-colors ${
                         formData.content_type === 'file'
-                          ? 'border-blue-500 bg-blue-50'
+                          ? 'border-amber-500 bg-amber-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -511,7 +511,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                       onClick={() => setFormData({ ...formData, content_type: 'link' })}
                       className={`p-4 border-2 rounded-lg flex flex-col items-center gap-2 transition-colors ${
                         formData.content_type === 'link'
-                          ? 'border-blue-500 bg-blue-50'
+                          ? 'border-amber-500 bg-amber-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -579,8 +579,8 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                         </label>
                       </div>
                       {content && !selectedFile && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                          <p className="text-sm text-blue-800">
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                          <p className="text-sm text-#5C4118">
                             Huidig bestand: <a href={formData.content_url} target="_blank" rel="noopener noreferrer" className="underline">Bekijk bestand</a>
                           </p>
                         </div>
@@ -619,7 +619,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                           onClick={() => setFormData({ ...formData, symbol: sym })}
                           className={`p-2 text-2xl border-2 rounded-lg transition-colors hover:scale-110 ${
                             formData.symbol === sym
-                              ? 'border-blue-500 bg-blue-50 scale-110'
+                              ? 'border-amber-500 bg-amber-50 scale-110'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                         >
@@ -708,7 +708,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                                 is_push: e.target.checked,
                               })
                             }
-                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
                           />
                           <Zap className="w-4 h-4 text-orange-500" />
                           <span className="text-sm font-medium text-gray-700">Push</span>
@@ -723,7 +723,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                                 is_favorite: e.target.checked,
                               })
                             }
-                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
                           />
                           <Star className="w-4 h-4 text-yellow-500" />
                           <span className="text-sm font-medium text-gray-700">Favorite</span>
@@ -732,7 +732,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
 
                       <div>
                         <label className="flex items-center gap-2 mb-2">
-                          <Hash className="w-4 h-4 text-blue-500" />
+                          <Hash className="w-4 h-4 text-amber-500" />
                           <span className="text-sm font-medium text-gray-700">Click Limit</span>
                         </label>
                         <Input
@@ -803,7 +803,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                                 type="checkbox"
                                 checked={selectedStudents.has(student.id)}
                                 onChange={() => handleStudentToggle(student.id)}
-                                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
                               />
                               <div className="flex-1">
                                 <p className="font-medium text-gray-900">
@@ -834,7 +834,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                                 type="checkbox"
                                 checked={selectedGroups.has(group.id)}
                                 onChange={() => handleGroupToggle(group.id)}
-                                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
                               />
                               <Users className="w-5 h-5 text-gray-400" />
                               <div className="flex-1">
@@ -851,8 +851,8 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                   </div>
 
                   {(selectedStudents.size > 0 || selectedGroups.size > 0) && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <p className="text-sm font-medium text-blue-900">
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                      <p className="text-sm font-medium text-#3D2B10">
                         Selected: {selectedStudents.size} students, {selectedGroups.size} groups
                       </p>
                     </div>
@@ -879,7 +879,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                         type="checkbox"
                         checked={isPush}
                         onChange={(e) => setIsPush(e.target.checked)}
-                        className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                        className="mt-1 w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
                       />
                       <div>
                         <div className="flex items-center gap-2">
@@ -895,7 +895,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                         type="checkbox"
                         checked={isFavorite}
                         onChange={(e) => setIsFavorite(e.target.checked)}
-                        className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                        className="mt-1 w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
                       />
                       <div>
                         <div className="flex items-center gap-2">
@@ -915,11 +915,11 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                             setHasClickLimit(e.target.checked);
                             if (!e.target.checked) setClickLimit(null);
                           }}
-                          className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          className="mt-1 w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
                         />
                         <div>
                           <div className="flex items-center gap-2">
-                            <Hash className="w-4 h-4 text-blue-500" />
+                            <Hash className="w-4 h-4 text-amber-500" />
                             <span className="font-medium text-gray-900">Click Limit</span>
                           </div>
                           <p className="text-sm text-gray-600">Limit number of times content can be accessed</p>
@@ -948,7 +948,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                               setDateUntil('');
                             }
                           }}
-                          className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          className="mt-1 w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
                         />
                         <div>
                           <div className="flex items-center gap-2">

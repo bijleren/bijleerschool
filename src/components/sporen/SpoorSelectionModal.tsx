@@ -79,7 +79,7 @@ export function SpoorSelectionModal({ student, sporen, currentSpoorId, onSelect,
               onClick={() => setSelectedSpoorId(null)}
               className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                 selectedSpoorId === null
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-amber-500 bg-amber-50'
                   : 'border-gray-200 hover:border-gray-300 bg-white'
               }`}
             >
@@ -101,7 +101,7 @@ export function SpoorSelectionModal({ student, sporen, currentSpoorId, onSelect,
                 onClick={() => setSelectedSpoorId(spoor.id)}
                 className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                   selectedSpoorId === spoor.id
-                    ? 'border-blue-500 bg-blue-50'
+                    ? 'border-amber-500 bg-amber-50'
                     : 'border-gray-200 hover:border-gray-300 bg-white'
                 }`}
                 style={{

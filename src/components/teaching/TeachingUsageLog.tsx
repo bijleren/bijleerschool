@@ -213,7 +213,7 @@ export function TeachingUsageLog({ onBack, userSchools }: TeachingUsageLogProps)
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
       </div>
     );
   }
@@ -248,7 +248,7 @@ export function TeachingUsageLog({ onBack, userSchools }: TeachingUsageLogProps)
           <select
             value={selectedSchoolId}
             onChange={(e) => setSelectedSchoolId(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
           >
             <option value="all">Alle scholen</option>
             {userSchools.map((school) => (
@@ -261,7 +261,7 @@ export function TeachingUsageLog({ onBack, userSchools }: TeachingUsageLogProps)
           <select
             value={selectedTechniqueId}
             onChange={(e) => setSelectedTechniqueId(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
           >
             <option value="all">Alle technieken</option>
             {uniqueTechniques.map((technique) => (
@@ -274,7 +274,7 @@ export function TeachingUsageLog({ onBack, userSchools }: TeachingUsageLogProps)
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
           >
             <option value="7">Laatste 7 dagen</option>
             <option value="30">Laatste 30 dagen</option>
@@ -312,8 +312,8 @@ export function TeachingUsageLog({ onBack, userSchools }: TeachingUsageLogProps)
             return (
               <Card key={log.id} className="hover:shadow-md transition-shadow">
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                    <BookOpen className="w-6 h-6 text-indigo-600" />
+                  <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-#946B29" />
                   </div>
                   
                   <div className="flex-1">

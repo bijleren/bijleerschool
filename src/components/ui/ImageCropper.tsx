@@ -233,13 +233,13 @@ export function ImageCropper({
                   </div>
 
                   {/* Corner handles */}
-                  <div className="absolute -top-2 -left-2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full"></div>
-                  <div className="absolute -top-2 -right-2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full"></div>
-                  <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full"></div>
-                  <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full"></div>
+                  <div className="absolute -top-2 -left-2 w-4 h-4 bg-white border-2 border-amber-500 rounded-full"></div>
+                  <div className="absolute -top-2 -right-2 w-4 h-4 bg-white border-2 border-amber-500 rounded-full"></div>
+                  <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-white border-2 border-amber-500 rounded-full"></div>
+                  <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-white border-2 border-amber-500 rounded-full"></div>
 
                   {/* Aspect ratio label */}
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-full shadow-lg whitespace-nowrap">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-#946B29 text-white text-sm font-medium px-3 py-1 rounded-full shadow-lg whitespace-nowrap">
                     {aspectRatio === 1 ? 'Vierkant (1:1)' : aspectRatio === 2 / 3 ? 'Boekcover (2:3)' : `Verhouding ${aspectRatio.toFixed(2)}`}
                   </div>
                 </div>
@@ -250,8 +250,8 @@ export function ImageCropper({
 
         <div className="p-4 border-t border-gray-200 flex-shrink-0 space-y-4">
           {/* Instructions */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-sm text-blue-800 text-center">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <p className="text-sm text-#5C4118 text-center">
               <span className="font-medium">Sleep de afbeelding</span> om te positioneren binnen het vierkante gebied
             </p>
           </div>
@@ -266,7 +266,7 @@ export function ImageCropper({
                 step="0.1"
                 value={zoom}
                 onChange={(e) => setZoom(parseFloat(e.target.value))}
-                className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-#946B29"
                 style={{
                   background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((zoom - 0.1) / 2.9) * 100}%, #e5e7eb ${((zoom - 0.1) / 2.9) * 100}%, #e5e7eb 100%)`
                 }}

@@ -116,7 +116,7 @@ export function StudentSpoorDetailsModal({
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
           <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto"></div>
           </div>
         </div>
       </div>
@@ -151,7 +151,7 @@ export function StudentSpoorDetailsModal({
             <select
               value={spoorId || ''}
               onChange={(e) => setSpoorId(e.target.value || null)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             >
               <option value="">Geen spoor (niet toegewezen)</option>
               {sporen.map(spoor => (

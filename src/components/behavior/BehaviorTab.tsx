@@ -379,7 +379,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'in_progress': return 'bg-blue-100 text-blue-800';
+      case 'in_progress': return 'bg-amber-100 text-#5C4118';
       case 'resolved': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -458,8 +458,8 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
               <Card key={school.id} className="hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                      <AlertTriangle className="w-6 h-6 text-indigo-600" />
+                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                      <AlertTriangle className="w-6 h-6 text-#946B29" />
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">{school.name}</h3>
@@ -549,7 +549,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
       </div>
     );
   }
@@ -568,14 +568,14 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                   setDashboardFilter('all');
                   if (onFilterChange) onFilterChange('all');
                 }}
-                className="flex items-center space-x-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-colors"
+                className="flex items-center space-x-1 px-3 py-1 bg-amber-100 text-#74531F rounded-full text-sm hover:bg-amber-200 transition-colors"
               >
                 <span>
                   {dashboardFilter === 'today' && 'Vandaag'}
                   {dashboardFilter === 'open' && 'Open meldingen'}
                   {dashboardFilter === 'followup' && 'Follow-up nodig'}
                 </span>
-                <span className="text-blue-900">✕</span>
+                <span className="text-#3D2B10">✕</span>
               </button>
             )}
           </div>
@@ -625,7 +625,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
           >
             <option value="all">Alle statussen</option>
             <option value="pending">Melding</option>
@@ -635,7 +635,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
           >
             <option value="all">Alle categorieën</option>
             {Array.from(new Set(incidents.map(i => i.behavior_items?.behavior_categories?.name).filter(Boolean)))
@@ -647,7 +647,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
           >
             <option value="all">Alle niveaus</option>
             <option value="1">Niveau 1</option>
@@ -665,10 +665,10 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
         {(studentFilter !== 'all' && filteredStudentName) || timeFilter ? (
           <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
             {studentFilter !== 'all' && filteredStudentName && (
-              <div className="flex items-center justify-between bg-blue-50 rounded-lg p-3">
+              <div className="flex items-center justify-between bg-amber-50 rounded-lg p-3">
                 <div className="flex items-center space-x-2">
-                  <User className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-900">
+                  <User className="w-4 h-4 text-#946B29" />
+                  <span className="text-sm font-medium text-#3D2B10">
                     Gefilterd op student: {filteredStudentName}
                   </span>
                 </div>
@@ -679,7 +679,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                     setStudentFilter('all');
                     setFilteredStudentName('');
                   }}
-                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-100"
+                  className="text-#946B29 hover:text-#74531F hover:bg-amber-100"
                 >
                   <X className="w-4 h-4 mr-1" />
                   Wissen
@@ -742,7 +742,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => onNavigateToStudent && incident.students.id && onNavigateToStudent(selectedSchool.id, incident.students.id)}
-                            className="font-semibold text-gray-900 hover:text-indigo-600 transition-colors"
+                            className="font-semibold text-gray-900 hover:text-#946B29 transition-colors"
                           >
                             {incident.students.first_name} {incident.students.last_name}
                           </button>
@@ -791,7 +791,7 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                               <div key={studentRel.id} className="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-lg border border-gray-200">
                                 <button
                                   onClick={() => onNavigateToStudent && studentRel.students.id && onNavigateToStudent(selectedSchool.id, studentRel.students.id)}
-                                  className="font-medium text-gray-900 hover:text-indigo-600 transition-colors text-sm"
+                                  className="font-medium text-gray-900 hover:text-#946B29 transition-colors text-sm"
                                 >
                                   {studentRel.students.first_name} {studentRel.students.last_name}
                                 </button>
@@ -872,21 +872,21 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                       )}
 
                       {incident.behavior_incident_followup_acties && incident.behavior_incident_followup_acties.length > 0 && (
-                        <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                          <h5 className="font-medium text-blue-900 mb-2">Follow-up acties:</h5>
+                        <div className="mt-3 p-3 bg-amber-50 rounded-lg">
+                          <h5 className="font-medium text-#3D2B10 mb-2">Follow-up acties:</h5>
                           <div className="space-y-2">
                             {incident.behavior_incident_followup_acties.map((actie: any) => (
                               <div key={actie.id} className="text-sm">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-blue-900 font-medium">{actie.consequences.name}</span>
+                                  <span className="text-#3D2B10 font-medium">{actie.consequences.name}</span>
                                   {actie.action_date && (
-                                    <span className="text-blue-700 text-xs">
+                                    <span className="text-#74531F text-xs">
                                       {new Date(actie.action_date).toLocaleDateString('nl-NL')}
                                     </span>
                                   )}
                                 </div>
                                 {actie.notes && (
-                                  <p className="text-blue-800 mt-1 ml-2">{actie.notes}</p>
+                                  <p className="text-#5C4118 mt-1 ml-2">{actie.notes}</p>
                                 )}
                               </div>
                             ))}
@@ -898,13 +898,13 @@ export function BehaviorTab({ selectedSchool, userSchools, onSchoolSelect, onNav
                   
                   {/* Connected Teachers/Groups */}
                   {incident.behavior_incident_notifications && incident.behavior_incident_notifications.length > 0 && (
-                    <div className="mt-3 p-3 bg-purple-50 rounded-lg">
-                      <h5 className="font-medium text-purple-900 mb-2">Geïnformeerde personen:</h5>
+                    <div className="mt-3 p-3 bg-amber-50 rounded-lg">
+                      <h5 className="font-medium text-#3D2B10 mb-2">Geïnformeerde personen:</h5>
                       <div className="flex flex-wrap gap-2">
                         {incident.behavior_incident_notifications.map((notification: any) => (
                           <span
                             key={notification.id}
-                            className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
+                            className="px-2 py-1 bg-amber-100 text-#5C4118 text-xs rounded-full"
                           >
                             {notification.notification_type === 'teacher'
                               ? notification.profiles

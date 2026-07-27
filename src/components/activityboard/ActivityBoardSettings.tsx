@@ -6,7 +6,7 @@ import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { ColorPicker } from '../ui/ColorPicker';
 import { Toast } from '../ui/Toast';
-import { ArrowLeft, Plus, Trash2, Save, GripVertical, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, Shapes, Users, Globe, Beaker, Microscope, FlaskConical, Atom, TestTube, Dna, Brain, Lightbulb, Sparkles, Star, Heart, Smile, Trophy, Award, Target, Flag, MapPin, Compass, Mountain, Flower2, Leaf, Bug, Bird, Fish, Brush, PaintBucket, Printer, Laptop, Tablet, Smartphone, Headphones, Camera, Film, Clapperboard, Theater, Drama, Mic, Radio, Tv, Video } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, GripVertical, Grid2x2 as Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, Shapes, Users, Globe, Beaker, Microscope, FlaskConical, Atom, TestTube, Dna, Brain, Lightbulb, Sparkles, Star, Heart, Smile, Trophy, Award, Target, Flag, MapPin, Compass, Mountain, Flower2, Leaf, Bug, Bird, Fish, Brush, PaintBucket, Printer, Laptop, Tablet, Smartphone, Headphones, Camera, Film, Clapperboard, Theater, Drama, Mic, Radio, Tv, Video } from 'lucide-react';
 
 interface ActivityBoard {
   id: string;
@@ -602,7 +602,7 @@ export function ActivityBoardSettings({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
       </div>
     );
   }
@@ -644,7 +644,7 @@ export function ActivityBoardSettings({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Optionele beschrijving van het bord"
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               />
             </div>
 
@@ -754,7 +754,7 @@ export function ActivityBoardSettings({
                           }}
                           className={`p-2 rounded-lg border-2 transition-all ${
                             boardIcon === iconOption.name && !boardIconUrl
-                              ? 'border-blue-500 bg-blue-50'
+                              ? 'border-amber-500 bg-amber-50'
                               : 'border-gray-200 hover:border-gray-300 bg-white'
                           }`}
                           title={iconOption.name}
@@ -788,7 +788,7 @@ export function ActivityBoardSettings({
                             setSelectedColleagues(selectedColleagues.filter(id => id !== colleague.id));
                           }
                         }}
-                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                        className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500 cursor-pointer"
                       />
                       <span className="ml-2 text-sm text-gray-700">
                         {colleague.full_name || colleague.email}
@@ -820,7 +820,7 @@ export function ActivityBoardSettings({
                             setSelectedGroups(selectedGroups.filter(id => id !== group.id));
                           }
                         }}
-                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                        className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500 cursor-pointer"
                       />
                       <span className="ml-2 text-sm text-gray-700">{group.name}</span>
                     </label>
@@ -850,7 +850,7 @@ export function ActivityBoardSettings({
                             setSelectedStudents(selectedStudents.filter(id => id !== student.id));
                           }
                         }}
-                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                        className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500 cursor-pointer"
                       />
                       <span className="ml-2 text-sm text-gray-700">{student.first_name} {student.last_name}</span>
                     </label>
@@ -866,7 +866,7 @@ export function ActivityBoardSettings({
                 id="isActive"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-#946B29 rounded focus:ring-amber-500"
               />
               <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">
                 Bord is actief
@@ -920,7 +920,7 @@ export function ActivityBoardSettings({
                         <select
                           value={newPresetIcon}
                           onChange={(e) => setNewPresetIcon(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                         >
                           {ICON_OPTIONS.map((icon) => (
                             <option key={icon.name} value={icon.name}>{icon.name}</option>
@@ -936,7 +936,7 @@ export function ActivityBoardSettings({
                           onChange={(e) => setNewPresetMaxStudents(e.target.value ? parseInt(e.target.value) : '')}
                           placeholder="Optioneel"
                           min="1"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                         />
                       </div>
                     </div>
@@ -974,7 +974,7 @@ export function ActivityBoardSettings({
                       <button
                         key={preset.id}
                         onClick={() => addPresetActivity(preset)}
-                        className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+                        className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg hover:border-amber-500 hover:bg-amber-50 transition-colors text-left"
                       >
                         <div
                           className="w-8 h-8 rounded flex items-center justify-center flex-shrink-0"
@@ -1077,7 +1077,7 @@ export function ActivityBoardSettings({
                                           setShowIconPicker(null);
                                         }}
                                         className={`p-2 rounded hover:bg-gray-100 transition-colors flex items-center justify-center ${
-                                          option.icon === iconOption.name ? 'bg-blue-100' : ''
+                                          option.icon === iconOption.name ? 'bg-amber-100' : ''
                                         }`}
                                       >
                                         <IconComponent className="w-5 h-5 text-gray-700" />

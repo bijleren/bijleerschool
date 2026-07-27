@@ -4,18 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { 
-  ArrowLeft, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save, 
-  X,
-  Users,
-  BookMarked,
-  Wrench,
-  Tag
-} from 'lucide-react';
+import { ArrowLeft, Plus, CreditCard as Edit, Trash2, Save, X, Users, BookMarked, Wrench, Tag } from 'lucide-react';
 
 interface AgeGroup {
   id: string;
@@ -191,7 +180,7 @@ export function TeachingManagement({
                   value={formData.description || ''}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 />
               </div>
               {type === 'categories' && (
@@ -318,7 +307,7 @@ export function TeachingManagement({
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'age_groups'
-                ? 'border-indigo-500 text-indigo-600'
+                ? 'border-amber-500 text-#946B29'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -332,7 +321,7 @@ export function TeachingManagement({
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'subjects'
-                ? 'border-indigo-500 text-indigo-600'
+                ? 'border-amber-500 text-#946B29'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -346,7 +335,7 @@ export function TeachingManagement({
             }}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'materials'
-                ? 'border-indigo-500 text-indigo-600'
+                ? 'border-amber-500 text-#946B29'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -360,7 +349,7 @@ export function TeachingManagement({
               }}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'categories'
-                  ? 'border-indigo-500 text-indigo-600'
+                  ? 'border-amber-500 text-#946B29'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >

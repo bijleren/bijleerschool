@@ -605,8 +605,8 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <div className="flex items-center space-x-3">
-                <div className="flex items-center justify-center w-9 h-9 bg-blue-50 rounded-lg">
-                  <MessageSquare className="w-5 h-5 text-blue-600" />
+                <div className="flex items-center justify-center w-9 h-9 bg-amber-50 rounded-lg">
+                  <MessageSquare className="w-5 h-5 text-#946B29" />
                 </div>
                 <div>
                   <h2 className="text-base font-semibold text-gray-900">Feedback of bug melden</h2>
@@ -643,7 +643,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                   <button
                     onClick={() => setShowFeedbackModal(false)}
-                    className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-5 py-2 bg-#946B29 text-white text-sm font-medium rounded-lg hover:bg-#74531F transition-colors"
                   >
                     Sluiten
                   </button>
@@ -679,7 +679,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                               ? 'border-red-400 bg-red-50 text-red-700'
                               : color === 'amber'
                               ? 'border-amber-400 bg-amber-50 text-amber-700'
-                              : 'border-blue-400 bg-blue-50 text-blue-700'
+                              : 'border-amber-500 bg-amber-50 text-#74531F'
                             : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
                         }`}
                       >
@@ -705,7 +705,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                         ? 'Kort idee of suggestie'
                         : 'Stel je vraag kort'
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   />
                 </div>
 
@@ -724,7 +724,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                         ? 'Beschrijf je idee of feedback in detail...'
                         : 'Beschrijf je vraag zo duidelijk mogelijk...'
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
                   />
                 </div>
 
@@ -741,7 +741,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                     type="button"
                     onClick={submitFeedback}
                     disabled={feedbackSubmitting || !feedbackTitle.trim() || !feedbackDescription.trim()}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-#946B29 rounded-lg hover:bg-#74531F disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {feedbackSubmitting ? (
                       <span className="flex items-center">

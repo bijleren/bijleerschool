@@ -199,7 +199,7 @@ export function BookTagsSettings({ schoolId }: BookTagsSettingsProps) {
 
           {loading ? (
             <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-#946B29" />
             </div>
           ) : tags.length === 0 ? (
             <div className="text-center py-12">
@@ -227,7 +227,7 @@ export function BookTagsSettings({ schoolId }: BookTagsSettingsProps) {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => startEdit(tag)}
-                      className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      className="p-1.5 text-gray-400 hover:text-#946B29 hover:bg-amber-50 rounded transition-colors"
                       title="Bewerken"
                     >
                       <Pencil className="w-4 h-4" />

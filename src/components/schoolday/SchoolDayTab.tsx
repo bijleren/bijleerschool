@@ -108,7 +108,7 @@ export function SchoolDayTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
       </div>
     );
   }
@@ -135,8 +135,8 @@ export function SchoolDayTab() {
               <Card key={school.id} className="hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                      <School className="w-6 h-6 text-indigo-600" />
+                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                      <School className="w-6 h-6 text-#946B29" />
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">{school.name}</h3>
@@ -207,7 +207,7 @@ export function SchoolDayTab() {
             <select
               value={selectedSchoolId}
               onChange={(e) => setSelectedSchoolId(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             >
               {userSchools.map((school) => (
                 <option key={school.id} value={school.id}>

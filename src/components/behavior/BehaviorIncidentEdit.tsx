@@ -833,7 +833,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                       value={incidentStudent.student_id}
                       onChange={(e) => updateIncidentStudent(index, 'student_id', e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     >
                       <option value="">Selecteer student</option>
                       {students.map((student) => (
@@ -850,7 +850,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                       value={incidentStudent.role_id}
                       onChange={(e) => updateIncidentStudent(index, 'role_id', e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     >
                       <option value="">Selecteer rol</option>
                       {studentRoles.map((role) => (
@@ -882,7 +882,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
               value={behaviorItemId}
               onChange={(e) => setBehaviorItemId(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             >
               <option value="">Selecteer gedragsitem</option>
               {behaviorItems.map((item) => (
@@ -920,7 +920,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
               onChange={(e) => setDescription(e.target.value)}
               required
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
               placeholder="Beschrijf wat er gebeurd is..."
             />
           </div>
@@ -952,7 +952,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                         value={actie.consequence_id}
                         onChange={(e) => updateEersteActie(index, 'consequence_id', e.target.value)}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                       >
                         <option value="">Selecteer actie</option>
                         {consequences.map((consequence) => (
@@ -979,7 +979,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                       value={actie.notes}
                       onChange={(e) => updateEersteActie(index, 'notes', e.target.value)}
                       rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                       placeholder="Voeg eventuele notities toe voor deze actie..."
                     />
                   </div>
@@ -1003,7 +1003,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                 }
                 setStatus(newStatus);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             >
               <option value="pending">Melding</option>
               <option value="in_progress">Onderzoek</option>
@@ -1015,7 +1015,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
           <div className={`flex items-center space-x-3 p-4 border rounded-lg ${
             status === 'resolved'
               ? 'bg-gray-100 border-gray-300 opacity-60'
-              : 'bg-blue-50 border-blue-200'
+              : 'bg-amber-50 border-amber-200'
           }`}>
             <input
               type="checkbox"
@@ -1023,7 +1023,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
               checked={followUpRequired}
               onChange={(e) => setFollowUpRequired(e.target.checked)}
               disabled={status === 'resolved'}
-              className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-5 w-5 text-#946B29 focus:ring-amber-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <label
               htmlFor="followUpRequired"
@@ -1055,7 +1055,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
             ) : (
               <div className="space-y-3">
                 {followupActies.map((actie, index) => (
-                  <div key={index} className="p-4 bg-blue-50 rounded-lg space-y-3">
+                  <div key={index} className="p-4 bg-amber-50 rounded-lg space-y-3">
                     <div className="flex items-start space-x-3">
                       <div className="flex-1 grid grid-cols-2 gap-3">
                         <div>
@@ -1063,7 +1063,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                             value={actie.consequence_id}
                             onChange={(e) => updateFollowupActie(index, 'consequence_id', e.target.value)}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                           >
                             <option value="">Selecteer actie</option>
                             {consequences.map((consequence) => (
@@ -1079,7 +1079,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                             value={actie.action_date || ''}
                             onChange={(e) => updateFollowupActie(index, 'action_date', e.target.value)}
                             placeholder="Datum (optioneel)"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                           />
                         </div>
                       </div>
@@ -1100,7 +1100,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                         value={actie.notes}
                         onChange={(e) => updateFollowupActie(index, 'notes', e.target.value)}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                         placeholder="Voeg eventuele notities toe voor deze follow-up actie..."
                       />
                     </div>
@@ -1215,7 +1215,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                     <select
                       value={selectedNotificationType}
                       onChange={(e) => setSelectedNotificationType(e.target.value as 'teacher' | 'group')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     >
                       <option value="teacher">Individuele docent</option>
                       <option value="group">Hele groep</option>
@@ -1230,7 +1230,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                       <select
                         value={selectedTeacherId}
                         onChange={(e) => setSelectedTeacherId(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                       >
                         <option value="">Selecteer docent</option>
                         {availableTeachers
@@ -1253,7 +1253,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                       <select
                         value={selectedGroupId}
                         onChange={(e) => setSelectedGroupId(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                       >
                         <option value="">Selecteer groep</option>
                         {availableGroups
@@ -1297,11 +1297,11 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                     <div className="flex items-center space-x-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                         notification.notification_type === 'teacher' 
-                          ? 'bg-blue-100' 
+                          ? 'bg-amber-100' 
                           : 'bg-green-100'
                       }`}>
                         {notification.notification_type === 'teacher' ? (
-                          <User className="w-4 h-4 text-blue-600" />
+                          <User className="w-4 h-4 text-#946B29" />
                         ) : (
                           <Users className="w-4 h-4 text-green-600" />
                         )}

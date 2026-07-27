@@ -185,7 +185,7 @@ export function StudentBoekerView({ studentAccessHash, onBack }: StudentBoekerVi
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
       </div>
     );
   }
@@ -235,7 +235,7 @@ export function StudentBoekerView({ studentAccessHash, onBack }: StudentBoekerVi
       <Card>
         <div className="p-6">
           <div className="flex items-center space-x-3 mb-4">
-            <BookOpen className="w-5 h-5 text-blue-600" />
+            <BookOpen className="w-5 h-5 text-#946B29" />
             <h2 className="text-lg font-semibold text-gray-900">Mijn Boeken</h2>
           </div>
 

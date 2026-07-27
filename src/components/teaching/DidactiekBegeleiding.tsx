@@ -32,9 +32,9 @@ const REQUEST_TYPES: {
     label: 'Bijleergesprek',
     description: 'Plan een online gesprek met ons team voor didactische ondersteuning van leerkrachten.',
     icon: MessageSquare,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200',
+    color: 'text-#946B29',
+    bgColor: 'bg-amber-50',
+    borderColor: 'border-amber-200',
   },
   {
     type: 'vorming',
@@ -126,8 +126,8 @@ function CheckboxGroup({
           onClick={() => toggle(opt)}
           className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
             selected.includes(opt)
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+              ? 'bg-#946B29 text-white border-#946B29'
+              : 'bg-white text-gray-700 border-gray-300 hover:border-amber-500'
           }`}
         >
           {opt}
@@ -191,7 +191,7 @@ function BijleergesprekFormFields({
           placeholder="Geef een korte omschrijving van de aanleiding en het doel van het gesprek."
           rows={4}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
         />
       </div>
     </div>
@@ -224,7 +224,7 @@ function VormingFormFields({
           placeholder="Beschrijf het gewenste thema of de inhoud van de vorming."
           rows={3}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
         />
       </div>
       <div>
@@ -269,7 +269,7 @@ function VormingFormFields({
           <select
             value={data.format}
             onChange={e => onChange({ ...data, format: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
           >
             <option value="">Geen voorkeur</option>
             <option value="in-school">Op school</option>
@@ -335,7 +335,7 @@ function DemodagFormFields({
           placeholder="bijv. 3de graad LO, wiskunde en talen in de middenschool…"
           rows={3}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
         />
       </div>
       <div>
@@ -343,7 +343,7 @@ function DemodagFormFields({
         <select
           value={data.duration}
           onChange={e => onChange({ ...data, duration: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
         >
           <option value="">Geen voorkeur</option>
           <option value="halve dag">Halve dag</option>
@@ -356,7 +356,7 @@ function DemodagFormFields({
           id="wants_qa"
           checked={data.wants_qa}
           onChange={e => onChange({ ...data, wants_qa: e.target.checked })}
-          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          className="w-4 h-4 text-#946B29 border-gray-300 rounded focus:ring-amber-500"
         />
         <label htmlFor="wants_qa" className="text-sm text-gray-700">
           Nabespreking / Q&amp;A gewenst na de demo
@@ -383,7 +383,7 @@ function OntwikkelingsvraagFormFields({
           placeholder="Naam, functie, e-mail en/of telefoonnummer"
           rows={3}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
         />
       </div>
       <div>
@@ -394,7 +394,7 @@ function OntwikkelingsvraagFormFields({
           placeholder="Beschrijf kort het onderwerp of de vraag die je wilt bespreken."
           rows={3}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
         />
       </div>
       <div>
@@ -412,7 +412,7 @@ function OntwikkelingsvraagFormFields({
           onChange={e => onChange({ ...data, school_context: e.target.value })}
           placeholder="Korte omschrijving van de schoolsituatie, uitdagingen of achtergrond."
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
         />
       </div>
       <div>
@@ -422,7 +422,7 @@ function OntwikkelingsvraagFormFields({
           onChange={e => onChange({ ...data, desired_outcome: e.target.value })}
           placeholder="Wat hoop je te bereiken met deze samenwerking?"
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -431,7 +431,7 @@ function OntwikkelingsvraagFormFields({
           <select
             value={data.has_budget}
             onChange={e => onChange({ ...data, has_budget: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
           >
             <option value="">Weet ik nog niet</option>
             <option value="ja">Budget beschikbaar</option>
@@ -443,7 +443,7 @@ function OntwikkelingsvraagFormFields({
           <select
             value={data.urgency}
             onChange={e => onChange({ ...data, urgency: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
           >
             <option value="">Geen specifieke deadline</option>
             <option value="dringend">Dringend (binnen 1 maand)</option>
@@ -623,7 +623,7 @@ export function DidactiekBegeleiding() {
                   value={selectedSchoolId}
                   onChange={e => setSelectedSchoolId(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
                   <option value="">Selecteer een school</option>
                   {userSchools.map(s => (

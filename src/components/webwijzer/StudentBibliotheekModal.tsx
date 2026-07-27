@@ -345,7 +345,7 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                   <div className="mb-4">
                     <button
                       onClick={() => setShowScanner(false)}
-                      className="text-blue-600 hover:text-blue-700 font-medium"
+                      className="text-#946B29 hover:text-#74531F font-medium"
                     >
                       ← Terug
                     </button>
@@ -362,7 +362,7 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                   </div>
                   {confirming && (
                     <div className="text-center py-4">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29 mx-auto"></div>
                       <p className="text-gray-600 mt-2">Item zoeken...</p>
                     </div>
                   )}
@@ -377,7 +377,7 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                 <div className="text-center">
                   <div className="mb-6">
                     {scannedItem.type === 'book' ? (
-                      <BookOpen className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+                      <BookOpen className="w-16 h-16 text-#946B29 mx-auto mb-4" />
                     ) : (
                       <Package className="w-16 h-16 text-green-600 mx-auto mb-4" />
                     )}
@@ -418,13 +418,13 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
             <div className="p-6 space-y-6">
               {loading ? (
                 <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto"></div>
                 </div>
               ) : (
                 <>
                   <section aria-labelledby="my-books-heading">
                     <div className="flex items-center mb-3">
-                      <BookOpen className="w-5 h-5 text-blue-600 mr-2" aria-hidden="true" />
+                      <BookOpen className="w-5 h-5 text-#946B29 mr-2" aria-hidden="true" />
                       <h3 id="my-books-heading" className="text-lg font-semibold text-gray-900">
                         Mijn Boeken ({books.length})
                       </h3>
@@ -441,14 +441,14 @@ export function StudentBibliotheekModal({ studentId, schoolId, onClose }: Studen
                           <div
                             key={book.id}
                             className={`flex-shrink-0 bg-white border-2 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all ${
-                              selectedBook?.id === book.id ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200'
+                              selectedBook?.id === book.id ? 'border-amber-500 ring-2 ring-amber-200' : 'border-gray-200'
                             }`}
                             style={{ width: '140px' }}
                             role="listitem"
                           >
                             <button
                               onClick={() => handleBookClick(book)}
-                              className="w-full text-left focus:ring-4 focus:ring-blue-300 focus:outline-none"
+                              className="w-full text-left focus:ring-4 focus:ring-amber-300 focus:outline-none"
                               aria-label={`Selecteer boek ${book.title} door ${book.author}${selectedBook?.id === book.id ? ', geselecteerd' : ''}`}
                             >
                               {(book.custom_cover_url || book.cover_image_url) ? (

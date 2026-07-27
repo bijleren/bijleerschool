@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Plus, Edit2, Trash2, Save, X } from 'lucide-react';
+import { ArrowLeft, Plus, CreditCard as Edit2, Trash2, Save, X } from 'lucide-react';
 
 interface ReadingTechnique {
   id: string;
@@ -263,7 +263,7 @@ export function LeescoachSettings({ schoolId, onNavigateBack }: LeescoachSetting
             onClick={() => setActiveTab('techniques')}
             className={`px-4 py-2 font-medium border-b-2 transition-colors ${
               activeTab === 'techniques'
-                ? 'border-blue-500 text-blue-600'
+                ? 'border-amber-500 text-#946B29'
                 : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -273,7 +273,7 @@ export function LeescoachSettings({ schoolId, onNavigateBack }: LeescoachSetting
             onClick={() => setActiveTab('interventions')}
             className={`px-4 py-2 font-medium border-b-2 transition-colors ${
               activeTab === 'interventions'
-                ? 'border-blue-500 text-blue-600'
+                ? 'border-amber-500 text-#946B29'
                 : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -282,7 +282,7 @@ export function LeescoachSettings({ schoolId, onNavigateBack }: LeescoachSetting
         </div>
 
         {message && (
-          <div className="mb-4 p-4 bg-blue-50 text-blue-800 rounded-lg">
+          <div className="mb-4 p-4 bg-amber-50 text-#5C4118 rounded-lg">
             {message}
           </div>
         )}
@@ -310,7 +310,7 @@ export function LeescoachSettings({ schoolId, onNavigateBack }: LeescoachSetting
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
                   />
                   <div className="flex gap-2">
                     <Button onClick={handleAddTechnique}>
@@ -342,7 +342,7 @@ export function LeescoachSettings({ schoolId, onNavigateBack }: LeescoachSetting
                         value={editFormData.description}
                         onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
                         rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
                       />
                       <div className="flex gap-2">
                         <Button onClick={() => handleSaveEditTechnique(technique.id)} size="sm">

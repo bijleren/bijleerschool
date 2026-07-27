@@ -146,7 +146,7 @@ export function PublicWebWijzerAccess() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-#946B29 mx-auto mb-4"></div>
           <p className="text-gray-600">Je WebWijzer wordt geladen...</p>
         </div>
       </div>
@@ -160,7 +160,7 @@ export function PublicWebWijzerAccess() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-9 h-9 bg-#946B29 rounded-lg flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">bijleer.school</span>
@@ -173,7 +173,7 @@ export function PublicWebWijzerAccess() {
 
             <button
               onClick={() => { setShowCodeModal(true); setError(''); }}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-#946B29 text-white text-sm font-semibold rounded-lg hover:bg-#74531F transition-colors"
             >
               <KeyRound className="w-4 h-4" />
               <span className="hidden sm:inline">Log in met code</span>
@@ -200,7 +200,7 @@ export function PublicWebWijzerAccess() {
                 <p className="text-gray-600 text-sm mb-4">{cameraError}</p>
                 <button
                   onClick={() => { setCameraError(''); startScanner(facingMode); }}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  className="px-4 py-2 bg-#946B29 hover:bg-#74531F text-white rounded-lg text-sm font-medium transition-colors"
                 >
                   Opnieuw proberen
                 </button>
@@ -232,7 +232,7 @@ export function PublicWebWijzerAccess() {
             Geen QR-code bij de hand?{' '}
             <button
               onClick={() => { setShowCodeModal(true); setError(''); }}
-              className="text-blue-600 hover:text-blue-700 font-medium underline-offset-2 hover:underline"
+              className="text-#946B29 hover:text-#74531F font-medium underline-offset-2 hover:underline"
             >
               Log in met code
             </button>
@@ -287,8 +287,8 @@ export function PublicWebWijzerAccess() {
             </button>
 
             <div className="text-center mb-5">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mx-auto mb-3">
-                <KeyRound className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center mx-auto mb-3">
+                <KeyRound className="w-6 h-6 text-#946B29" />
               </div>
               <h2 className="text-lg font-bold text-gray-900">Log in met code</h2>
               <p className="text-sm text-gray-500 mt-0.5">Voer je studentcode en pincode in</p>

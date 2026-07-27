@@ -297,7 +297,7 @@ export function SessionDetailsModal({ sessionId, onClose, onDeleted }: SessionDe
               </div>
               <div className="flex flex-wrap gap-2">
                 {session.reading_session_techniques.map((st, idx) => (
-                  <div key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                  <div key={idx} className="bg-amber-100 text-#5C4118 px-3 py-1 rounded-full text-sm">
                     {st.reading_techniques.title}
                   </div>
                 ))}
@@ -326,7 +326,7 @@ export function SessionDetailsModal({ sessionId, onClose, onDeleted }: SessionDe
           )}
 
           {session.next_session_date && (
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-amber-50 p-4 rounded-lg">
               <h4 className="font-semibold mb-2">Volgende Sessie Gepland</h4>
               <p className="text-gray-700">
                 {new Date(session.next_session_date).toLocaleDateString('nl-NL', {

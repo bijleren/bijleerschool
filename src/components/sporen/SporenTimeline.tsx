@@ -185,7 +185,7 @@ export function SporenTimeline({ schoolId, groupId, subjectId, groupName, subjec
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
       </div>
     );
   }
@@ -210,7 +210,7 @@ export function SporenTimeline({ schoolId, groupId, subjectId, groupName, subjec
                 key={key}
                 onClick={() => setSortBy(key)}
                 className={`px-3 py-1.5 text-xs border-l border-gray-300 first:border-l-0 transition-colors ${
-                  sortBy === key ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+                  sortBy === key ? 'bg-#946B29 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 {key === 'name' ? 'Naam' : key === 'spoor' ? 'Huidig spoor' : 'Wijzigingen'}
@@ -221,7 +221,7 @@ export function SporenTimeline({ schoolId, groupId, subjectId, groupName, subjec
         <select
           value={filterSpoorId}
           onChange={(e) => setFilterSpoorId(e.target.value)}
-          className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
         >
           <option value="">Alle sporen</option>
           {sporen.map((s) => (

@@ -250,7 +250,7 @@ export function LeescoachStudentProfile({
                 {session.reading_session_techniques.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-2">
                     {session.reading_session_techniques.map((st, idx) => (
-                      <span key={idx} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                      <span key={idx} className="bg-amber-100 text-#5C4118 px-2 py-1 rounded text-xs">
                         {st.reading_techniques.title}
                       </span>
                     ))}

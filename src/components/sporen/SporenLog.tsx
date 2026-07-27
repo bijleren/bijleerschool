@@ -115,7 +115,7 @@ export function SporenLog({ schoolId, groupId, subjectId, groupName, subjectName
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
       </div>
     );
   }
@@ -131,7 +131,7 @@ export function SporenLog({ schoolId, groupId, subjectId, groupName, subjectName
               placeholder="Zoek leerling..."
               value={filterStudentName}
               onChange={(e) => setFilterStudentName(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -141,7 +141,7 @@ export function SporenLog({ schoolId, groupId, subjectId, groupName, subjectName
             <select
               value={filterSpoorId}
               onChange={(e) => setFilterSpoorId(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             >
               <option value="">Alle sporen</option>
               {sporen.map((s) => (
@@ -169,7 +169,7 @@ export function SporenLog({ schoolId, groupId, subjectId, groupName, subjectName
                 key={entry.id}
                 className={`flex items-start gap-4 p-4 rounded-lg border transition-colors ${
                   entry.is_current
-                    ? 'border-blue-200 bg-blue-50/40'
+                    ? 'border-amber-200 bg-amber-50/40'
                     : 'border-gray-200 bg-white'
                 }`}
               >

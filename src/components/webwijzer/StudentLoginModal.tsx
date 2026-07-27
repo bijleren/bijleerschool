@@ -47,7 +47,7 @@ export function StudentLoginModal({ logins, onClose }: StudentLoginModalProps) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <LogIn className="w-5 h-5 text-blue-600" aria-hidden="true" />
+            <LogIn className="w-5 h-5 text-#946B29" aria-hidden="true" />
             <h2 id="login-modal-title" className="text-lg font-bold text-gray-900">
               Inloggen
             </h2>
@@ -68,7 +68,7 @@ export function StudentLoginModal({ logins, onClose }: StudentLoginModalProps) {
               <button
                 key={login.id}
                 onClick={() => handleLoginClick(login)}
-                className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-xl transition-all group text-left"
+                className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-amber-50 border border-gray-200 hover:border-amber-300 rounded-xl transition-all group text-left"
                 aria-label={`Inloggen bij ${login.label}, gebruikersnaam wordt gekopieerd`}
               >
                 <div className="flex-1 min-w-0">
@@ -83,8 +83,8 @@ export function StudentLoginModal({ logins, onClose }: StudentLoginModalProps) {
                     </span>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" aria-hidden="true" />
-                      <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" aria-hidden="true" />
+                      <Copy className="w-4 h-4 text-gray-400 group-hover:text-amber-500 transition-colors" aria-hidden="true" />
+                      <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-amber-500 transition-colors" aria-hidden="true" />
                     </>
                   )}
                 </div>

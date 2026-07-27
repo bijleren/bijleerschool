@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
-import { X, Clock, Grid } from 'lucide-react';
+import { X, Clock, Grid2x2 as Grid } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 
@@ -204,7 +204,7 @@ export function StudentActiviTijdModal({ studentId, boardId, onClose }: StudentA
       >
         <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" role="status"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto" role="status"></div>
             <span id="loading-message" className="sr-only">Laden...</span>
           </div>
         </div>
@@ -297,10 +297,10 @@ export function StudentActiviTijdModal({ studentId, boardId, onClose }: StudentA
                     disabled={isFull || isCurrentActivity}
                     className={`p-6 rounded-lg border-2 transition-all focus:ring-4 focus:outline-none ${
                       isCurrentActivity
-                        ? 'border-blue-500 bg-blue-50 cursor-default focus:ring-blue-300'
+                        ? 'border-amber-500 bg-amber-50 cursor-default focus:ring-amber-300'
                         : isFull
                         ? 'border-gray-300 bg-gray-100 cursor-not-allowed opacity-60'
-                        : 'border-gray-300 hover:border-blue-500 hover:shadow-lg cursor-pointer focus:ring-blue-300'
+                        : 'border-gray-300 hover:border-amber-500 hover:shadow-lg cursor-pointer focus:ring-amber-300'
                     }`}
                     aria-label={`${activity.name}${activity.description ? `, ${activity.description}` : ''}. ${activity.current_students} van ${activity.max_students || 'onbeperkt'} studenten${isFull ? ', vol' : ''}${isCurrentActivity ? ', huidige activiteit' : ''}`}
                     aria-disabled={isFull || isCurrentActivity}
@@ -326,7 +326,7 @@ export function StudentActiviTijdModal({ studentId, boardId, onClose }: StudentA
                         <span className="text-xs text-red-600 font-medium mt-2">Vol</span>
                       )}
                       {isCurrentActivity && (
-                        <span className="text-xs text-blue-600 font-medium mt-2">Huidige activiteit</span>
+                        <span className="text-xs text-#946B29 font-medium mt-2">Huidige activiteit</span>
                       )}
                     </div>
                   </button>

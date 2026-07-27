@@ -320,7 +320,7 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29" />
       </div>
     );
   }
@@ -352,7 +352,7 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                   const s = userSchools.find(s => s.id === e.target.value);
                   if (s) { setSelectedSchool(s); setSchoolId(s.id); }
                 }}
-                className="appearance-none pl-3 pr-8 py-1.5 text-sm bg-white border border-gray-300 rounded-lg text-gray-700 font-medium cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="appearance-none pl-3 pr-8 py-1.5 text-sm bg-white border border-gray-300 rounded-lg text-gray-700 font-medium cursor-pointer hover:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
               >
                 {userSchools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
@@ -371,7 +371,7 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
               placeholder="Zoeken..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+              className="pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 w-48"
             />
           </div>
           <Button onClick={openCreate}>
@@ -382,10 +382,10 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
       </div>
 
       {/* Info banner */}
-      <div className="rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-slate-50 p-5">
+      <div className="rounded-xl border border-amber-100 bg-gradient-to-r from-amber-50 to-slate-50 p-5">
         <div className="flex gap-4">
-          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-            <Layers className="w-5 h-5 text-blue-600" />
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+            <Layers className="w-5 h-5 text-#946B29" />
           </div>
           <div className="flex-1">
             <h2 className="text-sm font-semibold text-gray-900 mb-1">Hulpfiches als verticale leerlijn</h2>
@@ -393,15 +393,15 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
               Houd alle hulpmiddelen van je school op één centrale plek bij. Door fiches te koppelen aan een vak en leerjaar bouw je een verticale leerlijn op — tools die doorheen verschillende jaren hergebruikt en verfijnd worden. Wijs een fiche toe aan een leerling of klas zodat de digitale versie automatisch verschijnt in hun WebWijzer.
             </p>
             <div className="mt-3 flex flex-wrap gap-4">
-              <div className="flex items-center gap-1.5 text-xs text-blue-700">
+              <div className="flex items-center gap-1.5 text-xs text-#74531F">
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>Georganiseerd per vak</span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-blue-700">
+              <div className="flex items-center gap-1.5 text-xs text-#74531F">
                 <ArrowUpRight className="w-3.5 h-3.5" />
                 <span>Verticale leerlijn over leerjaren</span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-blue-700">
+              <div className="flex items-center gap-1.5 text-xs text-#74531F">
                 <Users className="w-3.5 h-3.5" />
                 <span>Direct zichtbaar in WebWijzer van de leerling</span>
               </div>
@@ -434,8 +434,8 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                   className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-blue-600" />
+                    <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-#946B29" />
                     </div>
                     <span className="font-semibold text-gray-900">{vak}</span>
                     <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
@@ -479,7 +479,7 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                           )}
                           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                             {fiche.hulpfiche_leerjaren.map(l => (
-                              <span key={l.leerjaar} className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
+                              <span key={l.leerjaar} className="text-xs bg-amber-50 text-#74531F px-2 py-0.5 rounded-full">
                                 {l.leerjaar}
                               </span>
                             ))}
@@ -499,7 +499,7 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                               href={fiche.file_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              className="p-2 text-gray-400 hover:text-#946B29 hover:bg-amber-50 rounded-lg transition-colors"
                               title="Openen"
                             >
                               <Download className="w-4 h-4" />
@@ -507,14 +507,14 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                           )}
                           <button
                             onClick={() => openAssign(fiche)}
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 text-gray-400 hover:text-#946B29 hover:bg-amber-50 rounded-lg transition-colors"
                             title="Toewijzen"
                           >
                             <Users className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => toggleVisibility(fiche)}
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 text-gray-400 hover:text-#946B29 hover:bg-amber-50 rounded-lg transition-colors"
                             title={fiche.is_visible_to_students ? 'Verbergen' : 'Zichtbaar maken'}
                           >
                             {fiche.is_visible_to_students ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -576,7 +576,7 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                   onChange={e => setFormDescription(e.target.value)}
                   placeholder="Korte uitleg over deze fiche..."
                   rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
                 />
               </div>
 
@@ -595,7 +595,7 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                 />
                 {(formFile || formFilePreview) ? (
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <FileText className="w-8 h-8 text-blue-500 flex-shrink-0" />
+                    <FileText className="w-8 h-8 text-amber-500 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800 truncate">
                         {formFile?.name || editingFiche?.file_name || 'Huidig bestand'}
@@ -611,7 +611,7 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                 ) : (
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center gap-2 hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                    className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center gap-2 hover:border-amber-500 hover:bg-amber-50 transition-colors"
                   >
                     <Upload className="w-6 h-6 text-gray-400" />
                     <span className="text-sm text-gray-500">Klik om een bestand te uploaden</span>
@@ -634,7 +634,7 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                       onClick={() => toggleChip(vak, formVakken, setFormVakken)}
                       className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                         formVakken.includes(vak)
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-#946B29 text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -674,7 +674,7 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                 <button
                   type="button"
                   onClick={() => setFormVisible(v => !v)}
-                  className={`relative inline-flex w-11 h-6 rounded-full transition-colors ${formVisible ? 'bg-blue-600' : 'bg-gray-300'}`}
+                  className={`relative inline-flex w-11 h-6 rounded-full transition-colors ${formVisible ? 'bg-#946B29' : 'bg-gray-300'}`}
                 >
                   <span className={`inline-block w-5 h-5 bg-white rounded-full shadow transition-transform mt-0.5 ${formVisible ? 'translate-x-5' : 'translate-x-0.5'}`} />
                 </button>
@@ -720,7 +720,7 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                   placeholder="Zoek leerling of klas..."
                   value={assignSearch}
                   onChange={e => setAssignSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
@@ -739,11 +739,11 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                         onClick={() => toggleAssignment(currentAssigning, 'group', g.id)}
                         disabled={assignSaving}
                         className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
-                          assigned ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-700'
+                          assigned ? 'bg-amber-50 text-#74531F' : 'hover:bg-gray-50 text-gray-700'
                         }`}
                       >
                         <span>{g.name}</span>
-                        {assigned && <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center">
+                        {assigned && <div className="w-4 h-4 rounded-full bg-#946B29 flex items-center justify-center">
                           <span className="text-white text-xs">✓</span>
                         </div>}
                       </button>
@@ -764,11 +764,11 @@ export function HulpfichesTab({ focusSchool, userSchools = [] }: HulpfichesTabPr
                         onClick={() => toggleAssignment(currentAssigning, 'student', s.id)}
                         disabled={assignSaving}
                         className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
-                          assigned ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50 text-gray-700'
+                          assigned ? 'bg-amber-50 text-#74531F' : 'hover:bg-gray-50 text-gray-700'
                         }`}
                       >
                         <span>{s.first_name} {s.last_name}</span>
-                        {assigned && <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center">
+                        {assigned && <div className="w-4 h-4 rounded-full bg-#946B29 flex items-center justify-center">
                           <span className="text-white text-xs">✓</span>
                         </div>}
                       </button>

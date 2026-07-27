@@ -215,10 +215,10 @@ export function GroupStudentImport({ schoolId, groupId, onImportComplete, onClos
         <div className="p-6 space-y-6">
           {!importComplete ? (
             <>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-blue-800">
+                  <AlertTriangle className="w-5 h-5 text-#946B29 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-#5C4118">
                     <p className="font-medium mb-2">Let op:</p>
                     <ul className="list-disc ml-4 space-y-1">
                       <li>Plak data met kolommen "voornaam" en "achternaam" - komma, puntkomma en tab worden automatisch herkend</li>
@@ -245,7 +245,7 @@ export function GroupStudentImport({ schoolId, groupId, onImportComplete, onClos
                   value={csvData}
                   onChange={(e) => setCsvData(e.target.value)}
                   placeholder="Plak hier je CSV data (bijv. gekopieerd vanuit Excel of Google Sheets)&#10;&#10;voornaam,achternaam&#10;Jan,Jansen&#10;Marie,Pietersen"
-                  className="w-full h-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                  className="w-full h-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent font-mono text-sm"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Tip: Kopieer cellen uit Excel/Google Sheets en plak ze hier

@@ -6,26 +6,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import {
-  ArrowLeft,
-  Edit,
-  Play,
-  ExternalLink,
-  Users,
-  BookMarked,
-  Wrench,
-  Calendar,
-  User,
-  MessageCircle,
-  Award,
-  BarChart3,
-  Plus,
-  Star,
-  Send,
-  Trash2,
-  Share2,
-  Check
-} from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Play, ExternalLink, Users, BookMarked, Wrench, Calendar, User, MessageCircle, Award, BarChart3, Plus, Star, Send, Trash2, Share2, Check } from 'lucide-react';
 
 interface AgeGroup {
   id: string;
@@ -435,7 +416,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
             <select
               value={selectedSchoolId}
               onChange={(e) => setSelectedSchoolId(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             >
               {userSchools.map((school) => (
                 <option key={school.id} value={school.id}>
@@ -502,7 +483,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
             </h3>
             <div className="grid grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-indigo-600">{usageStats.totalUsage}</div>
+                <div className="text-2xl font-bold text-#946B29">{usageStats.totalUsage}</div>
                 <div className="text-sm text-gray-600">Totaal gebruikt</div>
               </div>
               <div className="text-center">
@@ -510,7 +491,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
                 <div className="text-sm text-gray-600">Unieke leerkrachten</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{usageStats.uniqueGroups}</div>
+                <div className="text-2xl font-bold text-#946B29">{usageStats.uniqueGroups}</div>
                 <div className="text-sm text-gray-600">Verschillende groepen</div>
               </div>
             </div>
@@ -572,7 +553,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
                   {technique.teaching_technique_age_groups.filter(tag => tag.age_groups).map((tag) => (
                     <span
                       key={tag.age_groups.id}
-                      className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                      className="px-3 py-1 bg-amber-100 text-#5C4118 text-sm rounded-full"
                     >
                       <Users className="w-3 h-3 inline mr-1" />
                       {tag.age_groups.name}
@@ -606,7 +587,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
                   {technique.teaching_technique_materials.filter(tm => tm.materials).map((tm) => (
                     <span
                       key={tm.materials.id}
-                      className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full"
+                      className="px-3 py-1 bg-amber-100 text-#5C4118 text-sm rounded-full"
                     >
                       <Wrench className="w-3 h-3 inline mr-1" />
                       {tm.materials.name}
@@ -648,7 +629,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
                             href={technique.teacher_video_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-indigo-600 hover:text-indigo-500 text-sm"
+                            className="text-#946B29 hover:text-amber-500 text-sm"
                           >
                             Open in nieuwe tab
                           </a>
@@ -683,7 +664,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
                             href={technique.student_video_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-indigo-600 hover:text-indigo-500 text-sm"
+                            className="text-#946B29 hover:text-amber-500 text-sm"
                           >
                             Open in nieuwe tab
                           </a>
@@ -728,7 +709,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
                     <select
                       value={coachData.experience_level}
                       onChange={(e) => setCoachData({ ...coachData, experience_level: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     >
                       <option value="beginner">Beginner</option>
                       <option value="intermediate">Gemiddeld</option>
@@ -743,7 +724,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
                       value={coachData.description}
                       onChange={(e) => setCoachData({ ...coachData, description: e.target.value })}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                       placeholder="Beschrijf je ervaring met deze techniek..."
                     />
                   </div>
@@ -765,8 +746,8 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
               ) : (
                 coaches.map((coach) => (
                   <div key={coach.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                      <Award className="w-5 h-5 text-indigo-600" />
+                    <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                      <Award className="w-5 h-5 text-#946B29" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
@@ -777,7 +758,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
                           coach.experience_level === 'expert' 
                             ? 'bg-green-100 text-green-800'
                             : coach.experience_level === 'intermediate'
-                            ? 'bg-blue-100 text-blue-800'
+                            ? 'bg-amber-100 text-#5C4118'
                             : 'bg-gray-100 text-gray-800'
                         }`}>
                           {coach.experience_level === 'expert' ? 'Expert' : 
@@ -816,7 +797,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     placeholder="Deel je ervaring met deze techniek..."
                   />
                   <div className="flex justify-end space-x-3">
@@ -841,7 +822,7 @@ export function TeachingTechniqueDetail({ technique, onBack, onEdit, onDelete, u
                 <p className="text-gray-500 text-center py-8">Nog geen reacties op deze techniek</p>
               ) : (
                 comments.map((comment) => (
-                  <div key={comment.id} className="border-l-4 border-indigo-200 pl-4 py-2">
+                  <div key={comment.id} className="border-l-4 border-amber-200 pl-4 py-2">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium text-gray-900">
                         {comment.profiles.first_name} {comment.profiles.last_name}

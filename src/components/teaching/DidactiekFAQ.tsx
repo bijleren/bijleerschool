@@ -187,7 +187,7 @@ export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-#946B29 mx-auto"></div>
           <p className="mt-4 text-gray-600">FAQs laden...</p>
         </div>
       </div>
@@ -197,13 +197,13 @@ export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
   return (
     <div className="max-w-4xl mx-auto">
       {!isAdmin && !isPremium && (
-        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
-          <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-blue-900">
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3">
+          <Info className="w-5 h-5 text-#946B29 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-#3D2B10">
             <p className="font-semibold mb-1">Volledige toegang met een bijleer.school-licentie</p>
-            <p className="text-blue-800">
+            <p className="text-#5C4118">
               Deze didactische items zijn enkel beschikbaar voor scholen met een volledige bijleer.school-licentie. De items met een slotje zijn vergrendeld voor jouw school. De items die je wel kunt openen zijn gratis voorbeelditems.
-              Neem contact op via <a href="mailto:info@bijleren.eu" className="font-medium underline hover:text-blue-600">info@bijleren.eu</a> voor meer informatie over een licentie voor jouw hele school.
+              Neem contact op via <a href="mailto:info@bijleren.eu" className="font-medium underline hover:text-#946B29">info@bijleren.eu</a> voor meer informatie over een licentie voor jouw hele school.
             </p>
           </div>
         </div>
@@ -225,7 +225,7 @@ export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
       </div>
 
       {isAdmin && isCreating && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-2 border-blue-200">
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-2 border-amber-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             {editingFaq ? 'FAQ bewerken' : 'Nieuwe FAQ'}
           </h3>
@@ -286,7 +286,7 @@ export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
                 id="is_published"
                 checked={formData.is_published}
                 onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-#946B29 border-gray-300 rounded focus:ring-amber-500"
               />
               <label htmlFor="is_published" className="ml-2 text-sm text-gray-700">
                 Gepubliceerd (zichtbaar voor gebruikers)
@@ -339,7 +339,7 @@ export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
               onClick={() => setSelectedCategory('all')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedCategory === 'all'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-#946B29 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -351,7 +351,7 @@ export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedCategory === category
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-#946B29 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -387,12 +387,12 @@ export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
                     {locked ? (
                       <Lock className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
                     ) : (
-                      <HelpCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <HelpCircle className="w-5 h-5 text-#946B29 flex-shrink-0 mt-0.5" />
                     )}
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900">{faq.question}</h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
+                        <span className="text-xs px-2 py-0.5 bg-amber-100 text-#74531F rounded">
                           {faq.category}
                         </span>
                         {isAdmin && !faq.is_published && (
@@ -432,7 +432,7 @@ export function DidactiekFAQ({ isAdmin, isPremium }: DidactiekFAQProps) {
                             e.stopPropagation();
                             handleEdit(faq);
                           }}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                          className="p-2 text-#946B29 hover:bg-amber-50 rounded transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>

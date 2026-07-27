@@ -670,7 +670,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
       </div>
     );
   }
@@ -708,7 +708,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                   onFocusSchoolChange(school);
                 }
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             >
               {userSchools.map((school) => (
                 <option key={school.id} value={school.id}>
@@ -725,50 +725,50 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <button
             onClick={onNavigateToTeaching}
-            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-amber-300 transition-all group"
           >
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
-              <BookOpen className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-amber-200 transition-colors">
+              <BookOpen className="w-5 h-5 text-#946B29" />
             </div>
             <span className="text-sm font-medium text-gray-900">Technieken</span>
           </button>
 
           <button
             onClick={onNavigateToTeachingFAQ}
-            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-amber-300 transition-all group"
           >
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
-              <HelpCircle className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-amber-200 transition-colors">
+              <HelpCircle className="w-5 h-5 text-#946B29" />
             </div>
             <span className="text-sm font-medium text-gray-900">FAQ</span>
           </button>
 
           <button
             onClick={onNavigateToTeachingVormingen}
-            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-amber-300 transition-all group"
           >
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
-              <Video className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-amber-200 transition-colors">
+              <Video className="w-5 h-5 text-#946B29" />
             </div>
             <span className="text-sm font-medium text-gray-900">Vormingen</span>
           </button>
 
           <button
             onClick={onNavigateToNieuwsbrief}
-            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-amber-300 transition-all group"
           >
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
-              <Newspaper className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-amber-200 transition-colors">
+              <Newspaper className="w-5 h-5 text-#946B29" />
             </div>
             <span className="text-sm font-medium text-gray-900">Nieuwsbrief</span>
           </button>
 
           <button
             onClick={onNavigateToBlinkQR}
-            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group"
+            className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-amber-300 transition-all group"
           >
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
-              <QrCode className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-amber-200 transition-colors">
+              <QrCode className="w-5 h-5 text-#946B29" />
             </div>
             <span className="text-sm font-medium text-gray-900">BlinkQR</span>
           </button>
@@ -850,8 +850,8 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior('today')}>
               <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Calendar className="w-6 h-6 text-blue-600" />
+                <div className="p-2 bg-amber-100 rounded-lg">
+                  <Calendar className="w-6 h-6 text-#946B29" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Meldingen vandaag</p>
@@ -922,7 +922,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                         placeholder="Zoek een leerling..."
                         value={studentSearchQuery}
                         onChange={handleStudentInputChange}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                       />
                     </div>
                   </div>
@@ -936,8 +936,8 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                             onClick={() => handleStudentSelect(student)}
                             className="w-full px-6 py-4 text-left hover:bg-gray-50 transition-colors flex items-center gap-3"
                           >
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                              <GraduationCap className="w-5 h-5 text-blue-600" />
+                            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <GraduationCap className="w-5 h-5 text-#946B29" />
                             </div>
                             <div>
                               <p className="font-medium text-gray-900">
@@ -975,7 +975,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                       className="flex items-start space-x-3 flex-1 cursor-pointer"
                       onClick={() => handleStudentClick(favorite.students)}
                     >
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
                         {favorite.students.profile_picture_url ? (
                           <img
                             src={favorite.students.profile_picture_url}
@@ -983,11 +983,11 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <GraduationCap className="w-5 h-5 text-blue-600" />
+                          <GraduationCap className="w-5 h-5 text-#946B29" />
                         )}
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900 hover:text-indigo-600 transition-colors">
+                        <div className="font-medium text-gray-900 hover:text-#946B29 transition-colors">
                           {favorite.students.first_name} {favorite.students.last_name}
                         </div>
                         {favorite.students.student_number && (
@@ -1083,7 +1083,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                         <Users className="w-5 h-5 text-green-600" />
                       </div>
                       <div>
-                        <div className="font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
+                        <div className="font-semibold text-gray-900 hover:text-#946B29 transition-colors">
                           {favorite.groups.name}
                         </div>
                         {favorite.groups.description && (
@@ -1146,7 +1146,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
       {hasAnyIncidents && <div className="mt-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-            <School className="w-5 h-5 text-blue-600 mr-2" />
+            <School className="w-5 h-5 text-#946B29 mr-2" />
             School overzicht
           </h2>
           <div className="flex items-center space-x-2">
@@ -1154,7 +1154,7 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
             <select
               value={schoolOverviewPeriod}
               onChange={(e) => setSchoolOverviewPeriod(Number(e.target.value))}
-              className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             >
               <option value={7}>Laatste 7 dagen</option>
               <option value={14}>Laatste 14 dagen</option>
@@ -1167,8 +1167,8 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onNavigateToBehavior('today')}>
             <div className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Calendar className="w-6 h-6 text-blue-600" />
+              <div className="p-3 bg-amber-100 rounded-lg">
+                <Calendar className="w-6 h-6 text-#946B29" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Meldingen vandaag</p>

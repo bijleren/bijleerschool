@@ -1061,7 +1061,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
                   className="flex-1 cursor-pointer"
                   onClick={() => handleStudentClick(studentGroup.students.id)}
                 >
-                  <span className="font-medium text-blue-600 hover:text-blue-700">
+                  <span className="font-medium text-#946B29 hover:text-#74531F">
                     {studentGroup.students.first_name} {studentGroup.students.last_name}
                   </span>
                   {studentGroup.students.student_number && (
@@ -1165,8 +1165,8 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
                   <span className="text-sm text-gray-500 ml-2">{teammemberGroup.teammembers.profiles.email}</span>
                   <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
                     teammemberGroup.role === 'lead_teacher' 
-                      ? 'bg-purple-100 text-purple-800'
-                      : 'bg-blue-100 text-blue-800'
+                      ? 'bg-amber-100 text-#5C4118'
+                      : 'bg-amber-100 text-#5C4118'
                   }`}>
                     {teammemberGroup.role === 'lead_teacher' ? 'Hoofddocent' : 'Docent'}
                   </span>
@@ -1195,7 +1195,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
 
         {incidentsLoading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
           </div>
         ) : groupIncidents.length === 0 ? (
           <div className="text-center py-8">
@@ -1317,8 +1317,8 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
             <div className="flex items-center justify-between p-6 border-b border-gray-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <Palette className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                  <Palette className="w-5 h-5 text-#946B29" />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-gray-900">Kleur instellen</h2>

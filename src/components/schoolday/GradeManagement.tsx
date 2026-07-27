@@ -4,16 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { 
-  X, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save,
-  GraduationCap,
-  ArrowUp,
-  ArrowDown
-} from 'lucide-react';
+import { X, Plus, CreditCard as Edit, Trash2, Save, GraduationCap, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface SchoolGrade {
   id: string;
@@ -224,7 +215,7 @@ export function GradeManagement({ schoolId, onClose, inline = false, onCountChan
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 placeholder="Bijv. Onderbouw - 6 jaar"
               />
             </div>
@@ -261,8 +252,8 @@ export function GradeManagement({ schoolId, onClose, inline = false, onCountChan
             <Card key={grade.id} padding="sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <GraduationCap className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <GraduationCap className="w-5 h-5 text-#946B29" />
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-900">{grade.name}</h4>

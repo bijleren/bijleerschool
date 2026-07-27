@@ -343,7 +343,7 @@ export function TeachingTechniqueForm({
                 onChange={(e) => setDescription(e.target.value)}
                 required
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 placeholder="Uitgebreide beschrijving van de techniek..."
               />
             </div>
@@ -383,7 +383,7 @@ export function TeachingTechniqueForm({
                     type="checkbox"
                     checked={selectedCategories.includes(category.id)}
                     onChange={() => handleCategoryToggle(category.id)}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-#946B29 focus:ring-amber-500 border-gray-300 rounded"
                   />
                   <div className="flex items-center space-x-2">
                     <div
@@ -415,7 +415,7 @@ export function TeachingTechniqueForm({
                     type="checkbox"
                     checked={selectedAgeGroups.includes(ageGroup.id)}
                     onChange={() => handleAgeGroupToggle(ageGroup.id)}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-#946B29 focus:ring-amber-500 border-gray-300 rounded"
                   />
                   <div>
                     <span className="text-sm font-medium text-gray-900">{ageGroup.name}</span>
@@ -441,7 +441,7 @@ export function TeachingTechniqueForm({
                     type="checkbox"
                     checked={selectedSubjects.includes(subject.id)}
                     onChange={() => handleSubjectToggle(subject.id)}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-#946B29 focus:ring-amber-500 border-gray-300 rounded"
                   />
                   <div>
                     <span className="text-sm font-medium text-gray-900">{subject.name}</span>
@@ -467,7 +467,7 @@ export function TeachingTechniqueForm({
                     type="checkbox"
                     checked={selectedMaterials.includes(material.id)}
                     onChange={() => handleMaterialToggle(material.id)}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-#946B29 focus:ring-amber-500 border-gray-300 rounded"
                   />
                   <div>
                     <span className="text-sm font-medium text-gray-900">{material.name}</span>

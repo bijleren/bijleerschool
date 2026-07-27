@@ -45,11 +45,11 @@ function isScheduleActive(broadcast: Broadcast): boolean {
 
 const themes = {
   info: {
-    bg: 'bg-blue-600',
-    border: 'border-blue-700',
+    bg: 'bg-#946B29',
+    border: 'border-#74531F',
     text: 'text-white',
-    iconBg: 'bg-blue-500',
-    closeBg: 'hover:bg-blue-500',
+    iconBg: 'bg-amber-500',
+    closeBg: 'hover:bg-amber-500',
     Icon: Info,
   },
   warning: {

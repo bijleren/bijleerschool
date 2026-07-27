@@ -10,7 +10,7 @@ import { BoardOptionsModal } from './BoardOptionsModal';
 import { ActivitySelectionModal } from './ActivitySelectionModal';
 import { UnassignedStudentsPanel } from './UnassignedStudentsPanel';
 import { QRScanner } from './QRScanner';
-import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap, Maximize, Minimize, Timer, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Settings, Clock, Users, Plus, X, Grid2x2 as Grid, Book, Palette, Music, Pencil, Calculator, Gamepad2, Puzzle, Building, Trees, Scissors, Play, User, GraduationCap, Maximize, Minimize, Timer, BarChart3 } from 'lucide-react';
 import { DndContext, closestCenter, DragEndEvent, useSensor, useSensors, PointerSensor, useDroppable, useDraggable, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -73,7 +73,7 @@ function DroppableUnassignedPanel({ children }: { children: React.ReactNode }) {
   return (
     <div
       ref={setNodeRef}
-      className={`transition-all ${isOver ? 'ring-2 ring-blue-500' : ''}`}
+      className={`transition-all ${isOver ? 'ring-2 ring-amber-500' : ''}`}
     >
       {children}
     </div>
@@ -143,11 +143,11 @@ function EmptySpot({
         onClick={onClick}
         className={`w-16 h-16 rounded-lg border-2 border-dashed transition-all flex items-center justify-center group ${
           isOver
-            ? 'border-blue-500 bg-blue-100 scale-105'
-            : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
+            ? 'border-amber-500 bg-amber-100 scale-105'
+            : 'border-gray-300 hover:border-amber-500 hover:bg-amber-50'
         }`}
       >
-        <Plus className={`w-5 h-5 ${isOver ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-500'}`} />
+        <Plus className={`w-5 h-5 ${isOver ? 'text-#946B29' : 'text-gray-400 group-hover:text-amber-500'}`} />
       </button>
     </div>
   );
@@ -755,7 +755,7 @@ export function ActivityBoardView({ board, onBack, onEdit, onAnalyze, onFullscre
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-#946B29"></div>
       </div>
     );
   }
@@ -785,14 +785,14 @@ export function ActivityBoardView({ board, onBack, onEdit, onAnalyze, onFullscre
             </div>
             <div className="flex items-center space-x-3">
               {timeRemaining !== null && (
-                <div className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-blue-50 border-2 border-blue-200">
-                  <Clock className="w-5 h-5 text-blue-600" />
-                  <span className="font-bold text-blue-900 tabular-nums">
+                <div className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-amber-50 border-2 border-amber-200">
+                  <Clock className="w-5 h-5 text-#946B29" />
+                  <span className="font-bold text-#3D2B10 tabular-nums">
                     {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
                   </span>
                   <button
                     onClick={handleStopTimer}
-                    className="ml-2 text-blue-600 hover:text-blue-800"
+                    className="ml-2 text-#946B29 hover:text-#5C4118"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -838,9 +838,9 @@ export function ActivityBoardView({ board, onBack, onEdit, onAnalyze, onFullscre
         {isFullscreen && (
           <div className="fixed top-4 right-4 z-50 flex items-center space-x-3">
             {timeRemaining !== null && (
-              <div className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-blue-50 border-2 border-blue-200 shadow-lg">
-                <Clock className="w-5 h-5 text-blue-600" />
-                <span className="font-bold text-blue-900 tabular-nums text-lg">
+              <div className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-amber-50 border-2 border-amber-200 shadow-lg">
+                <Clock className="w-5 h-5 text-#946B29" />
+                <span className="font-bold text-#3D2B10 tabular-nums text-lg">
                   {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
                 </span>
               </div>
@@ -1029,7 +1029,7 @@ export function ActivityBoardView({ board, onBack, onEdit, onAnalyze, onFullscre
         {activeId && activeDragData ? (
           <div className="cursor-grabbing">
             {activeDragData.type === 'unassigned-student' && activeDragData.student ? (
-              <div className="w-full p-2 rounded-lg border border-blue-500 bg-blue-50 shadow-lg flex flex-col items-center text-center" style={{ width: '136px' }}>
+              <div className="w-full p-2 rounded-lg border border-amber-500 bg-amber-50 shadow-lg flex flex-col items-center text-center" style={{ width: '136px' }}>
                 {activeDragData.student.profile_picture_url ? (
                   <img
                     src={activeDragData.student.profile_picture_url}
@@ -1037,8 +1037,8 @@ export function ActivityBoardView({ board, onBack, onEdit, onAnalyze, onFullscre
                     className="w-16 h-16 rounded-full object-cover mb-1"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-blue-200 flex items-center justify-center mb-1">
-                    <span className="text-blue-700 font-medium text-sm">
+                  <div className="w-16 h-16 rounded-full bg-amber-200 flex items-center justify-center mb-1">
+                    <span className="text-#74531F font-medium text-sm">
                       {activeDragData.student.first_name[0]}
                       {activeDragData.student.last_name[0]}
                     </span>
@@ -1054,7 +1054,7 @@ export function ActivityBoardView({ board, onBack, onEdit, onAnalyze, onFullscre
                 </div>
               </div>
             ) : activeDragData.type === 'student-spot' && activeDragData.session ? (
-              <div className="w-16 h-16 rounded-lg border-2 border-blue-500 flex items-center justify-center overflow-hidden shadow-lg"
+              <div className="w-16 h-16 rounded-lg border-2 border-amber-500 flex items-center justify-center overflow-hidden shadow-lg"
                    style={{ backgroundColor: activeDragData.session.students.color || '#6B7280' }}>
                 {activeDragData.session.students.profile_picture_url ? (
                   <img
@@ -1094,7 +1094,7 @@ export function ActivityBoardView({ board, onBack, onEdit, onAnalyze, onFullscre
                   type="time"
                   value={timerEndTimeInput}
                   onChange={(e) => setTimerEndTimeInput(e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                   placeholder="HH:MM"
                 />
               </label>
@@ -1111,7 +1111,7 @@ export function ActivityBoardView({ board, onBack, onEdit, onAnalyze, onFullscre
                         onClick={() => setTimerEndTimeInput(timeString)}
                         className={`px-3 py-2 rounded-lg border-2 transition-all ${
                           timerEndTimeInput === timeString
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            ? 'border-amber-500 bg-amber-50 text-#74531F'
                             : 'border-gray-300 hover:border-gray-400'
                         }`}
                       >
@@ -1147,8 +1147,8 @@ export function ActivityBoardView({ board, onBack, onEdit, onAnalyze, onFullscre
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                <Clock className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                <Clock className="w-6 h-6 text-#946B29" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900">Timer afgelopen</h3>
