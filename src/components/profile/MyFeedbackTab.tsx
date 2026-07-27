@@ -19,7 +19,7 @@ interface BugReport {
 const TYPE_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string; bg: string }> = {
   'bug': { label: 'Bug melding', icon: Bug, color: 'text-red-600', bg: 'bg-red-100' },
   'suggestie': { label: 'Idee / feedback', icon: Lightbulb, color: 'text-amber-600', bg: 'bg-amber-100' },
-  'vraag': { label: 'Vraag', icon: HelpCircle, color: 'text-blue-600', bg: 'bg-blue-100' },
+  'vraag': { label: 'Vraag', icon: HelpCircle, color: 'text-brand', bg: 'bg-brand-tint' },
 };
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
@@ -70,7 +70,7 @@ export function MyFeedbackTab() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-48">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand" />
       </div>
     );
   }
