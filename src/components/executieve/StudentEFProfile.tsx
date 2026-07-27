@@ -189,7 +189,7 @@ export function StudentEFProfile({ schoolId, studentId, studentName, onNavigateB
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -217,7 +217,7 @@ export function StudentEFProfile({ schoolId, studentId, studentName, onNavigateB
           <h2 className="text-lg font-semibold text-gray-900 mb-1">Radar</h2>
           <div className="flex items-center gap-4 mb-4 text-xs text-gray-500">
             <span className="flex items-center gap-1.5">
-              <span className="w-4 h-0.5 bg-blue-500 inline-block rounded" />
+              <span className="w-4 h-0.5 bg-brand inline-block rounded" />
               Vermogen
             </span>
             <span className="flex items-center gap-1.5">
@@ -303,7 +303,7 @@ export function StudentEFProfile({ schoolId, studentId, studentName, onNavigateB
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium text-gray-900">{getFunctionName(entry.functionId)}</span>
                       {isNew && (
-                        <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">Eerste beoordeling</span>
+                        <span className="text-xs bg-brand-tint text-brand-dark px-1.5 py-0.5 rounded font-medium">Eerste beoordeling</span>
                       )}
                     </div>
                     <div className="flex items-center gap-4 mt-1 flex-wrap">

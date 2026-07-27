@@ -3,29 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import {
-  Edit2,
-  Users,
-  Clock,
-  MessageCircle,
-  UserPlus,
-  CheckCircle,
-  Volume2,
-  Eye,
-  BookOpen,
-  Move,
-  UserCheck,
-  Hand,
-  FileText,
-  MessageSquare,
-  AlertTriangle,
-  Mic,
-  Brain,
-  Presentation,
-  Play,
-  Home,
-  Book
-} from 'lucide-react';
+import { CreditCard as Edit2, Users, Clock, MessageCircle, UserPlus, CheckCircle, Volume2, Eye, BookOpen, Move, UserCheck, Hand, FileText, MessageSquare, AlertTriangle, Mic, Brain, Presentation, Play, Home, Book } from 'lucide-react';
 
 interface Student {
   id: string;
@@ -218,7 +196,7 @@ export function EDITab() {
       </div>
 
       {showStudentSelector && (
-        <Card className="p-4 border-2 border-blue-500">
+        <Card className="p-4 border-2 border-brand">
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Selecteer Groep</label>
@@ -273,12 +251,12 @@ export function EDITab() {
                 onClick={() => setSelectedTechnique(selectedTechnique === technique.id ? null : technique.id)}
                 className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all border-2 min-w-[100px] flex-shrink-0 ${
                   selectedTechnique === technique.id
-                    ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-700'
-                    : 'bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-blue-200 hover:border-blue-400'
+                    ? 'bg-gradient-to-br from-brand to-brand-dark border-brand-dark'
+                    : 'bg-gradient-to-br from-brand-tint to-cream-soft hover:from-cream-soft hover:to-brand-tint border-line hover:border-brand-soft'
                 }`}
               >
                 <technique.icon className={`w-6 h-6 mb-1 ${
-                  selectedTechnique === technique.id ? 'text-white' : 'text-blue-600'
+                  selectedTechnique === technique.id ? 'text-white' : 'text-brand'
                 }`} />
                 <span className={`text-xs font-medium text-center ${
                   selectedTechnique === technique.id ? 'text-white' : 'text-gray-900'
@@ -299,7 +277,7 @@ export function EDITab() {
                 onChange={(e) => setLeerdoel(e.target.value)}
                 onBlur={() => setIsEditingLeerdoel(false)}
                 onKeyDown={(e) => e.key === 'Enter' && setIsEditingLeerdoel(false)}
-                className="flex-1 px-4 py-3 text-xl font-semibold border-2 border-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-4 py-3 text-xl font-semibold border-2 border-brand rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
                 autoFocus
               />
             </div>
@@ -328,7 +306,7 @@ export function EDITab() {
                   onClick={() => setActiveStep(activeStep === step.id ? null : step.id)}
                   className={`px-4 py-3 rounded-lg font-semibold transition-all flex flex-col items-center gap-2 min-w-[120px] flex-shrink-0 ${
                     activeStep === step.id
-                      ? 'bg-blue-600 text-white shadow-lg scale-105'
+                      ? 'bg-brand text-white shadow-lg scale-105'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
@@ -344,7 +322,7 @@ export function EDITab() {
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
         <button
           onClick={() => setShowLesTimerInput(!showLesTimerInput)}
-          className="h-12 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-sm whitespace-nowrap flex-shrink-0"
+          className="h-12 px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-lg font-semibold transition-all shadow-sm whitespace-nowrap flex-shrink-0"
         >
           <Clock className="w-5 h-5 inline mr-2" />
           Les
@@ -352,7 +330,7 @@ export function EDITab() {
 
         <button
           onClick={() => setVraagCountdown(10)}
-          className="h-12 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-sm whitespace-nowrap flex-shrink-0"
+          className="h-12 px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-lg font-semibold transition-all shadow-sm whitespace-nowrap flex-shrink-0"
         >
           <MessageCircle className="w-5 h-5 inline mr-2" />
           Vraag
@@ -360,7 +338,7 @@ export function EDITab() {
 
         <button
           onClick={() => setDuoDeelCountdown(5)}
-          className="h-12 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-sm whitespace-nowrap flex-shrink-0"
+          className="h-12 px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-lg font-semibold transition-all shadow-sm whitespace-nowrap flex-shrink-0"
         >
           <UserPlus className="w-5 h-5 inline mr-2" />
           Duo-deel
@@ -368,7 +346,7 @@ export function EDITab() {
 
         <button
           onClick={pickRandomStudent}
-          className="h-12 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-sm whitespace-nowrap flex-shrink-0"
+          className="h-12 px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-lg font-semibold transition-all shadow-sm whitespace-nowrap flex-shrink-0"
         >
           <UserCheck className="w-5 h-5 inline mr-2" />
           Zit klaar
@@ -376,7 +354,7 @@ export function EDITab() {
 
         <button
           onClick={() => setShowControLEER(true)}
-          className="h-12 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all shadow-sm whitespace-nowrap flex-shrink-0"
+          className="h-12 px-4 py-2 bg-brand hover:bg-brand-dark text-white rounded-lg font-semibold transition-all shadow-sm whitespace-nowrap flex-shrink-0"
         >
           <CheckCircle className="w-5 h-5 inline mr-2" />
           ControLEER
@@ -385,7 +363,7 @@ export function EDITab() {
 
       <div className="space-y-3 mb-4">
         {showLesTimerInput && (
-            <div className="p-3 bg-white border-2 border-blue-500 rounded-lg space-y-2">
+            <div className="p-3 bg-white border-2 border-brand rounded-lg space-y-2">
               <input
                 type="number"
                 value={Math.floor(lesTargetTime / 60)}
@@ -418,11 +396,11 @@ export function EDITab() {
           )}
 
           {isLesTimerRunning && (
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">{formatTime(lesTimer)}</div>
+            <div className="p-3 bg-brand-tint rounded-lg">
+              <div className="text-2xl font-bold text-brand">{formatTime(lesTimer)}</div>
               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mt-2">
                 <div
-                  className="h-full bg-blue-600 transition-all duration-1000"
+                  className="h-full bg-brand transition-all duration-1000"
                   style={{ width: `${(lesTimer / lesTargetTime) * 100}%` }}
                 />
               </div>
@@ -430,14 +408,14 @@ export function EDITab() {
           )}
 
           {vraagCountdown > 0 && (
-            <div className="p-4 bg-blue-50 rounded-lg text-center">
-              <div className="text-3xl font-bold text-blue-600">{vraagCountdown}s</div>
+            <div className="p-4 bg-brand-tint rounded-lg text-center">
+              <div className="text-3xl font-bold text-brand">{vraagCountdown}s</div>
             </div>
           )}
 
           {duoDeelCountdown > 0 && (
-            <div className="p-4 bg-blue-50 rounded-lg text-center">
-              <div className="text-3xl font-bold text-blue-600">{duoDeelCountdown}s</div>
+            <div className="p-4 bg-brand-tint rounded-lg text-center">
+              <div className="text-3xl font-bold text-brand">{duoDeelCountdown}s</div>
             </div>
           )}
 
@@ -445,7 +423,7 @@ export function EDITab() {
 
       {showNamePicker && selectedStudent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-2xl p-8 sm:p-16 text-center relative w-full max-w-4xl mx-4">
+          <div className="bg-gradient-to-br from-brand to-brand-dark rounded-2xl shadow-2xl p-8 sm:p-16 text-center relative w-full max-w-4xl mx-4">
             <button
               onClick={() => setShowNamePicker(false)}
               className="absolute top-4 right-4 text-white hover:text-gray-200 text-3xl font-bold w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition-all"
