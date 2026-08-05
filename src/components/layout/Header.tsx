@@ -188,7 +188,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
           <div className="flex items-center space-x-8">
             <button
               onClick={onNavigateToDashboard}
-              className="flex items-center space-x-2 text-gray-700 hover:text-[#946B29] transition-colors font-medium"
+              className="flex items-center space-x-2 text-gray-700 hover:text-[#F4B11B] transition-colors font-medium"
             >
               <BarChart3 className="w-5 h-5" />
               <span>Dashboard</span>
@@ -198,7 +198,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
             <div className="relative" ref={appsDropdownRef}>
               <button
                 onClick={() => setShowAppsDropdown(!showAppsDropdown)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-[#946B29] transition-colors font-medium"
+                className="flex items-center space-x-2 text-gray-700 hover:text-[#F4B11B] transition-colors font-medium"
               >
                 <Grid className="w-5 h-5" />
                 <span>Leerapps</span>
@@ -328,7 +328,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
             <div className="relative" ref={slimmeICTDropdownRef}>
               <button
                 onClick={() => setShowSlimmeICTDropdown(!showSlimmeICTDropdown)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-[#946B29] transition-colors font-medium"
+                className="flex items-center space-x-2 text-gray-700 hover:text-[#F4B11B] transition-colors font-medium"
               >
                 <Sparkles className="w-5 h-5" />
                 <span>Slim delen</span>
@@ -431,7 +431,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
             <div className="relative" ref={didactiekDropdownRef}>
               <button
                 onClick={() => setShowDidactiekDropdown(!showDidactiekDropdown)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-[#946B29] transition-colors font-medium"
+                className="flex items-center space-x-2 text-gray-700 hover:text-[#F4B11B] transition-colors font-medium"
               >
                 <BookOpen className="w-5 h-5" />
                 <span>Didactiek</span>
@@ -498,10 +498,10 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-[#946B29] transition-colors p-2 rounded-lg hover:bg-amber-50"
+                className="flex items-center space-x-2 text-gray-700 hover:text-[#F4B11B] transition-colors p-2 rounded-lg hover:bg-[#F4B11B]/10"
               >
-                <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-[#946B29]" />
+                <div className="w-8 h-8 bg-[#F4B11B]/20 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-[#F4B11B]" />
                 </div>
                 <ChevronDown className={`w-4 h-4 transition-transform ${showProfileDropdown ? 'rotate-180' : ''}`} />
               </button>
@@ -565,7 +565,7 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                         navigate('/prijzen');
                         setShowProfileDropdown(false);
                       }}
-                      className="w-full flex items-center px-4 py-2 text-sm text-amber-700 hover:bg-amber-50 transition-colors"
+                      className="w-full flex items-center px-4 py-2 text-sm text-amber-700 hover:bg-[#F4B11B]/10 transition-colors"
                     >
                       <Star className="w-4 h-4 mr-3 text-amber-500" />
                       Upgrade naar premium
