@@ -28,8 +28,8 @@ export function OnboardingBanner({ onOpenOnboarding }: OnboardingBannerProps) {
     <div className="rounded-xl bg-amber-950 px-6 py-4 mb-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center space-x-3 min-w-0">
-          <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Sparkles className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 bg-[#F4B11B]/30 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Sparkles className="w-5 h-5 text-[#F4B11B]" />
           </div>
           <div className="min-w-0">
             <p className="text-white font-semibold text-sm">
@@ -43,7 +43,7 @@ export function OnboardingBanner({ onOpenOnboarding }: OnboardingBannerProps) {
         <div className="flex items-center space-x-2 flex-shrink-0">
           <button
             onClick={onOpenOnboarding}
-            className="flex items-center space-x-1.5 bg-white text-amber-950 hover:bg-amber-50 transition-colors text-sm font-semibold px-4 py-2 rounded-lg"
+            className="flex items-center space-x-1.5 bg-[#F4B11B] text-black hover:bg-[#F4B11B]/90 transition-colors text-sm font-semibold px-4 py-2 rounded-lg"
           >
             <span>Aan de slag</span>
             <ArrowRight className="w-4 h-4" />

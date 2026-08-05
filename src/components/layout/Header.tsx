@@ -171,10 +171,10 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
           <div className="flex items-center space-x-3">
             <div>
               <div className="flex items-center space-x-2">
-                <h1 className="text-xl font-fredoka font-bold text-[#946B29]">bijleer.school</h1>
+                <h1 className="text-xl font-fredoka font-bold text-black">bijleer.school</h1>
                 <button
                   onClick={() => setShowVersionModal(true)}
-                  className="flex items-center space-x-1 px-2 py-0.5 text-xs font-medium text-[#946B29] bg-amber-50 rounded-full hover:bg-amber-100 transition-colors"
+                  className="flex items-center space-x-1 px-2 py-0.5 text-xs font-bold text-black bg-[#F4B11B] rounded-full hover:bg-[#F4B11B]/90 transition-colors"
                 >
                   <span>V1.4</span>
                   <Info className="w-3 h-3" />
