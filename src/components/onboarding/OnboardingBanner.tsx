@@ -25,7 +25,7 @@ export function OnboardingBanner({ onOpenOnboarding }: OnboardingBannerProps) {
   if (!visible) return null;
 
   return (
-    <div className="rounded-xl bg-amber-950 px-6 py-4 mb-6">
+    <div className="rounded-xl bg-neutral-800 px-6 py-4 mb-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center space-x-3 min-w-0">
           <div className="w-9 h-9 bg-[#F4B11B]/30 rounded-lg flex items-center justify-center flex-shrink-0">
