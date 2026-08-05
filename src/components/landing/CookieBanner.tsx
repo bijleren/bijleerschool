@@ -29,29 +29,29 @@ export function CookieBanner() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
-      <div className="w-full bg-ink border-t border-gray-700 shadow-2xl pointer-events-auto">
+      <div className="w-full bg-neutral-800 border-t border-white/10 shadow-2xl pointer-events-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-          <Cookie className="w-4 h-4 text-brand-soft flex-shrink-0" />
-          <p className="text-gray-400 text-xs leading-relaxed flex-1 min-w-0">
+          <Cookie className="w-4 h-4 text-[#F4B11B] flex-shrink-0" />
+          <p className="text-white/70 text-xs leading-relaxed flex-1 min-w-0">
             Wij gebruiken functionele cookies voor sessiebeheer en authenticatie.{' '}
-            <Link to="/privacy-policy" className="text-brand-soft hover:underline">Privacybeleid</Link>.
+            <Link to="/privacy-policy" className="text-[#F4B11B] hover:underline">Privacybeleid</Link>.
           </p>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={accept}
-              className="px-3 py-1.5 bg-[#946B29] hover:bg-brand-dark text-white text-xs font-semibold rounded-lg transition-colors"
+              className="px-3 py-1.5 bg-[#F4B11B] hover:bg-[#F4B11B]/90 text-neutral-900 text-xs font-semibold rounded-lg transition-colors"
             >
               Accepteren
             </button>
             <button
               onClick={decline}
-              className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-semibold rounded-lg transition-colors"
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg transition-colors"
             >
               Alleen functioneel
             </button>
             <button
               onClick={decline}
-              className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-white transition-colors rounded hover:bg-gray-700"
+              className="w-6 h-6 flex items-center justify-center text-white/50 hover:text-[#F4B11B] transition-colors rounded hover:bg-white/10"
               aria-label="Sluiten"
             >
               <X className="w-3.5 h-3.5" />
