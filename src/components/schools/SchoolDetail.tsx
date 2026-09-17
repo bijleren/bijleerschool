@@ -132,6 +132,8 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [editingPinId, setEditingPinId] = useState<string | null>(null);
   const [editPinValue, setEditPinValue] = useState('');
   const [savingPinId, setSavingPinId] = useState<string | null>(null);
+  const [isBulkDragging, setIsBulkDragging] = useState(false);
+  const [bulkUploadStatus, setBulkUploadStatus] = useState<{ current: number; total: number; name: string } | null>(null);
 
   // Student form
   const [newStudentFirstName, setNewStudentFirstName] = useState('');
@@ -510,6 +512,76 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       console.error('Quick upload error:', err);
     } finally {
       setQuickUploadingId(null);
+    }
+  };
+
+  const normalizeName = (str: string): string => {
+    return str
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '');
+  };
+
+  const matchFileToStudent = (fileName: string, studentList: Student[]): Student | null => {
+    const baseName = fileName.replace(/\.[^.]+$/, '');
+    const normalizedFile = normalizeName(baseName);
+    if (!normalizedFile) return null;
+
+    // Try exact full name match first (firstname + lastname concatenated)
+    for (const s of studentList) {
+      const fullName = normalizeName(`${s.first_name}${s.last_name}`);
+      if (fullName === normalizedFile) return s;
+    }
+    // Try firstname only
+    for (const s of studentList) {
+      if (normalizeName(s.first_name) === normalizedFile) return s;
+    }
+    // Try lastname only
+    for (const s of studentList) {
+      if (normalizeName(s.last_name) === normalizedFile) return s;
+    }
+    // Try partial: filename starts with firstname
+    for (const s of studentList) {
+      const fn = normalizeName(s.first_name);
+      if (fn && normalizedFile.startsWith(fn)) return s;
+    }
+    return null;
+  };
+
+  const handleBulkUpload = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files).filter(f => /\.(png|jpe?g)$/i.test(f.name));
+    if (fileArray.length === 0) return;
+
+    const matched: Array<{ file: File; student: Student }> = [];
+    const unmatched: string[] = [];
+
+    for (const file of fileArray) {
+      const student = matchFileToStudent(file.name, students);
+      if (student) {
+        matched.push({ file, student });
+      } else {
+        unmatched.push(file.name);
+      }
+    }
+
+    if (matched.length === 0) {
+      setMessage(`Geen leerlingen gevonden die overeenkomen met de bestandsnamen. ${unmatched.length} bestand(en) niet gematched.`);
+      return;
+    }
+
+    for (let i = 0; i < matched.length; i++) {
+      const { file, student } = matched[i];
+      setBulkUploadStatus({ current: i + 1, total: matched.length, name: `${student.first_name} ${student.last_name}` });
+      await handleQuickUpload(student.id, file, 'profile');
+    }
+
+    setBulkUploadStatus(null);
+
+    if (unmatched.length > 0) {
+      setMessage(`${matched.length} foto('s) geupload. ${unmatched.length} niet gematched: ${unmatched.slice(0, 5).join(', ')}${unmatched.length > 5 ? '...' : ''}`);
+    } else {
+      setMessage(`${matched.length} foto('s) succesvol geupload!`);
     }
   };
 
@@ -1013,6 +1085,60 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                 </div>
               </form>
             </Card>
+          )}
+
+          {quickUploadMode && (
+            <div
+              onDragOver={(e) => { e.preventDefault(); setIsBulkDragging(true); }}
+              onDragLeave={() => setIsBulkDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsBulkDragging(false);
+                if (e.dataTransfer.files.length > 0) {
+                  handleBulkUpload(e.dataTransfer.files);
+                }
+              }}
+              className={`mb-4 rounded-xl border-2 border-dashed transition-all p-6 text-center ${
+                isBulkDragging
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-300 bg-gray-50 hover:border-gray-400'
+              }`}
+            >
+              {bulkUploadStatus ? (
+                <div className="flex items-center justify-center space-x-3">
+                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-sm font-medium text-gray-700">
+                    Uploaden {bulkUploadStatus.current}/{bulkUploadStatus.total}: {bulkUploadStatus.name}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-700">
+                    Sleep foto's hierheen om in bulk te uploaden
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Bestandsnaam moet overeenkomen met de naam van de leerling (bijv. "Jan Janssens.jpg" of "janjanssens.png"). Accenten en hoofdletters worden genegeerd.
+                  </p>
+                  <label className="mt-3 inline-flex items-center space-x-2 cursor-pointer px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors">
+                    <Upload className="w-4 h-4" />
+                    <span className="text-sm">Of selecteer bestanden</span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                          handleBulkUpload(e.target.files);
+                        }
+                        e.target.value = '';
+                      }}
+                    />
+                  </label>
+                </>
+              )}
+            </div>
           )}
 
           <div className="grid gap-4">
