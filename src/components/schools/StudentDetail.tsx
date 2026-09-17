@@ -764,6 +764,16 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
     setTempSymbolFile(null);
   };
 
+  const removeProfilePicture = () => {
+    setProfilePictureFile(null);
+    setProfilePicturePreview('');
+  };
+
+  const removeSymbol = () => {
+    setSymbolFile(null);
+    setSymbolPreview('');
+  };
+
   const uploadFile = async (file: File, folder: string): Promise<string> => {
     console.log('Starting file upload:', { fileName: file.name, fileType: file.type, fileSize: file.size, folder });
 
@@ -811,8 +821,8 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
     setMessage('');
 
     try {
-      let profilePictureUrl = student.profile_picture_url;
-      let symbolUrl = student.symbol_url;
+      let profilePictureUrl: string | null = profilePicturePreview || null;
+      let symbolUrl: string | null = symbolPreview || null;
 
       if (profilePictureFile) {
         console.log('Uploading profile picture...');
@@ -1066,6 +1076,16 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                       className="hidden"
                     />
                   </label>
+                  {profilePicturePreview && (
+                    <button
+                      type="button"
+                      onClick={removeProfilePicture}
+                      className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center space-x-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="text-sm">Verwijderen</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -1091,6 +1111,16 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                       className="hidden"
                     />
                   </label>
+                  {symbolPreview && (
+                    <button
+                      type="button"
+                      onClick={removeSymbol}
+                      className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center space-x-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="text-sm">Verwijderen</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

@@ -522,6 +522,20 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     setSchoolColors(used);
   };
 
+  const handleQuickRemove = async (studentId: string, type: 'profile' | 'symbol') => {
+    setQuickUploadingId(studentId);
+    try {
+      const updateField = type === 'profile' ? { profile_picture_url: null } : { symbol_url: null };
+      const { error } = await supabase.from('students').update(updateField).eq('id', studentId);
+      if (error) throw error;
+      setStudents(prev => prev.map(s => s.id === studentId ? { ...s, ...updateField } : s));
+    } catch (err) {
+      console.error('Quick remove error:', err);
+    } finally {
+      setQuickUploadingId(null);
+    }
+  };
+
   const togglePinVisibility = (studentId: string) => {
     setVisiblePinIds(prev => {
       const next = new Set(prev);
@@ -1067,6 +1081,17 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                             )}
                           </div>
                         )}
+                        {quickUploadMode && student.profile_picture_url && (
+                          <button
+                            type="button"
+                            disabled={quickUploadingId === student.id}
+                            onClick={() => handleQuickRemove(student.id, 'profile')}
+                            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                            title="Profielfoto verwijderen"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                         {quickUploadMode && (
                           <label
                             className={`relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer group border border-gray-200 ${quickUploadingId === student.id ? 'opacity-60 cursor-not-allowed' : ''}`}
@@ -1094,6 +1119,17 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                               }}
                             />
                           </label>
+                        )}
+                        {quickUploadMode && student.symbol_url && (
+                          <button
+                            type="button"
+                            disabled={quickUploadingId === student.id}
+                            onClick={() => handleQuickRemove(student.id, 'symbol')}
+                            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                            title="Symbool verwijderen"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         )}
                         {quickUploadMode && (
                           <div className="relative flex-shrink-0">
