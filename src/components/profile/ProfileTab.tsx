@@ -6,7 +6,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { MyFeedbackTab } from './MyFeedbackTab';
-import { User, Mail, Calendar, ChevronDown, ChevronUp, AlertTriangle, Star, ArrowRight, MessageSquare } from 'lucide-react';
+import { User, Mail, Calendar, ChevronDown, ChevronUp, AlertTriangle, MessageSquare } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -234,23 +234,23 @@ export function ProfileTab({ initialTab = 'profile' }: ProfileTabProps) {
         </Card>
 
         {isPremium === false && (
-          <Card className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50">
+          <Card className="border-blue-200 bg-blue-50">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Star className="w-5 h-5 text-amber-600" />
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Mail className="w-5 h-5 text-blue-600" />
               </div>
               <div className="flex-1">
-                <h3 className="text-base font-semibold text-amber-900 mb-1">Upgrade naar een volledige licentie</h3>
-                <p className="text-sm text-amber-800 mb-4">
-                  Jouw school heeft momenteel geen actieve bijleer.school-licentie. Met een volledige licentie krijg je toegang tot alle didactische tools, nieuwsbrieven, en meer.
+                <h3 className="text-base font-semibold text-blue-900 mb-1">Geen actieve licentie</h3>
+                <p className="text-sm text-blue-800 mb-4">
+                  Jouw school heeft momenteel geen actieve bijleer.school-licentie. Neem gerust contact op met ons via <a href="mailto:info@bijleren.eu" className="font-medium underline hover:text-blue-600">info@bijleren.eu</a> voor vragen of om een licentie aan te vragen.
                 </p>
-                <button
-                  onClick={() => navigate('/prijzen')}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors"
+                <a
+                  href="mailto:info@bijleren.eu"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
                 >
-                  Bekijk onze tarieven
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                  <Mail className="w-4 h-4" />
+                  Mail info@bijleren.eu
+                </a>
               </div>
             </div>
           </Card>

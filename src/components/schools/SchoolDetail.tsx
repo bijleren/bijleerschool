@@ -8,7 +8,7 @@ import { StudentImport } from './StudentImport';
 import { GradeManagement } from '../schoolday/GradeManagement';
 import { SubjectsManagement } from '../schoolday/SubjectsManagement';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
-import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive, Calendar, LogOut, Tag, Image as ImageIcon, Zap, Download } from 'lucide-react';
+import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive, Calendar, LogOut, Tag, Image as ImageIcon, Zap, Download, Key, EyeOff, Check } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { trackFileUpload } from '../../utils/storageTracking';
 import { DataGebruikTab } from '../storage/DataGebruikTab';
@@ -41,6 +41,7 @@ interface Student {
   profile_picture_url?: string | null;
   symbol_url?: string | null;
   color?: string | null;
+  pin_code?: string | null;
 }
 
 interface Group {
@@ -127,6 +128,10 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [quickUploadingId, setQuickUploadingId] = useState<string | null>(null);
   const [schoolColors, setSchoolColors] = useState<string[]>([]);
   const [colorPickerOpenId, setColorPickerOpenId] = useState<string | null>(null);
+  const [visiblePinIds, setVisiblePinIds] = useState<Set<string>>(new Set());
+  const [editingPinId, setEditingPinId] = useState<string | null>(null);
+  const [editPinValue, setEditPinValue] = useState('');
+  const [savingPinId, setSavingPinId] = useState<string | null>(null);
 
   // Student form
   const [newStudentFirstName, setNewStudentFirstName] = useState('');
@@ -474,6 +479,10 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   };
 
   const handleQuickUpload = async (studentId: string, file: File, type: 'profile' | 'symbol') => {
+    if (file.size > 10485760) {
+      setMessage('De afbeelding is te groot (max 10 MB). Kies een kleinere foto of verklein hem eerst.');
+      return;
+    }
     setQuickUploadingId(studentId);
     try {
       const fileExt = file.name.split('.').pop();
@@ -482,7 +491,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
 
       const { error: uploadError } = await supabase.storage
         .from('student-files')
-        .upload(filePath, file, { cacheControl: '3600', upsert: true });
+        .upload(filePath, file, { cacheControl: '3600' });
 
       if (uploadError) throw uploadError;
 
@@ -511,6 +520,44 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     // Refresh palette of used colors
     const used = [...new Set(students.map(s => s.id === studentId ? color : s.color).filter(Boolean))] as string[];
     setSchoolColors(used);
+  };
+
+  const togglePinVisibility = (studentId: string) => {
+    setVisiblePinIds(prev => {
+      const next = new Set(prev);
+      if (next.has(studentId)) next.delete(studentId);
+      else next.add(studentId);
+      return next;
+    });
+  };
+
+  const startEditPin = (student: Student) => {
+    setEditingPinId(student.id);
+    setEditPinValue(student.pin_code || '');
+  };
+
+  const cancelEditPin = () => {
+    setEditingPinId(null);
+    setEditPinValue('');
+  };
+
+  const saveQuickPin = async (studentId: string) => {
+    const trimmed = editPinValue.trim();
+    setSavingPinId(studentId);
+    try {
+      const { error } = await supabase
+        .from('students')
+        .update({ pin_code: trimmed || null })
+        .eq('id', studentId);
+      if (error) throw error;
+      setStudents(prev => prev.map(s => s.id === studentId ? { ...s, pin_code: trimmed || null } : s));
+      setEditingPinId(null);
+      setEditPinValue('');
+    } catch (err) {
+      console.error('Error updating pin code:', err);
+    } finally {
+      setSavingPinId(null);
+    }
   };
 
   const handleStudentClick = (student: Student) => {
@@ -1093,6 +1140,68 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                         )}
                         {quickUploadingId === student.id && (
                           <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                        )}
+                        {quickUploadMode && (
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <Key className="w-4 h-4 text-gray-400" />
+                            {editingPinId === student.id ? (
+                              <div className="flex items-center gap-1">
+                                <input
+                                  type="text"
+                                  value={editPinValue}
+                                  onChange={e => setEditPinValue(e.target.value)}
+                                  onKeyDown={e => {
+                                    if (e.key === 'Enter') saveQuickPin(student.id);
+                                    if (e.key === 'Escape') cancelEditPin();
+                                  }}
+                                  autoFocus
+                                  maxLength={10}
+                                  placeholder="Pincode"
+                                  className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                                <button
+                                  onClick={() => saveQuickPin(student.id)}
+                                  disabled={savingPinId === student.id}
+                                  className="p-1 text-green-600 hover:bg-green-50 rounded-md transition-colors"
+                                  title="Opslaan"
+                                >
+                                  {savingPinId === student.id
+                                    ? <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+                                    : <Check className="w-4 h-4" />}
+                                </button>
+                                <button
+                                  onClick={cancelEditPin}
+                                  className="p-1 text-gray-400 hover:bg-gray-100 rounded-md transition-colors"
+                                  title="Annuleren"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => startEditPin(student)}
+                                  className="px-2 py-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors min-w-[3rem] text-center"
+                                  title="Klik om pincode aan te passen"
+                                >
+                                  {student.pin_code
+                                    ? (visiblePinIds.has(student.id) ? student.pin_code : '••••')
+                                    : <span className="text-gray-400 italic">geen</span>}
+                                </button>
+                                {student.pin_code && (
+                                  <button
+                                    onClick={() => togglePinVisibility(student.id)}
+                                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                                    title={visiblePinIds.has(student.id) ? 'Verberg pincode' : 'Toon pincode'}
+                                  >
+                                    {visiblePinIds.has(student.id)
+                                      ? <EyeOff className="w-3.5 h-3.5" />
+                                      : <Eye className="w-3.5 h-3.5" />}
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                       <div>

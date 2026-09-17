@@ -725,6 +725,11 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
+      if (file.size > 10485760) {
+        setMessage('De foto is te groot (max 10 MB). Kies een kleinere foto of verklein hem eerst.');
+        e.target.value = '';
+        return;
+      }
       setTempProfileFile(file);
       setShowProfileCropper(true);
     }
@@ -741,6 +746,11 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const handleSymbolChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
+      if (file.size > 10485760) {
+        setMessage('Het symbool is te groot (max 10 MB). Kies een kleinere afbeelding of verklein hem eerst.');
+        e.target.value = '';
+        return;
+      }
       setTempSymbolFile(file);
       setShowSymbolCropper(true);
     }
@@ -767,7 +777,7 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
       .from('student-files')
       .upload(filePath, file, {
         cacheControl: '3600',
-        upsert: true
+        upsert: false
       });
 
     if (uploadError) {

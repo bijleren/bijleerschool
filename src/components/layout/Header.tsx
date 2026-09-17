@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { VersionModal } from '../ui/VersionModal';
-import { LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid2x2 as Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library, Star, Brain, MessageSquare, Bug, Lightbulb, X, Send, HandHelping, FileText } from 'lucide-react';
+import { LogOut, User, ChevronDown, School, BarChart3, AlertTriangle, BookOpen, Plus, List, Settings, Info, Link, Grid2x2 as Grid, HelpCircle, Video, Newspaper, Wrench, Search, QrCode, GitBranch, Sparkles, Library, Mail, Brain, MessageSquare, Bug, Lightbulb, X, Send, HandHelping, FileText } from 'lucide-react';
 
 interface UserSchool {
   id: string;
@@ -560,16 +560,14 @@ export function Header({ onNavigateToDashboard, onNavigateToProfile, onNavigateT
                   </button>
 
                   {!hasPremiumSchool && (
-                    <button
-                      onClick={() => {
-                        navigate('/prijzen');
-                        setShowProfileDropdown(false);
-                      }}
-                      className="w-full flex items-center px-4 py-2 text-sm text-amber-700 hover:bg-[#F4B11B]/10 transition-colors"
+                    <a
+                      href="mailto:info@bijleren.eu"
+                      onClick={() => setShowProfileDropdown(false)}
+                      className="w-full flex items-center px-4 py-2 text-sm text-blue-700 hover:bg-blue-50 transition-colors"
                     >
-                      <Star className="w-4 h-4 mr-3 text-amber-500" />
-                      Upgrade naar premium
-                    </button>
+                      <Mail className="w-4 h-4 mr-3 text-blue-500" />
+                      Mail info@bijleren.eu
+                    </a>
                   )}
 
                   <div className="border-t border-gray-100 my-1" />
