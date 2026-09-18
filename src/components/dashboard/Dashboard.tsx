@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Header } from '../layout/Header';
 import { DashboardTab } from './DashboardTab';
@@ -76,6 +76,8 @@ export function Dashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [behaviorFilter, setBehaviorFilter] = useState<'all' | 'today' | 'open' | 'followup'>('all');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const locationRef = useRef(location.search);
+  locationRef.current = location.search;
 
   useEffect(() => {
     if (user) {
@@ -89,6 +91,7 @@ export function Dashboard() {
     const schoolIdParam = queryParams.get('schoolId');
     const groupIdParam = queryParams.get('groupId');
     const studentIdParam = queryParams.get('studentId');
+    const profiletabParam = queryParams.get('profiletab');
 
     if (tabParam) {
       const validTabs = ['dashboard', 'profile', 'schools', 'behavior', 'teaching', 'schoolday', 'webwijzer', 'activityboards', 'boeker', 'zoeker', 'edi', 'digitools', 'newsletter', 'blinkqr', 'sporen', 'leescoach', 'executieve', 'hulpfiches'];
@@ -103,28 +106,39 @@ export function Dashboard() {
           }
         }
 
+        // Handle profile subtab
+        if (tabParam === 'profile' && profiletabParam) {
+          setProfileInitialTab(profiletabParam as 'profile' | 'feedback');
+        }
+
         // Handle combined parameters
         if (tabParam === 'schools') {
           if (schoolIdParam && groupIdParam) {
-            // Navigate to specific school and group
-            handleNavigateToSchoolAndGroup(schoolIdParam, groupIdParam);
+            if (selectedSchool?.id !== schoolIdParam || selectedGroup?.id !== groupIdParam) {
+              handleNavigateToSchoolAndGroup(schoolIdParam, groupIdParam);
+            }
           } else if (schoolIdParam && studentIdParam) {
-            // Navigate to specific school and student
-            handleNavigateToSchoolAndStudent(schoolIdParam, studentIdParam);
+            if (selectedSchool?.id !== schoolIdParam || selectedStudent?.id !== studentIdParam) {
+              handleNavigateToSchoolAndStudent(schoolIdParam, studentIdParam);
+            }
           } else if (schoolIdParam) {
-            // Navigate to just the school
-            handleNavigateToSchoolById(schoolIdParam);
+            if (selectedSchool?.id !== schoolIdParam) {
+              handleNavigateToSchoolById(schoolIdParam);
+            }
           } else if (groupIdParam) {
-            // Navigate to group (fetch school from group data)
-            handleNavigateToGroupById(groupIdParam);
+            if (selectedGroup?.id !== groupIdParam) {
+              handleNavigateToGroupById(groupIdParam);
+            }
           } else if (studentIdParam) {
-            // Navigate to student (fetch school from student data)
-            handleNavigateToStudentById(studentIdParam);
+            if (selectedStudent?.id !== studentIdParam) {
+              handleNavigateToStudentById(studentIdParam);
+            }
+          } else {
+            setSelectedSchool(null);
+            setSelectedStudent(null);
+            setSelectedGroup(null);
           }
         }
-
-        // Clear the URL parameters after setting the tab
-        navigate(location.pathname, { replace: true });
       }
     }
 
@@ -226,6 +240,28 @@ export function Dashboard() {
       window.removeEventListener('navigate-to-behavior', handleNavigateToBehaviorFromIncident as EventListener);
     };
   }, [user, location.search]);
+
+  // Sync tab state to URL for browser back/forward support
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set('tab', activeTab);
+    if (activeTab === 'teaching' && teachingPageOverride) {
+      params.set('subtab', teachingPageOverride);
+    }
+    if (activeTab === 'profile') {
+      params.set('profiletab', profileInitialTab);
+    }
+    if (activeTab === 'schools' && selectedSchool) {
+      params.set('schoolId', selectedSchool.id);
+      if (selectedStudent) params.set('studentId', selectedStudent.id);
+      if (selectedGroup) params.set('groupId', selectedGroup.id);
+    }
+    const newSearch = `?${params.toString()}`;
+    if (newSearch !== locationRef.current) {
+      const hasTabInUrl = new URLSearchParams(locationRef.current).has('tab');
+      navigate(newSearch, { replace: !hasTabInUrl });
+    }
+  }, [activeTab, teachingPageOverride, profileInitialTab, selectedSchool, selectedStudent, selectedGroup, navigate]);
 
   const fetchUserSchools = async () => {
     if (!user) return;

@@ -8,10 +8,18 @@ export function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-gradient-to-br from-amber-50/40 via-white to-yellow-50/40 flex items-center justify-center p-4 overflow-hidden">
+      {/* Honeycomb hexagon pattern background */}
+      <div
+        className="absolute inset-0 opacity-[0.06] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23F4B11B' stroke-width='1.5'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%23F4B11B' stroke-width='1.5'/%3E%3C/svg%3E")`,
+          backgroundSize: '56px 100px',
+        }}
+      />
       <Link
         to="/"
-        className="fixed top-4 left-4 flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow text-sm font-medium"
+        className="fixed top-4 left-4 z-10 flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow text-sm font-medium"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Terug naar home</span>
