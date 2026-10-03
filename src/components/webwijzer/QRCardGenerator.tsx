@@ -127,7 +127,7 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
   };
 
   const filteredStudents = students.filter(s => {
-    const matchesSearch = `${s.first_name} ${s.last_name} ${s.student_number || ''} ${s.grade_level || ''}`
+    const matchesSearch = `${s.first_name} ${s.last_name} ${s.student_number || ''}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
 
@@ -590,8 +590,6 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       {student.student_groups && student.student_groups.length > 0 ? (
                         <span>{student.student_groups.map(sg => sg.groups.name).join(', ')}</span>
-                      ) : student.grade_level ? (
-                        <span>{student.grade_level}</span>
                       ) : (
                         <span className="text-gray-400">Geen klas</span>
                       )}

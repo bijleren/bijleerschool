@@ -1035,9 +1035,6 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
                     {student.student_number && (
                       <span className="text-sm text-gray-500 ml-2">#{student.student_number}</span>
                     )}
-                    {student.grade_level && (
-                      <span className="text-sm text-gray-500 ml-2">Klas: {student.grade_level}</span>
-                    )}
                   </div>
                   <Button size="sm" onClick={() => addStudentToGroup(student.id)}>
                     Toevoegen
@@ -1066,9 +1063,6 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
                   </span>
                   {studentGroup.students.student_number && (
                     <span className="text-sm text-gray-500 ml-2">#{studentGroup.students.student_number}</span>
-                  )}
-                  {studentGroup.students.grade_level && (
-                    <span className="text-sm text-gray-500 ml-2">Klas: {studentGroup.students.grade_level}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">

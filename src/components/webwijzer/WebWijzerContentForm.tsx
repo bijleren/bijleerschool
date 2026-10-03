@@ -813,9 +813,6 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                                   <p className="text-sm text-gray-500">#{student.student_number}</p>
                                 )}
                               </div>
-                              {student.grade_level && (
-                                <span className="text-sm text-gray-500">{student.grade_level}</span>
-                              )}
                             </label>
                           ))}
                         </div>

@@ -904,9 +904,8 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       const student = students.find(s => s.id === value);
       if (student) {
         const updatedSearches = [...studentSearches];
-        const gradeInfo = student.grade_level ? ` - ${student.grade_level}` : '';
         const studentNumberInfo = student.student_number ? ` (#${student.student_number})` : '';
-        updatedSearches[index] = `${student.first_name} ${student.last_name}${gradeInfo}${studentNumberInfo}`;
+        updatedSearches[index] = `${student.first_name} ${student.last_name}${studentNumberInfo}`;
         setStudentSearches(updatedSearches);
 
         const updatedDropdowns = [...showStudentDropdowns];
@@ -938,8 +937,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     return students.filter(student => {
       const matchesSearch = searchTerm === '' ||
         `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (student.student_number && student.student_number.includes(searchTerm)) ||
-        (student.grade_level && student.grade_level.toLowerCase().includes(searchTerm.toLowerCase()));
+        (student.student_number && student.student_number.includes(searchTerm));
 
       const notAlreadySelected = !selectedStudents.some((selected, idx) =>
         idx !== excludeIndex && selected.student_id === student.id
@@ -1090,9 +1088,6 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                           >
                             <div className="font-medium text-gray-900">
                               {student.first_name} {student.last_name}
-                              {student.grade_level && (
-                                <span className="ml-2 text-sm text-gray-600">- {student.grade_level}</span>
-                              )}
                             </div>
                             {student.student_number && (
                               <div className="text-sm text-gray-500">#{student.student_number}</div>

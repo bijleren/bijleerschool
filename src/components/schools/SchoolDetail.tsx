@@ -139,7 +139,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [newStudentFirstName, setNewStudentFirstName] = useState('');
   const [newStudentLastName, setNewStudentLastName] = useState('');
   const [newStudentNumber, setNewStudentNumber] = useState('');
-  const [newStudentGradeLevel, setNewStudentGradeLevel] = useState('');
   const [newStudentDateOfBirth, setNewStudentDateOfBirth] = useState('');
 
   // Group form
@@ -366,7 +365,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
           first_name: newStudentFirstName,
           last_name: newStudentLastName,
           student_number: newStudentNumber || null,
-          grade_level: newStudentGradeLevel || null,
           date_of_birth: newStudentDateOfBirth || null,
           color: '#3B82F6',
         });
@@ -469,7 +467,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     setNewStudentFirstName('');
     setNewStudentLastName('');
     setNewStudentNumber('');
-    setNewStudentGradeLevel('');
     setNewStudentDateOfBirth('');
   };
 
@@ -739,7 +736,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       Voornaam: s.first_name,
       Achternaam: s.last_name,
       Leerlingnummer: s.student_number ?? '',
-      Leerjaar: s.grade_level ?? '',
       Geboortedatum: s.date_of_birth ? new Date(s.date_of_birth).toLocaleDateString('nl-BE') : '',
       Status: s.is_active ? 'Actief' : 'Inactief',
       'Toegevoegd op': new Date(s.created_at).toLocaleDateString('nl-BE'),
@@ -1057,16 +1053,11 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                     required
                   />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <Input
                     label="Studentnummer"
                     value={newStudentNumber}
                     onChange={(e) => setNewStudentNumber(e.target.value)}
-                  />
-                  <Input
-                    label="Klas/Niveau"
-                    value={newStudentGradeLevel}
-                    onChange={(e) => setNewStudentGradeLevel(e.target.value)}
                   />
                   <Input
                     label="Geboortedatum"
@@ -1377,9 +1368,6 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                           <p className="text-sm text-gray-600">#{student.student_number}</p>
                         )}
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
-                          {student.grade_level && (
-                            <span>Klas: {student.grade_level}</span>
-                          )}
                           {student.date_of_birth && (
                             <span>Geboren: {formatDate(student.date_of_birth)}</span>
                           )}

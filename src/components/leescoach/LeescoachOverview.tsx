@@ -457,10 +457,6 @@ export function LeescoachOverview({
                       {student.first_name} {student.last_name}
                     </h3>
 
-                    {student.grade_level && (
-                      <p className="text-sm text-gray-600 mb-3">{student.grade_level}</p>
-                    )}
-
                     {student.last_session_date ? (
                       <div className="text-sm">
                         <p className="text-gray-600 mb-1">

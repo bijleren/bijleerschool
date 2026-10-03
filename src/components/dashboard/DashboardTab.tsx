@@ -993,12 +993,6 @@ export function DashboardTab({ onNavigateToStudent, onNavigateToGroup, onNavigat
                         {favorite.students.student_number && (
                           <p className="text-sm text-gray-600">#{favorite.students.student_number}</p>
                         )}
-                        {favorite.students.grade_level && (
-                          <div className="flex items-center text-sm text-gray-500 mt-1">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            Klas: {favorite.students.grade_level}
-                          </div>
-                        )}
                         {studentIncidentCounts[favorite.students.id] && (
                           <div className="flex items-center space-x-3 text-xs text-gray-500 mt-2">
                             <button

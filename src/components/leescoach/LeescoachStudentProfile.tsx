@@ -141,7 +141,6 @@ export function LeescoachStudentProfile({
               </h2>
               <div className="flex gap-4 text-gray-600">
                 {student.student_number && <div>Nr: {student.student_number}</div>}
-                {student.grade_level && <div>{student.grade_level}</div>}
               </div>
             </div>
             <Button onClick={onNavigateToCreate}>

@@ -140,7 +140,7 @@ export function StudentSelector({
   };
 
   const filteredStudents = students.filter(s =>
-    `${s.first_name} ${s.last_name} ${s.student_number || ''} ${s.grade_level || ''}`
+    `${s.first_name} ${s.last_name} ${s.student_number || ''}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
@@ -234,7 +234,6 @@ export function StudentSelector({
                           {student.first_name} {student.last_name}
                         </p>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                          {student.grade_level && <span>{student.grade_level}</span>}
                           {student.student_number && (
                             <span className="text-gray-400">#{student.student_number}</span>
                           )}

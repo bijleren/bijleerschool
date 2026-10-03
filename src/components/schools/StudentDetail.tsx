@@ -116,7 +116,6 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
   const [editFirstName, setEditFirstName] = useState(student.first_name);
   const [editLastName, setEditLastName] = useState(student.last_name);
   const [editStudentNumber, setEditStudentNumber] = useState(student.student_number || '');
-  const [editGradeLevel, setEditGradeLevel] = useState(student.grade_level || '');
   const [editDateOfBirth, setEditDateOfBirth] = useState(student.date_of_birth || '');
   const [editSelectedLeerjaar, setEditSelectedLeerjaar] = useState('');
   const [editColor, setEditColor] = useState(student.color || '#3B82F6');
@@ -854,7 +853,6 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
           first_name: editFirstName,
           last_name: editLastName,
           student_number: editStudentNumber || null,
-          grade_level: editGradeLevel || null,
           date_of_birth: editDateOfBirth || null,
           color: editColor,
           student_display_number: editDisplayNumber ? parseInt(editDisplayNumber) : null,
@@ -1022,11 +1020,6 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                 label="Studentnummer"
                 value={editStudentNumber}
                 onChange={(e) => setEditStudentNumber(e.target.value)}
-              />
-              <Input
-                label="Klas/Niveau"
-                value={editGradeLevel}
-                onChange={(e) => setEditGradeLevel(e.target.value)}
               />
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1206,12 +1199,6 @@ export function StudentDetail({ student, schoolId, onBack, onStudentUpdated }: S
                     <Hash className="w-4 h-4 mr-1" />
                     {student.student_number}
                   </p>
-                </div>
-              )}
-              {student.grade_level && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Klas/Niveau</label>
-                  <p className="text-gray-900">{student.grade_level}</p>
                 </div>
               )}
               {student.date_of_birth && (
