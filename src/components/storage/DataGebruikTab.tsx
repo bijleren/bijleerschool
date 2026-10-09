@@ -137,7 +137,7 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
               <p className="text-lg font-semibold text-gray-900">{storageLimitGB} GB</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">Gebruikt</p>
+              <p className="text-xs text-gray-500 mb-1">Verbruikt</p>
               <p className="text-lg font-semibold text-gray-900">{storageUsedGB} GB</p>
             </div>
             <div>
@@ -146,8 +146,12 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
             </div>
           </div>
 
+          <p className="text-sm text-gray-500">
+            Het verbruik telt elke upload, ook nieuwe versies van een bestand. Bestanden verwijderen of vervangen verlaagt het verbruik niet.
+          </p>
+
           {videolerenMB > 0 && (
-            <p className="text-sm text-gray-500">Waarvan verbruikt door Videoleren (opnames, tekeningen en screenshots van leerlingen, elke versie telt mee): <b className="text-gray-700">{videolerenMB} MB</b></p>
+            <p className="text-sm text-gray-500">Waarvan Videoleren (opnames, tekeningen en screenshots van leerlingen): <b className="text-gray-700">{videolerenMB} MB</b></p>
           )}
 
           {percentageUsed >= 90 && (
@@ -156,7 +160,7 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
               <div>
                 <h4 className="font-medium text-red-900">Opslaglimiet bijna bereikt</h4>
                 <p className="text-sm text-red-700 mt-1">
-                  U heeft bijna uw opslaglimiet bereikt. Verwijder oude bestanden of neem contact op voor meer opslagruimte.
+                  U heeft bijna uw opslaglimiet bereikt. Neem contact op voor meer opslagruimte.
                 </p>
               </div>
             </div>
@@ -168,7 +172,7 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
               <div>
                 <h4 className="font-medium text-orange-900">Opslagruimte wordt schaars</h4>
                 <p className="text-sm text-orange-700 mt-1">
-                  Overweeg om oude bestanden te verwijderen om ruimte vrij te maken.
+                  Houd er rekening mee dat bestanden verwijderen geen ruimte vrijmaakt. Neem tijdig contact op voor meer opslagruimte.
                 </p>
               </div>
             </div>
