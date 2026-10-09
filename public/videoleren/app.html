@@ -1079,6 +1079,26 @@ function linkField(o) {
   return el('div', {class:'linkbox'}, el('label', {class:'f'}, 'Link naar je opname', i), el('div', {class:'tools'}, open, msg));
 }
 
+/* Waar de leerkracht een aantal vastlegt (vakken, vragen, argumenten…), is dat het minimum:
+   de leerling mag er zelf bij maken. o.count onthoudt hoeveel er nu zijn. */
+const slotCount = (o, base, max) => Math.min(max, Math.max(base, +o.count || 0));
+function moreSlots(o, id, base, n, max, label, clear) {
+  const tools = el('div', {class:'tools'});
+  if (n < max) {
+    const add = el('button', {class:'btn'}, '+ ' + label);
+    add.onclick = () => { o.count = n + 1; saveProg(); refreshCard(id); };
+    tools.append(add);
+  }
+  if (n > base) {
+    const rm = el('button', {class:'btn small'}, 'Laatste extra weghalen');
+    rm.onclick = () => { clear(n - 1); o.count = n - 1; saveProg(); refreshCard(id); };
+    tools.append(rm);
+  }
+  return tools.childNodes.length ? tools : null;
+}
+const SHOT_MAX = 12;
+const shotSlots = o => slotCount(o, +S.opt.shots || 4, SHOT_MAX);
+
 /* --- per werkvorm de oefening --- */
 const PRACTICE = {
   A(body, ctx) {
@@ -1279,27 +1299,29 @@ const PRACTICE = {
     show();
   },
   F(body) {
-    const o = W('F'), n = +S.opt.frames || 4;
-    body.append(el('p', {}, n > 1 ? `Teken de tekst als strip in ${n} vakken. Schrijf onder elk vak een kort zinnetje.` : 'Teken de tekst als één tekening of schema.'));
+    const o = W('F'), base = +S.opt.frames || 4, n = slotCount(o, base, 12);
+    body.append(el('p', {}, base > 1 ? `Teken de tekst als strip in minstens ${base} vakken. Schrijf onder elk vak een kort zinnetje.` : 'Teken de tekst als één tekening of schema. Wil je meer tekenen? Maak er een vak bij.'));
     const g = el('div', {class:'shots'});
     for (let i = 0; i < n; i++) g.append(el('div', {class:'shot'}, el('b', {}, n > 1 ? `Vak ${i + 1}` : 'Tekening'), drawPad(o, 'f' + i, n > 1 ? 0.75 : 0.62), n > 1 ? inp(o, 'c' + i, 'Wat gebeurt er?') : null));
-    body.append(g, el('details', {}, el('summary', {}, 'Liever op papier getekend?'), el('p', {}, 'Neem een foto van je tekening en zet ze hier.'), imgSlot(o, 'photo', 'Foto van mijn tekening')));
+    body.append(g, moreSlots(o, 'F', base, n, 12, 'Extra tekenvak', i => { o['f' + i] = ''; o['c' + i] = ''; }) || '', el('details', {}, el('summary', {}, 'Liever op papier getekend?'), el('p', {}, 'Neem een foto van je tekening en zet ze hier.'), imgSlot(o, 'photo', 'Foto van mijn tekening')));
   },
   G(body) {
-    const o = W('G'), n = +S.opt.shots || 4;
-    body.append(el('p', {}, `Neem ${n} screenshots van belangrijke momenten in de video. ` + (videoSrc() ? 'In het tabblad Kijken doe je dat met één klik op "Screenshot", en met "Naar taak G" komt hij hier terecht. ' : '') + 'Of gebruik Windows-toets + Shift + S (Mac: Cmd + Shift + 4), klik op een vak en plak met Ctrl/Cmd + V.'));
+    const o = W('G'), base = +S.opt.shots || 4, n = shotSlots(o);
+    body.append(el('p', {}, `Neem minstens ${base} screenshots van belangrijke momenten in de video. ` + (videoSrc() ? 'In het tabblad Kijken doe je dat met één klik op "Screenshot", en met "Naar taak G" komt hij hier terecht. ' : '') + 'Of gebruik Windows-toets + Shift + S (Mac: Cmd + Shift + 4), klik op een vak en plak met Ctrl/Cmd + V.'));
     const g = el('div', {class:'shots'});
     for (let i = 0; i < n; i++) g.append(el('div', {class:'shot'}, imgSlot(o, 'img' + i, `Screenshot ${i + 1}`), inp(o, 'a' + i, 'Zin 1: wat zie je?'), inp(o, 'b' + i, 'Zin 2: wat leer je hier?')));
     body.append(g);
+    body.append(moreSlots(o, 'G', base, n, SHOT_MAX, 'Extra screenshot', i => { o['img' + i] = ''; o['a' + i] = ''; o['b' + i] = ''; }) || '');
   },
   H(body) {
-    const o = W('H');
-    body.append(el('p', {}, 'Bedenk 5 vragen over de tekst. Interview een klasgenoot en typ de antwoorden uit.'),
+    const o = W('H'), n = slotCount(o, 5, 15);
+    body.append(el('p', {}, 'Bedenk minstens 5 vragen over de tekst. Interview een klasgenoot en typ de antwoorden uit.'),
       el('div', {class:'grid2'}, el('label', {class:'f'}, 'Interviewer', inp(o, 'wie1')), el('label', {class:'f'}, 'Geïnterviewde', inp(o, 'wie2'))));
-    for (let i = 0; i < 5; i++) body.append(el('div', {class:'grid2'}, el('label', {class:'f'}, `Vraag ${i + 1}`, ta(o, 'q' + i, 'Wie / Wat / Waarom…?', 2)), el('label', {class:'f'}, 'Antwoord', ta(o, 'a' + i, '', 2))));
+    for (let i = 0; i < n; i++) body.append(el('div', {class:'grid2'}, el('label', {class:'f'}, `Vraag ${i + 1}`, ta(o, 'q' + i, 'Wie / Wat / Waarom…?', 2)), el('label', {class:'f'}, 'Antwoord', ta(o, 'a' + i, '', 2))));
+    body.append(moreSlots(o, 'H', 5, n, 15, 'Extra vraag', i => { o['q' + i] = ''; o['a' + i] = ''; }) || '');
     const cp = el('button', {class:'btn'}, 'Kopieer het interview');
     cp.onclick = () => {
-      const t = `Interview: ${S.title}\nInterviewer: ${o.wie1 || ''}\nGeïnterviewde: ${o.wie2 || ''}\n\n` + [0, 1, 2, 3, 4].map(i => `Vraag ${i + 1}: ${o['q' + i] || ''}\nAntwoord: ${o['a' + i] || ''}`).join('\n\n');
+      const t = `Interview: ${S.title}\nInterviewer: ${o.wie1 || ''}\nGeïnterviewde: ${o.wie2 || ''}\n\n` + Array.from({length: n}, (_, i) => `Vraag ${i + 1}: ${o['q' + i] || ''}\nAntwoord: ${o['a' + i] || ''}`).join('\n\n');
       navigator.clipboard.writeText(t).then(() => toast('Interview gekopieerd. Plak het in je document.'), () => toast('Kopiëren lukte niet.'));
     };
     body.append(el('div', {class:'tools'}, cp));
@@ -1409,15 +1431,17 @@ const PRACTICE = {
       rr.append(el('label', {}, r, t));
     }
     body.append(rr);
-    for (let i = 1; i <= 3; i++) body.append(el('div', {class:'grid2'}, el('label', {class:'f'}, `Argument ${i}`, ta(o, 'arg' + i, 'Ik vind dit omdat…', 2)), el('label', {class:'f'}, 'Bewijs uit de video of tekst', ta(o, 'bew' + i, 'In de video zie/hoor je dat…', 2))));
+    const n = slotCount(o, 3, 8);
+    for (let i = 1; i <= n; i++) body.append(el('div', {class:'grid2'}, el('label', {class:'f'}, `Argument ${i}`, ta(o, 'arg' + i, 'Ik vind dit omdat…', 2)), el('label', {class:'f'}, 'Bewijs uit de video of tekst', ta(o, 'bew' + i, 'In de video zie/hoor je dat…', 2))));
+    body.append(moreSlots(o, 'M', 3, n, 8, 'Extra argument', i => { o['arg' + (i + 1)] = ''; o['bew' + (i + 1)] = ''; }) || '');
     body.append(el('div', {class:'grid2'}, el('label', {class:'f'}, 'Wat zal de andere kant zeggen?', ta(o, 'tegen', '', 2)), el('label', {class:'f'}, 'Wat antwoord jij daarop?', ta(o, 'weerleg', '', 2))));
   },
   N(body) {
     const o = W('N');
     body.append(el('ol', {class:'steps'}, el('li', {}, 'Teken in elk vak een belangrijk moment uit de video en schrijf er één kernwoord bij.'), el('li', {}, 'Zet de video zonder geluid op.'), el('li', {}, 'Vertel als nieuwslezer wat je ziet. Gebruik alleen je spiekkaart, niet de tekst.'), el('li', {}, 'Neem je scherm op met microfoon. Zet de opname op Teams of OneDrive en plak de link hieronder.')));
-    const g = el('div', {class:'cells'});
-    for (let i = 0; i < 6; i++) g.append(el('div', {class:'cell'}, el('b', {}, `Moment ${i + 1}`), drawPad(o, 'd' + i, 0.7), inp(o, 'k' + i, 'Kernwoord')));
-    body.append(g, linkField(o));
+    const g = el('div', {class:'cells'}), n = slotCount(o, 6, 12);
+    for (let i = 0; i < n; i++) g.append(el('div', {class:'cell'}, el('b', {}, `Moment ${i + 1}`), drawPad(o, 'd' + i, 0.7), inp(o, 'k' + i, 'Kernwoord')));
+    body.append(g, moreSlots(o, 'N', 6, n, 12, 'Extra moment', i => { o['d' + i] = ''; o['k' + i] = ''; }) || '', linkField(o));
   }
 };
 
@@ -1528,9 +1552,10 @@ function renderWatch() {
         copy.onclick = () => copyImage(dataUrlToPng(sh.img));
         const toG = S.sel.G ? el('button', {class:'btn small'}, 'Naar taak G') : null;
         if (toG) toG.onclick = () => {
-          const g = W('G'), n = +S.opt.shots || 4; let k = -1;
+          const g = W('G'), n = shotSlots(g); let k = -1;
           for (let j = 0; j < n; j++) if (!g['img' + j]) { k = j; break; }
-          if (k < 0) return toast('Alle vakken van taak G zijn al gevuld. Verwijder er eerst een in Oefenen.');
+          if (k < 0 && n < SHOT_MAX) { k = n; g.count = n + 1; } // alles vol: extra vak erbij
+          if (k < 0) return toast(`Taak G heeft al ${SHOT_MAX} screenshots. Verwijder er eerst een in Oefenen.`);
           g['img' + k] = sh.img; saveProg(); toast(`Toegevoegd aan taak G, screenshot ${k + 1}`);
         };
         const del = el('button', {class:'btn small', title:'Verwijderen', 'aria-label':'Verwijderen'}, '✕');
