@@ -7,6 +7,7 @@ import { Input } from '../ui/Input';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { uploadFileWithTracking } from '../../utils/fileUploadWithTracking';
 import { trackFileUpload, trackFileDelete } from '../../utils/storageTracking';
+import { formatStudentClasses, type StudentGroupLink } from '../../lib/studentClasses';
 import { ArrowLeft, Video, FileText, ExternalLink, Users, User, Star, Zap, Hash, Calendar, X, Trash2, Upload, File } from 'lucide-react';
 
 interface WebWijzerContent {
@@ -35,6 +36,7 @@ interface Student {
   last_name: string;
   student_number: string | null;
   grade_level: string | null;
+  student_groups?: StudentGroupLink[] | null;
 }
 
 interface AssignedStudent extends Student {
@@ -173,7 +175,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
       const [studentsData, groupsData] = await Promise.all([
         supabase
           .from('students')
-          .select('id, first_name, last_name, student_number, grade_level')
+          .select('id, first_name, last_name, student_number, grade_level, student_groups(is_active, groups(name, is_active))')
           .eq('school_id', focusSchool.id)
           .eq('is_active', true)
           .order('first_name'),
@@ -439,7 +441,7 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
   };
 
   const filteredStudents = students.filter(student =>
-    `${student.first_name} ${student.last_name} ${student.student_number || ''}`
+    `${student.first_name} ${student.last_name} ${student.student_number || ''} ${formatStudentClasses(student)}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
@@ -813,6 +815,9 @@ export function WebWijzerContentForm({ content, onClose, focusSchool }: WebWijze
                                   <p className="text-sm text-gray-500">#{student.student_number}</p>
                                 )}
                               </div>
+                              {formatStudentClasses(student) && (
+                                <span className="text-sm text-gray-500">{formatStudentClasses(student)}</span>
+                              )}
                             </label>
                           ))}
                         </div>

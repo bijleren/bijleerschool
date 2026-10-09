@@ -10,6 +10,7 @@ import { SubjectsManagement } from '../schoolday/SubjectsManagement';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, Upload, Clock, CheckCircle, XCircle, AlertTriangle, BookOpen, Eye, HardDrive, Calendar, LogOut, Tag, Image as ImageIcon, Zap, Download, Key, EyeOff, Check } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { formatStudentClasses, studentClassesLabel, type StudentGroupLink } from '../../lib/studentClasses';
 import { trackFileUpload } from '../../utils/storageTracking';
 import { DataGebruikTab } from '../storage/DataGebruikTab';
 import { DayTimeline } from '../schoolday/DayTimeline';
@@ -42,6 +43,7 @@ interface Student {
   symbol_url?: string | null;
   color?: string | null;
   pin_code?: string | null;
+  student_groups?: StudentGroupLink[] | null;
 }
 
 interface Group {
@@ -239,7 +241,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     try {
       const { data, error } = await supabase
         .from('students')
-        .select('*')
+        .select('*, student_groups(is_active, groups(name, is_active))')
         .eq('school_id', school.id)
         .eq('is_active', true)
         .order('first_name');
@@ -688,7 +690,8 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
     const matchesSearch =
       studentSearch === '' ||
       `${student.first_name} ${student.last_name}`.toLowerCase().includes(studentSearch.toLowerCase()) ||
-      (student.student_number && student.student_number.includes(studentSearch));
+      (student.student_number && student.student_number.includes(studentSearch)) ||
+      formatStudentClasses(student).toLowerCase().includes(studentSearch.toLowerCase());
 
     if (!matchesSearch) return false;
     if (selectedTagIds.length === 0) return true;
@@ -736,6 +739,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       Voornaam: s.first_name,
       Achternaam: s.last_name,
       Leerlingnummer: s.student_number ?? '',
+      Klassen: formatStudentClasses(s),
       Geboortedatum: s.date_of_birth ? new Date(s.date_of_birth).toLocaleDateString('nl-BE') : '',
       Status: s.is_active ? 'Actief' : 'Inactief',
       'Toegevoegd op': new Date(s.created_at).toLocaleDateString('nl-BE'),
@@ -1368,6 +1372,9 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                           <p className="text-sm text-gray-600">#{student.student_number}</p>
                         )}
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          {studentClassesLabel(student) && (
+                            <span>{studentClassesLabel(student)}</span>
+                          )}
                           {student.date_of_birth && (
                             <span>Geboren: {formatDate(student.date_of_birth)}</span>
                           )}

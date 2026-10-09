@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { ArrowLeft, Plus, Calendar, Book, User } from 'lucide-react';
 import { SessionDetailsModal } from './SessionDetailsModal';
+import { studentClassesLabel, type StudentGroupLink } from '../../lib/studentClasses';
 
 interface Student {
   id: string;
@@ -12,6 +13,7 @@ interface Student {
   student_number: string | null;
   grade_level: string | null;
   profile_picture_url: string | null;
+  student_groups?: StudentGroupLink[] | null;
 }
 
 interface Session {
@@ -67,7 +69,7 @@ export function LeescoachStudentProfile({
     const [studentRes, sessionsRes] = await Promise.all([
       supabase
         .from('students')
-        .select('*')
+        .select('*, student_groups(is_active, groups(name, is_active))')
         .eq('id', studentId)
         .single(),
       supabase
@@ -141,6 +143,7 @@ export function LeescoachStudentProfile({
               </h2>
               <div className="flex gap-4 text-gray-600">
                 {student.student_number && <div>Nr: {student.student_number}</div>}
+                {studentClassesLabel(student) && <div>{studentClassesLabel(student)}</div>}
               </div>
             </div>
             <Button onClick={onNavigateToCreate}>

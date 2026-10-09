@@ -23,6 +23,7 @@ import {
   Plus,
   Users
 } from 'lucide-react';
+import { formatStudentClasses, type StudentGroupLink } from '../../lib/studentClasses';
 
 interface BehaviorIncident {
   id: string;
@@ -50,6 +51,7 @@ interface Student {
   last_name: string;
   student_number: string | null;
   grade_level: string | null;
+  student_groups?: StudentGroupLink[] | null;
 }
 
 interface BehaviorCategory {
@@ -214,7 +216,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
     try {
       const { data, error } = await supabase
         .from('students')
-        .select('*')
+        .select('*, student_groups(is_active, groups(name, is_active))')
         .eq('school_id', incident.school_id)
         .eq('is_active', true)
         .order('first_name');
@@ -839,6 +841,7 @@ export function BehaviorIncidentEdit({ incident, onIncidentUpdated, onCancel }: 
                       {students.map((student) => (
                         <option key={student.id} value={student.id}>
                           {student.first_name} {student.last_name}
+                          {formatStudentClasses(student) && ` - ${formatStudentClasses(student)}`}
                           {student.student_number && ` (#${student.student_number})`}
                         </option>
                       ))}

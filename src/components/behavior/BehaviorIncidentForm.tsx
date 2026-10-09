@@ -18,6 +18,7 @@ import {
   Target,
   Tag
 } from 'lucide-react';
+import { formatStudentClasses, type StudentGroupLink } from '../../lib/studentClasses';
 
 interface Student {
   id: string;
@@ -25,6 +26,7 @@ interface Student {
   last_name: string;
   student_number: string | null;
   grade_level: string | null;
+  student_groups?: StudentGroupLink[] | null;
 }
 
 interface StudentRole {
@@ -472,7 +474,7 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     try {
       const { data, error } = await supabase
         .from('students')
-        .select('id, first_name, last_name, student_number, grade_level')
+        .select('id, first_name, last_name, student_number, grade_level, student_groups(is_active, groups(name, is_active))')
         .eq('school_id', schoolId)
         .eq('is_active', true)
         .order('first_name');
@@ -904,8 +906,9 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
       const student = students.find(s => s.id === value);
       if (student) {
         const updatedSearches = [...studentSearches];
+        const classInfo = formatStudentClasses(student) ? ` - ${formatStudentClasses(student)}` : '';
         const studentNumberInfo = student.student_number ? ` (#${student.student_number})` : '';
-        updatedSearches[index] = `${student.first_name} ${student.last_name}${studentNumberInfo}`;
+        updatedSearches[index] = `${student.first_name} ${student.last_name}${classInfo}${studentNumberInfo}`;
         setStudentSearches(updatedSearches);
 
         const updatedDropdowns = [...showStudentDropdowns];
@@ -937,7 +940,8 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
     return students.filter(student => {
       const matchesSearch = searchTerm === '' ||
         `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (student.student_number && student.student_number.includes(searchTerm));
+        (student.student_number && student.student_number.includes(searchTerm)) ||
+        formatStudentClasses(student).toLowerCase().includes(searchTerm.toLowerCase());
 
       const notAlreadySelected = !selectedStudents.some((selected, idx) =>
         idx !== excludeIndex && selected.student_id === student.id
@@ -1088,6 +1092,9 @@ export function BehaviorIncidentForm({ schoolId, onIncidentCreated, onCancel, pr
                           >
                             <div className="font-medium text-gray-900">
                               {student.first_name} {student.last_name}
+                              {formatStudentClasses(student) && (
+                                <span className="ml-2 text-sm text-gray-600">- {formatStudentClasses(student)}</span>
+                              )}
                             </div>
                             {student.student_number && (
                               <div className="text-sm text-gray-500">#{student.student_number}</div>

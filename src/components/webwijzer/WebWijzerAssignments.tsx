@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { ArrowLeft, Users, User, Star, Zap, Hash } from 'lucide-react';
+import { formatStudentClasses, type StudentGroupLink } from '../../lib/studentClasses';
 
 interface WebWijzerContent {
   id: string;
@@ -21,6 +22,7 @@ interface Student {
   student_number: string | null;
   grade_level: string | null;
   school_id: string;
+  student_groups?: StudentGroupLink[] | null;
 }
 
 interface Group {
@@ -74,7 +76,7 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
       const [studentsData, groupsData] = await Promise.all([
         supabase
           .from('students')
-          .select('id, first_name, last_name, student_number, grade_level, school_id')
+          .select('id, first_name, last_name, student_number, grade_level, school_id, student_groups(is_active, groups(name, is_active))')
           .in('school_id', schoolIds)
           .eq('is_active', true)
           .order('first_name'),
@@ -164,7 +166,7 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
   };
 
   const filteredStudents = students.filter(student =>
-    `${student.first_name} ${student.last_name} ${student.student_number || ''}`
+    `${student.first_name} ${student.last_name} ${student.student_number || ''} ${formatStudentClasses(student)}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
@@ -253,6 +255,9 @@ export function WebWijzerAssignments({ content, onBack }: WebWijzerAssignmentsPr
                             <p className="text-sm text-gray-500">#{student.student_number}</p>
                           )}
                         </div>
+                        {formatStudentClasses(student) && (
+                          <span className="text-sm text-gray-500">{formatStudentClasses(student)}</span>
+                        )}
                       </label>
                     ))
                   )
