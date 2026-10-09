@@ -304,7 +304,9 @@ input[type=range],input[type=checkbox],input[type=radio]{accent-color:var(--acce
 .watch.side.left .tp{order:1}.watch.side.left #vidbox,.watch.side.left .novid{order:2}.watch.side.left .tp-ctl{order:3}.watch.side.left .cap-ctl{order:4}
 .watch.below .tp{height:min(44vh,420px)}
 .vidcol{display:grid;gap:10px;align-content:start;min-width:0}
-.vidbox{position:relative;aspect-ratio:16/9;max-width:100%;background:#000;border-radius:12px;overflow:hidden}
+.vidbox{position:relative;aspect-ratio:16/9;width:100%;max-width:100%;align-self:start;background:#000;border-radius:12px;overflow:hidden}
+/* oudere Safari zonder aspect-ratio: 16:9 via padding */
+@supports not (aspect-ratio:16/9){.vidbox{height:0;padding-top:56.25%}}
 .vidbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .vidbox.flash::after{content:"";position:absolute;inset:0;background:#fff;animation:flash .35s ease-out forwards;pointer-events:none}
 @keyframes flash{from{opacity:.85}to{opacity:0}}
@@ -451,12 +453,12 @@ input[type=range],input[type=checkbox],input[type=radio]{accent-color:var(--acce
 
     <div class="panel">
       <h2><span class="step">Stap 3</span>Werkvormen</h2>
-      <p class="hint">Vink aan wat de leerlingen moeten doen. Elke werkvorm komt op het werkblad en in de oefenapp. Met <b>verplicht</b> of <b>keuze</b> geef je leerlingen wat ruimte.</p>
+      <p class="hint">Vink aan wat de leerlingen moeten doen. Elke werkvorm komt op het werkblad en in de oefenapp. Met <b>Moet</b> of <b>Mag</b> geef je leerlingen wat ruimte.</p>
       <div class="toolbar">
         <button class="btn small" id="sel-all">Alles aanvinken</button>
         <button class="btn small" id="sel-none">Alles uitvinken</button>
         <label class="check" style="margin-left:auto">Leerlingen kiezen minstens
-          <input type="number" id="in-minkeuze" min="0" max="14" style="width:4.5em"> keuzetaken</label>
+          <input type="number" id="in-minkeuze" min="0" max="14" style="width:4.5em"> Mag-taken</label>
       </div>
       <div class="wv-grid" id="wv-grid"></div>
     </div>
@@ -803,7 +805,7 @@ function renderWvGrid() {
     if (on) {
       const opts = el('div', {class:'wv-opts'});
       const rq = el('div', {class:'radio-row'});
-      for (const [v, lbl] of [['req', 'Verplicht'], ['keuze', 'Keuze']]) {
+      for (const [v, lbl] of [['req', 'Moet'], ['keuze', 'Mag']]) {
         const r = el('input', {type:'radio', name:'rq-' + w.id, checked: S.sel[w.id] === v});
         r.onchange = () => { S.sel[w.id] = v; saveState(); };
         rq.append(el('label', {}, r, lbl));
@@ -941,15 +943,15 @@ function renderPaper() {
     ${S.info && S.info.trim() && S.infoPaper !== false ? `<div class="p-info"><b>Info van je leerkracht</b>${infoHtml(S.info)}</div>` : ''}`;
   if (list.length) {
     html += `<h2>Mijn planning</h2><table class="p-plan"><tr><th style="width:7mm"></th><th style="width:7mm"></th><th>Taak</th><th style="width:28mm">Inleveren</th><th style="width:20mm"></th></tr>
-      ${list.map(w => `<tr><td>${bx}</td><td class="p-ic">${iconSvg(w.id, 15)}<b>${w.id}</b></td><td><b>${esc(w.t)}</b><br><span class="small">${esc(w.dFn ? w.dFn() : w.d)}</span></td><td class="small">${esc(w.proof)}</td><td class="small"><b>${S.sel[w.id] === 'req' ? 'Verplicht' : 'Keuze'}</b></td></tr>`).join('')}</table>
-      ${nK && minK ? `<p class="small">Kies minstens <b>${Math.min(minK, nK)}</b> van de ${nK} keuzetaken.</p>` : ''}`;
+      ${list.map(w => `<tr><td>${bx}</td><td class="p-ic">${iconSvg(w.id, 15)}<b>${w.id}</b></td><td><b>${esc(w.t)}</b><br><span class="small">${esc(w.dFn ? w.dFn() : w.d)}</span></td><td class="small">${esc(w.proof)}</td><td class="small"><b>${S.sel[w.id] === 'req' ? 'Moet' : 'Mag'}</b></td></tr>`).join('')}</table>
+      ${nK && minK ? `<p class="small">Kies minstens <b>${Math.min(minK, nK)}</b> van de ${nK} Mag-taken.</p>` : ''}`;
   }
   const txt = sanitize(S.html);
   html += `<section class="p-sec p-text${L.newpage && list.length ? ' newpage' : ''}" style="--tsize:${L.size}pt;--tlh:${L.lh}">
     <div class="head"><h2>De tekst</h2>${S.sel.B ? '<span class="small"><i class="sw" style="background:#7FA9F5"></i>niet begrijpen <i class="sw" style="background:#7FD1A2;margin-left:6px"></i>niet lezen <i class="sw" style="background:#F09891;margin-left:6px"></i>niet spellen</span>' : ''}</div>
     <div class="tx${L.num ? ' num' : ''}${L.marg ? ' marg' : ''}">${txt || '<p><i>Nog geen tekst toegevoegd. Plak de tekst in stap 2.</i></p>'}</div></section>`;
   for (const w of list) {
-    html += `<section class="p-sec"><div class="head"><span class="lt">${iconSvg(w.id, 15)}<i>${w.id}</i></span><h2>${esc(w.t)}</h2><span class="req">${S.sel[w.id] === 'req' ? 'Verplicht' : 'Keuze'}</span><span class="proof">${esc(w.proof)}</span></div>${PAPER[w.id](b)}</section>`;
+    html += `<section class="p-sec"><div class="head"><span class="lt">${iconSvg(w.id, 15)}<i>${w.id}</i></span><h2>${esc(w.t)}</h2><span class="req">${S.sel[w.id] === 'req' ? 'Moet' : 'Mag'}</span><span class="proof">${esc(w.proof)}</span></div>${PAPER[w.id](b)}</section>`;
   }
   p.innerHTML = html;
   // kolomtitels herhalen als een tabel over twee pagina's loopt
@@ -1394,7 +1396,7 @@ function renderPractice() {
   for (const w of list) {
     const c = el('input', {type:'checkbox', checked: !!P.done[w.id]}); c.onchange = () => setDone(w.id, c.checked);
     (doneBoxes[w.id] ||= []).push(c);
-    planner.append(el('label', {class: P.done[w.id] ? 'done' : ''}, c, wvBadge(w.id), el('span', {class:'grow'}, el('b', {}, w.t), ' ', el('span', {class:'chip'}, S.sel[w.id] === 'req' ? 'verplicht' : 'keuze')), el('a', {href:'#card-' + w.id, onclick: e => { e.preventDefault(); $('#card-' + w.id).scrollIntoView({behavior:'smooth'}); }}, 'Ga naar')));
+    planner.append(el('label', {class: P.done[w.id] ? 'done' : ''}, c, wvBadge(w.id), el('span', {class:'grow'}, el('b', {}, w.t), ' ', el('span', {class:'chip'}, S.sel[w.id] === 'req' ? 'Moet' : 'Mag')), el('a', {href:'#card-' + w.id, onclick: e => { e.preventDefault(); $('#card-' + w.id).scrollIntoView({behavior:'smooth'}); }}, 'Ga naar')));
   }
   const nK = list.filter(w => S.sel[w.id] === 'keuze').length, minK = Math.min(+S.minKeuze || 0, nK);
   root.append(el('div', {class:'panel'},
@@ -1403,7 +1405,7 @@ function renderPractice() {
       el('div', {style:'display:grid;gap:8px;min-width:220px'}, name, S.url ? el('a', {class:'btn primary', href:S.url, target:'_blank', rel:'noopener'}, 'Bekijk de video op SchoolTV ↗') : null,
         HOST ? null : el('a', {class:'btn', href: inleverUrl(), target:'_blank', rel:'noopener', title: inleverIsDemo() ? 'Voorbeeld: de inleverpagina komt later' : ''}, 'Inleveren ↗' + (inleverIsDemo() ? ' (voorbeeld)' : '')),
         el('button', {class:'btn', onclick: () => window.print()}, 'Mijn werk afdrukken of als pdf bewaren'))),
-    list.length ? el('div', {style:'margin-top:14px;display:grid;gap:6px'}, prog, progTxt, minK ? el('div', {class:'meta'}, `Kies minstens ${minK} van de ${nK} keuzetaken.`) : null, planner) : el('p', {class:'meta'}, 'Je leerkracht heeft nog geen taken gekozen.')));
+    list.length ? el('div', {style:'margin-top:14px;display:grid;gap:6px'}, prog, progTxt, minK ? el('div', {class:'meta'}, `Kies minstens ${minK} van de ${nK} Mag-taken.`) : null, planner) : el('p', {class:'meta'}, 'Je leerkracht heeft nog geen taken gekozen.')));
 
   // tekst
   const sizeSel = el('select', {'aria-label':'Lettergrootte'}, ...[['1.05rem', 'Klein'], ['1.2rem', 'Normaal'], ['1.45rem', 'Groot'], ['1.75rem', 'Extra groot']].map(([v, t]) => el('option', {value:v, selected: (P.rs || '1.2rem') === v}, t)));
