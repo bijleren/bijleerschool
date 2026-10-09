@@ -99,6 +99,13 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
   const [editName, setEditName] = useState(school.name);
   const [editAddress, setEditAddress] = useState(school.address || '');
   const [editCity, setEditCity] = useState(school.city || '');
+  // Zoeker in the student WebWijzer; off unless a school admin turns it on.
+  const [zoekerEnabled, setZoekerEnabled] = useState(false);
+  const [editZoeker, setEditZoeker] = useState(false);
+  useEffect(() => {
+    supabase.from('schools').select('zoeker_enabled').eq('id', school.id).maybeSingle()
+      .then(({ data }) => { setZoekerEnabled(!!data?.zoeker_enabled); setEditZoeker(!!data?.zoeker_enabled); });
+  }, [school.id]);
   const [editPostalCode, setEditPostalCode] = useState(school.postal_code || '');
 
   // Data states
@@ -334,6 +341,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
           address: editAddress || null,
           city: editCity || null,
           postal_code: editPostalCode || null,
+          zoeker_enabled: editZoeker,
         })
         .eq('id', school.id)
         .select()
@@ -342,6 +350,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
       if (error) throw error;
 
       onSchoolUpdated(data);
+      setZoekerEnabled(editZoeker);
       setIsEditing(false);
       setMessage('School succesvol bijgewerkt!');
     } catch (error) {
@@ -764,7 +773,7 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
           </div>
         </div>
         {isAdmin && !isEditing ? (
-          <Button variant="secondary" onClick={() => setIsEditing(true)}>
+          <Button variant="secondary" onClick={() => { setEditZoeker(zoekerEnabled); setIsEditing(true); }}>
             <Edit className="w-4 h-4 mr-2" />
             School bewerken
           </Button>
@@ -819,6 +828,21 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
                 value={editCity}
                 onChange={(e) => setEditCity(e.target.value)}
               />
+            </div>
+            <div className="pt-2 border-t border-gray-100">
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">WebWijzer voor leerlingen</h4>
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={editZoeker}
+                  onChange={(e) => setEditZoeker(e.target.checked)}
+                  className="mt-1 w-4 h-4"
+                />
+                <span>
+                  <span className="font-medium text-gray-900">Zoeker activeren</span>
+                  <span className="block text-sm text-gray-500">Leerlingen van deze school zien dan de knop Zoeker in hun WebWijzer. Standaard staat de Zoeker uit.</span>
+                </span>
+              </label>
             </div>
           </div>
         </Card>

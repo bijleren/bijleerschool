@@ -84,7 +84,7 @@ export function StudentWebWijzer({ studentId, studentName, accessHash, openVideo
   const [studentLogins, setStudentLogins] = useState<StudentLogin[]>([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [schoolHasBooks, setSchoolHasBooks] = useState(false);
-  const [schoolIsPremium, setSchoolIsPremium] = useState(false);
+  const [schoolHasZoeker, setSchoolHasZoeker] = useState(false); // schools.zoeker_enabled
   const [showFiches, setShowFiches] = useState(false);
   const [videoleerTasks, setVideoleerTasks] = useState<VideoleerTask[]>([]);
   const [showVideoleerList, setShowVideoleerList] = useState(false);
@@ -178,12 +178,12 @@ export function StudentWebWijzer({ studentId, studentName, accessHash, openVideo
     if (accessHash) {
       const { data, error } = await supabase.rpc('webwijzer_student_profile', { p_hash: accessHash });
       if (error || !data) { console.error('Error fetching student school:', error); return; }
-      const profile = data as { school_id: string | null; premium_school: unknown; has_books: boolean };
+      const profile = data as { school_id: string | null; zoeker_enabled?: boolean; has_books: boolean };
       if (profile.school_id) {
         schoolIdRef.current = profile.school_id;
         setSchoolId(profile.school_id);
         setSchoolHasBooks(!!profile.has_books);
-        setSchoolIsPremium(profile.premium_school === true); // same check as the direct path below
+        setSchoolHasZoeker(!!profile.zoeker_enabled);
       }
       return;
     }
@@ -205,13 +205,13 @@ export function StudentWebWijzer({ studentId, studentName, accessHash, openVideo
             .eq('school_id', data.school_id),
           supabase
             .from('schools')
-            .select('premium_school')
+            .select('zoeker_enabled')
             .eq('id', data.school_id)
             .maybeSingle(),
         ]);
 
         setSchoolHasBooks((booksResult.count ?? 0) > 0);
-        setSchoolIsPremium(schoolResult.data?.premium_school === true);
+        setSchoolHasZoeker(!!schoolResult.data?.zoeker_enabled);
       }
     } catch (error) {
       console.error('Error fetching student school:', error);
@@ -871,7 +871,7 @@ export function StudentWebWijzer({ studentId, studentName, accessHash, openVideo
                     Bibliotheek
                   </Button>
                 )}
-                {schoolIsPremium && (
+                {schoolHasZoeker && (
                   <Button
                     onClick={() => setShowZoeker(true)}
                     variant="secondary"
