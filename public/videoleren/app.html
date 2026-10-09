@@ -7,32 +7,23 @@
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
 <style>
 /* Layout: werkbalk bovenaan met drie tabbladen (Maken · Werkblad · Oefenen); het werkblad zelf is altijd wit A4-papier. */
 :root{
-  --bg:#EEF2F1; --panel:#FFFFFF; --ink:#16252A; --muted:#5A6A6F; --line:#D3DCDA;
-  --accent:#2448C0; --accent-soft:#E3E9FB; --accent-ink:#FFFFFF;
-  --fluo:#FFE45C; --ok:#1E8A4C; --warn:#B4541A;
+  /* huisstijl bijleer.school (tailwind.config.js): crème, brons, inkt */
+  --bg:#FAF6EE; --panel:#FFFFFF; --ink:#2F2A22; --muted:#6B6457; --line:#E5DDD0;
+  --accent:#946B29; --accent-dark:#74531F; --accent-soft:#F3E9D6; --accent-ink:#FFFFFF;
+  --fluo:#F4B11B; --ok:#4E8A3E; --warn:#D9663F;
   --mk-blue:#2F6FEB; --mk-green:#1E9A55; --mk-red:#D63B30;
   --mk-blue-bg:rgba(47,111,235,.22); --mk-green-bg:rgba(30,154,85,.22); --mk-red-bg:rgba(214,59,48,.22);
-  --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
-  --f-body:"Atkinson Hyperlegible", "Segoe UI", Verdana, sans-serif;
+  --f-display:"Fredoka", "Nunito", sans-serif;
+  --f-body:"Nunito", "Segoe UI", sans-serif;
   /* papier blijft altijd licht */
   --paper:#FFFFFF; --paper-ink:#111; --paper-line:#9AA5A8; --paper-soft:#F2F4F4;
   color-scheme:light;
-}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#10181B; --panel:#18232A; --ink:#E4ECEA; --muted:#93A4A8; --line:#2B3A40;
-  --accent:#8AA4FF; --accent-soft:#22305A; --accent-ink:#0D1530;
-  --fluo:#8C7A12; --ok:#4CC27F; --warn:#F09A5E; color-scheme:dark;
-}}
-:root[data-theme="dark"]{
-  --bg:#10181B; --panel:#18232A; --ink:#E4ECEA; --muted:#93A4A8; --line:#2B3A40;
-  --accent:#8AA4FF; --accent-soft:#22305A; --accent-ink:#0D1530;
-  --fluo:#8C7A12; --ok:#4CC27F; --warn:#F09A5E; color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -44,20 +35,22 @@ a{color:var(--accent)}
 [hidden]{display:none!important}
 
 /* ---------- werkbalk ---------- */
-.bar{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);
+.bar{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid #E8DCC8;box-shadow:0 1px 2px rgba(47,42,34,.06);
   padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:1.15rem;letter-spacing:-.01em}
-.brand .logo{width:30px;height:30px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink)}
-.tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:12px}
-.tab{border:0;background:transparent;padding:7px 14px;border-radius:9px;cursor:pointer;font-weight:700;color:var(--muted)}
-.tab[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:1.25rem;color:#000}
+.brand .logo{width:32px;height:32px;border-radius:10px;background:var(--fluo);display:grid;place-items:center;color:#2F2A22}
+.tabs{display:flex;gap:4px;background:var(--accent-soft);padding:4px;border-radius:16px}
+.tab{border:0;background:transparent;padding:7px 14px;border-radius:12px;cursor:pointer;font-weight:700;color:var(--muted);font-family:var(--f-display)}
+.tab[aria-selected="true"]{background:var(--panel);color:var(--accent-dark);box-shadow:0 1px 3px rgba(47,42,34,.12)}
 .tab .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--line);font-size:.75rem;margin-right:6px;color:var(--ink)}
 .tab[aria-selected="true"] .n{background:var(--accent);color:var(--accent-ink)}
 .bar .actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px}
 
-.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink);line-height:1.2}
-.btn:hover{border-color:var(--accent)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn{border:1px solid var(--line);background:var(--panel);padding:8px 16px;border-radius:16px;cursor:pointer;font-weight:600;font-family:var(--f-display);display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink);line-height:1.2;box-shadow:0 1px 2px rgba(47,42,34,.06);transition:transform .15s,background .15s,border-color .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn:hover{border-color:var(--accent-soft)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 2px 6px rgba(148,107,41,.25)}
+.btn.primary:hover{background:var(--accent-dark);border-color:var(--accent-dark)}
 .btn.small{padding:5px 10px;font-size:.88rem;border-radius:8px}
 .btn.on{background:var(--accent-soft);border-color:var(--accent)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
@@ -66,7 +59,7 @@ a{color:var(--accent)}
 main{padding-block:24px 80px;padding-inline:16px}
 .wrap{max-width:1080px;margin:0 auto;display:grid;gap:20px}
 
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0;box-shadow:0 1px 2px rgba(47,42,34,.05)}
 .panel > h2{font-size:1.3rem;display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
 .step{font-family:var(--f-body);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
 .hint{color:var(--muted);font-size:.92rem;margin:4px 0 14px}
@@ -248,6 +241,9 @@ table.t input{padding:4px 6px;width:5em}
 .radio-row label{border:1px solid var(--line);padding:6px 12px;border-radius:10px;cursor:pointer;display:flex;gap:6px;align-items:center}
 .warnbox{border-left:4px solid var(--warn);padding:8px 12px;background:var(--bg);border-radius:0 10px 10px 0;font-size:.92rem}
 
+/* in bijleer.school (leerkracht): de header van bijleer.school staat erboven */
+body.hosted-teacher .brand{display:none}
+body.hosted .bar{padding-block:8px}
 /* ---------- iconen per werkvorm ---------- */
 .wvb{position:relative;flex:none;width:30px;height:30px;border-radius:9px;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;color:var(--ink)}
 .wvb i{position:absolute;right:-5px;bottom:-5px;min-width:16px;height:16px;padding:0 3px;border-radius:5px;background:var(--ink);color:var(--panel);font:800 .66rem/16px var(--f-display);font-style:normal;text-align:center}
@@ -1786,6 +1782,7 @@ async function syncStudent() {
 
 async function hostInit() {
   const sb = HOST.supabase;
+  document.body.classList.add('hosted', 'hosted-' + HOST.mode);
   for (const id of ['btn-link', 'btn-save', 'btn-open', 'btn-new']) { const b = $('#' + id); if (b) b.hidden = true; }
   const back = el('button', {class:'btn small', onclick: async () => { await (HOST.mode === 'teacher' ? taskSaving : syncing); HOST.onClose?.(); }}, '← Terug');
   $('.bar .actions').prepend(back);

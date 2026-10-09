@@ -37,7 +37,7 @@ export const taskState = (t: Pick<VideoTask, 'status' | 'deadline' | 'closed_at'
 const STATE_STYLE: Record<State, string> = {
   concept: 'bg-gray-100 text-gray-600',
   actief: 'bg-green-100 text-green-700',
-  afgesloten: 'bg-blue-100 text-blue-700',
+  afgesloten: 'bg-brand-tint text-brand-dark',
   gearchiveerd: 'bg-gray-100 text-gray-400',
 };
 
@@ -129,8 +129,8 @@ export function VideolerenTab({ focusSchool }: VideolerenTabProps) {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Clapperboard className="w-8 h-8 text-blue-600" /> Videoleren
+          <h1 className="text-3xl font-heading font-bold text-ink flex items-center gap-3">
+            <Clapperboard className="w-8 h-8 text-brand" /> Videoleren
           </h1>
           <p className="text-gray-600 mt-1">Maak een studietaak bij een SchoolTV-video, deel ze met een klas of met leerlingen en volg op wie waar staat.</p>
         </div>
@@ -138,16 +138,16 @@ export function VideolerenTab({ focusSchool }: VideolerenTabProps) {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1">
+        <div className="inline-flex rounded-xl border border-line bg-white p-1">
           {[[true, 'Mijn taken'], [false, 'Alle taken van de school']].map(([v, label]) => (
             <button key={String(v)} onClick={() => setOnlyMine(v as boolean)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${onlyMine === v ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}>{label as string}</button>
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${onlyMine === v ? 'bg-brand text-white' : 'text-gray-600 hover:bg-gray-50'}`}>{label as string}</button>
           ))}
         </div>
         <div className="flex flex-wrap gap-2">
           {(['alle', 'actief', 'concept', 'afgesloten', 'gearchiveerd'] as const).map(s => (
             <button key={s} onClick={() => setStateFilter(s)}
-              className={`px-3 py-1 rounded-full text-sm font-semibold border ${stateFilter === s ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'}`}>
+              className={`px-3 py-1 rounded-full text-sm font-semibold border ${stateFilter === s ? 'bg-ink text-white border-ink' : 'bg-white text-gray-600 border-line hover:border-gray-400'}`}>
               {s[0].toUpperCase() + s.slice(1)} <span className="tabular-nums opacity-70">{counts(s)}</span>
             </button>
           ))}
@@ -155,7 +155,7 @@ export function VideolerenTab({ focusSchool }: VideolerenTabProps) {
         <div className="relative ml-auto">
           <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Zoek een taak…"
-            className="pl-9 pr-3 py-2 rounded-xl border border-gray-200 text-sm w-56" />
+            className="pl-9 pr-3 py-2 rounded-xl border border-line text-sm w-56" />
         </div>
       </div>
 
@@ -175,10 +175,10 @@ export function VideolerenTab({ focusSchool }: VideolerenTabProps) {
             const nStudents = t.videoleren_assignments.filter(a => a.assignable_type === 'student').length;
             const letters = t.videoleren_task_werkvormen.map(w => w.werkvorm).sort();
             return (
-              <div key={t.id} className="bg-white border border-gray-200 rounded-2xl p-4 flex flex-wrap items-center gap-4">
+              <div key={t.id} className="bg-white border border-line rounded-2xl p-4 shadow-sm flex flex-wrap items-center gap-4">
                 <div className="flex-1 min-w-[220px]">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-lg font-bold text-gray-900">{t.title || 'Naamloze taak'}</h3>
+                    <h3 className="text-lg font-bold text-ink">{t.title || 'Naamloze taak'}</h3>
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${STATE_STYLE[st]}`}>{st}</span>
                     {t.created_by !== user?.id && <span className="text-xs text-gray-500">van een collega</span>}
                   </div>
@@ -189,7 +189,7 @@ export function VideolerenTab({ focusSchool }: VideolerenTabProps) {
                   </div>
                   {letters.length > 0 && (
                     <div className="flex gap-1 mt-2 flex-wrap">
-                      {letters.map(l => <span key={l} className="w-6 h-6 rounded-md bg-blue-50 text-blue-700 text-xs font-bold grid place-items-center">{l}</span>)}
+                      {letters.map(l => <span key={l} className="w-6 h-6 rounded-md bg-brand-tint text-brand-dark text-xs font-bold grid place-items-center">{l}</span>)}
                     </div>
                   )}
                 </div>
@@ -284,26 +284,26 @@ function ShareDialog({ task, schoolId, onClose, onSaved }: { task: VideoTask; sc
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="vl-share-title">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 id="vl-share-title" className="text-xl font-bold text-gray-900">Delen: {task.title}</h2>
+          <h2 id="vl-share-title" className="text-xl font-bold text-ink">Delen: {task.title}</h2>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100" aria-label="Sluiten"><X className="w-5 h-5" /></button>
         </div>
         <div className="px-6 py-4 space-y-4 overflow-y-auto">
           <label className="block">
             <span className="text-sm font-semibold text-gray-700">Deadline</span>
             <input type="datetime-local" value={deadline} onChange={e => setDeadline(e.target.value)}
-              className="mt-1 block w-full rounded-xl border border-gray-200 px-3 py-2" />
+              className="mt-1 block w-full rounded-xl border border-line px-3 py-2" />
             <span className="text-xs text-gray-500">Na de deadline sluit de taak vanzelf. Je kan ze ook vroeger afsluiten, of later heropenen met een nieuwe deadline.</span>
           </label>
 
           <div className="flex items-center gap-2">
-            <div className="inline-flex rounded-xl border border-gray-200 p-1">
-              <button onClick={() => setView('groups')} className={`px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1 ${view === 'groups' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}><Users className="w-4 h-4" />Groepen ({selGroups.size})</button>
-              <button onClick={() => setView('students')} className={`px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1 ${view === 'students' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}><User className="w-4 h-4" />Leerlingen ({selStudents.size})</button>
+            <div className="inline-flex rounded-xl border border-line p-1">
+              <button onClick={() => setView('groups')} className={`px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1 ${view === 'groups' ? 'bg-brand text-white' : 'text-gray-600'}`}><Users className="w-4 h-4" />Groepen ({selGroups.size})</button>
+              <button onClick={() => setView('students')} className={`px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1 ${view === 'students' ? 'bg-brand text-white' : 'text-gray-600'}`}><User className="w-4 h-4" />Leerlingen ({selStudents.size})</button>
             </div>
-            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Zoeken…" className="ml-auto rounded-xl border border-gray-200 px-3 py-1.5 text-sm w-40" />
+            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Zoeken…" className="ml-auto rounded-xl border border-line px-3 py-1.5 text-sm w-40" />
           </div>
 
-          <div className="border border-gray-200 rounded-xl max-h-72 overflow-y-auto divide-y">
+          <div className="border border-line rounded-xl max-h-72 overflow-y-auto divide-y">
             {view === 'groups'
               ? filteredGroups.map(g => (
                   <label key={g.id} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer">

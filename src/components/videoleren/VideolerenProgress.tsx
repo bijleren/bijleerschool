@@ -32,7 +32,7 @@ function wordsOf(html: string): string[] {
 
 const CELL = {
   klaar: { label: '✓', cls: 'bg-green-100 text-green-700', name: 'Klaar' },
-  bezig: { label: '◐', cls: 'bg-blue-100 text-blue-700', name: 'Bezig' },
+  bezig: { label: '◐', cls: 'bg-brand-tint text-brand-dark', name: 'Bezig' },
   niet: { label: '–', cls: 'bg-gray-100 text-gray-400', name: 'Niet gestart' },
 } as const;
 
@@ -96,15 +96,15 @@ export function VideolerenProgress({ task, onBack }: { task: VideoTask; onBack: 
 
   return (
     <div className="max-w-6xl mx-auto space-y-5">
-      <button onClick={onBack} className="text-blue-600 font-semibold flex items-center gap-1"><ArrowLeft className="w-4 h-4" />Leervideo-taken</button>
+      <button onClick={onBack} className="text-brand font-semibold flex items-center gap-1"><ArrowLeft className="w-4 h-4" />Leervideo-taken</button>
       <div className="flex flex-wrap items-end gap-3 justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{task.title}</h1>
+          <h1 className="text-2xl font-heading font-bold text-ink">{task.title}</h1>
           <p className="text-gray-500 text-sm">{students.length} leerlingen · deadline {task.deadline ? new Date(task.deadline).toLocaleString('nl-BE') : '—'} · {taskState(task)}</p>
         </div>
-        <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1">
+        <div className="inline-flex rounded-xl border border-line bg-white p-1">
           {(['overzicht', 'woorden'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${tab === t ? 'bg-blue-600 text-white' : 'text-gray-600'}`}>
+            <button key={t} onClick={() => setTab(t)} className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${tab === t ? 'bg-brand text-white' : 'text-gray-600'}`}>
               {t === 'overzicht' ? 'Overzicht' : 'Moeilijke woorden'}
             </button>
           ))}
@@ -112,7 +112,7 @@ export function VideolerenProgress({ task, onBack }: { task: VideoTask; onBack: 
       </div>
 
       {loading ? <p className="text-gray-500 py-10 text-center">Laden…</p> : tab === 'overzicht' ? (
-        <div className="bg-white border border-gray-200 rounded-2xl p-4 overflow-x-auto">
+        <div className="bg-white border border-line rounded-2xl p-4 shadow-sm overflow-x-auto">
           <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
             {Object.values(CELL).map(c => <span key={c.name} className="flex items-center gap-1.5"><span className={`w-7 h-6 rounded-md grid place-items-center font-bold ${c.cls}`}>{c.label}</span>{c.name}</span>)}
           </div>
@@ -150,10 +150,10 @@ export function VideolerenProgress({ task, onBack }: { task: VideoTask; onBack: 
           </table>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-3">
+        <div className="bg-white border border-line rounded-2xl p-4 shadow-sm space-y-3">
           <div className="flex flex-wrap gap-2">
             {([['blue', 'Blauw · begrijpen', 'bg-blue-500'], ['green', 'Groen · lezen', 'bg-green-500'], ['red', 'Rood · spellen', 'bg-red-500']] as const).map(([k, label, dot]) => (
-              <button key={k} onClick={() => setColor(k)} className={`px-3 py-1 rounded-full text-sm font-semibold border flex items-center gap-2 ${color === k ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200'}`}>
+              <button key={k} onClick={() => setColor(k)} className={`px-3 py-1 rounded-full text-sm font-semibold border flex items-center gap-2 ${color === k ? 'bg-ink text-white border-ink' : 'bg-white text-gray-600 border-line'}`}>
                 <span className={`w-2.5 h-2.5 rounded-full ${dot}`} />{label}
               </button>
             ))}
