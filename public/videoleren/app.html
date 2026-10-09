@@ -354,6 +354,13 @@ input[type=range],input[type=checkbox],input[type=radio]{accent-color:var(--acce
   main{padding:0}
   .wrap{max-width:none;display:block}
   .paper{box-shadow:none;width:auto;padding:0;border-radius:0}
+  /* Altijd precies de paginabreedte, ook als de pagina in een ingebed venster staat (bijleer.school). */
+  html,body{width:auto!important;min-width:0!important;overflow:visible!important}
+  #view-paper,.paper-wrap{display:block!important;width:auto!important;max-width:none!important;margin:0!important;padding:0!important}
+  .paper{width:auto!important;max-width:100%!important;margin:0!important;overflow:visible}
+  .p-plan,.ptable{table-layout:fixed;max-width:100%}
+  .p-plan td,.p-plan th,.ptable td,.ptable th{overflow-wrap:anywhere}
+  .p-name,.p-video,.p-info,.frames{max-width:100%}
   .card,.panel{break-inside:avoid;border-color:#bbb;margin-bottom:12px}
   #view-practice .card{background:#fff;color:#111}
 }
@@ -900,7 +907,7 @@ const PAPER = {
     if (S.opt.frames === 'alinea' && paras.length) {
       const start = t => { const w = t.split(/\s+/); return esc(w.slice(0, 9).join(' ')) + (w.length > 9 ? '…' : ''); };
       return `<p>Teken bij elke alinea wat er gebeurt. Schrijf onder elk vak een kort zinnetje.</p>
-    <div class="frames" style="grid-template-columns:repeat(2,1fr)">${paras.map((x, i) => `<div style="break-inside:avoid"><div class="small" style="margin-bottom:3px"><b>Alinea ${i + 1}</b> · ${start(x.text)}</div>${frame(paras.length > 4 ? 52 : 66)}${lines(1, 's')}</div>`).join('')}</div>`;
+    <div class="frames" style="grid-template-columns:repeat(2,1fr)">${paras.map((x, i) => `<div style="break-inside:avoid"><div class="small" style="margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><b>Alinea ${i + 1}</b> · ${start(x.text)}</div>${frame(paras.length > 4 ? 52 : 66)}${lines(1, 's')}</div>`).join('')}</div>`;
     }
     const n = +S.opt.frames || 4; const cols = n === 1 ? 1 : 2;
     return `<p>Teken wat er in de tekst gebeurt. ${n > 1 ? 'Gebruik de vakken als een strip en schrijf onder elk vak een kort zinnetje.' : 'Maak een tekening of schema van de hele tekst.'}</p>
@@ -954,7 +961,7 @@ function renderPaper() {
     <div class="p-video">${qr ? `<div class="qr">${qr}</div>` : ''}<div><b>Bekijk de video</b>${qr ? ' (scan de QR-code)' : ''}<div class="url">${esc(S.url)}</div>${S.intro ? `<div style="margin-top:4px">${esc(S.intro)}</div>` : ''}</div></div>
     ${S.info && S.info.trim() && S.infoPaper !== false ? `<div class="p-info"><b>Info van je leerkracht</b>${infoHtml(S.info)}</div>` : ''}`;
   if (list.length) {
-    html += `<h2>Mijn planning</h2><table class="p-plan"><tr><th style="width:7mm"></th><th style="width:7mm"></th><th>Taak</th><th style="width:28mm">Inleveren</th><th style="width:20mm"></th></tr>
+    html += `<h2>Mijn planning</h2><table class="p-plan"><tr><th style="width:7mm"></th><th style="width:12mm"></th><th>Taak</th><th style="width:28mm">Inleveren</th><th style="width:20mm"></th></tr>
       ${list.map(w => `<tr><td>${bx}</td><td class="p-ic">${iconSvg(w.id, 15)}<b>${w.id}</b></td><td><b>${esc(w.t)}</b><br><span class="small">${esc(w.dFn ? w.dFn() : w.d)}</span></td><td class="small">${esc(w.proof)}</td><td class="small"><b>${S.sel[w.id] === 'req' ? 'Moet' : 'Mag'}</b></td></tr>`).join('')}</table>
       ${nK && minK ? `<p class="small">Kies minstens <b>${Math.min(minK, nK)}</b> van de ${nK} Mag-taken.</p>` : ''}`;
   }
