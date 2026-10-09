@@ -165,6 +165,8 @@ textarea{resize:vertical;min-height:70px;line-height:1.45}
 .pz-vz::before{content:"(";color:var(--pc);font-weight:700}
 .pz-vz::after{content:")";color:var(--pc);font-weight:700}
 .pz-bw{text-decoration:overline solid var(--pc) 2px}
+.linkbox{display:grid;gap:8px;padding:12px;border:1px dashed var(--accent);border-radius:12px;background:var(--accent-soft)}
+.pz-ww{text-decoration:underline dashed var(--pc) 2px;text-underline-offset:4px}
 .pz-telw{background:color-mix(in srgb,var(--pc) 28%,transparent);border-radius:3px}
 
 /* ---------- oefenen ---------- */
@@ -532,6 +534,7 @@ function downloadBlob(blob, name) {
 const WOORDSOORTEN = {
   zn:  {n:'zelfstandig naamwoord', mark:'omkader het woord', c:'#D63B30'},
   bn:  {n:'bijvoeglijk naamwoord', mark:'golflijn eronder', c:'#1E9A55'},
+  ww:  {n:'werkwoord', mark:'onderstreep met streepjes', c:'#7C2D12'},
   hww: {n:'hulpwerkwoord', mark:'onderstreep 1 keer', c:'#2F6FEB'},
   vd:  {n:'voltooid deelwoord', mark:'omcirkel het woord', c:'#8A3FD1'},
   pv:  {n:'persoonsvorm', mark:'onderstreep 2 keer', c:'#0E7C86'},
@@ -883,8 +886,8 @@ const PAPER = {
   B: () => `<p>Lees de tekst. Markeer moeilijke woorden in de tekst met deze kleuren:</p>
     <div class="legend"><span><i class="sw" style="background:#7FA9F5"></i><b>Blauw</b>: ik begrijp het woord niet</span><span><i class="sw" style="background:#7FD1A2"></i><b>Groen</b>: ik kan het niet goed lezen</span><span><i class="sw" style="background:#F09891"></i><b>Rood</b>: ik kan het niet juist spellen</span></div>
     <table class="ptable"><tr><th style="width:33%">Blauw</th><th style="width:33%">Groen</th><th>Rood</th></tr><tr><td>${lines(4, 's')}</td><td>${lines(4, 's')}</td><td>${lines(4, 's')}</td></tr></table>`,
-  C: () => `<ol><li>Open de video. Zet de snelheid op <b>0,75</b> en zet het <b>geluid uit</b>.</li><li>Oefen: lees de tekst voor terwijl de video speelt. Probeer gelijk te blijven met de beelden.</li><li>Start een schermopname <b>met microfoon</b>:<br><span class="small">Windows: Windows-toets + Alt + R (Xbox Game Bar) · Mac: Cmd + Shift + 5 · Chromebook: Shift + Ctrl + Vensters tonen</span></li><li>Spreek de hele video in. Lever de opname in.</li></ol>
-    <div class="pill-row small"><span>${bx} Video trager gezet</span><span>${bx} Geluid uit</span><span>${bx} Micro aan</span><span>${bx} Opname ingeleverd</span></div>`,
+  C: () => `<ol><li>Open de video. Zet de snelheid op <b>0,75</b> en zet het <b>geluid uit</b>.</li><li>Oefen: lees de tekst voor terwijl de video speelt. Probeer gelijk te blijven met de beelden.</li><li>Start een schermopname <b>met microfoon</b>:<br><span class="small">Windows: Windows-toets + Alt + R (Xbox Game Bar) · Mac: Cmd + Shift + 5 · Chromebook: Shift + Ctrl + Vensters tonen</span></li><li>Spreek de hele video in. Zet je opname op Teams of OneDrive, deel ze met je leerkracht en plak de link in de app.</li></ol>
+    <div class="pill-row small"><span>${bx} Video trager gezet</span><span>${bx} Geluid uit</span><span>${bx} Micro aan</span><span>${bx} Link geplakt</span></div>`,
   D: () => `<p>Neem je <b>blauwe woorden</b> en verklaar er <b>minstens ${+S.opt.minWoorden || 5}</b>. Zoek de betekenis, schrijf ze in je eigen woorden en maak een schets. Heb je minder blauwe woorden? Kies dan zelf moeilijke woorden uit de tekst. In de oefenapp kan je er ook een foto bij zetten.</p>
     <table class="ptable"><tr><th style="width:24%">Woord</th><th>Betekenis in mijn eigen woorden</th><th style="width:30%">Schets</th></tr>
     ${Array.from({length: Math.max(5, +S.opt.minWoorden || 5)}, () => `<tr><td style="height:24mm"></td><td>${lines(2, 's')}</td><td></td></tr>`).join('')}</table>`,
@@ -917,7 +920,7 @@ const PAPER = {
     <div class="pill-row"><span>${bx} Ik ben <b>akkoord</b></span><span>${bx} Ik ben <b>niet akkoord</b></span></div>
     ${[1, 2, 3].map(i => `<p class="small" style="margin:6px 0 0"><b>Argument ${i}</b> en wat de video daarover zegt:</p>${lines(2, 's')}`).join('')}
     <p class="small" style="margin:6px 0 0"><b>Wat zal de andere kant zeggen?</b></p>${lines(1, 's')}<p class="small" style="margin:6px 0 0"><b>Wat antwoord ik daarop?</b></p>${lines(1, 's')}`,
-  N: () => `<p>Maak je spiekkaart: teken in elk vak een belangrijk moment uit de video en schrijf er één kernwoord bij. Zet daarna de video zonder geluid op en vertel er zelf bij, als nieuwslezer. Gebruik <b>alleen</b> je kaart. Neem je scherm op met micro.</p>
+  N: () => `<p>Maak je spiekkaart: teken in elk vak een belangrijk moment uit de video en schrijf er één kernwoord bij. Zet daarna de video zonder geluid op en vertel er zelf bij, als nieuwslezer. Gebruik <b>alleen</b> je kaart. Neem je scherm op met micro, zet de opname op Teams of OneDrive en plak de link in de app.</p>
     <div class="frames" style="grid-template-columns:repeat(3,1fr)">${Array.from({length:6}, (_, i) => `<div>${frame(36, `<span class="small">${i + 1}</span>`)}<div class="small" style="margin-top:3px">Kernwoord: __________</div></div>`).join('')}</div>`
 };
 
@@ -1058,11 +1061,29 @@ function lcsPairs(a, b) {
   return {ai, bj};
 }
 
+/* Link naar een schermopname die de leerling zelf op Teams/OneDrive/Smartschool zette. */
+function linkField(o) {
+  const i = el('input', {type:'url', placeholder:'https://… (Teams, OneDrive, Smartschool…)', 'aria-label':'Link naar je opname'}); i.value = o.link || '';
+  const msg = el('span', {class:'meta', role:'status'});
+  const open = el('a', {class:'btn small', target:'_blank', rel:'noopener', href: o.link || '#', hidden: !o.link}, 'Link testen ↗');
+  const check = () => {
+    const v = i.value.trim(); let ok = false;
+    try { ok = /^https:\/\//i.test(v) && !!new URL(v); } catch {}
+    if (!v) { o.link = ''; open.hidden = true; msg.textContent = ''; }
+    else if (!ok) { msg.textContent = 'Dit is geen volledige link. Kopieer de deellink: die begint met https://'; return; }
+    else { o.link = v; open.href = v; open.hidden = false; msg.textContent = '✓ Link bewaard. Kijk na of je leerkracht de opname mag bekijken.'; }
+    saveProg();
+  };
+  i.addEventListener('input', debounce(check, 500));
+  if (o.link) msg.textContent = '✓ Link bewaard.';
+  return el('div', {class:'linkbox'}, el('label', {class:'f'}, 'Link naar je opname', i), el('div', {class:'tools'}, open, msg));
+}
+
 /* --- per werkvorm de oefening --- */
 const PRACTICE = {
   A(body, ctx) {
     const o = W('A');
-    body.append(el('ol', {class:'steps'}, el('li', {}, 'Lees de tekst eerst 2 keer zacht voor jezelf.'), el('li', {}, 'Klik op "Opname starten" en lees de tekst hardop voor.'), el('li', {}, 'Klik op "Stoppen". Luister naar jezelf. Tevreden? Download de MP3 en lever ze in.')));
+    body.append(el('ol', {class:'steps'}, el('li', {}, 'Lees de tekst eerst 2 keer zacht voor jezelf.'), el('li', {}, 'Klik op "Opname starten" en lees de tekst hardop voor.'), el('li', {}, 'Klik op "Stoppen". Luister naar jezelf. Tevreden? Download de MP3 en lever ze in.'), el('li', {}, 'Maakte je de opname al op een andere manier? Klik op "MP3-bestand uploaden".')));
     body.append(el('p', {class:'warnbox', style:'border-left-color:var(--accent)'}, el('b', {}, 'Tip: '), 'lees mee met de video. Zet de video in je koptelefoon, zodat je het geluid niet mee opneemt. Of laat de tekst eerst voorlezen met voorleessoftware ', el('button', {class:'btn small', style:'margin-left:4px', onclick: () => speak(plainText(ctx.blocks))}, 'Lees de tekst voor'), ' ', el('button', {class:'btn small', onclick: () => speechSynthesis?.cancel()}, 'Stop')));
     const status = el('span', {class:'meta', role:'status'});
     const out = el('div', {class:'tools'});
@@ -1093,7 +1114,7 @@ const PRACTICE = {
               const old = o.file; o.file = await uploadBlob(res.blob, 'A', 'audio');
               if (old) deleteFile(old);
               status.textContent = `Ingeleverd: ${name}`; toast('Je opname is ingeleverd.');
-            } catch { status.textContent = 'Inleveren lukte niet. Download je opname en probeer opnieuw.'; }
+            } catch (e) { status.textContent = uploadError(e) + ' Download je opname zodat je ze niet kwijt bent.'; }
           }
           saveProg();
         };
@@ -1101,7 +1122,29 @@ const PRACTICE = {
         timer = setInterval(() => { const s = Math.round((Date.now() - t0) / 1000); status.textContent = `● Opname loopt… ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }, 500);
       } catch { toast('Geen toegang tot de microfoon. Sta de microfoon toe in je browser.'); }
     };
-    body.append(el('div', {class:'tools'}, btn, status), out);
+    const pick = el('input', {type:'file', accept:'audio/mpeg,audio/mp3,.mp3,audio/mp4,.m4a,audio/wav,.wav', hidden:true});
+    const pickBtn = el('button', {class:'btn'}, 'MP3-bestand uploaden');
+    pickBtn.onclick = () => pick.click();
+    pick.onchange = async () => {
+      const f = pick.files[0]; pick.value = ''; if (!f) return;
+      const ext = (f.name.split('.').pop() || '').toLowerCase();
+      const type = {mp3: 'audio/mpeg', m4a: 'audio/mp4', wav: 'audio/wav'}[ext] || f.type;
+      if (!/^audio\//.test(type)) return toast('Kies een MP3-bestand.');
+      if (f.size > 15 * 1024 * 1024) return toast('Dit bestand is groter dan 15 MB. Kies een kortere opname.');
+      const blob = new Blob([f], {type});
+      out.innerHTML = ''; out.append(el('audio', {controls:true, src: URL.createObjectURL(blob)}));
+      o.recorded = true;
+      if (typeof HOST !== 'undefined' && HOST?.mode === 'student') {
+        status.textContent = 'Bezig met inleveren…';
+        try {
+          const old = o.file; o.file = await uploadBlob(blob, 'A', 'audio');
+          if (old) deleteFile(old);
+          status.textContent = `Ingeleverd: ${f.name}`; toast('Je MP3 is ingeleverd.');
+        } catch (e) { status.textContent = uploadError(e); }
+      } else status.textContent = `Gekozen: ${f.name}`;
+      saveProg();
+    };
+    body.append(el('div', {class:'tools'}, btn, pickBtn, pick, status), out);
     if (o.file && HOST?.mode === 'student') {
       const au = el('audio', {controls:true}); fileUrl(o.file).then(u => { if (u) au.src = u; });
       out.append(el('span', {class:'meta'}, 'Ingeleverde opname:'), au);
@@ -1132,7 +1175,7 @@ const PRACTICE = {
   },
   C(body, ctx) {
     const o = W('C'); o.check ||= {};
-    const steps = [['url', 'Open de video op SchoolTV'], ['speed', 'Zet de snelheid op 0,75 (tandwiel ⚙ in de video)'], ['mute', 'Zet het geluid van de video uit'], ['oefen', 'Oefen een keer met de meeleestekst hieronder'], ['rec', 'Start een schermopname met microfoon'], ['in', 'Spreek de hele video in en lever de opname in']];
+    const steps = [['url', 'Open de video op SchoolTV'], ['speed', 'Zet de snelheid op 0,75 (tandwiel ⚙ in de video)'], ['mute', 'Zet het geluid van de video uit'], ['oefen', 'Oefen een keer met de meeleestekst hieronder'], ['rec', 'Start een schermopname met microfoon'], ['in', 'Spreek de hele video in. Zet je opname op Teams of OneDrive en deel ze met je leerkracht'], ['link', 'Plak de link naar je opname hieronder']];
     const list = el('div', {class:'planner'});
     for (const [k, t] of steps) {
       const c = el('input', {type:'checkbox', checked: !!o.check[k]});
@@ -1146,6 +1189,7 @@ const PRACTICE = {
         el('li', {}, el('b', {}, 'Mac: '), 'druk Cmd + Shift + 5, kies "Opties" → microfoon, en klik op "Neem op".'),
         el('li', {}, el('b', {}, 'Chromebook: '), 'druk Shift + Ctrl + Vensters tonen, kies video en zet de microfoon aan.'),
         el('li', {}, el('b', {}, 'iPad: '), 'Bedieningspaneel → schermopname, houd lang ingedrukt om de microfoon aan te zetten.'))));
+    body.append(linkField(o));
     // meeleestekst
     const pr = el('div', {class:'prompter'}), inner = el('div', {class:'inner'}, plainText(ctx.blocks).split('\n\n').map(p => el('p', {style:'margin:0 0 1em'}, p)));
     pr.append(inner);
@@ -1370,10 +1414,10 @@ const PRACTICE = {
   },
   N(body) {
     const o = W('N');
-    body.append(el('ol', {class:'steps'}, el('li', {}, 'Teken in elk vak een belangrijk moment uit de video en schrijf er één kernwoord bij.'), el('li', {}, 'Zet de video zonder geluid op.'), el('li', {}, 'Vertel als nieuwslezer wat je ziet. Gebruik alleen je spiekkaart, niet de tekst.'), el('li', {}, 'Neem je scherm op met microfoon en lever de opname in.')));
+    body.append(el('ol', {class:'steps'}, el('li', {}, 'Teken in elk vak een belangrijk moment uit de video en schrijf er één kernwoord bij.'), el('li', {}, 'Zet de video zonder geluid op.'), el('li', {}, 'Vertel als nieuwslezer wat je ziet. Gebruik alleen je spiekkaart, niet de tekst.'), el('li', {}, 'Neem je scherm op met microfoon. Zet de opname op Teams of OneDrive en plak de link hieronder.')));
     const g = el('div', {class:'cells'});
     for (let i = 0; i < 6; i++) g.append(el('div', {class:'cell'}, el('b', {}, `Moment ${i + 1}`), drawPad(o, 'd' + i, 0.7), inp(o, 'k' + i, 'Kernwoord')));
-    body.append(g);
+    body.append(g, linkField(o));
   }
 };
 
@@ -1755,10 +1799,19 @@ async function uploadBlob(blob, werkvorm, kind) {
   const mime = (blob.type || '').split(';')[0] || 'application/octet-stream';
   const {data, error} = await HOST.supabase.functions.invoke('videoleren-files',
     {body: {action: 'upload', hash: HOST.hash, task_id: HOST.taskId, werkvorm, kind, mime, size: blob.size}});
-  if (error || !data?.token) throw error || new Error('upload');
+  if (error || !data?.token) throw new Error(await fnError(error) || 'upload');
   const up = await HOST.supabase.storage.from('videoleren-files').uploadToSignedUrl(data.path, data.token, blob, {contentType: mime});
   if (up.error) throw up.error;
+  // Pas na deze stap telt het bestand mee in de opslag van de school.
+  const c = await HOST.supabase.functions.invoke('videoleren-files', {body: {action: 'confirm', hash: HOST.hash, task_id: HOST.taskId, file_id: data.file_id}});
+  if (c.error) throw new Error(await fnError(c.error) || 'upload');
   return 'file:' + data.file_id;
+}
+async function fnError(err) { try { return (await err?.context?.json())?.error || ''; } catch { return ''; } }
+function uploadError(e) {
+  return {quota: 'De opslag van je school is vol. Vraag je leerkracht om hulp.',
+          too_large: 'Dit bestand is te groot (maximaal 15 MB).',
+          closed: 'Deze taak is afgesloten. Je kan niets meer inleveren.'}[e?.message] || 'Inleveren lukte niet. Probeer opnieuw.';
 }
 function deleteFile(ref) {
   if (!ref || !String(ref).startsWith('file:')) return;
@@ -1797,7 +1850,7 @@ async function syncStudent() {
   let failed = null;
   for (const [wv, data] of Object.entries(groups)) {
     const status = wv !== 'kijken' && P.done[wv] ? 'klaar' : 'bezig';
-    try { await uploadDataUrls(data, wv); } catch { failed = 'Een tekening of foto kon niet bewaard worden.'; continue; }
+    try { await uploadDataUrls(data, wv); } catch (e) { failed = e?.message === 'quota' || e?.message === 'too_large' ? uploadError(e) : 'Een tekening of foto kon niet bewaard worden.'; continue; }
     const body = JSON.stringify(data) + '|' + status;
     if (lastSent[wv] === body) continue;
     if (lastSent[wv] === undefined && status === 'bezig' && isBlank(data)) continue; // nog niets gedaan: geen rij aanmaken

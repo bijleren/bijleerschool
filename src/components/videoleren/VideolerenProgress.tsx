@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { ExternalLink } from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
@@ -13,6 +14,9 @@ const WV: Record<string, string> = {
 
 interface ProgressRow { student_id: string; werkvorm: string; status: 'bezig' | 'klaar'; data: Record<string, unknown>; transcript_version: number | null; updated_at: string }
 interface Student { id: string; first_name: string; last_name: string | null }
+interface FileRow { id: string; student_id: string; werkvorm: string; kind: 'audio' | 'image' | 'sketch'; storage_path: string; size_bytes: number | null; created_at: string }
+
+const fmtSize = (b: number | null) => b == null ? '' : b > 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} kB`;
 
 // Same word numbering as the app (public/videoleren/app.html: getBlocks + tokenize).
 const WORD_RE = /[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu;
@@ -41,7 +45,9 @@ export function VideolerenProgress({ task, onBack }: { task: VideoTask; onBack: 
   const [rows, setRows] = useState<ProgressRow[]>([]);
   const [words, setWords] = useState<string[]>([]);
   const [version, setVersion] = useState<number>(1);
-  const [tab, setTab] = useState<'overzicht' | 'woorden'>('overzicht');
+  const [tab, setTab] = useState<'overzicht' | 'ingeleverd' | 'woorden'>('overzicht');
+  const [files, setFiles] = useState<FileRow[]>([]);
+  const [urls, setUrls] = useState<Record<string, string>>({});
   const [color, setColor] = useState<'blue' | 'green' | 'red'>('blue');
   const [loading, setLoading] = useState(true);
   const letters = useMemo(() => task.videoleren_task_werkvormen.map(w => w.werkvorm).sort(), [task]);
@@ -54,11 +60,19 @@ export function VideolerenProgress({ task, onBack }: { task: VideoTask; onBack: 
         ? (await supabase.from('student_groups').select('student_id').in('group_id', groupIds).eq('is_active', true)).data || []
         : [];
       const ids = [...new Set([...directIds, ...members.map(m => m.student_id as string)])];
-      const [s, p, t] = await Promise.all([
+      const [s, p, t, f] = await Promise.all([
         ids.length ? supabase.from('students').select('id, first_name, last_name').in('id', ids).eq('is_active', true).order('first_name') : Promise.resolve({ data: [] }),
         supabase.from('videoleren_progress').select('student_id, werkvorm, status, data, transcript_version, updated_at').eq('task_id', task.id),
         supabase.from('videoleren_tasks').select('transcript_html, transcript_version').eq('id', task.id).single(),
+        supabase.from('videoleren_files').select('id, student_id, werkvorm, kind, storage_path, size_bytes, created_at').eq('task_id', task.id).not('size_bytes', 'is', null).order('created_at'),
       ]);
+      const fileRows = (f.data as FileRow[]) || [];
+      setFiles(fileRows);
+      // Teachers may read their school's files (storage policy), so signed links come straight from storage.
+      if (fileRows.length) {
+        const { data: signed } = await supabase.storage.from('videoleren-files').createSignedUrls(fileRows.map(x => x.storage_path), 3600);
+        setUrls(Object.fromEntries((signed || []).filter(x => x.signedUrl).map(x => [x.path as string, x.signedUrl])));
+      }
       setStudents((s.data as Student[]) || []);
       setRows((p.data as ProgressRow[]) || []);
       setWords(wordsOf(t.data?.transcript_html || ''));
@@ -103,9 +117,9 @@ export function VideolerenProgress({ task, onBack }: { task: VideoTask; onBack: 
           <p className="text-gray-500 text-sm">{students.length} leerlingen · deadline {task.deadline ? new Date(task.deadline).toLocaleString('nl-BE') : '—'} · {taskState(task)}</p>
         </div>
         <div className="inline-flex rounded-xl border border-line bg-white p-1">
-          {(['overzicht', 'woorden'] as const).map(t => (
+          {(['overzicht', 'ingeleverd', 'woorden'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${tab === t ? 'bg-brand text-white' : 'text-gray-600'}`}>
-              {t === 'overzicht' ? 'Overzicht' : 'Moeilijke woorden'}
+              {t === 'overzicht' ? 'Overzicht' : t === 'ingeleverd' ? 'Ingeleverd' : 'Moeilijke woorden'}
             </button>
           ))}
         </div>
@@ -148,6 +162,46 @@ export function VideolerenProgress({ task, onBack }: { task: VideoTask; onBack: 
               </tfoot>
             )}
           </table>
+        </div>
+      ) : tab === 'ingeleverd' ? (
+        <div className="space-y-3">
+          <p className="text-sm text-gray-500">Opnames, tekeningen en screenshots die leerlingen in de app maakten, en de links naar hun schermopnames (Voice-over en Nieuwslezer).</p>
+          {students.map(st => {
+            const mine = files.filter(x => x.student_id === st.id);
+            const links = rows.filter(r => r.student_id === st.id && (r.werkvorm === 'C' || r.werkvorm === 'N') && typeof r.data?.link === 'string' && r.data.link);
+            if (!mine.length && !links.length) return null;
+            return (
+              <div key={st.id} className="bg-white border border-line rounded-2xl p-4 shadow-sm space-y-3">
+                <h3 className="font-heading font-bold text-ink">{st.first_name} {st.last_name}</h3>
+                {links.map(r => (
+                  <a key={r.werkvorm} href={String(r.data.link)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-brand font-semibold break-all">
+                    <ExternalLink className="w-4 h-4 flex-shrink-0" />{WV[r.werkvorm]}: schermopname openen
+                  </a>
+                ))}
+                {mine.filter(x => x.kind === 'audio').map(x => (
+                  <div key={x.id} className="flex flex-wrap items-center gap-3">
+                    <span className="text-sm font-semibold w-36">{WV[x.werkvorm] || x.werkvorm}</span>
+                    {urls[x.storage_path] ? <audio controls src={urls[x.storage_path]} className="max-w-full" /> : <span className="text-sm text-gray-500">niet beschikbaar</span>}
+                    <span className="text-xs text-gray-500">{fmtSize(x.size_bytes)}</span>
+                  </div>
+                ))}
+                {mine.some(x => x.kind !== 'audio') && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {mine.filter(x => x.kind !== 'audio').map(x => (
+                      <a key={x.id} href={urls[x.storage_path]} target="_blank" rel="noopener noreferrer" className="block">
+                        {urls[x.storage_path] && <img src={urls[x.storage_path]} alt={`${WV[x.werkvorm] || x.werkvorm} van ${st.first_name}`} className="w-full aspect-video object-cover rounded-lg border border-line bg-white" />}
+                        <span className="text-xs text-gray-500">{WV[x.werkvorm] || x.werkvorm}</span>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {!files.length && !rows.some(r => (r.werkvorm === 'C' || r.werkvorm === 'N') && r.data?.link) && (
+            <p className="text-gray-500 py-6 text-center bg-white border border-line rounded-2xl">Nog niets ingeleverd.</p>
+          )}
+          {files.length > 0 && <p className="text-xs text-gray-500">Samen {fmtSize(files.reduce((n, x) => n + (x.size_bytes || 0), 0))} van de opslag van je school.</p>}
         </div>
       ) : (
         <div className="bg-white border border-line rounded-2xl p-4 shadow-sm space-y-3">

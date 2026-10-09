@@ -13,6 +13,7 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
   const [storageLimitGB, setStorageLimitGB] = useState<number>(5);
   const [isPremium, setIsPremium] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [videolerenMB, setVideolerenMB] = useState<number>(0);
 
   useEffect(() => {
     if (schoolId) {
@@ -46,6 +47,11 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
       setStorageUsedGB(parseFloat(usedGB.toFixed(2)));
       setStorageLimitGB(parseFloat(limitGB.toFixed(2)));
       setIsPremium(school.premium_school === 1);
+
+      // Share used by Videoleren (student recordings, drawings and screenshots).
+      const { data: parts } = await supabase.rpc('get_storage_breakdown', { p_school_id: schoolId });
+      const vl = (parts || []).find((x: { file_type: string }) => x.file_type === 'videoleren');
+      setVideolerenMB(vl ? Math.round(Number(vl.total_size_bytes) / (1024 * 1024) * 10) / 10 : 0);
     } catch (err) {
       console.error('Error loading storage data:', err);
       setError('Kon opslaggegevens niet laden');
@@ -139,6 +145,10 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
               <p className="text-lg font-semibold text-gray-900">{availableGB.toFixed(2)} GB</p>
             </div>
           </div>
+
+          {videolerenMB > 0 && (
+            <p className="text-sm text-gray-500">Waarvan Videoleren (opnames, tekeningen en screenshots van leerlingen): <b className="text-gray-700">{videolerenMB} MB</b></p>
+          )}
 
           {percentageUsed >= 90 && (
             <div className="flex items-start gap-3 p-4 bg-red-50 rounded-lg border border-red-200">

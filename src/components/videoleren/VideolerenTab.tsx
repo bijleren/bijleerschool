@@ -101,9 +101,11 @@ export function VideolerenTab({ focusSchool }: VideolerenTabProps) {
     load();
   };
 
+  // Through the edge function, so the students' files are removed and stop counting toward the school's storage.
   const removeTask = async (id: string) => {
-    await supabase.from('videoleren_tasks').delete().eq('id', id);
+    const { error: err } = await supabase.functions.invoke('videoleren-files', { body: { action: 'delete_task', task_id: id } });
     setConfirmDelete(null);
+    if (err) setError('De taak kon niet verwijderd worden. Probeer opnieuw.');
     load();
   };
 
