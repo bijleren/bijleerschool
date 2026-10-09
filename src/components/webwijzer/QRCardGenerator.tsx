@@ -6,6 +6,7 @@ import { Card } from '../ui/Card';
 import { X, Download, Loader } from 'lucide-react';
 import QRCode from 'qrcode';
 import { jsPDF } from 'jspdf';
+import { formatStudentClasses, type StudentGroupLink } from '../../lib/studentClasses';
 
 interface Student {
   id: string;
@@ -19,12 +20,7 @@ interface Student {
   symbol_url: string | null;
   student_display_number: number | null;
   access_hash: string | null;
-  student_groups?: {
-    group_id: string;
-    groups: {
-      name: string;
-    };
-  }[];
+  student_groups?: (StudentGroupLink & { group_id: string })[];
 }
 
 interface Group {
@@ -82,7 +78,8 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
             access_hash,
             student_groups(
               group_id,
-              groups(name)
+              is_active,
+              groups(name, is_active)
             )
           `)
           .eq('school_id', focusSchool.id)
@@ -127,12 +124,12 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
   };
 
   const filteredStudents = students.filter(s => {
-    const matchesSearch = `${s.first_name} ${s.last_name} ${s.student_number || ''}`
+    const matchesSearch = `${s.first_name} ${s.last_name} ${s.student_number || ''} ${formatStudentClasses(s)}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
 
     const matchesGroup = selectedGroupId === 'all' ||
-      (s.student_groups && s.student_groups.some(sg => sg.group_id === selectedGroupId));
+      (s.student_groups && s.student_groups.some(sg => sg.group_id === selectedGroupId && sg.is_active !== false));
 
     return matchesSearch && matchesGroup;
   });
@@ -588,8 +585,8 @@ export function QRCardGenerator({ onClose, focusSchool }: QRCardGeneratorProps) 
                       {student.first_name} {student.last_name}
                     </p>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      {student.student_groups && student.student_groups.length > 0 ? (
-                        <span>{student.student_groups.map(sg => sg.groups.name).join(', ')}</span>
+                      {formatStudentClasses(student) ? (
+                        <span>{formatStudentClasses(student)}</span>
                       ) : (
                         <span className="text-gray-400">Geen klas</span>
                       )}

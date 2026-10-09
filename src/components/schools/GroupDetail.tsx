@@ -7,6 +7,7 @@ import { Card } from '../ui/Card';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { GroupStudentImport } from './GroupStudentImport';
 import { ArrowLeft, CreditCard as Edit, Save, X, Plus, Users, GraduationCap, UserPlus, Trash2, Search, Heart, Star, AlertTriangle, Calendar, Clock, Upload, Palette } from 'lucide-react';
+import { formatStudentClasses, getStudentClassNames, studentClassesLabel, type StudentGroupLink } from '../../lib/studentClasses';
 
 interface Group {
   id: string;
@@ -39,6 +40,7 @@ interface Student {
   student_number: string | null;
   grade_level: string | null;
   color: string | null;
+  student_groups?: StudentGroupLink[] | null;
 }
 
 interface Teammember {
@@ -317,7 +319,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
         .from('student_groups')
         .select(`
           *,
-          students (*)
+          students (*, student_groups(is_active, groups(name, is_active)))
         `)
         .eq('group_id', group.id)
         .eq('is_active', true);
@@ -349,7 +351,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
       // Fetch all students in the school
       const { data: studentData, error: studentError } = await supabase
         .from('students')
-        .select('*')
+        .select('*, student_groups(is_active, groups(name, is_active))')
         .eq('school_id', schoolId)
         .eq('is_active', true);
 
@@ -750,7 +752,7 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
     .filter(student => !groupStudents.some(gs => gs.students.id === student.id))
     .filter(student => 
       studentSearch === '' || 
-      `${student.first_name} ${student.last_name}`.toLowerCase().includes(studentSearch.toLowerCase())
+      `${student.first_name} ${student.last_name} ${formatStudentClasses(student)}`.toLowerCase().includes(studentSearch.toLowerCase())
     );
 
   const filteredAvailableTeammembers = availableTeammembers
@@ -1035,6 +1037,9 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
                     {student.student_number && (
                       <span className="text-sm text-gray-500 ml-2">#{student.student_number}</span>
                     )}
+                    {studentClassesLabel(student) && (
+                      <span className="text-sm text-gray-500 ml-2">{studentClassesLabel(student)}</span>
+                    )}
                   </div>
                   <Button size="sm" onClick={() => addStudentToGroup(student.id)}>
                     Toevoegen
@@ -1064,6 +1069,12 @@ export function GroupDetail({ group, schoolId, onBack, onGroupUpdated }: GroupDe
                   {studentGroup.students.student_number && (
                     <span className="text-sm text-gray-500 ml-2">#{studentGroup.students.student_number}</span>
                   )}
+                  {(() => {
+                    const otherClasses = getStudentClassNames(studentGroup.students).filter(name => name !== group.name);
+                    return otherClasses.length > 0 && (
+                      <span className="text-sm text-gray-500 ml-2">Ook in: {otherClasses.join(', ')}</span>
+                    );
+                  })()}
                 </div>
                 <div className="flex items-center gap-2">
                   {hasBehaviorItems && studentIncidentCounts[studentGroup.students.id] > 0 && (

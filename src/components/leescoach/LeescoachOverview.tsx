@@ -17,6 +17,7 @@ import {
   Download
 } from 'lucide-react';
 import { SessionDetailsModal } from './SessionDetailsModal';
+import { formatStudentClasses, type StudentGroupLink } from '../../lib/studentClasses';
 
 interface Session {
   id: string;
@@ -57,6 +58,7 @@ interface StudentWithLastSession {
   last_name: string;
   profile_picture_url: string | null;
   grade_level: string | null;
+  student_groups?: StudentGroupLink[] | null;
   last_session_date: string | null;
   next_session_date: string | null;
 }
@@ -143,7 +145,7 @@ export function LeescoachOverview({
   const loadStudentsWithSessions = async () => {
     const { data: students, error } = await supabase
       .from('students')
-      .select('id, first_name, last_name, profile_picture_url, grade_level')
+      .select('id, first_name, last_name, profile_picture_url, grade_level, student_groups(is_active, groups(name, is_active))')
       .eq('school_id', schoolId)
       .eq('is_active', true)
       .order('last_name');
@@ -456,6 +458,10 @@ export function LeescoachOverview({
                     <h3 className="font-semibold text-lg mb-1">
                       {student.first_name} {student.last_name}
                     </h3>
+
+                    {formatStudentClasses(student) && (
+                      <p className="text-sm text-gray-600 mb-3">{formatStudentClasses(student)}</p>
+                    )}
 
                     {student.last_session_date ? (
                       <div className="text-sm">

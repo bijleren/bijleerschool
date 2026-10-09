@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Html5Qrcode } from 'html5-qrcode';
 import { X, Search, ScanLine, UserPlus, Loader } from 'lucide-react';
+import { formatStudentClasses, type StudentGroupLink } from '../../lib/studentClasses';
 
 interface Student {
   id: string;
@@ -15,6 +16,7 @@ interface Student {
   profile_picture_url: string | null;
   color: string | null;
   access_hash: string | null;
+  student_groups?: StudentGroupLink[] | null;
 }
 
 interface ActivityOption {
@@ -65,7 +67,7 @@ export function StudentSelector({
 
       const { data, error } = await supabase
         .from('students')
-        .select('id, first_name, last_name, student_number, grade_level, profile_picture_url, color, access_hash')
+        .select('id, first_name, last_name, student_number, grade_level, profile_picture_url, color, access_hash, student_groups(is_active, groups(name, is_active))')
         .eq('school_id', boardData.school_id)
         .eq('is_active', true)
         .order('first_name');
@@ -140,7 +142,7 @@ export function StudentSelector({
   };
 
   const filteredStudents = students.filter(s =>
-    `${s.first_name} ${s.last_name} ${s.student_number || ''}`
+    `${s.first_name} ${s.last_name} ${s.student_number || ''} ${formatStudentClasses(s)}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
@@ -234,6 +236,7 @@ export function StudentSelector({
                           {student.first_name} {student.last_name}
                         </p>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
+                          {formatStudentClasses(student) && <span>{formatStudentClasses(student)}</span>}
                           {student.student_number && (
                             <span className="text-gray-400">#{student.student_number}</span>
                           )}
