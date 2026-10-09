@@ -1,0 +1,1846 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Videoleren</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+<style>
+/* Layout: werkbalk bovenaan met drie tabbladen (Maken · Werkblad · Oefenen); het werkblad zelf is altijd wit A4-papier. */
+:root{
+  --bg:#EEF2F1; --panel:#FFFFFF; --ink:#16252A; --muted:#5A6A6F; --line:#D3DCDA;
+  --accent:#2448C0; --accent-soft:#E3E9FB; --accent-ink:#FFFFFF;
+  --fluo:#FFE45C; --ok:#1E8A4C; --warn:#B4541A;
+  --mk-blue:#2F6FEB; --mk-green:#1E9A55; --mk-red:#D63B30;
+  --mk-blue-bg:rgba(47,111,235,.22); --mk-green-bg:rgba(30,154,85,.22); --mk-red-bg:rgba(214,59,48,.22);
+  --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", Verdana, sans-serif;
+  /* papier blijft altijd licht */
+  --paper:#FFFFFF; --paper-ink:#111; --paper-line:#9AA5A8; --paper-soft:#F2F4F4;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#10181B; --panel:#18232A; --ink:#E4ECEA; --muted:#93A4A8; --line:#2B3A40;
+  --accent:#8AA4FF; --accent-soft:#22305A; --accent-ink:#0D1530;
+  --fluo:#8C7A12; --ok:#4CC27F; --warn:#F09A5E; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#10181B; --panel:#18232A; --ink:#E4ECEA; --muted:#93A4A8; --line:#2B3A40;
+  --accent:#8AA4FF; --accent-soft:#22305A; --accent-ink:#0D1530;
+  --fluo:#8C7A12; --ok:#4CC27F; --warn:#F09A5E; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.15;margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+
+/* ---------- werkbalk ---------- */
+.bar{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);
+  padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:1.15rem;letter-spacing:-.01em}
+.brand .logo{width:30px;height:30px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink)}
+.tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:12px}
+.tab{border:0;background:transparent;padding:7px 14px;border-radius:9px;cursor:pointer;font-weight:700;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tab .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--line);font-size:.75rem;margin-right:6px;color:var(--ink)}
+.tab[aria-selected="true"] .n{background:var(--accent);color:var(--accent-ink)}
+.bar .actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px}
+
+.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink);line-height:1.2}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.small{padding:5px 10px;font-size:.88rem;border-radius:8px}
+.btn.on{background:var(--accent-soft);border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.rec{background:var(--mk-red);border-color:var(--mk-red);color:#fff}
+
+main{padding-block:24px 80px;padding-inline:16px}
+.wrap{max-width:1080px;margin:0 auto;display:grid;gap:20px}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}
+.panel > h2{font-size:1.3rem;display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.step{font-family:var(--f-body);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.hint{color:var(--muted);font-size:.92rem;margin:4px 0 14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+label.f{display:grid;gap:4px;font-weight:700;font-size:.92rem}
+label.f span.sub{font-weight:400;color:var(--muted)}
+input[type=text],input[type=url],input[type=number],select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--bg)}
+textarea{resize:vertical;min-height:70px;line-height:1.45}
+.banner{background:var(--accent-soft);border-radius:12px;padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;font-size:.95rem}
+
+/* editor */
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;align-items:center}
+.toolbar .sep{width:1px;height:24px;background:var(--line);margin:0 4px}
+.editor{min-height:260px;max-height:560px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:16px 20px;background:var(--bg);line-height:1.6}
+.editor:focus{outline:2px solid var(--accent)}
+.editor:empty::before{content:attr(data-ph);color:var(--muted)}
+.editor h2,.editor h3{margin:.6em 0 .3em}
+.editor p{margin:0 0 .7em}
+.layout-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;align-items:end}
+.layout-row label.f{min-width:150px}
+.check{display:flex;gap:8px;align-items:center;font-weight:400;cursor:pointer}
+.meta{color:var(--muted);font-size:.88rem;margin-top:8px}
+
+/* werkvormen keuze */
+.wv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.wv{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:6px;background:var(--panel);min-width:0}
+.wv.sel{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.wv-top{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.wv-top input{margin-top:4px;width:18px;height:18px;accent-color:var(--accent)}
+.letter{flex:none;width:28px;height:28px;border-radius:8px;background:var(--bg);display:grid;place-items:center;font-family:var(--f-display);font-weight:800}
+.wv.sel .letter{background:var(--accent);color:var(--accent-ink)}
+.wv-t{font-weight:700;line-height:1.25}
+.wv-d{color:var(--muted);font-size:.88rem;line-height:1.35}
+.chip{display:inline-block;font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--bg);border:1px solid var(--line);white-space:nowrap}
+.wv-opts{display:grid;gap:8px;padding-top:6px;border-top:1px dashed var(--line);font-size:.9rem}
+.pos-pick{display:flex;flex-wrap:wrap;gap:6px}
+.pos-pick label{display:flex;gap:5px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:3px 8px;cursor:pointer;font-size:.85rem}
+
+/* ---------- papier ---------- */
+.paper-wrap{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;gap:16px}
+.paper-tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:100%;text-align:center}
+.paper{width:min(210mm,100%);min-width:0;overflow-wrap:anywhere;background:var(--paper);color:var(--paper-ink);padding:14mm 15mm;box-shadow:0 2px 14px rgba(0,0,0,.14);border-radius:4px;
+  font-family:var(--pf,"Andika"),"Atkinson Hyperlegible",Verdana,sans-serif;font-size:11.5pt;line-height:1.45;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-scheme:light}
+.paper h1{font-family:var(--pf,"Andika"),sans-serif;font-size:21pt;font-weight:700;margin:6px 0 10px}
+.paper h2{font-family:var(--pf,"Andika"),sans-serif;font-size:13.5pt;font-weight:700;margin:0 0 6px}
+.p-name{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:14px;font-size:10.5pt;border-bottom:2px solid var(--paper-ink);padding-bottom:6px;align-items:end}
+.p-name > div:not(.p-dig){border-bottom:1px solid var(--paper-line);padding-bottom:2px}
+.p-dig{display:grid;justify-items:center;gap:1px;font-size:8.5pt;line-height:1.1}
+.p-dig .qr{width:19mm;height:19mm}.p-dig .qr svg{width:100%;height:100%;display:block}
+.p-video{display:flex;gap:14px;align-items:center;border:1.5px solid var(--paper-ink);border-radius:10px;padding:10px 12px;margin-bottom:14px}
+.p-video .qr{flex:none;width:86px;height:86px}
+.p-video .qr svg{width:100%;height:100%;display:block}
+.p-video .url{font-size:9pt;word-break:break-all;color:#333}
+.p-video > div:nth-child(2){flex:1;min-width:0}
+.p-inlever{display:flex;gap:8px;align-items:center;border-left:1.5px dashed var(--paper-ink);padding-left:12px;font-size:9.5pt;line-height:1.3;max-width:52mm}
+.p-inlever .qr{width:70px;height:70px;flex:none}
+.p-inlever .demo{font-size:7.5pt;border:1px solid var(--paper-ink);border-radius:99px;padding:0 5px}
+.inlever-box{display:flex;gap:16px;align-items:flex-start;margin-top:16px;padding:14px;border:1px dashed var(--line);border-radius:12px;flex-wrap:wrap}
+.inlever-qr{width:110px;height:110px;flex:none;background:#fff;padding:6px;border-radius:8px}
+.inlever-qr svg{width:100%;height:100%;display:block}
+.p-plan{width:100%;border-collapse:collapse;font-size:10pt;margin-bottom:6px}
+.p-plan th,.p-plan td{border:1px solid var(--paper-line);padding:4px 6px;text-align:left;vertical-align:top}
+.p-plan th{background:var(--paper-soft);font-size:9pt}
+.box{display:inline-block;width:13px;height:13px;border:1.5px solid var(--paper-ink);border-radius:2px;vertical-align:-2px}
+.p-sec{border-top:2px solid var(--paper-ink);padding-top:8px;margin-top:16px;break-inside:avoid}
+.p-sec .head{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.p-sec .head .lt{width:24px;height:24px;border-radius:6px;background:var(--paper-ink);color:#fff;display:grid;place-items:center;font-weight:700;font-size:11pt}
+.p-sec .head h2{margin:0;flex:1}
+.p-sec .proof{font-size:8.5pt;border:1px solid var(--paper-ink);border-radius:99px;padding:1px 8px}
+.p-sec .req{font-size:8.5pt;font-weight:700}
+.p-sec ol,.p-sec ul{margin:4px 0 6px;padding-left:20px}
+.p-text{counter-reset:al}
+.p-text.newpage{break-after:page}
+.p-text .tx{font-size:var(--tsize,13pt);line-height:var(--tlh,1.9)}
+.p-text .tx.marg{padding-right:38mm;position:relative;background:linear-gradient(to left,transparent 34mm,var(--paper-line) 34mm,var(--paper-line) calc(34mm + 1px),transparent calc(34mm + 1px))}
+.p-text .tx p,.p-text .tx li{margin:0 0 .55em;position:relative}
+.p-text .tx.num p::before,.p-text .tx.num li::before{counter-increment:al;content:counter(al);position:absolute;left:-9mm;top:.15em;font-size:8pt;font-weight:700;width:6mm;height:6mm;border:1px solid var(--paper-ink);border-radius:50%;display:grid;place-items:center;line-height:1}
+.p-text .tx.num{padding-left:9mm}
+.p-text .tx h2,.p-text .tx h3{font-size:1.1em;margin:.4em 0 .3em}
+.p-text .tx ul,.p-text .tx ol{margin:0 0 .55em;padding-left:1.2em}
+.ln{border-bottom:1px solid var(--paper-line);height:9mm}
+.ln.s{height:7.5mm}
+.frame{border:1.5px solid var(--paper-ink);border-radius:8px}
+.frames{display:grid;gap:8px}
+.ptable{width:100%;border-collapse:collapse;font-size:10pt}
+.ptable th,.ptable td{border:1px solid var(--paper-line);padding:4px 6px;text-align:left;vertical-align:top}
+.ptable th{background:var(--paper-soft)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:10pt;margin:4px 0}
+.sw{display:inline-block;width:22px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+.small{font-size:9.5pt}
+.pill-row{display:flex;gap:18px;flex-wrap:wrap;margin:4px 0}
+.stelling{border:2px solid var(--paper-ink);border-radius:10px;padding:8px 12px;font-weight:700;font-size:12.5pt;margin:6px 0}
+
+/* woordsoort-markering: zelfde stijl op papier en scherm */
+.pz-zn{outline:2px solid var(--pc);outline-offset:1px;border-radius:2px}
+.pz-lw{text-decoration:underline dotted var(--pc) 2.5px;text-underline-offset:4px}
+.pz-bn{text-decoration:underline wavy var(--pc) 1.5px;text-underline-offset:4px}
+.pz-pv{text-decoration:underline double var(--pc) 2px;text-underline-offset:3px}
+.pz-hww{text-decoration:underline solid var(--pc) 2px;text-underline-offset:3px}
+.pz-vd{border:2px solid var(--pc);border-radius:999px;padding:0 3px}
+.pz-vnw{box-shadow:inset 0 -.55em 0 color-mix(in srgb,var(--pc) 30%,transparent)}
+.pz-vz{position:relative}
+.pz-vz::before{content:"(";color:var(--pc);font-weight:700}
+.pz-vz::after{content:")";color:var(--pc);font-weight:700}
+.pz-bw{text-decoration:overline solid var(--pc) 2px}
+.pz-telw{background:color-mix(in srgb,var(--pc) 28%,transparent);border-radius:3px}
+
+/* ---------- oefenen ---------- */
+.stu-head{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start}
+.stu-head h1{font-size:clamp(1.5rem,3.2vw,2.2rem)}
+.progress{height:10px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.progress i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+.planner{display:grid;gap:6px;margin-top:10px}
+.planner label{display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.planner label input{width:18px;height:18px;accent-color:var(--ok)}
+.planner label.done{background:color-mix(in srgb,var(--ok) 10%,transparent);border-color:var(--ok)}
+.planner .grow{flex:1;min-width:0}
+.planner a{font-size:.85rem}
+.readtext{font-size:var(--rs,1.2rem);line-height:1.9;max-width:68ch}
+.readtext h3{font-size:1.15em;margin:.5em 0 .2em}
+.readtext p{margin:0 0 .8em;position:relative;padding-left:2.2em}
+.readtext p::before{content:attr(data-n);position:absolute;left:0;top:.35em;width:1.5em;height:1.5em;border-radius:50%;border:1px solid var(--line);font-size:.65em;display:grid;place-items:center;color:var(--muted);font-weight:700}
+.readtext .w{border-radius:4px;padding:0 1px;transition:background .15s}
+.readtext.click .w{cursor:pointer}
+.readtext.click .w:hover{background:var(--accent-soft)}
+.mk-blue{background:var(--mk-blue-bg);box-shadow:inset 0 -2px 0 var(--mk-blue)}
+.mk-green{background:var(--mk-green-bg);box-shadow:inset 0 -2px 0 var(--mk-green)}
+.mk-red{background:var(--mk-red-bg);box-shadow:inset 0 -2px 0 var(--mk-red)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:grid;gap:12px;min-width:0;scroll-margin-top:80px}
+.card-h{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.card-h h2{font-size:1.25rem;flex:1;min-width:0}
+.card-h .letter{width:34px;height:34px;background:var(--accent);color:var(--accent-ink);font-size:1.05rem}
+.card.done{border-color:var(--ok)}
+.done-toggle{display:flex;gap:6px;align-items:center;font-weight:700;font-size:.9rem;cursor:pointer;border:1px solid var(--line);padding:5px 10px;border-radius:99px}
+.done-toggle input{accent-color:var(--ok)}
+.steps{margin:0;padding-left:1.3em;display:grid;gap:4px}
+.tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tool-dot{width:14px;height:14px;border-radius:50%;display:inline-block}
+.cols3{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.wlist{border:1px solid var(--line);border-radius:10px;padding:10px;min-height:60px;min-width:0}
+.wlist h4{margin:0 0 6px;font-size:.9rem}
+.wlist .ws{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:.88rem;padding:1px 8px;border-radius:99px;background:var(--bg);border:1px solid var(--line)}
+.pad{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;min-width:0}
+.pad canvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}
+.pad .tools{padding:6px 8px;background:var(--bg);border-top:1px solid var(--line)}
+.pad .tools .c{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+.pad .tools .c.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--panel) inset}
+.slot{border:2px dashed var(--line);border-radius:12px;min-height:150px;display:grid;place-items:center;text-align:center;padding:10px;color:var(--muted);font-size:.9rem;position:relative;cursor:pointer;background:var(--bg)}
+.slot:focus{border-color:var(--accent)}
+.slot img{max-width:100%;max-height:320px;border-radius:8px;display:block}
+.slot .x{position:absolute;top:6px;right:6px}
+.defcard{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;border:1px solid var(--line);border-radius:12px;padding:12px}
+.defcard .word{font-family:var(--f-display);font-weight:800;font-size:1.3rem;grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.defcard .full{grid-column:1/-1}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.shot{display:grid;gap:8px;min-width:0}
+.prompter{height:280px;overflow:hidden;border-radius:12px;background:#0E1417;color:#F2F5F4;padding:20px 24px;font-size:1.6rem;line-height:1.7;position:relative}
+.prompter .inner{will-change:transform}
+.prompter::after{content:"";position:absolute;left:0;right:0;top:46%;height:2.2em;border-block:1px solid rgba(255,228,92,.6);pointer-events:none}
+.sentence{font-size:1.5rem;line-height:1.6;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.sentence .hit{color:var(--ok);font-weight:700}
+.sentence .miss{color:var(--mk-red);text-decoration:underline wavy}
+.heard{color:var(--muted);font-style:italic;min-height:1.5em}
+.big-clock{font-family:var(--f-display);font-size:3rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+table.t{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}
+table.t input{padding:4px 6px;width:5em}
+.chart{width:100%;max-width:520px;height:auto}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:700;z-index:50;max-width:calc(100% - 32px)}
+.wwq{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:10px;align-items:start}
+.wwq b{font-family:var(--f-display);font-size:1.2rem;padding-top:6px}
+.wwq .cnt{padding-top:8px;color:var(--muted);font-size:.85rem;white-space:nowrap}
+.cells{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.cell{display:grid;gap:6px;min-width:0}
+.diffview{line-height:1.8;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.diffview ins{background:var(--mk-green-bg);text-decoration:none;border-radius:3px}
+.radio-row{display:flex;flex-wrap:wrap;gap:10px}
+.radio-row label{border:1px solid var(--line);padding:6px 12px;border-radius:10px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.warnbox{border-left:4px solid var(--warn);padding:8px 12px;background:var(--bg);border-radius:0 10px 10px 0;font-size:.92rem}
+
+/* ---------- iconen per werkvorm ---------- */
+.wvb{position:relative;flex:none;width:30px;height:30px;border-radius:9px;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;color:var(--ink)}
+.wvb i{position:absolute;right:-5px;bottom:-5px;min-width:16px;height:16px;padding:0 3px;border-radius:5px;background:var(--ink);color:var(--panel);font:800 .66rem/16px var(--f-display);font-style:normal;text-align:center}
+.wv.sel .wvb,.card-h .wvb,.planner .wvb{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.card-h .wvb{width:38px;height:38px}
+.card-h .wvb svg{width:21px;height:21px}
+.planner label.done .wvb{background:var(--ok);border-color:var(--ok)}
+.p-sec .head .lt{width:auto;padding:0 6px;gap:3px;display:inline-flex;align-items:center}
+.p-sec .head .lt i{font-style:normal}
+.p-ic{white-space:nowrap}.p-ic svg{vertical-align:-3px;margin-right:3px}
+/* ---------- info van de leerkracht ---------- */
+.infobox{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;background:var(--accent-soft);padding:10px 14px;display:grid;gap:4px;min-width:0}
+.info-h{font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.info-b p{margin:0 0 4px}.info-b ul{margin:0 0 4px;padding-left:1.2em}.info-b a{overflow-wrap:anywhere}
+.p-info{border:1.5px dashed var(--paper-ink);border-radius:10px;padding:8px 12px;margin:-4px 0 14px;font-size:10.5pt}
+.p-info p{margin:2px 0}.p-info ul{margin:2px 0;padding-left:18px}.p-info a{color:var(--paper-ink)}
+/* ---------- kijken ---------- */
+.watch-head{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.watch-head h1{font-size:clamp(1.3rem,2.6vw,1.8rem);flex:1;min-width:200px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:transparent;padding:6px 12px;cursor:pointer;font-weight:700;font-size:.88rem;color:var(--muted)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--ink)}
+.watch{display:grid;gap:6px;align-items:stretch}
+.watch .w-ctl{margin-top:4px}
+.watch.below #vidbox{width:100%;margin-inline:auto;max-width:100%}.watch.below .vid-handle{order:1;border:1px solid var(--line);border-radius:8px}.watch.below .tp{order:2}.watch.below .tp-ctl{order:3}.watch.below .cap-ctl{order:4}
+.watch.side{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}
+.watch.side .tp{contain:size}
+.watch.side.left{grid-template-columns:minmax(0,1fr) minmax(0,1.55fr)}
+.watch.side.left .tp{order:1}.watch.side.left #vidbox,.watch.side.left .novid{order:2}.watch.side.left .tp-ctl{order:3}.watch.side.left .cap-ctl{order:4}
+.watch.below .tp{height:min(44vh,420px)}
+.vidcol{display:grid;gap:10px;align-content:start;min-width:0}
+.vidbox{position:relative;aspect-ratio:16/9;max-width:100%;background:#000;border-radius:12px;overflow:hidden}
+.vidbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vidbox.flash::after{content:"";position:absolute;inset:0;background:#fff;animation:flash .35s ease-out forwards;pointer-events:none}
+@keyframes flash{from{opacity:.85}to{opacity:0}}
+.novid{aspect-ratio:16/9;max-width:100%;border:2px dashed var(--line);border-radius:12px;display:grid;place-items:center;text-align:center;padding:20px;color:var(--muted);gap:8px}
+.tp{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden;min-width:0}
+.tp-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;align-content:start}
+.cap-ctl{display:grid;gap:8px;align-content:start;min-width:0}
+.shot-btn{position:absolute;top:12px;right:62px;z-index:2;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:0;border-radius:99px;background:rgba(10,16,20,.72);color:#fff;font-weight:700;font-size:.88rem;cursor:pointer;backdrop-filter:blur(4px)}
+.shot-btn:hover{background:rgba(10,16,20,.9)}
+.tp-bar input[type=range]{width:90px}
+.tp-wrap{position:relative;flex:1;min-height:0;display:flex}
+.tp-scroll{flex:1;overflow-y:auto;padding:16px 18px;scroll-behavior:auto;overscroll-behavior:contain}
+.tp-scroll .readtext{max-width:none;padding-bottom:30%}
+.tp-handle{flex:none;height:14px;cursor:ns-resize;touch-action:none;background:var(--bg);border-top:1px solid var(--line);display:grid;place-items:center}
+.tp-handle::before{content:"";width:44px;height:4px;border-radius:99px;background:var(--muted);opacity:.55}
+.tp-handle:hover::before,.tp-handle:focus-visible::before{opacity:1;background:var(--accent)}
+.capbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.shotlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.shotlist figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);display:grid;min-width:0}
+.shotlist img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#000}
+.shotlist figcaption{display:flex;flex-wrap:wrap;gap:4px;padding:6px}
+@media (max-width:820px){ .watch.side,.watch.side.left{grid-template-columns:1fr} .watch.side.left #vidbox,.watch.side.left .novid{order:0} .watch.side .tp{contain:none} .watch.side .tp{height:min(50vh,420px)} .watch.side .tp-ctl{order:3} .watch.side .cap-ctl{order:4} }
+
+@media (max-width:640px){
+  .stu-head{grid-template-columns:1fr}
+  .defcard{grid-template-columns:1fr}
+  .wwq{grid-template-columns:1fr}
+  .p-name{grid-template-columns:1fr 1fr}
+  .paper{padding:16px}
+  .p-text .tx.marg{padding-right:0;background:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+@media print{
+  @page{size:A4;margin:12mm 12mm 16mm}
+  .paper p,.paper li{orphans:3;widows:3}
+  .paper tr,.paper .ln,.paper .frame{break-inside:avoid}
+  .p-sec .head,.paper h2{break-after:avoid}
+  .p-plan{break-inside:auto}
+  body{background:#fff}
+  .bar,.no-print,.paper-tools,.toast{display:none!important}
+  main{padding:0}
+  .wrap{max-width:none;display:block}
+  .paper{box-shadow:none;width:auto;padding:0;border-radius:0}
+  .card,.panel{break-inside:avoid;border-color:#bbb;margin-bottom:12px}
+  #view-practice .card{background:#fff;color:#111}
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand"><span class="logo" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M10 9l4 2-4 2z" fill="currentColor"/><path d="M8 21h8"/></svg>
+  </span>Videoleren</div>
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-view="build" id="tab-build"><span class="n">1</span>Maken</button>
+    <button class="tab" role="tab" data-view="paper" id="tab-paper"><span class="n">2</span>Werkblad</button>
+    <button class="tab" role="tab" data-view="watch" id="tab-watch"><span class="n">3</span>Kijken</button>
+    <button class="tab" role="tab" data-view="practice" id="tab-practice"><span class="n">4</span>Oefenen</button>
+  </nav>
+  <div class="actions">
+    <button class="btn small" id="btn-link" title="Kopieer een link waarmee leerlingen digitaal oefenen">Leerlingenlink</button>
+    <button class="btn small" id="btn-save">Bewaren</button>
+    <button class="btn small" id="btn-open">Openen</button>
+    <input type="file" id="file-open" accept=".json,application/json" hidden>
+    <button class="btn small primary" id="btn-print">Afdrukken</button>
+  </div>
+</header>
+
+<main>
+  <!-- ============ 1. MAKEN ============ -->
+  <section id="view-build" class="wrap" hidden>
+    <div class="banner" id="demo-banner" hidden>
+      <span>Je ziet een voorbeeld. Vervang de video en de tekst door die van jouw les.</span>
+      <button class="btn small" id="btn-new">Leeg werkblad starten</button>
+    </div>
+
+    <div class="panel">
+      <h2><span class="step">Stap 1</span>Video</h2>
+      <p class="hint">Plak de link van de video op SchoolTV. Op het werkblad komt een QR-code naar deze video.</p>
+      <div class="grid2">
+        <label class="f">Titel van het werkblad<input type="text" id="in-title"></label>
+        <label class="f">Link naar de SchoolTV-video<input type="url" id="in-url" placeholder="https://schooltv.nl/video-item/..."></label>
+        <label class="f"><span>Embedcode <span class="sub">(om de video in de app te tonen)</span></span><input type="text" id="in-embed" placeholder='&lt;iframe src="https://player.ntr.nl/index.php?id=..."'></label>
+        <label class="f"><span>Klas of groep <span class="sub">(optioneel)</span></span><input type="text" id="in-klas" placeholder="bv. 5de leerjaar"></label>
+        <label class="f"><span>Korte opdracht bovenaan <span class="sub">(optioneel)</span></span><input type="text" id="in-intro"></label>
+      </div>
+      <p class="meta" id="url-check"></p>
+      <p class="meta" id="embed-check"></p>
+      <label class="f" style="margin-top:14px"><span>Extra info voor de leerlingen <span class="sub">(optioneel)</span></span>
+        <textarea id="in-info" rows="4" placeholder="Bijvoorbeeld: Lever alles in via Smartschool voor vrijdag. Meer uitleg: https://..."></textarea></label>
+      <p class="meta" style="margin:4px 0 0">Elke nieuwe regel wordt een nieuwe regel. Begin een regel met "- " voor een opsomming. Links worden klikbaar. Je leerlingen zien dit blok bij Kijken en Oefenen.</p>
+      <label class="check" style="margin-top:8px"><input type="checkbox" id="in-infopaper"> Ook op het werkblad afdrukken</label>
+      <div class="inlever-box">
+        <div class="inlever-qr" id="inlever-qr" aria-hidden="true"></div>
+        <div style="display:grid;gap:6px;min-width:0;flex:1">
+          <b>QR-code om in te leveren</b>
+          <span class="meta" style="margin:0">Eén code voor de hele klas, op het werkblad. De leerling scant de code, logt in in de WebWijzer en komt meteen bij deze taak. <span id="inlever-demo">Nu nog een voorbeeldlink: de inleverpagina op bijleer.school komt later.</span></span>
+          <label class="f"><span>Eigen inleverlink <span class="sub">(optioneel, bv. een Smartschool-opdracht)</span></span><input type="url" id="in-inlever" placeholder="Leeg laten = voorbeeldlink van bijleer.school"></label>
+          <code class="meta" id="inlever-url" style="overflow-wrap:anywhere"></code>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2><span class="step">Stap 2</span>Tekst van de video</h2>
+      <p class="hint">Kopieer de tekst onder de video op SchoolTV en plak hem hieronder. Tijdcodes en losse ondertitelregels kun je met <b>Opschonen</b> in één keer omzetten naar alinea's.</p>
+      <div class="toolbar no-print">
+        <button class="btn small" data-cmd="formatBlock" data-arg="h2" title="Tussentitel">Titel</button>
+        <button class="btn small" data-cmd="formatBlock" data-arg="p" title="Gewone alinea">Alinea</button>
+        <span class="sep"></span>
+        <button class="btn small" data-cmd="bold" title="Vet"><b>V</b></button>
+        <button class="btn small" data-cmd="italic" title="Cursief"><i>C</i></button>
+        <button class="btn small" data-cmd="underline" title="Onderstrepen"><u>O</u></button>
+        <button class="btn small" data-cmd="insertUnorderedList" title="Opsomming">• Lijst</button>
+        <button class="btn small" data-cmd="removeFormat" title="Opmaak wissen">Opmaak wissen</button>
+        <span class="sep"></span>
+        <button class="btn small" id="btn-clean">Opschonen</button>
+        <button class="btn small" id="btn-undo-clean" hidden>Ongedaan maken</button>
+      </div>
+      <div class="editor" id="editor" contenteditable="true" data-ph="Plak hier de tekst van de video…" spellcheck="true"></div>
+      <div class="layout-row">
+        <label class="f">Lettertype
+          <select id="lay-font">
+            <option value="Andika">Andika (leesletter)</option>
+            <option value="Atkinson Hyperlegible">Atkinson (extra duidelijk)</option>
+            <option value="Verdana">Verdana</option>
+          </select></label>
+        <label class="f">Lettergrootte tekst
+          <select id="lay-size"><option>11</option><option>12</option><option>13</option><option>14</option><option>16</option></select></label>
+        <label class="f">Regelafstand
+          <select id="lay-lh"><option value="1.5">Normaal</option><option value="1.9">Ruim</option><option value="2.4">Extra ruim (om in te schrijven)</option></select></label>
+        <label class="check"><input type="checkbox" id="lay-num"> Alinea's nummeren</label>
+        <label class="check"><input type="checkbox" id="lay-marg"> Kantlijn voor notities</label>
+        <label class="check"><input type="checkbox" id="lay-newpage"> Tekst op aparte pagina</label>
+      </div>
+      <p class="meta" id="word-count"></p>
+    </div>
+
+    <div class="panel">
+      <h2><span class="step">Stap 3</span>Werkvormen</h2>
+      <p class="hint">Vink aan wat de leerlingen moeten doen. Elke werkvorm komt op het werkblad en in de oefenapp. Met <b>verplicht</b> of <b>keuze</b> geef je leerlingen wat ruimte.</p>
+      <div class="toolbar">
+        <button class="btn small" id="sel-all">Alles aanvinken</button>
+        <button class="btn small" id="sel-none">Alles uitvinken</button>
+        <label class="check" style="margin-left:auto">Leerlingen kiezen minstens
+          <input type="number" id="in-minkeuze" min="0" max="14" style="width:4.5em"> keuzetaken</label>
+      </div>
+      <div class="wv-grid" id="wv-grid"></div>
+    </div>
+
+    <div class="panel">
+      <h2><span class="step">Stap 4</span>Klaar</h2>
+      <p class="hint">Bekijk het werkblad en druk het af, of kopieer de leerlingenlink. Je werk wordt automatisch bewaard in deze browser. Met <b>Bewaren</b> krijg je een bestand dat je later weer opent of doorgeeft aan een collega.</p>
+      <div class="tools">
+        <button class="btn primary" data-go="paper">Werkblad bekijken</button>
+        <button class="btn" data-go="practice">Oefenapp uitproberen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. WERKBLAD ============ -->
+  <section id="view-paper" hidden>
+    <div class="paper-wrap">
+      <div class="paper-tools">
+        <button class="btn primary" id="btn-print2">Afdrukken of bewaren als pdf</button>
+        <span class="hint" style="margin:0;align-self:center">Tip: kies A4 en zet "Achtergrondafbeeldingen" aan voor de kleuren.</span>
+      </div>
+      <article class="paper" id="paper"></article>
+    </div>
+  </section>
+
+  <!-- ============ 3. OEFENEN ============ -->
+  <!-- ============ 3. KIJKEN ============ -->
+  <section id="view-watch" class="wrap" style="max-width:1400px" hidden></section>
+
+  <!-- ============ 4. OEFENEN ============ -->
+  <section id="view-practice" class="wrap" hidden></section>
+</main>
+
+<script>
+"use strict";
+/* ================= helpers ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function el(tag, props = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') n.className = v;
+    else if (k === 'html') n.innerHTML = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else if (k in n && typeof v !== 'string') n[k] = v;
+    else n.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) n.append(k.nodeType ? k : document.createTextNode(k));
+  return n;
+}
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } }
+};
+let toastT;
+function toast(msg) {
+  let t = $('.toast'); if (!t) { t = el('div', {class:'toast', role:'status'}); document.body.append(t); }
+  t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600);
+}
+function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
+const slug = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'werk';
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+function downloadBlob(blob, name) {
+  const a = el('a', {href: URL.createObjectURL(blob), download: name}); document.body.append(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+}
+
+/* ================= werkvormen ================= */
+const WOORDSOORTEN = {
+  zn:  {n:'zelfstandig naamwoord', mark:'omkader het woord', c:'#D63B30'},
+  bn:  {n:'bijvoeglijk naamwoord', mark:'golflijn eronder', c:'#1E9A55'},
+  hww: {n:'hulpwerkwoord', mark:'onderstreep 1 keer', c:'#2F6FEB'},
+  vd:  {n:'voltooid deelwoord', mark:'omcirkel het woord', c:'#8A3FD1'},
+  pv:  {n:'persoonsvorm', mark:'onderstreep 2 keer', c:'#0E7C86'},
+  lw:  {n:'lidwoord', mark:'stippellijn eronder', c:'#B8860B'},
+  vnw: {n:'persoonlijk voornaamwoord', mark:'kleur de onderkant', c:'#C2410C'},
+  vz:  {n:'voorzetsel', mark:'zet tussen haakjes ( )', c:'#4B5563'},
+  bw:  {n:'bijwoord', mark:'streep erboven', c:'#BE185D'},
+  telw:{n:'telwoord', mark:'kleur het woord', c:'#65A30D'}
+};
+const VRAAGWOORDEN = ['Wie?', 'Wat?', 'Waar?', 'Wanneer?', 'Waarom?', 'Hoe?', 'Hoeveel?'];
+
+const WV = [
+  {id:'A', t:'Tekst inlezen', d:'Lees de tekst hardop en neem jezelf op.', proof:'MP3'},
+  {id:'B', t:'Moeilijke woorden markeren', d:'Blauw = begrijp ik niet · Groen = kan ik niet goed lezen · Rood = kan ik niet spellen.', proof:'In de tekst'},
+  {id:'C', t:'Voice-over van de video', d:'Video trager, geluid uit, zelf de tekst inspreken. Neem je scherm op met micro.', proof:'Schermopname'},
+  {id:'D', t:'Verklarende woordenlijst', d:'De blauwe woorden: betekenis typen, foto zoeken en een eigen schets.', dFn: () => `Minstens ${+S.opt.minWoorden || 5} blauwe woorden: betekenis typen, foto zoeken en een eigen schets.`, proof:'Woordenlijst'},
+  {id:'E', t:'Lezen met dicteerfunctie', d:'Je ziet een zin, je zegt hem na. De computer luistert mee.', proof:'Score'},
+  {id:'F', t:'Tekst uittekenen', d:'Teken wat er in de tekst gebeurt, als een strip of schema.', proof:'Tekening'},
+  {id:'G', t:'Samenvatten in screenshots', d:'Neem screenshots van de video en schrijf 2 zinnen per screenshot.', proof:'Screenshots'},
+  {id:'H', t:'Interview', d:'Bedenk 5 vragen over de tekst, interview een klasgenoot en typ het uit.', proof:'Getypt'},
+  {id:'I', t:'Tekstanalyse', d:'Zoek woordsoorten in de tekst, zoals zelfstandige naamwoorden of voltooide deelwoorden.', proof:'In de tekst'},
+  {id:'J', t:'Wie, wat, waar, wanneer…', d:'Alle vraagwoorden onder elkaar. Vind zoveel mogelijk antwoorden in de tekst.', proof:'Antwoorden'},
+  {id:'K', t:'Synoniemen: herschrijf de tekst', d:'Vervang woorden door synoniemen zonder dat de betekenis verandert.', proof:'Getypt'},
+  {id:'L', t:'Snellezen', d:'Meet hoe lang je over de tekst doet. Lees opnieuw en verbeter je tijd.', proof:'Tijden'},
+  {id:'M', t:'Debat', d:'Neem een standpunt in en verdedig het met wat je uit de video leerde.', proof:'Argumenten'},
+  {id:'N', t:'Nieuwslezer', d:'Maak een spiekkaart met tekeningen en kernwoorden en becommentarieer daarmee de video.', proof:'Schermopname'}
+];
+const WVmap = Object.fromEntries(WV.map(w => [w.id, w]));
+/* iconen per werkvorm (24×24, lijnstijl) */
+const ICON = {
+  A: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/>',
+  B: '<path d="M15 5l4 4-8 8H7v-4z"/><path d="M7 17l-3 3h5M13 7l4 4M14 21h7"/>',
+  C: '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10.5l6-3.5v10l-6-3.5"/><circle cx="9" cy="12" r="2.3" fill="currentColor" stroke="none"/>',
+  D: '<path d="M2 5h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2zM22 5h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"/>',
+  E: '<path d="M4 4h16v11H9l-5 4z"/><path d="M8 8.5h8M8 11.5h5"/>',
+  F: '<path d="M4 20l1.2-4.8L16 4.4a2 2 0 0 1 2.8 0l.8.8a2 2 0 0 1 0 2.8L8.8 18.8z"/><path d="M14 6.5l3.5 3.5"/>',
+  G: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  H: '<path d="M3 4h12v8H7.5L3 15z"/><path d="M18 8h3v11l-4-3h-7v-2"/>',
+  I: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M8 10.5h5"/>',
+  J: '<circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.3a2.8 2.8 0 1 1 3.8 2.6c-.7.3-1.1.9-1.1 1.7v.6"/><circle cx="12" cy="17.2" r=".8" fill="currentColor" stroke="none"/>',
+  K: '<path d="M4 8h15l-3.5-3.5M20 16H5l3.5 3.5"/>',
+  L: '<circle cx="12" cy="14" r="7.5"/><path d="M12 14l3.2-3.2M10 2.5h4M12 2.5v4"/>',
+  M: '<path d="M12 3v17M8 21h8M5 7h14"/><path d="M5 7L2 14a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/>',
+  N: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8.5h10M7 12.5h4M7 16h4"/><rect x="13.5" y="12" width="3.5" height="4"/>'
+};
+const iconSvg = (id, size = 18) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[id] || ''}</svg>`;
+const wvBadge = id => el('span', {class:'wvb', title: WVmap[id]?.t || id, html: iconSvg(id) + `<i>${id}</i>`});
+
+/* ================= state ================= */
+const DEMO_HTML = `<h2>Waarom komt de zee twee keer per dag hoog?</h2>
+<p>Wie een dag op het strand doorbrengt, ziet dat de zee niet stil blijft liggen. 's Morgens ligt het water misschien vlak bij de dijk. Een paar uur later kun je ver over het natte zand wandelen. Dat noemen we eb en vloed, of met één woord: het getij.</p>
+<p>De maan trekt aan de aarde. Die aantrekkingskracht is niet overal even sterk. Aan de kant van de aarde die naar de maan gericht is, trekt de maan het hardst. Daar wordt het water een beetje naar de maan toe getrokken en ontstaat er een waterbult. Aan de andere kant van de aarde ontstaat ook een bult.</p>
+<p>De aarde draait in ongeveer vierentwintig uur om haar eigen as. Daardoor schuift elke kust twee keer per dag door zo'n waterbult. Dan is het vloed. Tussen die twee momenten in is het eb.</p>
+<p>Ook de zon speelt mee. Staan de zon en de maan op één lijn, dan werken ze samen en is het hoogwater extra hoog. Dat heet springtij. Bij doodtij werken zon en maan elkaar tegen. Het verschil tussen eb en vloed is dan kleiner. Vissers en zeilers hebben altijd een getijdentabel bij zich, want wie het getij vergeet, kan zomaar vastlopen op een zandbank.</p>`;
+
+function defaultState(demo) {
+  return {
+    v: 1, demo,
+    title: demo ? 'Eb en vloed' : '',
+    url: demo ? 'https://schooltv.nl/video-item/hoe-ontstaan-eb-en-vloed-dankzij-de-zwaartekracht-van-de-maan' : '',
+    embed: demo ? 'https://player.ntr.nl/index.php?id=WO_NTR_790183' : '',
+    klas: demo ? '5de leerjaar' : '',
+    intro: 'Bekijk eerst de video. Lees daarna de tekst en werk de taken af.',
+    info: demo ? 'Werk in je eigen tempo. Je hebt twee lesuren.\n- Lever je MP3 en screenshots in via Smartschool.\n- Klaar? Zoek de getijdentabel van Oostende op: https://www.meteo.be' : '', infoPaper: true,
+    html: demo ? DEMO_HTML : '',
+    layout: {font:'Andika', size:'13', lh:'1.9', num:true, marg:true, newpage:true},
+    sel: demo ? {A:'req', B:'req', D:'req', E:'keuze', G:'keuze', I:'keuze', J:'req', L:'keuze', M:'keuze'} : {},
+    minKeuze: demo ? 2 : 0,
+    opt: {pos:['zn','bn','hww','vd'], stelling: demo ? 'Iedereen die naar zee gaat, moet een getijdentabel kunnen lezen.' : '', shots:4, frames:4, minWoorden:5}
+  };
+}
+
+let S;          // werkblad-instellingen (leerkracht)
+let P;          // voortgang leerling
+let studentOnly = false;
+let pKey = '';
+
+function loadProgress() {
+  if (HOST?.mode === 'student' && P) return; // komt uit bijleer.school
+  const k = 'stw-prog-' + hashStr(S.title + '|' + S.html);
+  if (P && k === pKey) return;
+  pKey = k;
+  P = store.get(pKey, null) || {naam:'', done:{}, w:{}};
+  P.w ||= {}; P.done ||= {};
+}
+const saveLocal = debounce(() => { if (!store.set(pKey, P)) toast('Je werk kon niet bewaard worden in deze browser. Druk het af of bewaar het als pdf.'); }, 400);
+const saveProg = () => { if (HOST?.mode === 'student') syncStudentSoon(); else saveLocal(); };
+const W = id => (P.w[id] ||= {});
+const saveState = debounce(() => { if (HOST?.mode === 'teacher') saveTaskSoon(); else if (!studentOnly) store.set('stw-state', S); }, 300);
+
+/* ================= tekst verwerken ================= */
+function sanitize(html) {
+  const src = document.createElement('div'); src.innerHTML = html;
+  const ok = {H1:'h2', H2:'h2', H3:'h3', H4:'h3', P:'p', DIV:'p', UL:'ul', OL:'ol', LI:'li', B:'b', STRONG:'b', I:'i', EM:'i', U:'u', BR:'br'};
+  const walk = (node, out) => {
+    for (const c of node.childNodes) {
+      if (c.nodeType === 3) { out.append(c.textContent); continue; }
+      if (c.nodeType !== 1) continue;
+      const tag = ok[c.tagName];
+      if (!tag) { walk(c, out); continue; }
+      const n = document.createElement(tag); out.append(n); if (tag !== 'br') walk(c, n);
+    }
+  };
+  const out = document.createElement('div'); walk(src, out);
+  // losse tekst op topniveau in een alinea steken
+  for (const c of [...out.childNodes]) if (c.nodeType === 3 && c.textContent.trim()) { const p = document.createElement('p'); c.replaceWith(p); p.append(c); }
+  $$('p,li,h2,h3', out).forEach(n => { if (!n.textContent.trim()) n.remove(); });
+  return out.innerHTML;
+}
+function getBlocks(html) {
+  const d = document.createElement('div'); d.innerHTML = sanitize(html);
+  const out = [];
+  const push = (type, t) => { t = t.replace(/\s+/g, ' ').trim(); if (t) out.push({type, text:t}); };
+  for (const n of d.children) {
+    const tag = n.tagName;
+    if (tag === 'H2' || tag === 'H3') push('h', n.textContent);
+    else if (tag === 'UL' || tag === 'OL') $$('li', n).forEach(li => push('li', li.textContent));
+    else push('p', n.textContent);
+  }
+  return out;
+}
+const WORD_RE = /[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu;
+function tokenize(blocks) {
+  let wi = 0;
+  return blocks.map(b => {
+    const parts = []; let last = 0;
+    for (const m of b.text.matchAll(WORD_RE)) {
+      if (m.index > last) parts.push({s: b.text.slice(last, m.index)});
+      parts.push({w: m[0], i: wi++}); last = m.index + m[0].length;
+    }
+    if (last < b.text.length) parts.push({s: b.text.slice(last)});
+    return {...b, parts};
+  });
+}
+const plainText = blocks => blocks.map(b => b.text).join('\n\n');
+const countWords = t => (t.match(WORD_RE) || []).length;
+const sentencesOf = blocks => blocks.filter(b => b.type !== 'h').flatMap(b => b.text.split(/(?<=[.!?…])\s+/)).map(s => s.trim()).filter(s => countWords(s) > 0);
+
+function cleanTranscript(text) {
+  text = text.replace(/\r/g, '')
+    .replace(/^\s*\[?\(?\d{1,2}:\d{2}(?::\d{2})?(?:[.,]\d+)?\)?\]?\s*(?:-->\s*\d{1,2}:\d{2}(?::\d{2})?(?:[.,]\d+)?)?\s*/gm, '')
+    .replace(/^\s*\d+\s*$/gm, '')
+    .replace(/[\[(](?:muziek|music|gelach|applaus|geluid[^\])]*)[\])]/gi, '')
+    .replace(/[ \t]+/g, ' ');
+  let paras = text.split(/\n\s*\n/).map(p => p.replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean);
+  if (paras.length <= 1 && paras[0]) {
+    const sents = paras[0].split(/(?<=[.!?])\s+/); paras = [];
+    for (let i = 0; i < sents.length; i += 4) paras.push(sents.slice(i, i + 4).join(' '));
+  }
+  return paras.map(p => `<p>${esc(p)}</p>`).join('');
+}
+
+/* ================= tabs ================= */
+let view = 'build';
+function go(v) {
+  if (studentOnly && v === 'build') v = 'practice';
+  view = v;
+  $$('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.view === v));
+  $('#view-build').hidden = v !== 'build';
+  $('#view-paper').hidden = v !== 'paper';
+  $('#view-practice').hidden = v !== 'practice';
+  $('#view-watch').hidden = v !== 'watch';
+  if (v !== 'watch') stopPrompter();
+  if (v === 'paper') renderPaper();
+  if (v === 'watch') renderWatch();
+  if (v === 'practice') renderPractice();
+  window.scrollTo({top:0});
+}
+$$('.tab').forEach(t => t.addEventListener('click', () => go(t.dataset.view)));
+$$('[data-go]').forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
+
+/* ================= 1. MAKEN ================= */
+function bindBuilder() {
+  const bind = (id, key) => { const i = $(id); i.value = S[key] || ''; i.oninput = () => { S[key] = i.value; S.demo = false; saveState(); if (key === 'url') { checkUrl(); checkEmbed(); } }; };
+  bind('#in-title', 'title'); bind('#in-url', 'url'); bind('#in-klas', 'klas'); bind('#in-intro', 'intro'); bind('#in-embed', 'embed'); bind('#in-info', 'info');
+  $('#in-infopaper').checked = S.infoPaper !== false;
+  bind('#in-inlever', 'inlever'); $('#in-inlever').addEventListener('input', drawInlever);
+  $('#in-title').addEventListener('input', drawInlever); $('#in-url').addEventListener('input', drawInlever);
+  drawInlever();
+  $('#in-infopaper').onchange = e => { S.infoPaper = e.target.checked; saveState(); };
+  $('#in-url').addEventListener('input', () => {
+    // embedcode in het linkveld geplakt? Zet ze in het juiste veld.
+    if (/player\.ntr\.nl|<iframe/i.test(S.url)) { S.embed = S.url; S.url = ''; $('#in-url').value = ''; $('#in-embed').value = S.embed; saveState(); checkUrl(); checkEmbed(); }
+  });
+  $('#in-embed').addEventListener('input', checkEmbed);
+  checkUrl(); checkEmbed();
+  const ed = $('#editor'); ed.innerHTML = sanitize(S.html);
+  ed.oninput = () => { S.html = ed.innerHTML; S.demo = false; saveState(); updateCount(); };
+  updateCount();
+  const L = S.layout;
+  $('#lay-font').value = L.font; $('#lay-size').value = L.size; $('#lay-lh').value = L.lh;
+  $('#lay-num').checked = L.num; $('#lay-marg').checked = L.marg; $('#lay-newpage').checked = L.newpage;
+  ['font', 'size', 'lh'].forEach(k => $('#lay-' + k).onchange = e => { L[k] = e.target.value; saveState(); });
+  ['num', 'marg', 'newpage'].forEach(k => $('#lay-' + k).onchange = e => { L[k] = e.target.checked; saveState(); });
+  $('#in-minkeuze').value = S.minKeuze || 0;
+  $('#in-minkeuze').oninput = e => { S.minKeuze = Math.max(0, +e.target.value || 0); saveState(); };
+  $('#demo-banner').hidden = !S.demo;
+  renderWvGrid();
+}
+/* Inleveren: één link per werkblad, dezelfde voor alle leerlingen.
+   Voorlopig een voorbeeldadres; later wordt dit de inleverpagina op bijleer.school
+   waar de leerling kiest wie hij is (zoals bij WebWijzer). */
+const inleverCode = () => hashStr('inlever|' + (S.title || '') + '|' + (S.url || '')).toUpperCase().slice(0, 6);
+const inleverUrl = () => HOST?.shareCode ? location.origin + '/webwijzer?vl=' + HOST.shareCode
+  : (S.inlever || '').trim() || 'https://bijleer.school/inleveren/' + inleverCode();
+const inleverIsDemo = () => !HOST?.shareCode && !(S.inlever || '').trim();
+
+function videoSrc() {
+  const raw = (S.embed || '') + ' ' + (S.url || '');
+  let m = raw.match(/player\.ntr\.nl\/index\.php\?id=([A-Za-z0-9_]+)/);
+  if (m) return 'https://player.ntr.nl/index.php?id=' + m[1];
+  m = (S.embed || '').trim().match(/^([A-Z]{2,}(?:_[A-Z0-9]+)+)$/);
+  if (m) return 'https://player.ntr.nl/index.php?id=' + m[1];
+  m = raw.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  if (m) return 'https://www.youtube-nocookie.com/embed/' + m[1] + '?rel=0';
+  // vimeo.com/123, vimeo.com/channels/x/123, vimeo.com/123/abcdef (niet-openbaar), player.vimeo.com/video/123?h=abcdef
+  m = raw.match(/vimeo\.com\/(?:video\/|(?:channels|groups\/[^\/\s]+\/videos|showcase\/\d+\/video)\/(?:[^\/\s]+\/)?)?(\d{6,})(?:\/([0-9a-f]{6,}))?(?:[^\s"']*?[?&]h=([0-9a-f]+))?/i);
+  if (m) return 'https://player.vimeo.com/video/' + m[1] + ((m[2] || m[3]) ? '?h=' + (m[2] || m[3]) : '');
+  return '';
+}
+function drawInlever() {
+  $('#inlever-qr').innerHTML = qrSvg(inleverUrl());
+  $('#inlever-url').textContent = inleverUrl();
+  $('#inlever-demo').hidden = !inleverIsDemo();
+}
+function checkEmbed() {
+  const m = $('#embed-check'), src = videoSrc();
+  m.innerHTML = src ? '✓ De video wordt getoond in het tabblad <b>Kijken</b>.'
+    : 'Zonder embedcode openen leerlingen de video op SchoolTV zelf. Om de video in de app te tonen: klik op SchoolTV onder de video op <b>Embed</b>, kopieer de code en plak ze hierboven.';
+}
+function checkUrl() {
+  const u = S.url.trim(), m = $('#url-check');
+  if (!u) { m.textContent = ''; return; }
+  try { const x = new URL(u); m.innerHTML = /schooltv\.nl$/.test(x.hostname) ? `<a href="${esc(u)}" target="_blank" rel="noopener">Video openen ↗</a>` : 'Let op: dit is geen link van schooltv.nl. Dat mag, de QR-code werkt voor elke link.'; }
+  catch { m.textContent = 'Dit lijkt geen volledige link. Begin met https://'; }
+}
+function updateCount() {
+  const b = getBlocks(S.html), n = countWords(plainText(b)), s = sentencesOf(b).length;
+  $('#word-count').textContent = n ? `${n} woorden · ${s} zinnen · ${b.filter(x => x.type !== 'h').length} alinea's` : '';
+}
+$$('.toolbar [data-cmd]').forEach(b => b.addEventListener('mousedown', e => {
+  e.preventDefault(); $('#editor').focus();
+  document.execCommand(b.dataset.cmd, false, b.dataset.arg ? `<${b.dataset.arg}>` : null);
+  $('#editor').dispatchEvent(new Event('input'));
+}));
+$('#editor').addEventListener('paste', e => {
+  const html = e.clipboardData.getData('text/html'), text = e.clipboardData.getData('text/plain');
+  e.preventDefault();
+  const clean = html && /<(p|h\d|li)\b/i.test(html) ? sanitize(html) : cleanTranscript(text);
+  document.execCommand('insertHTML', false, clean);
+});
+let undoHtml = null;
+$('#btn-clean').onclick = () => {
+  const ed = $('#editor'); undoHtml = ed.innerHTML;
+  const text = getBlocks(ed.innerHTML).map(b => b.text).join('\n') ;
+  ed.innerHTML = cleanTranscript(ed.innerText.includes('\n') ? ed.innerText : text);
+  ed.dispatchEvent(new Event('input'));
+  $('#btn-undo-clean').hidden = false; toast('Tekst opgeschoond');
+};
+$('#btn-undo-clean').onclick = () => { if (undoHtml == null) return; $('#editor').innerHTML = undoHtml; $('#editor').dispatchEvent(new Event('input')); $('#btn-undo-clean').hidden = true; };
+
+function renderWvGrid() {
+  const g = $('#wv-grid'); g.innerHTML = '';
+  for (const w of WV) {
+    const on = !!S.sel[w.id];
+    const box = el('div', {class: 'wv' + (on ? ' sel' : '')});
+    const cb = el('input', {type:'checkbox', checked:on, 'aria-label':w.t});
+    cb.onchange = () => { if (cb.checked) S.sel[w.id] = 'req'; else delete S.sel[w.id]; S.demo = false; saveState(); renderWvGrid(); };
+    box.append(el('label', {class:'wv-top'}, cb, wvBadge(w.id),
+      el('span', {style:'min-width:0'}, el('div', {class:'wv-t'}, w.t), el('div', {class:'wv-d'}, w.d))));
+    if (on) {
+      const opts = el('div', {class:'wv-opts'});
+      const rq = el('div', {class:'radio-row'});
+      for (const [v, lbl] of [['req', 'Verplicht'], ['keuze', 'Keuze']]) {
+        const r = el('input', {type:'radio', name:'rq-' + w.id, checked: S.sel[w.id] === v});
+        r.onchange = () => { S.sel[w.id] = v; saveState(); };
+        rq.append(el('label', {}, r, lbl));
+      }
+      rq.append(el('span', {class:'chip', style:'align-self:center'}, 'Bewijs: ' + w.proof));
+      opts.append(rq);
+      if (w.id === 'I') {
+        const pp = el('div', {class:'pos-pick'});
+        for (const [k, v] of Object.entries(WOORDSOORTEN)) {
+          const c = el('input', {type:'checkbox', checked: S.opt.pos.includes(k)});
+          c.onchange = () => { S.opt.pos = c.checked ? [...S.opt.pos, k] : S.opt.pos.filter(x => x !== k); saveState(); };
+          pp.append(el('label', {}, c, v.n));
+        }
+        opts.append(el('div', {}, 'Welke woordsoorten zoeken ze?'), pp);
+      }
+      if (w.id === 'M') {
+        const i = el('input', {type:'text', value:S.opt.stelling, placeholder:'bv. Elke school zou een moestuin moeten hebben.'});
+        i.oninput = () => { S.opt.stelling = i.value; saveState(); };
+        opts.append(el('label', {class:'f'}, 'Stelling', i));
+      }
+      if (w.id === 'D') {
+        const s = el('select', {}, ...[3, 4, 5, 6, 8, 10, 12, 15].map(n => el('option', {value:n, selected: +S.opt.minWoorden === n}, n)));
+        s.onchange = () => { S.opt.minWoorden = +s.value; saveState(); };
+        opts.append(el('label', {class:'f'}, 'Minimum aantal woorden', s));
+      }
+      if (w.id === 'G' || w.id === 'F') {
+        const key = w.id === 'G' ? 'shots' : 'frames';
+        const s = el('select', {}, ...(w.id === 'G' ? [3, 4, 5, 6, 8] : [1, 2, 4, 6]).map(n => el('option', {value:n, selected: +S.opt[key] === n}, n)));
+        s.onchange = () => { S.opt[key] = +s.value; saveState(); };
+        opts.append(el('label', {class:'f'}, w.id === 'G' ? 'Aantal screenshots' : 'Aantal tekenvakken', s));
+      }
+      box.append(opts);
+    }
+    g.append(box);
+  }
+}
+$('#sel-all').onclick = () => { WV.forEach(w => S.sel[w.id] ||= 'req'); saveState(); renderWvGrid(); };
+$('#sel-none').onclick = () => { S.sel = {}; saveState(); renderWvGrid(); };
+$('#btn-new').onclick = () => { S = defaultState(false); saveState(); bindBuilder(); toast('Leeg werkblad gestart'); };
+
+const chosen = () => WV.filter(w => S.sel[w.id]);
+
+/* tekst van de leerkracht: regels, opsomming met "- " en klikbare links */
+function infoHtml(text) {
+  const link = t => esc(t).replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  let out = '', list = false;
+  for (const line of String(text || '').split('\n')) {
+    const m = line.match(/^\s*[-•*]\s+(.*)/);
+    if (m) { if (!list) { out += '<ul>'; list = true; } out += `<li>${link(m[1])}</li>`; continue; }
+    if (list) { out += '</ul>'; list = false; }
+    if (line.trim()) out += `<p>${link(line)}</p>`;
+  }
+  return out + (list ? '</ul>' : '');
+}
+function infoBlock() {
+  if (!(S.info || '').trim()) return null;
+  return el('aside', {class:'infobox'}, el('div', {class:'info-h'}, 'Info van je leerkracht'), el('div', {class:'info-b', html: infoHtml(S.info)}));
+}
+
+/* ================= 2. WERKBLAD (papier) ================= */
+const LOGO_PNG = 'data:image/png;base64,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';
+
+function qrSvg(url) {
+  if (!url || typeof qrcode !== 'function') return '';
+  try { const q = qrcode(0, 'M'); q.addData(url); q.make(); return q.createSvgTag({cellSize:4, margin:0, scalable:true}); } catch { return ''; }
+}
+const lines = (n, cls = '') => Array.from({length:n}, () => `<div class="ln ${cls}"></div>`).join('');
+const frame = (h, inner = '') => `<div class="frame" style="min-height:${h}mm;padding:6px 8px">${inner}</div>`;
+const bx = '<span class="box"></span>';
+
+const PAPER = {
+  A: () => `<ol><li>Lees de tekst eerst 2 keer zacht voor jezelf.</li><li>Lees de tekst hardop en neem jezelf op met de oefenapp (taak A) of een dictafoon.</li><li>Bewaar je opname als MP3 met je naam in de bestandsnaam en lever ze in.</li></ol>
+    <p class="small" style="margin:4px 0"><b>Tip:</b> lees mee met de video. Zet de video in je koptelefoon, zodat je het geluid niet mee opneemt. Of laat de tekst eerst voorlezen door voorleessoftware.</p>
+    <div class="pill-row small"><span>${bx} Ik las duidelijk en niet te snel</span><span>${bx} Ik las met intonatie</span><span>${bx} Ik stopte bij punten en komma's</span><span>${bx} MP3 ingeleverd</span></div>`,
+  B: () => `<p>Lees de tekst. Markeer moeilijke woorden in de tekst met deze kleuren:</p>
+    <div class="legend"><span><i class="sw" style="background:#7FA9F5"></i><b>Blauw</b>: ik begrijp het woord niet</span><span><i class="sw" style="background:#7FD1A2"></i><b>Groen</b>: ik kan het niet goed lezen</span><span><i class="sw" style="background:#F09891"></i><b>Rood</b>: ik kan het niet juist spellen</span></div>
+    <table class="ptable"><tr><th style="width:33%">Blauw</th><th style="width:33%">Groen</th><th>Rood</th></tr><tr><td>${lines(4, 's')}</td><td>${lines(4, 's')}</td><td>${lines(4, 's')}</td></tr></table>`,
+  C: () => `<ol><li>Open de video. Zet de snelheid op <b>0,75</b> en zet het <b>geluid uit</b>.</li><li>Oefen: lees de tekst voor terwijl de video speelt. Probeer gelijk te blijven met de beelden.</li><li>Start een schermopname <b>met microfoon</b>:<br><span class="small">Windows: Windows-toets + Alt + R (Xbox Game Bar) · Mac: Cmd + Shift + 5 · Chromebook: Shift + Ctrl + Vensters tonen</span></li><li>Spreek de hele video in. Lever de opname in.</li></ol>
+    <div class="pill-row small"><span>${bx} Video trager gezet</span><span>${bx} Geluid uit</span><span>${bx} Micro aan</span><span>${bx} Opname ingeleverd</span></div>`,
+  D: () => `<p>Neem je <b>blauwe woorden</b> en verklaar er <b>minstens ${+S.opt.minWoorden || 5}</b>. Zoek de betekenis, schrijf ze in je eigen woorden en maak een schets. Heb je minder blauwe woorden? Kies dan zelf moeilijke woorden uit de tekst. In de oefenapp kan je er ook een foto bij zetten.</p>
+    <table class="ptable"><tr><th style="width:24%">Woord</th><th>Betekenis in mijn eigen woorden</th><th style="width:30%">Schets</th></tr>
+    ${Array.from({length: Math.max(5, +S.opt.minWoorden || 5)}, () => `<tr><td style="height:24mm"></td><td>${lines(2, 's')}</td><td></td></tr>`).join('')}</table>`,
+  E: (b) => `<ol><li>Open de oefenapp, taak E. Je ziet telkens één zin.</li><li>Lees de zin luidop. De computer luistert en kleurt de woorden die hij juist hoorde groen.</li><li>Lukt een zin niet? Luister naar het voorbeeld en probeer opnieuw.</li></ol>
+    <p>Zinnen in één keer helemaal juist: ______ van ${sentencesOf(b).length}</p><p class="small">Deze zin vond ik het moeilijkst:</p>${lines(2)}`,
+  F: () => { const n = +S.opt.frames || 4; const cols = n === 1 ? 1 : 2;
+    return `<p>Teken wat er in de tekst gebeurt. ${n > 1 ? 'Gebruik de vakken als een strip en schrijf onder elk vak een kort zinnetje.' : 'Maak een tekening of schema van de hele tekst.'}</p>
+    <div class="frames" style="grid-template-columns:repeat(${cols},1fr)">${Array.from({length:n}, () => `<div>${frame(n === 1 ? 150 : n > 4 ? 52 : 70)}${n > 1 ? lines(1, 's') : ''}</div>`).join('')}</div>`; },
+  G: () => { const n = +S.opt.shots || 4;
+    return `<p>Bekijk de video. Neem ${n} screenshots van de belangrijkste momenten (Windows: Windows-toets + Shift + S · Mac: Cmd + Shift + 4). Schrijf bij elke screenshot 2 zinnen: wat gebeurt er?</p>
+    <div class="frames" style="grid-template-columns:1fr 1fr">${Array.from({length:n}, (_, i) => `<div>${frame(38, `<span class="small">Screenshot ${i + 1}</span>`)}${lines(2, 's')}</div>`).join('')}</div>`; },
+  H: () => `<p>Bedenk 5 vragen over de tekst. Interview een klasgenoot en schrijf de antwoorden op. Typ het interview daarna uit in de oefenapp.</p>
+    <p class="small">Interviewer: ____________________ &nbsp; Geïnterviewde: ____________________</p>
+    <table class="ptable">${Array.from({length:5}, (_, i) => `<tr><td style="width:8mm"><b>${i + 1}</b></td><td><b>Vraag:</b>${lines(1, 's')}<b>Antwoord:</b>${lines(2, 's')}</td></tr>`).join('')}</table>`,
+  I: () => { const ps = S.opt.pos.length ? S.opt.pos : ['zn'];
+    return `<p>Zoek deze woordsoorten in de tekst en duid ze aan zoals hieronder. Schrijf ze daarna in de tabel.</p>
+    <div class="legend">${ps.map(k => `<span><b>${esc(WOORDSOORTEN[k].n)}</b>: ${esc(WOORDSOORTEN[k].mark)} <span class="pz-${k}" style="--pc:${WOORDSOORTEN[k].c}">voorbeeld</span></span>`).join('')}</div>
+    <table class="ptable"><tr>${ps.map(k => `<th>${esc(WOORDSOORTEN[k].n)}</th>`).join('')}</tr><tr>${ps.map(() => `<td>${lines(5, 's')}</td>`).join('')}</tr></table>`; },
+  J: () => `<p>Zoek in de tekst zoveel mogelijk antwoorden op elk vraagwoord. Eén antwoord per lijn.</p>
+    ${VRAAGWOORDEN.map(q => `<div style="display:grid;grid-template-columns:24mm 1fr;gap:6px;break-inside:avoid"><b style="padding-top:4mm">${q}</b><div>${lines(2, 's')}</div></div>`).join('')}
+    <p class="small"><b>Totaal aantal antwoorden:</b> ______</p>`,
+  K: () => `<p>Zoek synoniemen: woorden die hetzelfde betekenen. Herschrijf daarna een alinea zonder dat de betekenis verandert.</p>
+    <table class="ptable"><tr><th>Woord uit de tekst</th><th>Synoniem</th><th>Woord uit de tekst</th><th>Synoniem</th></tr>${Array.from({length:4}, () => '<tr><td style="height:8mm"></td><td></td><td></td><td></td></tr>').join('')}</table>
+    <p class="small" style="margin-top:6px">Ik herschrijf alinea nummer ____:</p>${lines(5)}`,
+  L: (b) => { const n = countWords(plainText(b));
+    return `<p>Lees de tekst zo vlot mogelijk, maar wel juist. Laat iemand de tijd meten of gebruik de stopwatch in de oefenapp. Lees opnieuw en probeer sneller te gaan.</p>
+    <p class="small">De tekst telt <b>${n} woorden</b>. Woorden per minuut = ${n} × 60 ÷ aantal seconden.</p>
+    <table class="ptable"><tr><th>Poging</th><th>Tijd (seconden)</th><th>Woorden per minuut</th><th>Fouten</th></tr>${[1, 2, 3, 4, 5].map(i => `<tr><td style="height:8mm">${i}</td><td></td><td></td><td></td></tr>`).join('')}</table>`; },
+  M: () => `<div class="stelling">Stelling: ${esc(S.opt.stelling || '_______________________________________________')}</div>
+    <div class="pill-row"><span>${bx} Ik ben <b>akkoord</b></span><span>${bx} Ik ben <b>niet akkoord</b></span></div>
+    ${[1, 2, 3].map(i => `<p class="small" style="margin:6px 0 0"><b>Argument ${i}</b> en wat de video daarover zegt:</p>${lines(2, 's')}`).join('')}
+    <p class="small" style="margin:6px 0 0"><b>Wat zal de andere kant zeggen?</b></p>${lines(1, 's')}<p class="small" style="margin:6px 0 0"><b>Wat antwoord ik daarop?</b></p>${lines(1, 's')}`,
+  N: () => `<p>Maak je spiekkaart: teken in elk vak een belangrijk moment uit de video en schrijf er één kernwoord bij. Zet daarna de video zonder geluid op en vertel er zelf bij, als nieuwslezer. Gebruik <b>alleen</b> je kaart. Neem je scherm op met micro.</p>
+    <div class="frames" style="grid-template-columns:repeat(3,1fr)">${Array.from({length:6}, (_, i) => `<div>${frame(36, `<span class="small">${i + 1}</span>`)}<div class="small" style="margin-top:3px">Kernwoord: __________</div></div>`).join('')}</div>`
+};
+
+function renderPaper() {
+  // titel onderaan elke afgedrukte pagina
+  let ps = $('#print-title-style'); if (!ps) { ps = el('style', {id:'print-title-style'}); document.head.append(ps); }
+  // het logo als SVG-omhulsel, zodat het scherp en op vaste grootte (24 × 6,7 mm) in de voettekst staat
+  const logoSvg = 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24mm" height="6.66mm" viewBox="0 0 300 83"><image width="300" height="83" xlink:href="${LOGO_PNG}"/></svg>`);
+  const foot = 'font:8.5pt "Andika",Verdana,sans-serif;color:#444;vertical-align:middle';
+  ps.textContent = `@media print{@page{
+    @bottom-left{content:${JSON.stringify(S.title || 'Werkblad')};${foot};text-align:left}
+    @bottom-center{content:"pagina " counter(page) " van " counter(pages);${foot}}
+    @bottom-right{content:url("${logoSvg}");${foot};text-align:right}
+    @top-left{content:"Naam: ________________________________";font:10.5pt "Andika",Verdana,sans-serif;color:#111;vertical-align:bottom;padding-bottom:2mm}}
+  @page:first{@top-left{content:none}}}`;
+  const p = $('#paper'), L = S.layout, b = getBlocks(S.html), list = chosen();
+  p.style.setProperty('--pf', `"${L.font}"`);
+  const qr = qrSvg(S.url), qrIn = qrSvg(inleverUrl());
+  const minK = +S.minKeuze || 0, nK = list.filter(w => S.sel[w.id] === 'keuze').length;
+  let html = `<div class="p-name"><div>Naam:</div><div>Klas: ${esc(S.klas)}</div><div>Datum:</div>${qrIn ? `<div class="p-dig" title="${esc(inleverUrl())}"><div class="qr">${qrIn}</div><b>Digitaal</b></div>` : ''}</div>
+    <h1>${esc(S.title || 'Werkblad bij de video')}</h1>
+    <div class="p-video">${qr ? `<div class="qr">${qr}</div>` : ''}<div><b>Bekijk de video</b>${qr ? ' (scan de QR-code)' : ''}<div class="url">${esc(S.url)}</div>${S.intro ? `<div style="margin-top:4px">${esc(S.intro)}</div>` : ''}</div></div>
+    ${S.info && S.info.trim() && S.infoPaper !== false ? `<div class="p-info"><b>Info van je leerkracht</b>${infoHtml(S.info)}</div>` : ''}`;
+  if (list.length) {
+    html += `<h2>Mijn planning</h2><table class="p-plan"><tr><th style="width:7mm"></th><th style="width:7mm"></th><th>Taak</th><th style="width:28mm">Inleveren</th><th style="width:20mm"></th></tr>
+      ${list.map(w => `<tr><td>${bx}</td><td class="p-ic">${iconSvg(w.id, 15)}<b>${w.id}</b></td><td><b>${esc(w.t)}</b><br><span class="small">${esc(w.dFn ? w.dFn() : w.d)}</span></td><td class="small">${esc(w.proof)}</td><td class="small"><b>${S.sel[w.id] === 'req' ? 'Verplicht' : 'Keuze'}</b></td></tr>`).join('')}</table>
+      ${nK && minK ? `<p class="small">Kies minstens <b>${Math.min(minK, nK)}</b> van de ${nK} keuzetaken.</p>` : ''}`;
+  }
+  const txt = sanitize(S.html);
+  html += `<section class="p-sec p-text${L.newpage && list.length ? ' newpage' : ''}" style="--tsize:${L.size}pt;--tlh:${L.lh}">
+    <div class="head"><h2>De tekst</h2>${S.sel.B ? '<span class="small"><i class="sw" style="background:#7FA9F5"></i>niet begrijpen <i class="sw" style="background:#7FD1A2;margin-left:6px"></i>niet lezen <i class="sw" style="background:#F09891;margin-left:6px"></i>niet spellen</span>' : ''}</div>
+    <div class="tx${L.num ? ' num' : ''}${L.marg ? ' marg' : ''}">${txt || '<p><i>Nog geen tekst toegevoegd. Plak de tekst in stap 2.</i></p>'}</div></section>`;
+  for (const w of list) {
+    html += `<section class="p-sec"><div class="head"><span class="lt">${iconSvg(w.id, 15)}<i>${w.id}</i></span><h2>${esc(w.t)}</h2><span class="req">${S.sel[w.id] === 'req' ? 'Verplicht' : 'Keuze'}</span><span class="proof">${esc(w.proof)}</span></div>${PAPER[w.id](b)}</section>`;
+  }
+  p.innerHTML = html;
+  // kolomtitels herhalen als een tabel over twee pagina's loopt
+  $$('table', p).forEach(t => {
+    const first = t.rows[0];
+    if (!first || t.tHead || !first.querySelector('th')) return;
+    const th = t.createTHead(); th.append(first);
+  });
+}
+
+/* ================= 3. OEFENEN ================= */
+function readText(tb, {cls = () => '', onWord = null} = {}) {
+  const root = el('div', {class: 'readtext' + (onWord ? ' click' : '')});
+  let pn = 0;
+  for (const b of tb) {
+    const node = document.createElement(b.type === 'h' ? 'h3' : 'p');
+    if (b.type !== 'h') node.dataset.n = ++pn;
+    for (const part of b.parts) {
+      if (part.s !== undefined) { node.append(part.s); continue; }
+      const s = el('span', {class:'w ' + cls(part.i)}); s.textContent = part.w; s.dataset.i = part.i;
+      if (onWord) s.addEventListener('click', () => onWord(part.i, s));
+      node.append(s);
+    }
+    root.append(node);
+  }
+  return root;
+}
+function ta(obj, key, ph = '', rows = 3) {
+  const t = el('textarea', {rows, placeholder: ph}); t.value = obj[key] || '';
+  t.oninput = () => { obj[key] = t.value; saveProg(); }; return t;
+}
+function inp(obj, key, ph = '') {
+  const t = el('input', {type:'text', placeholder: ph}); t.value = obj[key] || '';
+  t.oninput = () => { obj[key] = t.value; saveProg(); }; return t;
+}
+const PAD_COLORS = ['#111111', '#2F6FEB', '#D63B30', '#1E9A55', '#F59E0B', '#8A3FD1', '#FFFFFF'];
+function drawPad(obj, key, ratio = 0.6) {
+  const W0 = 1000, H0 = Math.round(W0 * ratio);
+  const c = el('canvas', {width: W0, height: H0, 'aria-label':'Tekenvlak'});
+  const ctx = c.getContext('2d');
+  const blank = () => { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W0, H0); };
+  blank();
+  if (obj[key]) loadImage(obj[key]).then(im => im && ctx.drawImage(im, 0, 0, W0, H0));
+  let col = PAD_COLORS[0], size = 6, drawing = false, last = null;
+  const pos = e => { const r = c.getBoundingClientRect(); return [(e.clientX - r.left) * W0 / r.width, (e.clientY - r.top) * H0 / r.height]; };
+  c.addEventListener('pointerdown', e => { drawing = true; c.setPointerCapture(e.pointerId); last = pos(e); ctx.beginPath(); ctx.arc(last[0], last[1], (col === '#FFFFFF' ? size * 4 : size) / 2, 0, 7); ctx.fillStyle = col; ctx.fill(); });
+  c.addEventListener('pointermove', e => {
+    if (!drawing) return; const p = pos(e);
+    ctx.strokeStyle = col; ctx.lineWidth = col === '#FFFFFF' ? size * 4 : size; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(...last); ctx.lineTo(...p); ctx.stroke(); last = p;
+  });
+  const end = () => { if (!drawing) return; drawing = false; obj[key] = c.toDataURL('image/jpeg', 0.8); saveProg(); };
+  c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end);
+  const tools = el('div', {class:'tools'});
+  const dots = PAD_COLORS.map(cc => { const d = el('button', {class:'c' + (cc === col ? ' on' : ''), style:`background:${cc};${cc === '#FFFFFF' ? 'border-color:#999' : ''}`, title: cc === '#FFFFFF' ? 'Gom' : 'Kleur', 'aria-label': cc === '#FFFFFF' ? 'Gom' : 'Kleur'}); d.onclick = () => { col = cc; dots.forEach(x => x.classList.toggle('on', x === d)); }; return d; });
+  const sz = el('select', {'aria-label':'Dikte'}, ...[[3, 'Fijn'], [6, 'Middel'], [12, 'Dik']].map(([v, t]) => el('option', {value:v, selected: v === size}, t)));
+  sz.onchange = () => size = +sz.value;
+  let armed = false;
+  const clr = el('button', {class:'btn small', style:'margin-left:auto'}, 'Alles wissen');
+  clr.onclick = () => { if (!armed) { armed = true; clr.textContent = 'Zeker wissen?'; setTimeout(() => { armed = false; clr.textContent = 'Alles wissen'; }, 3000); return; } blank(); obj[key] = ''; saveProg(); armed = false; clr.textContent = 'Alles wissen'; };
+  tools.append(...dots, sz, clr);
+  return el('div', {class:'pad'}, c, tools);
+}
+function fileToJpeg(file, max = 1200) {
+  return new Promise((res, rej) => {
+    const im = new Image(); im.onload = () => {
+      const s = Math.min(1, max / Math.max(im.width, im.height)), cv = el('canvas', {width: Math.round(im.width * s), height: Math.round(im.height * s)});
+      const x = cv.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, cv.width, cv.height); x.drawImage(im, 0, 0, cv.width, cv.height);
+      res(cv.toDataURL('image/jpeg', 0.78)); URL.revokeObjectURL(im.src);
+    }; im.onerror = rej; im.src = URL.createObjectURL(file);
+  });
+}
+function imgSlot(obj, key, label) {
+  const slot = el('div', {class:'slot', tabindex:0, role:'button', 'aria-label': label});
+  const file = el('input', {type:'file', accept:'image/*', hidden:true});
+  const set = async f => { if (!f || !f.type.startsWith('image/')) return; obj[key] = await fileToJpeg(f); saveProg(); draw(); };
+  const draw = () => {
+    slot.innerHTML = '';
+    if (obj[key]) { const x = el('button', {class:'btn small x', title:'Verwijderen'}, '✕'); x.onclick = e => { e.stopPropagation(); obj[key] = ''; saveProg(); draw(); }; const im = el('img', {alt: label}); setImgSrc(im, obj[key]); slot.append(im, x); }
+    else slot.append(el('div', {}, el('b', {}, label), el('br'), 'Klik om een afbeelding te kiezen,', el('br'), 'of klik hier en plak (Ctrl/Cmd + V).'));
+    slot.append(file);
+  };
+  slot.onclick = () => file.click();
+  slot.onkeydown = e => { if (e.key === 'Enter') file.click(); };
+  file.onchange = () => set(file.files[0]);
+  slot.addEventListener('paste', e => { const it = [...e.clipboardData.items].find(i => i.type.startsWith('image/')); if (it) { e.preventDefault(); set(it.getAsFile()); } });
+  slot.addEventListener('dragover', e => e.preventDefault());
+  slot.addEventListener('drop', e => { e.preventDefault(); set(e.dataTransfer.files[0]); });
+  draw(); return slot;
+}
+function nlVoice() { const vs = speechSynthesis.getVoices(); return vs.find(v => /^nl-BE/i.test(v.lang)) || vs.find(v => /^nl/i.test(v.lang)); }
+function speak(text, rate = 0.9) {
+  if (!('speechSynthesis' in window)) return toast('Voorlezen werkt niet in deze browser.');
+  speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'nl-BE'; u.rate = rate; const v = nlVoice(); if (v) u.voice = v; speechSynthesis.speak(u);
+}
+const normW = w => w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’']/g, '');
+const NUMW = {0:'nul',1:'een',2:'twee',3:'drie',4:'vier',5:'vijf',6:'zes',7:'zeven',8:'acht',9:'negen',10:'tien',11:'elf',12:'twaalf',24:'vierentwintig'};
+const normTok = w => { w = normW(w); return NUMW[w] || w; };
+function lcsPairs(a, b) {
+  const n = a.length, m = b.length, d = Array.from({length: n + 1}, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) d[i][j] = a[i] === b[j] ? d[i + 1][j + 1] + 1 : Math.max(d[i + 1][j], d[i][j + 1]);
+  const ai = new Set(), bj = new Set(); let i = 0, j = 0;
+  while (i < n && j < m) { if (a[i] === b[j]) { ai.add(i); bj.add(j); i++; j++; } else if (d[i + 1][j] >= d[i][j + 1]) i++; else j++; }
+  return {ai, bj};
+}
+
+/* --- per werkvorm de oefening --- */
+const PRACTICE = {
+  A(body, ctx) {
+    const o = W('A');
+    body.append(el('ol', {class:'steps'}, el('li', {}, 'Lees de tekst eerst 2 keer zacht voor jezelf.'), el('li', {}, 'Klik op "Opname starten" en lees de tekst hardop voor.'), el('li', {}, 'Klik op "Stoppen". Luister naar jezelf. Tevreden? Download de MP3 en lever ze in.')));
+    body.append(el('p', {class:'warnbox', style:'border-left-color:var(--accent)'}, el('b', {}, 'Tip: '), 'lees mee met de video. Zet de video in je koptelefoon, zodat je het geluid niet mee opneemt. Of laat de tekst eerst voorlezen met voorleessoftware ', el('button', {class:'btn small', style:'margin-left:4px', onclick: () => speak(plainText(ctx.blocks))}, 'Lees de tekst voor'), ' ', el('button', {class:'btn small', onclick: () => speechSynthesis?.cancel()}, 'Stop')));
+    const status = el('span', {class:'meta', role:'status'});
+    const out = el('div', {class:'tools'});
+    const btn = el('button', {class:'btn primary'}, 'Opname starten');
+    let rec, chunks = [], t0, timer;
+    btn.onclick = async () => {
+      if (rec && rec.state === 'recording') { rec.stop(); return; }
+      if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) return toast('Opnemen werkt niet in deze browser. Gebruik Chrome, Edge of Safari.');
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+        rec = new MediaRecorder(stream); chunks = [];
+        rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+        rec.onstop = async () => {
+          stream.getTracks().forEach(t => t.stop()); clearInterval(timer);
+          btn.textContent = 'Opnieuw opnemen'; btn.className = 'btn primary';
+          status.textContent = 'Bezig met omzetten naar MP3…';
+          const raw = new Blob(chunks, {type: rec.mimeType || 'audio/webm'});
+          let res; try { res = await toMp3(raw); } catch { res = {blob: raw, ext: (rec.mimeType || '').includes('mp4') ? 'm4a' : 'webm'}; }
+          const url = URL.createObjectURL(res.blob), name = `${slug(P.naam || 'leerling')}_${slug(S.title)}.${res.ext}`;
+          out.innerHTML = '';
+          const dl = el('button', {class:'btn'}, 'Download ' + res.ext.toUpperCase()); dl.onclick = () => downloadBlob(res.blob, name);
+          out.append(el('audio', {controls:true, src:url}), dl);
+          status.textContent = `Klaar: ${name}`;
+          o.recorded = true;
+          if (HOST?.mode === 'student') {
+            status.textContent = 'Bezig met inleveren…';
+            try {
+              const old = o.file; o.file = await uploadBlob(res.blob, 'A', 'audio');
+              if (old) deleteFile(old);
+              status.textContent = `Ingeleverd: ${name}`; toast('Je opname is ingeleverd.');
+            } catch { status.textContent = 'Inleveren lukte niet. Download je opname en probeer opnieuw.'; }
+          }
+          saveProg();
+        };
+        rec.start(); t0 = Date.now(); btn.textContent = 'Stoppen'; btn.className = 'btn rec';
+        timer = setInterval(() => { const s = Math.round((Date.now() - t0) / 1000); status.textContent = `● Opname loopt… ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }, 500);
+      } catch { toast('Geen toegang tot de microfoon. Sta de microfoon toe in je browser.'); }
+    };
+    body.append(el('div', {class:'tools'}, btn, status), out);
+    if (o.file && HOST?.mode === 'student') {
+      const au = el('audio', {controls:true}); fileUrl(o.file).then(u => { if (u) au.src = u; });
+      out.append(el('span', {class:'meta'}, 'Ingeleverde opname:'), au);
+    }
+    if (location.protocol === 'file:') body.append(el('p', {class:'warnbox'}, 'Werkt de microfoon niet? Dan moet de app op een website staan in plaats van als bestand op je computer.'));
+  },
+  B(body, ctx) {
+    const o = W('B'); o.marks ||= {};
+    let tool = 'blue';
+    const names = {blue:'Blauw · begrijp ik niet', green:'Groen · lees ik niet goed', red:'Rood · spel ik niet juist', none:'Gom'};
+    const tb = el('div', {class:'tools'});
+    const btns = Object.entries(names).map(([k, v]) => { const b = el('button', {class:'btn small' + (k === tool ? ' on' : '')}, k !== 'none' ? el('span', {class:'tool-dot', style:`background:var(--mk-${k})`}) : null, v); b.onclick = () => { tool = k; btns.forEach(x => x.classList.toggle('on', x === b)); }; return b; });
+    tb.append(...btns);
+    const lists = el('div', {class:'cols3'});
+    const drawLists = () => {
+      lists.innerHTML = '';
+      for (const k of ['blue', 'green', 'red']) {
+        const ws = [...new Set(Object.entries(o.marks).filter(([, v]) => v === k).map(([i]) => ctx.words[i]).filter(Boolean))];
+        lists.append(el('div', {class:'wlist'}, el('h4', {}, el('span', {class:'tool-dot', style:`background:var(--mk-${k});margin-right:6px`}), names[k].split(' · ')[0] + ` (${ws.length})`), el('div', {class:'ws'}, ...ws.map(w => el('span', {class:'tag'}, w)))));
+      }
+    };
+    const txt = readText(ctx.tb, {cls: i => o.marks[i] ? 'mk-' + o.marks[i] : '', onWord: (i, s) => {
+      if (tool === 'none' || o.marks[i] === tool) delete o.marks[i]; else o.marks[i] = tool;
+      s.className = 'w' + (o.marks[i] ? ' mk-' + o.marks[i] : ''); saveProg(); drawLists(); refreshCard('D');
+    }});
+    body.append(el('p', {}, 'Kies een kleur en klik op de woorden in de tekst.'), tb, txt, lists);
+    drawLists();
+  },
+  C(body, ctx) {
+    const o = W('C'); o.check ||= {};
+    const steps = [['url', 'Open de video op SchoolTV'], ['speed', 'Zet de snelheid op 0,75 (tandwiel ⚙ in de video)'], ['mute', 'Zet het geluid van de video uit'], ['oefen', 'Oefen een keer met de meeleestekst hieronder'], ['rec', 'Start een schermopname met microfoon'], ['in', 'Spreek de hele video in en lever de opname in']];
+    const list = el('div', {class:'planner'});
+    for (const [k, t] of steps) {
+      const c = el('input', {type:'checkbox', checked: !!o.check[k]});
+      const lab = el('label', {class: o.check[k] ? 'done' : ''}, c, el('span', {class:'grow'}, t));
+      c.onchange = () => { o.check[k] = c.checked; lab.classList.toggle('done', c.checked); saveProg(); };
+      list.append(lab);
+    }
+    body.append(list,
+      el('details', {}, el('summary', {}, 'Hoe neem ik mijn scherm op?'), el('ul', {},
+        el('li', {}, el('b', {}, 'Windows: '), 'druk Windows-toets + G (Xbox Game Bar), zet de microfoon aan en klik op opnemen. Of Windows-toets + Alt + R.'),
+        el('li', {}, el('b', {}, 'Mac: '), 'druk Cmd + Shift + 5, kies "Opties" → microfoon, en klik op "Neem op".'),
+        el('li', {}, el('b', {}, 'Chromebook: '), 'druk Shift + Ctrl + Vensters tonen, kies video en zet de microfoon aan.'),
+        el('li', {}, el('b', {}, 'iPad: '), 'Bedieningspaneel → schermopname, houd lang ingedrukt om de microfoon aan te zetten.'))));
+    // meeleestekst
+    const pr = el('div', {class:'prompter'}), inner = el('div', {class:'inner'}, plainText(ctx.blocks).split('\n\n').map(p => el('p', {style:'margin:0 0 1em'}, p)));
+    pr.append(inner);
+    let y = 0, run = false, lastT = 0; const speed = el('input', {type:'range', min:10, max:90, value: o.speed || 35, 'aria-label':'Snelheid'});
+    speed.oninput = () => { o.speed = +speed.value; saveProg(); };
+    const step = t => { if (!run) return; const dt = lastT ? (t - lastT) / 1000 : 0; lastT = t; y += dt * +speed.value; inner.style.transform = `translateY(${120 - y}px)`; if (y > inner.offsetHeight + 120) run = false, play.textContent = 'Start'; requestAnimationFrame(step); };
+    const play = el('button', {class:'btn primary'}, 'Start'); play.onclick = () => { run = !run; play.textContent = run ? 'Pauze' : 'Verder'; lastT = 0; if (run) requestAnimationFrame(step); };
+    const reset = el('button', {class:'btn'}, 'Terug naar begin'); reset.onclick = () => { y = 0; inner.style.transform = 'translateY(120px)'; };
+    inner.style.transform = 'translateY(120px)';
+    body.append(el('h3', {style:'font-size:1.05rem;margin-top:6px'}, 'Meeleestekst'), pr, el('div', {class:'tools'}, play, reset, el('label', {class:'check'}, 'Trager', speed, 'Sneller')));
+  },
+  D(body, ctx) {
+    const o = W('D'); o.items ||= {}; o.extra ||= [];
+    const marks = P.w.B?.marks || {};
+    const blue = [...new Set(Object.entries(marks).filter(([, v]) => v === 'blue').map(([i]) => ctx.words[i]?.toLowerCase()).filter(Boolean))];
+    const words = [...new Set([...blue, ...o.extra])];
+    const min = +S.opt.minWoorden || 5;
+    body.append(el('p', {}, `Verklaar minstens ${min} woorden. ` + (S.sel.B ? 'Hier komen je blauwe woorden uit taak B. Heb je er te weinig? Voeg dan zelf moeilijke woorden uit de tekst toe.' : 'Voeg de woorden toe die je niet begrijpt.')));
+    const meter = el('div', {style:'display:grid;gap:6px'}), bar = el('div', {class:'progress'}, el('i')), mtxt = el('div', {class:'meta', style:'font-size:1rem'});
+    meter.append(bar, mtxt);
+    const updMeter = () => {
+      const done = words.filter(w => (o.items[w]?.def || '').trim()).length;
+      bar.firstChild.style.width = Math.min(100, done / min * 100) + '%';
+      mtxt.innerHTML = done >= min ? `<b>${done}</b> woorden verklaard. Je haalde het minimum van ${min}!`
+        : `<b>${done}</b> van minstens ${min} woorden verklaard.` + (words.length < min ? ` Je hebt nog ${min - words.length} woord${min - words.length > 1 ? 'en' : ''} nodig.` : '');
+    };
+    body.append(meter);
+    const add = el('input', {type:'text', placeholder:'Nieuw woord…', style:'max-width:240px'});
+    const addB = el('button', {class:'btn small'}, 'Woord toevoegen');
+    addB.onclick = () => { const w = add.value.trim().toLowerCase(); if (!w) return; if (!o.extra.includes(w)) o.extra.push(w); saveProg(); refreshCard('D'); };
+    add.onkeydown = e => { if (e.key === 'Enter') addB.click(); };
+    body.append(el('div', {class:'tools'}, add, addB));
+    if (!words.length) body.append(el('p', {class:'meta'}, 'Nog geen woorden. Markeer woorden blauw in taak B of voeg er hierboven een toe.'));
+    for (const w of words) {
+      const it = (o.items[w] ||= {});
+      const rm = o.extra.includes(w) ? el('button', {class:'btn small', onclick: () => { o.extra = o.extra.filter(x => x !== w); saveProg(); refreshCard('D'); }}, 'Verwijderen') : null;
+      body.append(el('div', {class:'defcard'},
+        el('div', {class:'word'}, w, el('span', {class:'tools'}, el('button', {class:'btn small', onclick: () => speak(w)}, 'Luister'), rm)),
+        el('label', {class:'f full'}, 'Betekenis in mijn eigen woorden', (() => { const t = ta(it, 'def', 'Een ' + w + ' is…', 2); t.addEventListener('input', updMeter); return t; })()),
+        el('div', {class:'f'}, el('b', {style:'font-size:.92rem'}, 'Foto'), imgSlot(it, 'img', 'Foto van ' + w)),
+        el('div', {class:'f'}, el('b', {style:'font-size:.92rem'}, 'Mijn schets'), drawPad(it, 'sketch', 0.7))));
+    }
+    updMeter();
+  },
+  E(body, ctx) {
+    const o = W('E'); o.res ||= {};
+    const sents = sentencesOf(ctx.blocks); if (!sents.length) return body.append(el('p', {}, 'Er is nog geen tekst.'));
+    let k = Math.min(o.at || 0, sents.length - 1);
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const box = el('div', {class:'sentence', 'aria-live':'polite'}), heard = el('div', {class:'heard'}), info = el('div', {class:'meta'});
+    const show = (hits) => {
+      box.innerHTML = ''; const toks = sents[k].match(WORD_RE) || []; let wi = 0;
+      sents[k].split(/([\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*)/u).forEach((part, j) => {
+        if (j % 2) { const s = el('span', {class: hits ? (hits.has(wi) ? 'hit' : 'miss') : ''}, part); box.append(s); wi++; } else box.append(part);
+      });
+      const done = Object.values(o.res).filter(r => r === 'ok').length;
+      info.textContent = `Zin ${k + 1} van ${sents.length} · ${done} zinnen in één keer juist`;
+      void toks;
+    };
+    const listen = el('button', {class:'btn primary'}, 'Spreek de zin in');
+    let rec = null;
+    listen.onclick = () => {
+      if (!SR) return toast('Spraakherkenning werkt alleen in Google Chrome of Microsoft Edge.');
+      if (rec) { rec.stop(); return; }
+      rec = new SR(); rec.lang = 'nl-BE'; rec.interimResults = true; rec.maxAlternatives = 1;
+      listen.textContent = 'Ik luister… (klik om te stoppen)'; listen.className = 'btn rec'; heard.textContent = '';
+      let final = '';
+      rec.onresult = e => { let txt = ''; for (const r of e.results) txt += r[0].transcript + ' '; heard.textContent = '"' + txt.trim() + '"'; final = txt; };
+      rec.onerror = e => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast('Geen toegang tot de microfoon.'); };
+      rec.onend = () => {
+        rec = null; listen.textContent = 'Opnieuw proberen'; listen.className = 'btn primary';
+        if (!final) return;
+        const target = (sents[k].match(WORD_RE) || []).map(normTok), said = (final.match(WORD_RE) || []).map(normTok);
+        const {ai} = lcsPairs(target, said); show(ai);
+        const all = ai.size === target.length;
+        if (o.res[k] === undefined) o.res[k] = all ? 'ok' : 'retry';
+        heard.textContent += all ? '  ✓ Helemaal juist!' : `  ${ai.size} van ${target.length} woorden juist.`;
+        saveProg(); show(ai);
+      };
+      rec.start();
+    };
+    const nav = d => { k = Math.max(0, Math.min(sents.length - 1, k + d)); o.at = k; saveProg(); heard.textContent = ''; show(); };
+    body.append(el('p', {}, 'Lees de zin luidop. Woorden die de computer juist hoort worden groen. Lukt het niet? Klik op "Voorbeeld".'),
+      box, heard,
+      el('div', {class:'tools'}, el('button', {class:'btn', onclick: () => nav(-1)}, '← Vorige'), listen, el('button', {class:'btn', onclick: () => speak(sents[k])}, 'Voorbeeld'), el('button', {class:'btn', onclick: () => nav(1)}, 'Volgende →')), info);
+    if (!SR) body.append(el('p', {class:'warnbox'}, 'Deze browser kan niet luisteren. Open de app in Google Chrome of Microsoft Edge.'));
+    show();
+  },
+  F(body) {
+    const o = W('F'), n = +S.opt.frames || 4;
+    body.append(el('p', {}, n > 1 ? `Teken de tekst als strip in ${n} vakken. Schrijf onder elk vak een kort zinnetje.` : 'Teken de tekst als één tekening of schema.'));
+    const g = el('div', {class:'shots'});
+    for (let i = 0; i < n; i++) g.append(el('div', {class:'shot'}, el('b', {}, n > 1 ? `Vak ${i + 1}` : 'Tekening'), drawPad(o, 'f' + i, n > 1 ? 0.75 : 0.62), n > 1 ? inp(o, 'c' + i, 'Wat gebeurt er?') : null));
+    body.append(g, el('details', {}, el('summary', {}, 'Liever op papier getekend?'), el('p', {}, 'Neem een foto van je tekening en zet ze hier.'), imgSlot(o, 'photo', 'Foto van mijn tekening')));
+  },
+  G(body) {
+    const o = W('G'), n = +S.opt.shots || 4;
+    body.append(el('p', {}, `Neem ${n} screenshots van belangrijke momenten in de video. ` + (videoSrc() ? 'In het tabblad Kijken doe je dat met één klik op "Screenshot", en met "Naar taak G" komt hij hier terecht. ' : '') + 'Of gebruik Windows-toets + Shift + S (Mac: Cmd + Shift + 4), klik op een vak en plak met Ctrl/Cmd + V.'));
+    const g = el('div', {class:'shots'});
+    for (let i = 0; i < n; i++) g.append(el('div', {class:'shot'}, imgSlot(o, 'img' + i, `Screenshot ${i + 1}`), inp(o, 'a' + i, 'Zin 1: wat zie je?'), inp(o, 'b' + i, 'Zin 2: wat leer je hier?')));
+    body.append(g);
+  },
+  H(body) {
+    const o = W('H');
+    body.append(el('p', {}, 'Bedenk 5 vragen over de tekst. Interview een klasgenoot en typ de antwoorden uit.'),
+      el('div', {class:'grid2'}, el('label', {class:'f'}, 'Interviewer', inp(o, 'wie1')), el('label', {class:'f'}, 'Geïnterviewde', inp(o, 'wie2'))));
+    for (let i = 0; i < 5; i++) body.append(el('div', {class:'grid2'}, el('label', {class:'f'}, `Vraag ${i + 1}`, ta(o, 'q' + i, 'Wie / Wat / Waarom…?', 2)), el('label', {class:'f'}, 'Antwoord', ta(o, 'a' + i, '', 2))));
+    const cp = el('button', {class:'btn'}, 'Kopieer het interview');
+    cp.onclick = () => {
+      const t = `Interview: ${S.title}\nInterviewer: ${o.wie1 || ''}\nGeïnterviewde: ${o.wie2 || ''}\n\n` + [0, 1, 2, 3, 4].map(i => `Vraag ${i + 1}: ${o['q' + i] || ''}\nAntwoord: ${o['a' + i] || ''}`).join('\n\n');
+      navigator.clipboard.writeText(t).then(() => toast('Interview gekopieerd. Plak het in je document.'), () => toast('Kopiëren lukte niet.'));
+    };
+    body.append(el('div', {class:'tools'}, cp));
+  },
+  I(body, ctx) {
+    const o = W('I'); o.tags ||= {};
+    const ps = S.opt.pos.length ? S.opt.pos : ['zn']; let tool = ps[0];
+    const tb = el('div', {class:'tools'});
+    const btns = ps.map(k => { const b = el('button', {class:'btn small' + (k === tool ? ' on' : '')}, el('span', {class:'pz-' + k, style:`--pc:${WOORDSOORTEN[k].c}`}, WOORDSOORTEN[k].n)); b.onclick = () => { tool = k; btns.forEach(x => x.classList.toggle('on', x === b)); }; return b; });
+    const gom = el('button', {class:'btn small'}, 'Gom'); gom.onclick = () => { tool = null; btns.forEach(x => x.classList.remove('on')); gom.classList.add('on'); };
+    btns.forEach(b => b.addEventListener('click', () => gom.classList.remove('on')));
+    tb.append(...btns, gom);
+    const table = el('div', {class:'cols3'});
+    const cls = i => { const k = o.tags[i]; return k ? 'pz-' + k : ''; };
+    const style = (s, i) => { const k = o.tags[i]; s.className = 'w ' + cls(i); s.style.setProperty('--pc', k ? WOORDSOORTEN[k].c : ''); };
+    const drawTable = () => {
+      table.innerHTML = '';
+      for (const k of ps) {
+        const ws = Object.entries(o.tags).filter(([, v]) => v === k).sort((a, b) => a[0] - b[0]).map(([i]) => ctx.words[i]);
+        table.append(el('div', {class:'wlist'}, el('h4', {}, el('span', {class:'pz-' + k, style:`--pc:${WOORDSOORTEN[k].c}`}, WOORDSOORTEN[k].n), ` (${ws.length})`), el('div', {class:'ws'}, ...ws.map(w => el('span', {class:'tag'}, w)))));
+      }
+    };
+    const txt = readText(ctx.tb, {onWord: (i, s) => { if (!tool || o.tags[i] === tool) delete o.tags[i]; else o.tags[i] = tool; style(s, i); saveProg(); drawTable(); }});
+    $$('.w', txt).forEach(s => style(s, +s.dataset.i));
+    body.append(el('p', {}, 'Kies een woordsoort en klik de woorden aan. Klik nog eens om het weg te halen.'), tb, txt, table);
+    drawTable();
+  },
+  J(body) {
+    const o = W('J');
+    const total = el('p', {class:'meta', style:'font-size:1rem'});
+    const upd = () => { const n = VRAAGWOORDEN.reduce((s, q) => s + (o[q] || '').split('\n').filter(x => x.trim()).length, 0); total.innerHTML = `Je vond al <b>${n}</b> antwoorden.`; };
+    body.append(el('p', {}, 'Zoek in de tekst zoveel mogelijk antwoorden op elk vraagwoord. Zet elk antwoord op een nieuwe lijn.'));
+    for (const q of VRAAGWOORDEN) {
+      const t = ta(o, q, `${q.replace('?', '')} … ?`, 2), cnt = el('span', {class:'cnt'});
+      const c = () => cnt.textContent = (o[q] || '').split('\n').filter(x => x.trim()).length + ' antw.';
+      t.addEventListener('input', () => { c(); upd(); }); c();
+      body.append(el('div', {class:'wwq'}, el('b', {}, q), t, cnt));
+    }
+    body.append(total); upd();
+  },
+  K(body, ctx) {
+    const o = W('K');
+    const orig = plainText(ctx.blocks.filter(b => b.type !== 'h'));
+    if (o.text == null) o.text = orig;
+    body.append(el('p', {}, 'Verander zoveel mogelijk woorden door een synoniem. De betekenis van de tekst moet hetzelfde blijven.'));
+    const t = el('textarea', {rows: 12}); t.value = o.text;
+    const stat = el('p', {class:'meta', style:'font-size:1rem'}), view = el('div', {class:'diffview'});
+    const upd = () => {
+      const a = (orig.match(WORD_RE) || []).map(normW), bw = o.text.match(WORD_RE) || [];
+      const {bj} = lcsPairs(a, bw.map(normW));
+      const changed = bw.length - bj.size;
+      stat.innerHTML = `Je veranderde <b>${changed}</b> woorden. De groene woorden zijn nieuw.`;
+      view.innerHTML = ''; let wi = 0;
+      o.text.split(/([\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*)/u).forEach((part, j) => { if (j % 2) { view.append(bj.has(wi) ? part : el('ins', {}, part)); wi++; } else view.append(part); });
+    };
+    t.oninput = () => { o.text = t.value; saveProg(); upd(); };
+    let armed = false; const rs = el('button', {class:'btn small'}, 'Begin opnieuw');
+    rs.onclick = () => { if (!armed) { armed = true; rs.textContent = 'Zeker? Klik nog eens'; setTimeout(() => { armed = false; rs.textContent = 'Begin opnieuw'; }, 3000); return; } o.text = orig; t.value = orig; saveProg(); upd(); armed = false; rs.textContent = 'Begin opnieuw'; };
+    body.append(t, el('div', {class:'tools'}, rs), stat, view); upd();
+  },
+  L(body, ctx) {
+    const o = W('L'); o.tries ||= [];
+    const n = countWords(plainText(ctx.blocks));
+    const clock = el('div', {class:'big-clock'}, '0:00.0');
+    let t0 = 0, raf = 0;
+    const fmt = ms => { const s = ms / 1000; return `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, '0')}`; };
+    const tick = () => { clock.textContent = fmt(Date.now() - t0); raf = requestAnimationFrame(tick); };
+    const btn = el('button', {class:'btn primary'}, 'Start met lezen');
+    btn.onclick = () => {
+      if (!t0) { t0 = Date.now(); tick(); btn.textContent = 'Klaar met lezen'; btn.className = 'btn rec'; txt.hidden = false; return; }
+      cancelAnimationFrame(raf); const sec = (Date.now() - t0) / 1000; t0 = 0;
+      o.tries.push({sec: Math.round(sec * 10) / 10, err: 0}); saveProg(); btn.textContent = 'Nieuwe poging'; btn.className = 'btn primary'; draw();
+    };
+    const txt = readText(ctx.tb);
+    const tbl = el('div'), chart = el('div');
+    const draw = () => {
+      tbl.innerHTML = ''; chart.innerHTML = '';
+      if (!o.tries.length) return;
+      const t = el('table', {class:'t'}, el('tr', {}, el('th', {}, 'Poging'), el('th', {}, 'Tijd'), el('th', {}, 'Woorden per minuut'), el('th', {}, 'Fouten'), el('th', {})));
+      o.tries.forEach((r, i) => {
+        const e = el('input', {type:'number', min:0, value:r.err, 'aria-label':'Fouten'}); e.oninput = () => { r.err = +e.value || 0; saveProg(); };
+        const del = el('button', {class:'btn small'}, '✕'); del.onclick = () => { o.tries.splice(i, 1); saveProg(); draw(); };
+        t.append(el('tr', {}, el('td', {}, i + 1), el('td', {}, r.sec.toFixed(1) + ' s'), el('td', {}, el('b', {}, Math.round(n * 60 / r.sec))), el('td', {}, e), el('td', {}, del)));
+      });
+      tbl.append(t);
+      const wpm = o.tries.map(r => n * 60 / r.sec), max = Math.max(...wpm) * 1.15, Wd = 520, H = 180, bw = Math.min(70, (Wd - 40) / wpm.length - 10);
+      const svg = `<svg class="chart" viewBox="0 0 ${Wd} ${H + 30}" role="img" aria-label="Woorden per minuut per poging">
+        <line x1="30" y1="${H}" x2="${Wd}" y2="${H}" stroke="currentColor" stroke-opacity=".3"/>
+        ${wpm.map((v, i) => { const h = v / max * (H - 20), x = 40 + i * (bw + 10); const best = v === Math.max(...wpm);
+          return `<rect x="${x}" y="${H - h}" width="${bw}" height="${h}" rx="5" fill="${best ? 'var(--ok)' : 'var(--accent)'}" fill-opacity="${best ? 1 : .55}"/>
+          <text x="${x + bw / 2}" y="${H - h - 6}" text-anchor="middle" font-size="13" font-weight="700" fill="currentColor">${Math.round(v)}</text>
+          <text x="${x + bw / 2}" y="${H + 18}" text-anchor="middle" font-size="12" fill="currentColor" fill-opacity=".7">${i + 1}</text>`; }).join('')}
+      </svg>`;
+      chart.innerHTML = svg;
+      const first = wpm[0], last = wpm[wpm.length - 1];
+      if (wpm.length > 1) chart.append(el('p', {class:'meta'}, last > first ? `Je leest nu ${Math.round(last - first)} woorden per minuut sneller dan bij je eerste poging.` : 'Probeer nog eens. Lees vlot, maar blijf juist lezen.'));
+    };
+    body.append(el('p', {}, `De tekst telt ${n} woorden. Klik op start en lees de tekst hardop. Klik op klaar als je het laatste woord gelezen hebt.`), el('div', {class:'tools'}, btn, clock), txt, tbl, chart);
+    txt.hidden = false; draw();
+  },
+  M(body) {
+    const o = W('M');
+    body.append(el('div', {class:'sentence', style:'font-weight:700'}, 'Stelling: ' + (S.opt.stelling || '(je leerkracht vult de stelling nog in)')));
+    const rr = el('div', {class:'radio-row'});
+    for (const [v, t] of [['ja', 'Ik ben akkoord'], ['nee', 'Ik ben niet akkoord']]) {
+      const r = el('input', {type:'radio', name:'deb', checked: o.kant === v}); r.onchange = () => { o.kant = v; saveProg(); };
+      rr.append(el('label', {}, r, t));
+    }
+    body.append(rr);
+    for (let i = 1; i <= 3; i++) body.append(el('div', {class:'grid2'}, el('label', {class:'f'}, `Argument ${i}`, ta(o, 'arg' + i, 'Ik vind dit omdat…', 2)), el('label', {class:'f'}, 'Bewijs uit de video of tekst', ta(o, 'bew' + i, 'In de video zie/hoor je dat…', 2))));
+    body.append(el('div', {class:'grid2'}, el('label', {class:'f'}, 'Wat zal de andere kant zeggen?', ta(o, 'tegen', '', 2)), el('label', {class:'f'}, 'Wat antwoord jij daarop?', ta(o, 'weerleg', '', 2))));
+  },
+  N(body) {
+    const o = W('N');
+    body.append(el('ol', {class:'steps'}, el('li', {}, 'Teken in elk vak een belangrijk moment uit de video en schrijf er één kernwoord bij.'), el('li', {}, 'Zet de video zonder geluid op.'), el('li', {}, 'Vertel als nieuwslezer wat je ziet. Gebruik alleen je spiekkaart, niet de tekst.'), el('li', {}, 'Neem je scherm op met microfoon en lever de opname in.')));
+    const g = el('div', {class:'cells'});
+    for (let i = 0; i < 6; i++) g.append(el('div', {class:'cell'}, el('b', {}, `Moment ${i + 1}`), drawPad(o, 'd' + i, 0.7), inp(o, 'k' + i, 'Kernwoord')));
+    body.append(g);
+  }
+};
+
+function renderPractice() {
+  const root = $('#view-practice'); root.innerHTML = '';
+  loadProgress();
+  const blocks = getBlocks(S.html), tb = tokenize(blocks);
+  const words = []; tb.forEach(b => b.parts.forEach(p => { if (p.w) words[p.i] = p.w; }));
+  const ctx = {blocks, tb, words}; lastCtx = ctx;
+  const list = chosen();
+
+  // kop
+  const prog = el('div', {class:'progress'}, el('i')), progTxt = el('div', {class:'meta'});
+  const updProg = () => { const d = list.filter(w => P.done[w.id]).length; prog.firstChild.style.width = (list.length ? d / list.length * 100 : 0) + '%'; progTxt.textContent = `${d} van ${list.length} taken klaar`; };
+  const name = el('input', {type:'text', placeholder:'Typ je naam', value: P.naam || '', 'aria-label':'Je naam'});
+  name.oninput = () => { P.naam = name.value; saveProg(); };
+  const planner = el('div', {class:'planner'});
+  const doneBoxes = {};
+  const setDone = (id, v) => { P.done[id] = v; saveProg(); (doneBoxes[id] || []).forEach(c => { c.checked = v; c.closest('label')?.classList.toggle('done', v); }); $('#card-' + id)?.classList.toggle('done', v); updProg(); };
+  for (const w of list) {
+    const c = el('input', {type:'checkbox', checked: !!P.done[w.id]}); c.onchange = () => setDone(w.id, c.checked);
+    (doneBoxes[w.id] ||= []).push(c);
+    planner.append(el('label', {class: P.done[w.id] ? 'done' : ''}, c, wvBadge(w.id), el('span', {class:'grow'}, el('b', {}, w.t), ' ', el('span', {class:'chip'}, S.sel[w.id] === 'req' ? 'verplicht' : 'keuze')), el('a', {href:'#card-' + w.id, onclick: e => { e.preventDefault(); $('#card-' + w.id).scrollIntoView({behavior:'smooth'}); }}, 'Ga naar')));
+  }
+  const nK = list.filter(w => S.sel[w.id] === 'keuze').length, minK = Math.min(+S.minKeuze || 0, nK);
+  root.append(el('div', {class:'panel'},
+    el('div', {class:'stu-head'},
+      el('div', {style:'min-width:0;display:grid;gap:8px'}, el('span', {class:'step'}, S.klas || 'Studeren met een video'), el('h1', {}, S.title || 'Werkblad bij de video'), S.intro ? el('p', {style:'margin:0'}, S.intro) : null, infoBlock()),
+      el('div', {style:'display:grid;gap:8px;min-width:220px'}, name, S.url ? el('a', {class:'btn primary', href:S.url, target:'_blank', rel:'noopener'}, 'Bekijk de video op SchoolTV ↗') : null,
+        HOST ? null : el('a', {class:'btn', href: inleverUrl(), target:'_blank', rel:'noopener', title: inleverIsDemo() ? 'Voorbeeld: de inleverpagina komt later' : ''}, 'Inleveren ↗' + (inleverIsDemo() ? ' (voorbeeld)' : '')),
+        el('button', {class:'btn', onclick: () => window.print()}, 'Mijn werk afdrukken of als pdf bewaren'))),
+    list.length ? el('div', {style:'margin-top:14px;display:grid;gap:6px'}, prog, progTxt, minK ? el('div', {class:'meta'}, `Kies minstens ${minK} van de ${nK} keuzetaken.`) : null, planner) : el('p', {class:'meta'}, 'Je leerkracht heeft nog geen taken gekozen.')));
+
+  // tekst
+  const sizeSel = el('select', {'aria-label':'Lettergrootte'}, ...[['1.05rem', 'Klein'], ['1.2rem', 'Normaal'], ['1.45rem', 'Groot'], ['1.75rem', 'Extra groot']].map(([v, t]) => el('option', {value:v, selected: (P.rs || '1.2rem') === v}, t)));
+  const txt = readText(tb); txt.style.setProperty('--rs', P.rs || '1.2rem');
+  sizeSel.onchange = () => { P.rs = sizeSel.value; saveProg(); $$('.readtext', root).forEach(r => r.style.setProperty('--rs', P.rs)); };
+  root.append(el('div', {class:'card'}, el('div', {class:'card-h'}, el('h2', {}, 'De tekst'), el('button', {class:'btn small', onclick: () => speak(plainText(blocks))}, 'Lees voor'), el('button', {class:'btn small', onclick: () => speechSynthesis?.cancel()}, 'Stop'), sizeSel), blocks.length ? txt : el('p', {class:'meta'}, 'Er is nog geen tekst toegevoegd.')));
+
+  // taken
+  for (const w of list) {
+    const c = el('input', {type:'checkbox', checked: !!P.done[w.id]}); c.onchange = () => setDone(w.id, c.checked);
+    (doneBoxes[w.id] ||= []).push(c);
+    const body = el('div', {class:'card-body', style:'display:grid;gap:12px;min-width:0'});
+    const card = el('section', {class:'card' + (P.done[w.id] ? ' done' : ''), id:'card-' + w.id},
+      el('div', {class:'card-h'}, wvBadge(w.id), el('h2', {}, w.t), el('span', {class:'chip'}, w.proof), el('label', {class:'done-toggle'}, c, 'Klaar')), body);
+    try { PRACTICE[w.id](body, ctx); } catch (e) { console.error(e); body.append(el('p', {class:'warnbox'}, 'Deze oefening kon niet laden.')); }
+    root.append(card);
+  }
+  if (P.rs) $$('.readtext', root).forEach(r => r.style.setProperty('--rs', P.rs));
+  updProg();
+}
+let lastCtx = null;
+function refreshCard(id) {
+  const body = $('#card-' + id + ' .card-body'); if (!body || !lastCtx) return;
+  body.innerHTML = ''; PRACTICE[id](body, lastCtx);
+}
+let rerender = () => { const y = window.scrollY; renderPractice(); window.scrollTo({top:y}); };
+
+/* ================= 3. KIJKEN ================= */
+let prompter = {run:false, raf:0};
+function stopPrompter() { prompter.run = false; cancelAnimationFrame(prompter.raf); }
+let cap = null;
+function stopCapture() { cap?.stream.getTracks().forEach(t => t.stop()); cap = null; }
+
+function renderWatch() {
+  stopPrompter();
+  const root = $('#view-watch'); root.innerHTML = '';
+  loadProgress();
+  const blocks = getBlocks(S.html), tb = tokenize(blocks), src = videoSrc();
+  P.watch ||= {lay:'side', rs:'1.3rem', speed:22}; P.shots ||= [];
+  const ws = P.watch;
+
+  // kop met weergave-instellingen
+  const segBtns = [['side', 'Tekst rechts'], ['left', 'Tekst links'], ['below', 'Tekst onder'], ['video', 'Alleen video']].map(([v, t]) => {
+    const b = el('button', {'aria-pressed': ws.lay === v}, t);
+    b.onclick = () => { ws.lay = v; saveProg(); renderWatch(); }; return b;
+  });
+  root.append(el('div', {class:'watch-head'},
+    el('h1', {}, S.title || 'De video'),
+    el('div', {class:'seg', role:'group', 'aria-label':'Weergave'}, ...segBtns),
+    S.url ? el('a', {class:'btn small', href:S.url, target:'_blank', rel:'noopener'}, 'Open op SchoolTV ↗') : null));
+  const ib = infoBlock(); if (ib) root.append(ib);
+  if (src) root.append(el('p', {class:'meta', style:'margin:0'}, 'Trager kijken? Klik in de video op het tandwiel ⚙ → Afspeelsnelheid → 0,75x. Zet het geluid uit als je zelf wil inspreken.'));
+
+  // video (met de screenshotknop rechtsboven)
+  let vid, capCtl = null;
+  if (src) {
+    const shotBtn = el('button', {class:'shot-btn', title:'Screenshot van de video naar het klembord'},
+      el('span', {html:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'}), 'Screenshot');
+    vid = el('div', {class:'vidbox', id:'vidbox'}, el('iframe', {src, title:'Video: ' + (S.title || ''), allow:'encrypted-media; fullscreen; picture-in-picture; autoplay', allowfullscreen:true}), shotBtn);
+
+    const status = el('span', {class:'meta', role:'status'});
+    const stopBtn = el('button', {class:'btn small'}, 'Stop met delen');
+    const gallery = el('div', {class:'shotlist'});
+    const updCap = () => { stopBtn.hidden = !cap; status.textContent = cap ? 'Screenshots staan aan. Elke klik op Screenshot kopieert het beeld van de video.' : 'Screenshot: de eerste keer vraagt je browser om dit tabblad te delen. Kies dit tabblad en klik op Delen.'; };
+    stopBtn.onclick = () => { stopCapture(); updCap(); };
+    const drawGallery = () => {
+      gallery.innerHTML = '';
+      P.shots.forEach((sh, i) => {
+        const copy = el('button', {class:'btn small'}, 'Kopieer');
+        copy.onclick = () => copyImage(dataUrlToPng(sh.img));
+        const toG = S.sel.G ? el('button', {class:'btn small'}, 'Naar taak G') : null;
+        if (toG) toG.onclick = () => {
+          const g = W('G'), n = +S.opt.shots || 4; let k = -1;
+          for (let j = 0; j < n; j++) if (!g['img' + j]) { k = j; break; }
+          if (k < 0) return toast('Alle vakken van taak G zijn al gevuld. Verwijder er eerst een in Oefenen.');
+          g['img' + k] = sh.img; saveProg(); toast(`Toegevoegd aan taak G, screenshot ${k + 1}`);
+        };
+        const del = el('button', {class:'btn small', title:'Verwijderen', 'aria-label':'Verwijderen'}, '✕');
+        del.onclick = () => { P.shots.splice(i, 1); saveProg(); drawGallery(); };
+        const im = el('img', {alt:`Screenshot ${i + 1}`}); setImgSrc(im, sh.img);
+        gallery.append(el('figure', {}, im, el('figcaption', {}, copy, toG, del)));
+      });
+    };
+    shotBtn.onclick = async () => {
+      if (!cap) {
+        try { await startCapture(); updCap(); toast('Delen gestart. Klik nu op Screenshot om een beeld te nemen.'); }
+        catch (e) { toast(e.message === 'unsupported' ? 'Screenshots maken werkt hier niet. Gebruik Windows-toets + Shift + S (Mac: Cmd + Shift + 4).' : 'Delen is niet gestart.'); }
+        return;
+      }
+      // knop even verbergen zodat hij niet mee op de screenshot staat
+      shotBtn.style.visibility = 'hidden';
+      const canvasP = new Promise(res => setTimeout(() => { const c = grabFrame(); shotBtn.style.visibility = ''; res(c); }, 260));
+      copyImage(canvasP.then(c => { if (!c || isBlack(c)) throw new Error('geen-beeld'); return new Promise(res => c.toBlob(res, 'image/png')); }));
+      const c = await canvasP;
+      if (!c) return toast('Er kwam geen beeld binnen. Probeer opnieuw.');
+      if (isBlack(c)) return toast('Het beeld bleef zwart. Deze video is beveiligd. Gebruik Windows-toets + Shift + S (Mac: Cmd + Shift + 4).');
+      vid.classList.remove('flash'); void vid.offsetWidth; vid.classList.add('flash');
+      P.shots.push({img: shrink(c, 1280), t: Date.now()}); saveProg(); drawGallery();
+    };
+    capCtl = el('div', {class:'w-ctl cap-ctl'}, el('div', {class:'capbar'}, status, stopBtn), gallery);
+    updCap(); drawGallery();
+  } else {
+    vid = el('div', {class:'novid'}, el('div', {}, el('b', {}, 'De video kan hier niet getoond worden.'), el('br'),
+      studentOnly ? 'Open de video op SchoolTV en zet dit venster ernaast.' : 'Plak in stap 1 bij Maken de embedcode van SchoolTV.'),
+      S.url ? el('a', {class:'btn primary', href:S.url, target:'_blank', rel:'noopener'}, 'Open de video op SchoolTV ↗') : null);
+  }
+
+  // meeleestekst
+  const scroller = el('div', {class:'tp-scroll', tabindex:0, 'aria-label':'Tekst van de video'});
+  const txt = readText(tb); scroller.append(blocks.length ? txt : el('p', {class:'meta'}, 'Er is nog geen tekst toegevoegd.'));
+  const setSize = v => { ws.rs = v; txt.style.setProperty('--rs', v); saveProg(); };
+  const sizes = ['1rem', '1.15rem', '1.3rem', '1.5rem', '1.75rem', '2.1rem', '2.5rem'];
+  const stepSize = d => { const i = Math.max(0, Math.min(sizes.length - 1, sizes.indexOf(ws.rs) + d)); setSize(sizes[i] || '1.3rem'); };
+  setSize(sizes.includes(ws.rs) ? ws.rs : '1.3rem');
+  const play = el('button', {class:'btn small primary'}, 'Laat de tekst lopen');
+  const speed = el('input', {type:'range', min:6, max:80, value:ws.speed, 'aria-label':'Snelheid van de tekst'});
+  speed.oninput = () => { ws.speed = +speed.value; saveProg(); };
+  let y = 0, lastT = 0;
+  const step = t => {
+    if (!prompter.run) return;
+    if (Math.abs(scroller.scrollTop - y) > 3) y = scroller.scrollTop; // leerling scrolde zelf
+    const dt = lastT ? Math.min(0.1, (t - lastT) / 1000) : 0; lastT = t;
+    y += dt * +speed.value; scroller.scrollTop = y;
+    if (scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1) { stopPrompter(); play.textContent = 'Laat de tekst lopen'; return; }
+    prompter.raf = requestAnimationFrame(step);
+  };
+  play.onclick = () => {
+    if (prompter.run) { stopPrompter(); play.textContent = 'Verder'; return; }
+    prompter.run = true; lastT = 0; y = scroller.scrollTop; play.textContent = 'Pauze'; prompter.raf = requestAnimationFrame(step);
+  };
+  // hoogte van het tekstvak: sleep aan de greep, dubbelklik zet terug
+  const handle = el('div', {class:'tp-handle', role:'separator', 'aria-orientation':'horizontal', tabindex:0, title:'Sleep om het tekstvak hoger of lager te maken. Dubbelklik om terug te zetten.', 'aria-label':'Hoogte van het tekstvak'});
+  const tp = el('div', {class:'tp'}, el('div', {class:'tp-wrap'}, scroller), handle);
+  const setH = h => { if (h == null) { delete ws.h; tp.style.height = ''; } else { ws.h = Math.round(Math.max(56, Math.min(1600, h))); tp.style.height = ws.h + 'px'; } saveProg(); };
+  if (ws.h) tp.style.height = ws.h + 'px';
+  handle.addEventListener('pointerdown', e => {
+    e.preventDefault(); handle.setPointerCapture(e.pointerId);
+    const y0 = e.clientY, h0 = tp.getBoundingClientRect().height;
+    const move = ev => { const h = Math.round(Math.max(56, Math.min(1600, h0 + ev.clientY - y0))); tp.style.height = h + 'px'; };
+    const up = ev => { handle.removeEventListener('pointermove', move); handle.removeEventListener('pointerup', up); setH(h0 + ev.clientY - y0); };
+    handle.addEventListener('pointermove', move); handle.addEventListener('pointerup', up);
+  });
+  handle.addEventListener('dblclick', () => setH(null));
+  handle.addEventListener('keydown', e => {
+    const d = e.key === 'ArrowDown' ? 40 : e.key === 'ArrowUp' ? -40 : 0;
+    if (d) { e.preventDefault(); setH(tp.getBoundingClientRect().height + d); }
+  });
+  const tpCtl = el('div', {class:'w-ctl tp-ctl tp-bar'},
+    el('button', {class:'btn small', 'aria-label':'Kleinere letters', onclick: () => stepSize(-1)}, 'A−'),
+    el('button', {class:'btn small', 'aria-label':'Grotere letters', onclick: () => stepSize(1)}, 'A+'),
+    play,
+    el('label', {class:'check', style:'font-size:.85rem'}, 'Traag', speed, 'Snel'),
+    el('button', {class:'btn small', onclick: () => { scroller.scrollTop = 0; y = 0; }}, 'Naar begin'),
+    el('button', {class:'btn small', onclick: () => setH(null)}, 'Hoogte terugzetten'));
+
+  // rij 1: video | tekst (tegen elkaar) · rij 2: knoppen onder elk deel
+  const lay = {below:'below', video:'video', left:'side left'}[ws.lay] || 'side';
+  const grid = el('div', {class:'watch ' + lay}, vid);
+  if (lay === 'below' && src) {
+    // video kleiner of groter maken door aan de greep onder de video te slepen
+    const vh = el('div', {class:'tp-handle vid-handle', role:'separator', tabindex:0, title:'Sleep om de video kleiner of groter te maken. Dubbelklik om terug te zetten.', 'aria-label':'Grootte van de video'});
+    const setW = f => { if (f == null) { delete ws.vw; vid.style.width = ''; } else { ws.vw = Math.max(0.5, Math.min(1, f)); vid.style.width = (ws.vw * 100) + '%'; } saveProg(); };
+    if (ws.vw) { ws.vw = Math.max(0.5, Math.min(1, ws.vw)); vid.style.width = (ws.vw * 100) + '%'; }
+    vh.addEventListener('pointerdown', e => {
+      e.preventDefault(); vh.setPointerCapture(e.pointerId);
+      const y0 = e.clientY, w0 = vid.getBoundingClientRect().width, cw = grid.getBoundingClientRect().width;
+      const calc = ev => (w0 + (ev.clientY - y0) * 16 / 9) / cw;
+      const move = ev => { vid.style.width = Math.max(50, Math.min(100, calc(ev) * 100)) + '%'; };
+      const up = ev => { vh.removeEventListener('pointermove', move); vh.removeEventListener('pointerup', up); setW(calc(ev)); };
+      vh.addEventListener('pointermove', move); vh.addEventListener('pointerup', up);
+    });
+    vh.addEventListener('dblclick', () => setW(null));
+    vh.addEventListener('keydown', e => {
+      const d = e.key === 'ArrowDown' ? 0.05 : e.key === 'ArrowUp' ? -0.05 : 0;
+      if (d) { e.preventDefault(); setW((ws.vw || 1) + d); }
+    });
+    grid.append(vh);
+  }
+  if (lay !== 'video') grid.append(tp);
+  if (capCtl) grid.append(capCtl);
+  if (lay !== 'video') grid.append(tpCtl);
+  root.append(grid);
+}
+
+async function startCapture() {
+  if (!navigator.mediaDevices?.getDisplayMedia) throw new Error('unsupported');
+  const stream = await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:'browser', frameRate:10}, audio:false, preferCurrentTab:true, selfBrowserSurface:'include', surfaceSwitching:'exclude'});
+  const track = stream.getVideoTracks()[0];
+  let cropped = false;
+  // Chrome/Edge: snij de opname bij tot het videokader
+  if (window.CropTarget && track.cropTo && $('#vidbox')) { try { await track.cropTo(await CropTarget.fromElement($('#vidbox'))); cropped = true; } catch {} }
+  const v = el('video', {muted:true, playsInline:true}); v.srcObject = stream; await v.play();
+  track.addEventListener('ended', () => { cap = null; if (view === 'watch') renderWatch(); });
+  cap = {stream, v, cropped};
+}
+function grabFrame() {
+  const {v, cropped} = cap; if (!v.videoWidth) return null;
+  const c = el('canvas'), x = c.getContext('2d');
+  if (cropped) { c.width = v.videoWidth; c.height = v.videoHeight; x.drawImage(v, 0, 0); return c; }
+  const r = $('#vidbox').getBoundingClientRect(), sx = v.videoWidth / innerWidth, sy = v.videoHeight / innerHeight;
+  c.width = Math.round(r.width * sx); c.height = Math.round(r.height * sy);
+  x.drawImage(v, r.left * sx, r.top * sy, r.width * sx, r.height * sy, 0, 0, c.width, c.height);
+  return c;
+}
+function isBlack(c) {
+  const s = el('canvas', {width:32, height:18}), x = s.getContext('2d'); x.drawImage(c, 0, 0, 32, 18);
+  const d = x.getImageData(0, 0, 32, 18).data; let sum = 0; for (let i = 0; i < d.length; i += 4) sum += d[i] + d[i + 1] + d[i + 2];
+  return sum / (d.length / 4) < 12;
+}
+function shrink(c, max) {
+  const k = Math.min(1, max / c.width), o = el('canvas', {width: Math.round(c.width * k), height: Math.round(c.height * k)});
+  o.getContext('2d').drawImage(c, 0, 0, o.width, o.height); return o.toDataURL('image/jpeg', 0.82);
+}
+function dataUrlToPng(url) {
+  return loadImage(url).then(im => new Promise((res, rej) => {
+    if (!im) return rej(new Error('geen-beeld'));
+    const c = el('canvas', {width: im.naturalWidth, height: im.naturalHeight}); c.getContext('2d').drawImage(im, 0, 0); c.toBlob(res, 'image/png');
+  }));
+}
+function copyImage(blobPromise) {
+  // ClipboardItem met een promise: blijft binnen de klik, ook al is het beeld nog niet klaar
+  if (!window.ClipboardItem || !navigator.clipboard?.write) return toast('Bewaard bij je screenshots. Kopiëren naar het klembord werkt niet in deze browser.');
+  let noImage = false; blobPromise.catch(() => noImage = true); // geen beeld: de knop toont zelf een melding
+  navigator.clipboard.write([new ClipboardItem({'image/png': blobPromise})])
+    .then(() => toast('Screenshot staat op je klembord. Plak met Ctrl/Cmd + V.'))
+    .catch(() => { if (!noImage) toast('Bewaard bij je screenshots, maar het klembord weigerde. Klik op "Kopieer" bij de screenshot.'); });
+}
+
+/* ================= MP3 ================= */
+async function toMp3(blob) {
+  const AC = window.AudioContext || window.webkitAudioContext, ac = new AC();
+  const audio = await ac.decodeAudioData(await blob.arrayBuffer()); ac.close?.();
+  const ch = audio.getChannelData(0), sr = audio.sampleRate;
+  const pcm = new Int16Array(ch.length);
+  for (let i = 0; i < ch.length; i++) { const s = Math.max(-1, Math.min(1, ch[i])); pcm[i] = s < 0 ? s * 0x8000 : s * 0x7fff; }
+  if (window.lamejs) {
+    const enc = new lamejs.Mp3Encoder(1, sr, 96), parts = [];
+    for (let i = 0; i < pcm.length; i += 1152) { const m = enc.encodeBuffer(pcm.subarray(i, i + 1152)); if (m.length) parts.push(new Uint8Array(m.buffer, m.byteOffset, m.length).slice()); }
+    const e = enc.flush(); if (e.length) parts.push(new Uint8Array(e.buffer, e.byteOffset, e.length).slice());
+    return {blob: new Blob(parts, {type:'audio/mpeg'}), ext:'mp3'};
+  }
+  // reserve: WAV
+  const buf = new ArrayBuffer(44 + pcm.length * 2), v = new DataView(buf);
+  const w = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  w(0, 'RIFF'); v.setUint32(4, 36 + pcm.length * 2, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, pcm.length * 2, true);
+  new Int16Array(buf, 44).set(pcm);
+  return {blob: new Blob([buf], {type:'audio/wav'}), ext:'wav'};
+}
+
+/* ================= delen, bewaren, afdrukken ================= */
+const b64u = bytes => { let s = ''; bytes.forEach(b => s += String.fromCharCode(b)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function pack(obj) {
+  const data = new TextEncoder().encode(JSON.stringify(obj));
+  if (!window.CompressionStream) return 'j' + b64u(data);
+  const cs = new Blob([data]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+  return 'z' + b64u(new Uint8Array(await new Response(cs).arrayBuffer()));
+}
+async function unpack(s) {
+  const bytes = unb64u(s.slice(1));
+  if (s[0] === 'j') return JSON.parse(new TextDecoder().decode(bytes));
+  const ds = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+  return JSON.parse(await new Response(ds).text());
+}
+$('#btn-link').onclick = async () => {
+  const {demo, ...rest} = S; const link = location.href.split('#')[0] + '#w=' + await pack(rest);
+  try { await navigator.clipboard.writeText(link); toast(location.protocol === 'file:' ? 'Link gekopieerd. Let op: hij werkt pas voor leerlingen als de app online staat.' : 'Leerlingenlink gekopieerd'); }
+  catch { toast('Kopiëren lukte niet. Probeer het opnieuw.'); }
+};
+$('#btn-save').onclick = () => downloadBlob(new Blob([JSON.stringify(S, null, 1)], {type:'application/json'}), `werkblad_${slug(S.title)}.json`);
+$('#btn-open').onclick = () => $('#file-open').click();
+$('#file-open').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const o = JSON.parse(await f.text()); if (!o.v) throw 0; S = {...defaultState(false), ...o, demo:false}; saveState(); bindBuilder(); go(view); toast('Werkblad geopend'); }
+  catch { toast('Dit bestand is geen werkblad van deze app.'); }
+  e.target.value = '';
+};
+const doPrint = () => { if (view === 'build') go('paper'); setTimeout(() => window.print(), 150); };
+$('#btn-print').onclick = doPrint; $('#btn-print2').onclick = () => window.print();
+
+/* ================= bijleer.school =================
+   In bijleer.school draait deze pagina in een iframe. De ouder zet window.videolerenHost:
+     {mode: 'teacher', supabase, taskId, onClose}                    -> taak bewerken
+     {mode: 'student', supabase, hash, taskId | shareCode, onClose}  -> taak maken
+   Zonder host werkt de pagina zoals de losse app (alles in deze browser). */
+const HOST = (() => { try { return window.parent !== window ? window.parent.videolerenHost || null : null; } catch { return null; } })();
+
+const OPT_KEYS = {I: ['pos'], M: ['stelling'], G: ['shots'], F: ['frames'], D: ['minWoorden']};
+function stateFromTask(t, werkvormen) {
+  const d = defaultState(false), opt = {...d.opt};
+  for (const w of werkvormen) for (const k of OPT_KEYS[w.werkvorm] || []) if (w.options?.[k] !== undefined) opt[k] = w.options[k];
+  return {...d, klas: t.layout?.klas || '', title: t.title || '', url: t.video_url || '', embed: t.embed_src || '', intro: t.intro || '', info: t.info || '',
+    infoPaper: t.info_on_paper !== false, html: t.transcript_html || '', layout: {...d.layout, ...(t.layout || {})},
+    minKeuze: t.min_keuze || 0, opt,
+    sel: Object.fromEntries(werkvormen.map(w => [w.werkvorm, w.required ? 'req' : 'keuze']))};
+}
+const optionsFor = id => Object.fromEntries((OPT_KEYS[id] || []).map(k => [k, S.opt[k]]));
+
+/* -- status rechtsboven -- */
+function setSync(text, bad) {
+  let b = $('#sync-state');
+  if (!b) { b = el('span', {id:'sync-state', class:'meta', role:'status', style:'align-self:center'}); $('.bar .actions').prepend(b); }
+  b.textContent = text; b.style.color = bad ? 'var(--mk-red)' : '';
+}
+
+/* -- leerkracht: taak bewaren -- */
+let taskSaving = Promise.resolve();
+const saveTaskSoon = debounce(() => { taskSaving = taskSaving.then(saveTask); }, 900);
+async function saveTask() {
+  const sb = HOST.supabase, id = HOST.taskId;
+  setSync('Bewaren…');
+  const {error} = await sb.from('videoleren_tasks').update({
+    title: S.title, video_url: S.url || null, embed_src: S.embed || null, intro: S.intro || null, info: S.info || null,
+    info_on_paper: S.infoPaper !== false, transcript_html: sanitize(S.html), layout: {...S.layout, klas: S.klas || ''}, min_keuze: +S.minKeuze || 0
+  }).eq('id', id);
+  const rows = chosen().map((w, i) => ({task_id: id, werkvorm: w.id, required: S.sel[w.id] === 'req', sort_order: i, options: optionsFor(w.id)}));
+  const del = rows.length
+    ? sb.from('videoleren_task_werkvormen').delete().eq('task_id', id).not('werkvorm', 'in', `(${rows.map(r => r.werkvorm).join(',')})`)
+    : sb.from('videoleren_task_werkvormen').delete().eq('task_id', id);
+  const [d, u] = await Promise.all([del, rows.length ? sb.from('videoleren_task_werkvormen').upsert(rows, {onConflict: 'task_id,werkvorm'}) : {error: null}]);
+  const err = error || d.error || u.error;
+  if (err) { console.error(err); setSync('Niet bewaard. Controleer je verbinding.', true); }
+  else { setSync('Bewaard ✓'); HOST.onSaved?.(); }
+}
+
+/* -- leerling: bestanden -- */
+const urlCache = new Map();
+async function fileUrl(ref) {
+  if (!ref || !String(ref).startsWith('file:')) return ref || '';
+  const id = ref.slice(5);
+  const hit = urlCache.get(id); if (hit && hit.until > Date.now()) return hit.url;
+  const {data, error} = await HOST.supabase.functions.invoke('videoleren-files', {body: {action: 'url', hash: HOST.hash, task_id: HOST.taskId, file_id: id}});
+  if (error || !data?.url) return '';
+  urlCache.set(id, {url: data.url, until: Date.now() + 50 * 60 * 1000});
+  return data.url;
+}
+function setImgSrc(img, v) {
+  if (!v) return;
+  if (String(v).startsWith('file:')) { img.crossOrigin = 'anonymous'; fileUrl(v).then(u => { if (u) img.src = u; }); }
+  else img.src = v;
+}
+function loadImage(v) {
+  return new Promise(res => { if (!v) return res(null); const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); setImgSrc(im, v); });
+}
+async function uploadBlob(blob, werkvorm, kind) {
+  const mime = (blob.type || '').split(';')[0] || 'application/octet-stream';
+  const {data, error} = await HOST.supabase.functions.invoke('videoleren-files',
+    {body: {action: 'upload', hash: HOST.hash, task_id: HOST.taskId, werkvorm, kind, mime, size: blob.size}});
+  if (error || !data?.token) throw error || new Error('upload');
+  const up = await HOST.supabase.storage.from('videoleren-files').uploadToSignedUrl(data.path, data.token, blob, {contentType: mime});
+  if (up.error) throw up.error;
+  return 'file:' + data.file_id;
+}
+function deleteFile(ref) {
+  if (!ref || !String(ref).startsWith('file:')) return;
+  HOST.supabase.functions.invoke('videoleren-files', {body: {action: 'delete', hash: HOST.hash, task_id: HOST.taskId, file_id: ref.slice(5)}});
+}
+// Vervang tekeningen/foto's (data:-adressen) in een object door bestanden. Een vervangen bestand wordt opgeruimd.
+const knownRefs = new Map(); // pad -> 'file:id'
+async function uploadDataUrls(obj, werkvorm, path = werkvorm) {
+  for (const [k, v] of Object.entries(obj || {})) {
+    const here = path + '/' + k;
+    if (typeof v === 'string' && v.startsWith('data:image/')) {
+      const blob = await (await fetch(v)).blob();
+      obj[k] = await uploadBlob(blob, werkvorm, 'image');
+      const old = knownRefs.get(here); if (old && old !== obj[k]) deleteFile(old);
+      knownRefs.set(here, obj[k]);
+    } else if (typeof v === 'string' && v.startsWith('file:')) {
+      knownRefs.set(here, v);
+    } else if (v === '' && knownRefs.has(here)) {
+      deleteFile(knownRefs.get(here)); knownRefs.delete(here);
+    } else if (v && typeof v === 'object') {
+      await uploadDataUrls(v, werkvorm, here);
+    }
+  }
+}
+
+/* -- leerling: voortgang bewaren -- */
+// Alleen lege objecten, lege lijsten, lege tekst of standaardinstellingen? Dan telt het niet als begonnen.
+const isBlank = v => v == null || v === '' || v === false
+  || (Array.isArray(v) ? v.every(isBlank) : typeof v === 'object' ? Object.values(v).every(isBlank) : false);
+const lastSent = {};
+let syncing = Promise.resolve();
+const syncStudentSoon = debounce(() => { syncing = syncing.then(syncStudent); }, 1200);
+async function syncStudent() {
+  const groups = {kijken: {rs: P.rs, watch: P.watch, shots: P.shots || []}};
+  for (const w of chosen()) groups[w.id] = W(w.id);
+  let failed = null;
+  for (const [wv, data] of Object.entries(groups)) {
+    const status = wv !== 'kijken' && P.done[wv] ? 'klaar' : 'bezig';
+    try { await uploadDataUrls(data, wv); } catch { failed = 'Een tekening of foto kon niet bewaard worden.'; continue; }
+    const body = JSON.stringify(data) + '|' + status;
+    if (lastSent[wv] === body) continue;
+    if (lastSent[wv] === undefined && status === 'bezig' && isBlank(data)) continue; // nog niets gedaan: geen rij aanmaken
+    if (lastSent[wv] === undefined) setSync('Bewaren…'); else setSync('Bewaren…');
+    const {data: r, error} = await HOST.supabase.rpc('videoleren_save_progress',
+      {p_hash: HOST.hash, p_task_id: HOST.taskId, p_werkvorm: wv, p_data: data, p_status: status});
+    if (error || r?.status !== 'ok') {
+      failed = r?.status === 'closed' ? 'Deze taak is afgesloten. Je kan niets meer wijzigen.'
+        : r?.status === 'too_large' ? 'Dit onderdeel is te groot om te bewaren.' : 'Niet bewaard. Controleer je verbinding.';
+      continue;
+    }
+    lastSent[wv] = body;
+  }
+  setSync(failed || 'Bewaard ✓', !!failed);
+}
+
+async function hostInit() {
+  const sb = HOST.supabase;
+  for (const id of ['btn-link', 'btn-save', 'btn-open', 'btn-new']) { const b = $('#' + id); if (b) b.hidden = true; }
+  const back = el('button', {class:'btn small', onclick: async () => { await (HOST.mode === 'teacher' ? taskSaving : syncing); HOST.onClose?.(); }}, '← Terug');
+  $('.bar .actions').prepend(back);
+  $('.inlever-box label.f')?.setAttribute('hidden', '');
+
+  if (HOST.mode === 'teacher') {
+    const {data: t, error} = await sb.from('videoleren_tasks').select('*, videoleren_task_werkvormen(*)').eq('id', HOST.taskId).single();
+    if (error || !t) { document.body.innerHTML = '<p style="padding:24px">Deze taak kon niet geladen worden.</p><p style="padding:0 24px"><button id="vl-back" class="btn primary">Terug</button></p>'; $('#vl-back').onclick = () => HOST.onClose?.(); return; }
+    HOST.shareCode = t.share_code;
+    S = stateFromTask(t, t.videoleren_task_werkvormen || []);
+    $('#inlever-demo').hidden = true;
+    bindBuilder(); drawInlever(); setSync('Bewaard ✓');
+    go('build');
+    return;
+  }
+
+  // leerling
+  const {data: r, error} = await sb.rpc('videoleren_open_task', {p_hash: HOST.hash, p_task_id: HOST.taskId || null, p_share_code: HOST.shareCode || null});
+  if (error || r?.status !== 'ok') {
+    const msg = {closed: 'Deze taak is afgesloten.', not_assigned: 'Deze taak is niet voor jou.'}[r?.status] || 'Deze taak werd niet gevonden.';
+    document.body.innerHTML = `<div style="padding:40px;font:18px/1.5 sans-serif;text-align:center"><p>${esc(msg)}</p><button id="vl-back" class="btn primary">Terug naar de WebWijzer</button></div>`;
+    $('#vl-back').onclick = () => HOST.onClose?.();
+    return;
+  }
+  HOST.taskId = r.task.id; HOST.shareCode = r.task.share_code;
+  S = stateFromTask(r.task, r.werkvormen);
+  P = {naam: r.student.first_name, done: {}, w: {}};
+  for (const pr of r.progress) {
+    if (pr.werkvorm === 'kijken') { P.rs = pr.data.rs; P.watch = pr.data.watch; P.shots = pr.data.shots || []; }
+    else { P.w[pr.werkvorm] = pr.data || {}; if (pr.status === 'klaar') P.done[pr.werkvorm] = true; }
+    lastSent[pr.werkvorm] = JSON.stringify(pr.werkvorm === 'kijken' ? {rs: P.rs, watch: P.watch, shots: P.shots} : pr.data) + '|' + pr.status;
+  }
+  studentOnly = true;
+  for (const id of ['tab-build', 'btn-print']) $('#' + id).hidden = true;
+  bindBuilder();
+  go(videoSrc() ? 'watch' : 'practice');
+}
+
+/* ================= start ================= */
+(async function init() {
+  if (HOST) { await hostInit(); if ('speechSynthesis' in window) speechSynthesis.getVoices(); return; }
+  const m = location.hash.match(/^#w=(.+)$/);
+  if (m) {
+    try { S = {...defaultState(false), ...(await unpack(m[1])), demo:false}; studentOnly = true; }
+    catch { toast('Deze link is beschadigd.'); }
+  }
+  if (!S) S = store.get('stw-state', null) || defaultState(true);
+  if (S.demo && !S.embed) { const d = defaultState(true); S.url = d.url; S.embed = d.embed; }
+  S.opt = {...defaultState(false).opt, ...S.opt}; S.layout = {...defaultState(false).layout, ...S.layout};
+  if (studentOnly) { $('#tab-build').hidden = true; $('#btn-link').hidden = true; $('#btn-save').hidden = true; $('#btn-open').hidden = true; $('#btn-print').hidden = true; }
+  bindBuilder();
+  if ('speechSynthesis' in window) speechSynthesis.getVoices();
+  const startTab = new URLSearchParams(location.search).get('tab'); // bv. ?tab=paper
+  go(['build', 'paper', 'watch', 'practice'].includes(startTab) ? startTab : studentOnly ? (videoSrc() ? 'watch' : 'practice') : 'build');
+})();
+</script>
+</body>
+</html>

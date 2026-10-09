@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { KeyRound, GraduationCap, Globe, X, RefreshCw } from 'lucide-react';
+import { KeyRound, GraduationCap, Globe, X, RefreshCw, Clapperboard } from 'lucide-react';
 import { StudentWebWijzer } from './StudentWebWijzer';
 import { Html5Qrcode } from 'html5-qrcode';
 
@@ -17,7 +17,9 @@ export function PublicWebWijzerAccess() {
   const [scannerStarted, setScannerStarted] = useState(false);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [switchingCamera, setSwitchingCamera] = useState(false);
-  const [authenticatedStudent, setAuthenticatedStudent] = useState<{ id: string; name: string } | null>(null);
+  const [authenticatedStudent, setAuthenticatedStudent] = useState<{ id: string; name: string; hash?: string } | null>(null);
+  // share_code of a printed Videoleren worksheet: after login the student goes straight to that task.
+  const [videoleerCode, setVideoleerCode] = useState<string | null>(() => new URLSearchParams(window.location.search).get('vl'));
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const startingRef = useRef(false);
   const scannerIdRef = useRef(`webwijzer-qr-${Math.random().toString(36).slice(2)}`);
@@ -47,7 +49,9 @@ export function PublicWebWijzerAccess() {
           try {
             const url = new URL(decodedText);
             const hash = url.searchParams.get('h');
+            const vl = url.searchParams.get('vl');
             if (hash) { stopScanner(); authenticateWithHash(hash); }
+            else if (vl) setVideoleerCode(vl); // worksheet QR: keep scanning for the student's own card
           } catch { /* not a URL */ }
         },
         () => { /* ignore decode errors */ }
@@ -94,16 +98,12 @@ export function PublicWebWijzerAccess() {
     setLoading(true);
     setError('');
     try {
-      const { data, error: queryError } = await supabase
-        .from('students')
-        .select('id, first_name, access_hash')
-        .eq('access_hash', hash)
-        .eq('is_active', true)
-        .maybeSingle();
-      if (queryError) throw queryError;
+      const { data: rows, error: rpcError } = await supabase.rpc('authenticate_student_by_hash', { p_hash: hash });
+      if (rpcError) throw rpcError;
+      const data = Array.isArray(rows) ? rows[0] : rows;
       if (!data) { setCameraError('Ongeldige of verlopen QR-code. Gebruik de code om in te loggen.'); return; }
-      await supabase.from('webwijzer_access_log').insert({ student_id: data.id, access_method: 'qr' });
-      setAuthenticatedStudent({ id: data.id, name: data.first_name });
+      await supabase.rpc('webwijzer_log_access', { p_hash: data.access_hash, p_method: 'qr' });
+      setAuthenticatedStudent({ id: data.id, name: data.first_name, hash: data.access_hash });
     } catch {
       setCameraError('Inloggen mislukt. Probeer de code methode.');
     } finally {
@@ -116,17 +116,20 @@ export function PublicWebWijzerAccess() {
     setLoading(true);
     setError('');
     try {
-      const { data, error: queryError } = await supabase
-        .from('students')
-        .select('id, first_name, pin_code')
-        .eq('student_code', studentCode.toUpperCase())
-        .eq('is_active', true)
-        .maybeSingle();
-      if (queryError) throw queryError;
-      if (!data) { setError('Ongeldige studentcode'); return; }
-      if (data.pin_code !== pinCode) { setError('Ongeldige pincode'); return; }
-      await supabase.from('webwijzer_access_log').insert({ student_id: data.id, access_method: 'manual' });
-      setAuthenticatedStudent({ id: data.id, name: data.first_name });
+      // The PIN is checked on the server; the browser never sees it.
+      const code = studentCode.toUpperCase();
+      const { data: rows, error: rpcError } = await supabase.rpc('authenticate_student_by_code', { p_code: code, p_pin: pinCode });
+      if (rpcError) throw rpcError;
+      const data = Array.isArray(rows) ? rows[0] : rows;
+      if (!data) {
+        // Tell the student which part was wrong, as before.
+        const { data: check } = await supabase.rpc('lookup_student_by_code', { p_code: code, p_pin: pinCode });
+        const status = (Array.isArray(check) ? check[0] : check)?.status;
+        setError(status === 'not_found' ? 'Ongeldige studentcode' : 'Ongeldige pincode');
+        return;
+      }
+      await supabase.rpc('webwijzer_log_access', { p_hash: data.access_hash, p_method: 'manual' });
+      setAuthenticatedStudent({ id: data.id, name: data.first_name, hash: data.access_hash });
     } catch {
       setError('Inloggen mislukt. Probeer het opnieuw.');
     } finally {
@@ -139,7 +142,15 @@ export function PublicWebWijzerAccess() {
   };
 
   if (authenticatedStudent) {
-    return <StudentWebWijzer studentId={authenticatedStudent.id} studentName={authenticatedStudent.name} onStop={handleStop} />;
+    return (
+      <StudentWebWijzer
+        studentId={authenticatedStudent.id}
+        studentName={authenticatedStudent.name}
+        accessHash={authenticatedStudent.hash}
+        openVideoleerCode={videoleerCode ?? undefined}
+        onStop={handleStop}
+      />
+    );
   }
 
   if (loading) {
@@ -186,6 +197,14 @@ export function PublicWebWijzerAccess() {
       {/* Main content */}
       <div className="flex-1 flex flex-col items-center px-4 py-8">
         <div className="w-full max-w-md">
+          {videoleerCode && (
+            <div className="mb-4 flex items-start gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4" role="status">
+              <Clapperboard className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-blue-900">
+                <b>Je videoleertaak staat klaar.</b> Scan nu je eigen QR-kaart of log in met je code, dan open je meteen de taak.
+              </p>
+            </div>
+          )}
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Scan je QR-code</h1>
             <p className="text-gray-500 text-sm">Richt je camera op de QR-code van je leerkracht</p>

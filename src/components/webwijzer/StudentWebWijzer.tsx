@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid2x2 as Grid, Search, Clock, LogIn, FileText } from 'lucide-react';
+import { ArrowLeft, Star, Zap, X, Archive, LogOut, BookOpen, Grid2x2 as Grid, Search, Clock, LogIn, FileText, Clapperboard } from 'lucide-react';
 import { WebWijzerContentViewer } from './WebWijzerContentViewer';
 import { StudentBibliotheekModal } from './StudentBibliotheekModal';
 import { StudentActiviTijdModal } from './StudentActiviTijdModal';
@@ -12,6 +12,7 @@ import { StudentZoekerModal } from '../zoeker/StudentZoekerModal';
 import { BoardSelectionModal } from '../activityboard/BoardSelectionModal';
 import { SwitchBoardModal } from '../activityboard/SwitchBoardModal';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { VideolerenFrame } from '../videoleren/VideolerenFrame';
 
 interface ContentAssignment {
   id: string;
@@ -37,6 +38,12 @@ interface ContentAssignment {
 interface StudentWebWijzerProps {
   studentId: string;
   studentName: string;
+  /** Set when the student logged in on the public WebWijzer. Data then comes through
+   *  the hash-checked webwijzer_* functions; without it (teacher preview) the direct
+   *  queries below are used, as before. */
+  accessHash?: string;
+  /** share_code from a printed Videoleren worksheet (?vl=…): open that task right away. */
+  openVideoleerCode?: string;
   onBackToDashboard?: () => void;
   onStop?: () => void;
 }
@@ -48,7 +55,9 @@ interface StudentLogin {
   username: string;
 }
 
-export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, onStop }: StudentWebWijzerProps) {
+interface VideoleerTask { id: string; title: string; deadline: string; werkvormen: number; klaar: number }
+
+export function StudentWebWijzer({ studentId, studentName, accessHash, openVideoleerCode, onBackToDashboard, onStop }: StudentWebWijzerProps) {
   const { user } = useAuth();
   const [assignments, setAssignments] = useState<ContentAssignment[]>([]);
   const [archivedAssignments, setArchivedAssignments] = useState<ContentAssignment[]>([]);
@@ -77,6 +86,12 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   const [schoolHasBooks, setSchoolHasBooks] = useState(false);
   const [schoolIsPremium, setSchoolIsPremium] = useState(false);
   const [showFiches, setShowFiches] = useState(false);
+  const [videoleerTasks, setVideoleerTasks] = useState<VideoleerTask[]>([]);
+  const [showVideoleerList, setShowVideoleerList] = useState(false);
+  const [videoleerOpen, setVideoleerOpen] = useState<{ taskId?: string; shareCode?: string } | null>(
+    accessHash && openVideoleerCode ? { shareCode: openVideoleerCode } : null
+  );
+  const schoolIdRef = React.useRef<string | null>(null);
   const [studentFiches, setStudentFiches] = useState<{ id: string; title: string; description: string | null; file_url: string | null; file_name: string | null; file_type: string | null; hulpfiche_vakken: { vak_name: string }[]; hulpfiche_leerjaren: { leerjaar: string }[] }[]>([]);
 
   useEffect(() => {
@@ -88,10 +103,12 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
     fetchStudentSchool();
     fetchStudentFiches();
     checkActiveBoard();
+    fetchVideoleerTasks();
 
     const interval = setInterval(() => {
       fetchAssignments();
       checkActiveBoard();
+      fetchVideoleerTasks();
     }, 15000);
 
     const subscription = supabase
@@ -115,7 +132,32 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
     };
   }, [studentId, activeBoard]);
 
+  const fetchVideoleerTasks = async () => {
+    if (!accessHash) return;
+    const { data, error } = await supabase.rpc('videoleren_student_tasks', { p_hash: accessHash });
+    if (!error && Array.isArray(data)) setVideoleerTasks(data as VideoleerTask[]);
+  };
+
+  // School id via the hash-checked profile (public login) or directly (teacher preview).
+  const getSchoolId = async (): Promise<string | null> => {
+    if (schoolIdRef.current) return schoolIdRef.current;
+    if (accessHash) {
+      const { data } = await supabase.rpc('webwijzer_student_profile', { p_hash: accessHash });
+      schoolIdRef.current = (data as { school_id?: string } | null)?.school_id ?? null;
+    } else {
+      const { data } = await supabase.from('students').select('school_id').eq('id', studentId).maybeSingle();
+      schoolIdRef.current = data?.school_id ?? null;
+    }
+    return schoolIdRef.current;
+  };
+
   const fetchStudentLogins = async () => {
+    if (accessHash) {
+      const { data, error } = await supabase.rpc('webwijzer_student_logins', { p_hash: accessHash });
+      if (error) console.error('Error fetching student logins:', error);
+      else setStudentLogins((data as StudentLogin[]) || []);
+      return;
+    }
     try {
       const { data, error } = await supabase
         .from('student_logins')
@@ -133,6 +175,18 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   };
 
   const fetchStudentSchool = async () => {
+    if (accessHash) {
+      const { data, error } = await supabase.rpc('webwijzer_student_profile', { p_hash: accessHash });
+      if (error || !data) { console.error('Error fetching student school:', error); return; }
+      const profile = data as { school_id: string | null; premium_school: unknown; has_books: boolean };
+      if (profile.school_id) {
+        schoolIdRef.current = profile.school_id;
+        setSchoolId(profile.school_id);
+        setSchoolHasBooks(!!profile.has_books);
+        setSchoolIsPremium(profile.premium_school === true); // same check as the direct path below
+      }
+      return;
+    }
     try {
       const { data, error } = await supabase
         .from('students')
@@ -211,14 +265,16 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
 
   const checkActiveBoard = async () => {
     try {
-      const { data: student, error: studentError } = await supabase
-        .from('students')
-        .select('id')
-        .eq('id', studentId)
-        .maybeSingle();
+      if (!accessHash) {
+        const { data: student, error: studentError } = await supabase
+          .from('students')
+          .select('id')
+          .eq('id', studentId)
+          .maybeSingle();
 
-      if (studentError) throw studentError;
-      if (!student) return;
+        if (studentError) throw studentError;
+        if (!student) return;
+      }
 
       const { data: studentGroups, error: groupsError } = await supabase
         .from('student_groups')
@@ -251,11 +307,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
         }
       }
 
-      const { data: studentData } = await supabase
-        .from('students')
-        .select('school_id')
-        .eq('id', studentId)
-        .maybeSingle();
+      const studentSchoolId = await getSchoolId();
 
       const boardQuery = supabase
         .from('activity_boards')
@@ -264,8 +316,8 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
         .not('active_until', 'is', null)
         .gt('active_until', new Date().toISOString());
 
-      if (studentData?.school_id) {
-        boardQuery.eq('school_id', studentData.school_id);
+      if (studentSchoolId) {
+        boardQuery.eq('school_id', studentSchoolId);
       }
 
       const { data: boards, error: boardsError } = await boardQuery;
@@ -304,6 +356,7 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
 
   useEffect(() => {
     const timer = setInterval(() => {
+      if (videoleerOpenRef.current) return; // working in Videoleren counts as active
       setSessionTimer((prev) => {
         if (prev <= 1) {
           handleLogout();
@@ -318,6 +371,9 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
 
     return () => clearInterval(timer);
   }, [showTimeoutWarning]);
+
+  const videoleerOpenRef = React.useRef(false);
+  videoleerOpenRef.current = !!videoleerOpen;
 
   const handleExtendSession = () => {
     setSessionTimer(30 * 60);
@@ -417,6 +473,12 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
 
   const fetchAssignments = async () => {
     try {
+      let allAssignments: ContentAssignment[];
+      if (accessHash) {
+        const { data, error } = await supabase.rpc('webwijzer_student_assignments', { p_hash: accessHash });
+        if (error) throw error;
+        allAssignments = (data as ContentAssignment[] | null) || [];
+      } else {
       console.log('Fetching assignments for student:', studentId);
 
       const { data: directAssignments, error: directError } = await supabase
@@ -490,8 +552,9 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
         console.log('Group assignments:', groupAssignments);
       }
 
-      const allAssignments = [...(directAssignments || []), ...groupAssignments];
+      allAssignments = [...(directAssignments || []), ...groupAssignments];
       console.log('All assignments combined:', allAssignments);
+      }
 
       const contentMap = new Map<string, ContentAssignment>();
       allAssignments.forEach(assignment => {
@@ -562,6 +625,11 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   };
 
   const markPushAsCompleted = async (assignmentId: string) => {
+    if (accessHash) {
+      const { error } = await supabase.rpc('webwijzer_complete_push', { p_hash: accessHash, p_assignment_id: assignmentId });
+      if (error) console.error('Error marking push as completed:', error);
+      return;
+    }
     try {
       await supabase
         .from('webwijzer_assignments')
@@ -573,6 +641,12 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   };
 
   const trackUsage = async (assignmentId: string) => {
+    if (accessHash) {
+      const { error } = await supabase.rpc('webwijzer_track_usage', { p_hash: accessHash, p_assignment_id: assignmentId });
+      if (error) console.error('Error tracking usage:', error);
+      fetchAssignments();
+      return;
+    }
     try {
       await supabase
         .from('webwijzer_usage')
@@ -621,6 +695,18 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
   const pushModalRef = useFocusTrap(showPushModal);
   const archiveModalRef = useFocusTrap(showArchive);
   const deactivationModalRef = useFocusTrap(showDeactivationNotice);
+
+  if (videoleerOpen && accessHash) {
+    return (
+      <VideolerenFrame
+        mode="student"
+        hash={accessHash}
+        taskId={videoleerOpen.taskId}
+        shareCode={videoleerOpen.shareCode}
+        onClose={() => { setVideoleerOpen(null); fetchVideoleerTasks(); }}
+      />
+    );
+  }
 
   if (selectedContent) {
     return (
@@ -807,6 +893,18 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
               >
                 <Grid className="w-4 h-4" aria-hidden="true" />
                 Activi-tijd
+              </Button>
+            )}
+            {videoleerTasks.length > 0 && (
+              <Button
+                onClick={() => videoleerTasks.length === 1 ? setVideoleerOpen({ taskId: videoleerTasks[0].id }) : setShowVideoleerList(true)}
+                variant="secondary"
+                className="flex items-center gap-2"
+                aria-label="Open je videoleertaken"
+              >
+                <Clapperboard className="w-4 h-4" aria-hidden="true" />
+                Videoleren
+                <span className="bg-blue-600 text-white rounded-full text-xs px-2 py-0.5">{videoleerTasks.length}</span>
               </Button>
             )}
             {studentFiches.length > 0 && (
@@ -1091,6 +1189,36 @@ export function StudentWebWijzer({ studentId, studentName, onBackToDashboard, on
           logins={studentLogins}
           onClose={() => setShowLoginModal(false)}
         />
+      )}
+
+      {showVideoleerList && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="videoleren-modal-title">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <h2 id="videoleren-modal-title" className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Clapperboard className="w-5 h-5 text-gray-600" />
+                Mijn videoleertaken
+              </h2>
+              <button onClick={() => setShowVideoleerList(false)} className="p-2 hover:bg-gray-100 rounded-lg" aria-label="Sluiten">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="p-4 space-y-2">
+              {videoleerTasks.map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => { setShowVideoleerList(false); setVideoleerOpen({ taskId: t.id }); }}
+                  className="w-full text-left p-4 rounded-xl border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                >
+                  <p className="font-bold text-gray-900">{t.title}</p>
+                  <p className="text-sm text-gray-500">
+                    {t.klaar} van {t.werkvormen} taken klaar · inleveren tegen {new Date(t.deadline).toLocaleString('nl-BE', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {showFiches && (
