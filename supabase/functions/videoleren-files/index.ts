@@ -6,9 +6,10 @@
 // open, then hands out a one-time signed upload URL. Files are stored as
 // <task_id>/<student_id>/<uuid>.<ext> and registered in public.videoleren_files.
 //
-// Storage counting: after the browser uploaded the file it calls "confirm"; we read the real
-// size from storage, log it in storage_usage_log (file_type 'videoleren') and recalculate
-// schools.storage_used_bytes. Deleting a file marks its log row as deleted.
+// Storage counting is consumption, not what is stored right now: after the browser uploaded
+// the file it calls "confirm"; we read the real size from storage, log it in storage_usage_log
+// (file_type 'videoleren') and recalculate schools.storage_used_bytes. Every new version adds
+// to the total. Replacing or deleting a file, or deleting a whole task, never lowers it.
 //
 // POST body (students):
 //   { action: "upload",  hash, task_id, werkvorm, kind: "audio"|"image"|"sketch", mime, size }
@@ -16,10 +17,9 @@
 //   { action: "url",     hash, task_id, file_id }   -> signed download URL (1 hour)
 //   { action: "delete",  hash, task_id, file_id }
 // POST body (teachers, with their own login):
-//   { action: "delete_task", task_id }  -> removes the task and its files. The storage they
-//     used keeps counting for the school (deleting a task does not give the megabytes back).
+//   { action: "delete_task", task_id }  -> removes the task and its files (usage stays counted)
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -44,18 +44,6 @@ const json = (body: unknown, status = 200) =>
 
 const logPath = (path: string) => `${BUCKET}/${path}`;
 
-async function forgetFiles(admin: SupabaseClient, schoolId: string, paths: string[]) {
-  if (!paths.length) return;
-  await admin.storage.from(BUCKET).remove(paths);
-  await admin
-    .from("storage_usage_log")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("school_id", schoolId)
-    .in("file_path", paths.map(logPath))
-    .is("deleted_at", null);
-  await admin.rpc("update_school_storage_usage", { p_school_id: schoolId });
-}
-
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
@@ -79,7 +67,7 @@ Deno.serve(async (req: Request) => {
       if (!task) return json({ error: "not_found" }, 404);
       const { data: files } = await admin.from("videoleren_files").select("storage_path").eq("task_id", task_id);
       const paths = (files ?? []).map((f) => f.storage_path);
-      // Remove the files only; storage_usage_log stays as it is, so the school's usage does not drop.
+      // Remove the files only; storage_usage_log stays, so the school's consumption does not drop.
       if (paths.length) await admin.storage.from(BUCKET).remove(paths);
       const { error } = await admin.from("videoleren_tasks").delete().eq("id", task_id);
       if (error) throw error;
@@ -173,7 +161,8 @@ Deno.serve(async (req: Request) => {
     }
 
     if (action === "delete") {
-      await forgetFiles(admin, schoolId, [file.storage_path]);
+      // The file goes; what it consumed stays counted.
+      await admin.storage.from(BUCKET).remove([file.storage_path]);
       await admin.from("videoleren_files").delete().eq("id", file.id);
       return json({ ok: true });
     }

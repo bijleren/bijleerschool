@@ -147,7 +147,7 @@ export function DataGebruikTab({ schoolId }: DataGebruikTabProps) {
           </div>
 
           {videolerenMB > 0 && (
-            <p className="text-sm text-gray-500">Waarvan Videoleren (opnames, tekeningen en screenshots van leerlingen): <b className="text-gray-700">{videolerenMB} MB</b></p>
+            <p className="text-sm text-gray-500">Waarvan verbruikt door Videoleren (opnames, tekeningen en screenshots van leerlingen, elke versie telt mee): <b className="text-gray-700">{videolerenMB} MB</b></p>
           )}
 
           {percentageUsed >= 90 && (

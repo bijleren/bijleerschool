@@ -201,7 +201,7 @@ export function VideolerenProgress({ task, onBack }: { task: VideoTask; onBack: 
           {!files.length && !rows.some(r => (r.werkvorm === 'C' || r.werkvorm === 'N') && r.data?.link) && (
             <p className="text-gray-500 py-6 text-center bg-white border border-line rounded-2xl">Nog niets ingeleverd.</p>
           )}
-          {files.length > 0 && <p className="text-xs text-gray-500">Samen {fmtSize(files.reduce((n, x) => n + (x.size_bytes || 0), 0))} van de opslag van je school.</p>}
+          {files.length > 0 && <p className="text-xs text-gray-500">De bestanden die er nu staan: {fmtSize(files.reduce((n, x) => n + (x.size_bytes || 0), 0))}. Elke geüploade versie telt mee in het verbruik van je school, ook als ze later vervangen of verwijderd werd.</p>}
         </div>
       ) : (
         <div className="bg-white border border-line rounded-2xl p-4 shadow-sm space-y-3">
