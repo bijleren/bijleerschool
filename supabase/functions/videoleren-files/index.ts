@@ -16,7 +16,8 @@
 //   { action: "url",     hash, task_id, file_id }   -> signed download URL (1 hour)
 //   { action: "delete",  hash, task_id, file_id }
 // POST body (teachers, with their own login):
-//   { action: "delete_task", task_id }  -> removes the task, its files and their storage
+//   { action: "delete_task", task_id }  -> removes the task and its files. The storage they
+//     used keeps counting for the school (deleting a task does not give the megabytes back).
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2";
 
@@ -77,7 +78,9 @@ Deno.serve(async (req: Request) => {
       const { data: task } = await user.from("videoleren_tasks").select("id, school_id").eq("id", task_id).maybeSingle();
       if (!task) return json({ error: "not_found" }, 404);
       const { data: files } = await admin.from("videoleren_files").select("storage_path").eq("task_id", task_id);
-      await forgetFiles(admin, task.school_id, (files ?? []).map((f) => f.storage_path));
+      const paths = (files ?? []).map((f) => f.storage_path);
+      // Remove the files only; storage_usage_log stays as it is, so the school's usage does not drop.
+      if (paths.length) await admin.storage.from(BUCKET).remove(paths);
       const { error } = await admin.from("videoleren_tasks").delete().eq("id", task_id);
       if (error) throw error;
       return json({ ok: true });
