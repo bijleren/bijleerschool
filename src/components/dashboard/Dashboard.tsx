@@ -79,6 +79,10 @@ export function Dashboard() {
   const [behaviorFilter, setBehaviorFilter] = useState<'all' | 'today' | 'open' | 'followup'>('all');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const locationRef = useRef(location.search);
+  // True nadat de gebruiker zelf "Terug naar scholen" koos: dan niet meteen
+  // weer de enige school openen, zodat het overzicht (nieuwe school
+  // aanmaken / koppelen met code) bereikbaar is.
+  const browsingSchoolsRef = useRef(false);
   locationRef.current = location.search;
 
   useEffect(() => {
@@ -286,7 +290,7 @@ export function Dashboard() {
       // Check if user has any schools
       if (schools.length === 0) {
         setShowOnboarding(true);
-      } else if (schools.length === 1 && !selectedSchool) {
+      } else if (schools.length === 1 && !selectedSchool && !browsingSchoolsRef.current) {
         // Auto-select first school if user has only one school
         setSelectedSchool(schools[0]);
         setFocusSchool(schools[0]);
@@ -324,6 +328,7 @@ export function Dashboard() {
   };
 
   const handleNavigateToSchools = () => {
+    browsingSchoolsRef.current = false;
     setSelectedSchool(null);
     setSelectedStudent(null);
     setSelectedGroup(null);
@@ -874,7 +879,7 @@ export function Dashboard() {
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail
             school={selectedSchool}
-            onBack={() => { setSelectedSchool(null); fetchUserSchools(); }}
+            onBack={() => { browsingSchoolsRef.current = true; setSelectedSchool(null); fetchUserSchools(); }}
             onSchoolUpdated={(updatedSchool) => setSelectedSchool(updatedSchool)}
             onNavigateToStudent={(studentId: string, schoolId: string) => handleNavigateToStudent(schoolId, studentId)}
             onNavigateToGroup={(groupId: string, schoolId: string) => handleNavigateToGroup(schoolId, groupId)}
