@@ -88,9 +88,11 @@ interface SchoolDetailProps {
   onSchoolUpdated: (school: School) => void;
   onNavigateToStudent: (studentId: string, schoolId: string) => void;
   onNavigateToGroup: (groupId: string, schoolId: string) => void;
+  /** Naar het schooloverzicht om een extra school te koppelen of aan te maken. */
+  onAddSchool?: () => void;
 }
 
-export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStudent, onNavigateToGroup }: SchoolDetailProps) {
+export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStudent, onNavigateToGroup, onAddSchool }: SchoolDetailProps) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'grades' | 'subjects' | 'teamleden' | 'datagebruik' | 'schooldag' | 'tags'>('students');
   const [isEditing, setIsEditing] = useState(false);
@@ -776,11 +778,19 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
             )}
           </div>
         </div>
-        {isAdmin && !isEditing ? (
-          <Button variant="secondary" onClick={() => { setEditZoeker(zoekerEnabled); setIsEditing(true); }}>
-            <Edit className="w-4 h-4 mr-2" />
-            School bewerken
-          </Button>
+        {!isEditing ? (
+          <div className="flex space-x-2">
+            <Button variant="secondary" onClick={onAddSchool ?? onBack}>
+              <Plus className="w-4 h-4 mr-2" />
+              Extra school toevoegen
+            </Button>
+            {isAdmin && (
+              <Button variant="secondary" onClick={() => { setEditZoeker(zoekerEnabled); setIsEditing(true); }}>
+                <Edit className="w-4 h-4 mr-2" />
+                School bewerken
+              </Button>
+            )}
+          </div>
         ) : isAdmin && isEditing ? (
           <div className="flex space-x-2">
             <Button variant="secondary" onClick={() => setIsEditing(false)}>

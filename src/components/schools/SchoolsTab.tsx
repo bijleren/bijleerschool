@@ -26,12 +26,13 @@ interface UserSchool {
   schools: School;
 }
 
-export function SchoolsTab() {
+export function SchoolsTab({ openAddSchool = false }: { openAddSchool?: boolean } = {}) {
   const { user } = useAuth();
   const [userSchools, setUserSchools] = useState<UserSchool[]>([]);
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showJoinForm, setShowJoinForm] = useState(false);
+  // Via 'Extra school toevoegen' meteen het formulier met de schoolcode tonen.
+  const [showJoinForm, setShowJoinForm] = useState(openAddSchool);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [schoolCode, setSchoolCode] = useState('');
   const [newSchoolName, setNewSchoolName] = useState('');

@@ -83,6 +83,7 @@ export function Dashboard() {
   // weer de enige school openen, zodat het overzicht (nieuwe school
   // aanmaken / koppelen met code) bereikbaar is.
   const browsingSchoolsRef = useRef(false);
+  const [addSchoolRequested, setAddSchoolRequested] = useState(false);
   locationRef.current = location.search;
 
   useEffect(() => {
@@ -329,6 +330,7 @@ export function Dashboard() {
 
   const handleNavigateToSchools = () => {
     browsingSchoolsRef.current = false;
+    setAddSchoolRequested(false);
     setSelectedSchool(null);
     setSelectedStudent(null);
     setSelectedGroup(null);
@@ -842,7 +844,7 @@ export function Dashboard() {
           />
         )}
         {activeTab === 'profile' && <ProfileTab key={profileInitialTab} initialTab={profileInitialTab} />}
-        {activeTab === 'schools' && !selectedSchool && <SchoolsTab />}
+        {activeTab === 'schools' && !selectedSchool && <SchoolsTab openAddSchool={addSchoolRequested} />}
         {activeTab === 'behavior' && (
           <BehaviorTab
             selectedSchool={selectedSchool}
@@ -879,7 +881,8 @@ export function Dashboard() {
         {activeTab === 'schools' && selectedSchool && !selectedStudent && !selectedGroup && (
           <SchoolDetail
             school={selectedSchool}
-            onBack={() => { browsingSchoolsRef.current = true; setSelectedSchool(null); fetchUserSchools(); }}
+            onBack={() => { browsingSchoolsRef.current = true; setAddSchoolRequested(false); setSelectedSchool(null); fetchUserSchools(); }}
+            onAddSchool={() => { browsingSchoolsRef.current = true; setAddSchoolRequested(true); setSelectedSchool(null); fetchUserSchools(); }}
             onSchoolUpdated={(updatedSchool) => setSelectedSchool(updatedSchool)}
             onNavigateToStudent={(studentId: string, schoolId: string) => handleNavigateToStudent(schoolId, studentId)}
             onNavigateToGroup={(groupId: string, schoolId: string) => handleNavigateToGroup(schoolId, groupId)}
