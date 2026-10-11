@@ -426,10 +426,10 @@ export function SchoolDetail({ school, onBack, onSchoolUpdated, onNavigateToStud
 
   const deleteStudent = async (studentId: string) => {
     try {
-      const { error } = await supabase
-        .from('students')
-        .update({ is_active: false })
-        .eq('id', studentId);
+      // Via RPC: de archiveringstrigger verplaatst de leerling naar de
+      // archiefschool, die een leerkracht niet mag lezen — een gewone update
+      // werd daardoor door RLS geweigerd.
+      const { error } = await supabase.rpc('archive_student', { p_student_id: studentId });
 
       if (error) throw error;
 
